@@ -186,10 +186,10 @@ const server = http.createServer((req, res) => {
         prize.status = "UTILIZADO";
         prize.usedAt = new Date().toLocaleTimeString("es-CO");
 
-        // Sumar +1 sello de visita al cliente
+        // Sumar +1 sello de visita al cliente (hasta 15 visitas)
         const customer = db.customers[prize.whatsapp];
         if (customer) {
-          customer.stamps = Math.min(5, (customer.stamps || 0) + 1);
+          customer.stamps = Math.min(15, (customer.stamps || 0) + 1);
           customer.lastVisit = new Date().toISOString();
         }
 
@@ -679,7 +679,7 @@ function renderBackendDashboard() {
                           </td>
                           <td>
                             <span class="stars-cell">${stars}</span>
-                            <div style="font-size: 10px; color: #9ca3af;">${stamps}/5 visitas</div>
+                            <div style="font-size: 10px; color: #9ca3af;">${stamps}/15 visitas</div>
                           </td>
                           <td>
                             <span class="${isUsed ? "badge-status-used" : "badge-status-available"}">
@@ -784,7 +784,7 @@ function renderBackendDashboard() {
                   </td>
                   <td>
                     <span class="stars-cell">\${stars}</span>
-                    <div style="font-size: 10px; color: #9ca3af;">\${stamps}/5 visitas</div>
+                    <div style="font-size: 10px; color: #9ca3af;">\${stamps}/15 visitas</div>
                   </td>
                   <td>
                     <span class="\${isUsed ? "badge-status-used" : "badge-status-available"}">
