@@ -27,6 +27,14 @@
   },
   "logs": [
     {
+      "id": "mult1dwmde2",
+      "timestamp": "5:14:03 p. m.",
+      "method": "POST",
+      "url": "/api/game-config",
+      "status": 200,
+      "detail": "Mecánica de juego actualizada: hybrid"
+    },
+    {
       "id": "mulsc63218g",
       "timestamp": "4:54:26 p. m.",
       "method": "POST",
@@ -198,7 +206,7 @@
       ]
     },
     "gameConfig": {
-      "gameMode": "hybrid",
+      "gameMode": "precision",
       "precisionTarget": 10,
       "precisionDifficulty": "medio",
       "toleranceMs": 40,

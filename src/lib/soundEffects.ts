@@ -79,3 +79,65 @@ export function playVictoryFanfareSound() {
     // Silencioso en caso de bloqueo de audio
   }
 }
+
+/**
+ * Sonido elegante de derrota / intento fallido (acordes descendentes suaves)
+ */
+export function playDefeatSound() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const notes = [440, 392, 349.23, 293.66]; // La - Sol - Fa - Re descendente
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      const startTime = ctx.currentTime + idx * 0.16;
+      const duration = 0.35;
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.18, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    });
+  } catch {
+    // Silencioso
+  }
+}
+
+/**
+ * Clic táctil de alta definición para el cronómetro
+ */
+export function playTactileClickSound() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(950, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.05);
+
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.05);
+  } catch {
+    // Silencioso
+  }
+}
+
