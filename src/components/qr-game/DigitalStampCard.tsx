@@ -176,63 +176,91 @@ export function DigitalStampCard({
       <div className="grid grid-cols-5 gap-2 sm:gap-2.5 my-5 max-w-lg mx-auto">
         {stamps.map((index) => {
           const isStamped = index <= currentStamps;
-          const reward = StampService.getRewardForStamp(index);
-          const isMilestone = index % 5 === 0;
+          const isMilestone = StampService.isPrizeStamp(index);
+          const prize = StampService.getRewardForStamp(index);
 
           return (
             <button
               key={index}
               type="button"
-              onClick={() => setSelectedReward(reward)}
+              onClick={() => {
+                if (prize) {
+                  setSelectedReward(prize);
+                } else {
+                  setSelectedReward({
+                    stamp: index,
+                    title: `Visita #${index} (Paso al Premio)`,
+                    description: `Sello de acumulación de visitas. Recuerda que recibes un premio exclusivo cada 5 visitas (Sellos #5, #10 y #15).`,
+                    category: "visita" as any,
+                    icon: "☕",
+                  });
+                }
+              }}
               className={`relative p-2 rounded-2xl flex flex-col items-center justify-between transition-all transform active:scale-95 border text-center ${
                 isStamped
-                  ? "bg-gradient-to-tr from-amber-500/25 via-gold/20 to-amber-400/30 border-gold shadow-md text-foreground"
+                  ? isMilestone
+                    ? "bg-gradient-to-tr from-amber-500/30 via-gold/30 to-amber-400/40 border-2 border-gold shadow-md text-foreground"
+                    : "bg-emerald-500/15 border-emerald-400/60 text-foreground shadow-2xs"
                   : isMilestone
                   ? "border-2 border-dashed border-gold bg-gold/15 text-gold hover:bg-gold/25"
                   : "border-border/70 bg-background/80 text-muted-foreground hover:border-gold/40"
               }`}
             >
-              {/* Insignia de sello listo */}
+              {/* Insignia de sello completado */}
               {isStamped && (
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[9px] font-bold shadow-xs">
+                <span
+                  className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full text-white flex items-center justify-center text-[9px] font-bold shadow-xs ${
+                    isMilestone ? "bg-amber-600" : "bg-emerald-600"
+                  }`}
+                >
                   ✓
                 </span>
               )}
 
-              {/* Icono del premio */}
-              <span className="text-xl sm:text-2xl my-0.5 filter drop-shadow-xs">
-                {reward.icon}
+              {/* Icono: Trofeo/Regalo para hitos, Café para visitas */}
+              <span className={`my-0.5 filter drop-shadow-xs ${isMilestone ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl opacity-85"}`}>
+                {isMilestone ? (prize?.icon || "🎁") : "☕"}
               </span>
 
               {/* Número del sello */}
               <span className="text-[10px] font-mono font-bold">
-                {isStamped ? `Sello #${index}` : `#${index}`}
+                {isMilestone ? (
+                  <span className="text-amber-800 font-extrabold">🎁 #{index}</span>
+                ) : (
+                  <span>#{index}</span>
+                )}
               </span>
 
-              {/* Título miniatura */}
-              <span className="text-[8px] leading-tight text-muted-foreground truncate w-full mt-0.5">
-                {reward.category.toUpperCase()}
+              {/* Etiqueta */}
+              <span className="text-[8px] leading-tight truncate w-full mt-0.5 font-semibold">
+                {isMilestone ? (
+                  <span className="text-gold uppercase tracking-wider">¡PREMIO!</span>
+                ) : (
+                  <span className="text-muted-foreground">Visita</span>
+                )}
               </span>
             </button>
           );
         })}
       </div>
 
-      {/* PREMIO SELECCIONADO EN DETALLE (INTERACTIVO AL TOCAR UN SELLO) */}
+      {/* DETALLE DEL SELLO / PREMIO SELECCIONADO */}
       {selectedReward && (
-        <div className="p-3.5 mb-5 rounded-2xl bg-background border border-gold/40 text-left animate-fade-in flex items-center justify-between gap-3">
+        <div className="p-3.5 mb-5 rounded-2xl bg-background border border-gold/40 text-left animate-fade-in flex items-center justify-between gap-3 shadow-sm">
           <div className="flex items-center gap-3">
             <span className="text-3xl">{selectedReward.icon}</span>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] uppercase font-bold text-gold px-2 py-0.2 rounded bg-gold/10 font-mono">
-                  Sello #{selectedReward.stamp} de {totalRequired}
+                  {StampService.isPrizeStamp(selectedReward.stamp)
+                    ? `🎁 Premio Sello #${selectedReward.stamp}`
+                    : `Visita #${selectedReward.stamp} de 15`}
                 </span>
                 <span className="text-[10px] text-muted-foreground uppercase font-semibold">
-                  {selectedReward.stamp <= currentStamps ? "✓ Desbloqueado" : "🔒 Por Desbloquear"}
+                  {selectedReward.stamp <= currentStamps ? "✓ Acumulado" : "🔒 Pendiente"}
                 </span>
               </div>
-              <h4 className="font-bold text-xs sm:text-sm text-foreground">
+              <h4 className="font-bold text-xs sm:text-sm text-foreground mt-0.5">
                 {selectedReward.title}
               </h4>
               <p className="text-[11px] text-muted-foreground">
@@ -298,52 +326,50 @@ export function DigitalStampCard({
           <AddToHomeScreenModal />
         </div>
 
-        {/* BOTÓN PARA DESPLEGAR EL CATÁLOGO COMPLETO DE LOS 15 PREMIOS */}
+        {/* BOTÓN PARA DESPLEGAR EL CATÁLOGO DE LOS 3 GRANDES PREMIOS */}
         <button
           type="button"
           onClick={() => setShowAllCatalog(!showAllCatalog)}
-          className="w-full py-2.5 px-4 rounded-xl border border-border bg-background hover:bg-muted/60 text-xs font-semibold text-foreground inline-flex items-center justify-center gap-2 transition-colors"
+          className="w-full py-2.5 px-4 rounded-xl border border-border bg-background hover:bg-muted/60 text-xs font-semibold text-foreground inline-flex items-center justify-center gap-2 transition-colors cursor-pointer"
         >
           <Award className="h-4 w-4 text-gold" />
           <span>
             {showAllCatalog
-              ? "Ocultar catálogo de premios"
-              : `📜 Ver los ${totalRequired} premios diferentes`}
+              ? "Ocultar premios por visitas"
+              : `📜 Ver los 3 Grandes Premios (Sellos #5, #10 y #15)`}
           </span>
           {showAllCatalog ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
         </button>
 
-        {/* CATÁLOGO COMPLETO DE PREMIOS */}
+        {/* CATÁLOGO DE LOS 3 PREMIOS EXCLUSIVOS */}
         {showAllCatalog && (
           <div className="pt-3 space-y-2 text-left animate-fade-in border-t border-border/80">
             <p className="text-[11px] text-muted-foreground font-medium text-center">
-              Recompensas escalonadas para premiar cada una de tus visitas:
+              Recibes un gran beneficio cada 5 visitas completadas en mesa:
             </p>
 
-            <div className="max-h-72 overflow-y-auto space-y-1.5 pr-1">
-              {StampService.getStampRewards().slice(0, totalRequired).map((r) => {
+            <div className="space-y-2">
+              {StampService.getMilestoneRewards().map((r, idx) => {
                 const isEarned = r.stamp <= currentStamps;
                 return (
                   <div
                     key={r.stamp}
-                    className={`p-2.5 rounded-xl border flex items-center justify-between text-xs transition-colors ${
+                    className={`p-3 rounded-2xl border flex items-center justify-between text-xs transition-colors ${
                       isEarned
-                        ? "bg-emerald-50/70 border-emerald-300 text-emerald-950"
-                        : r.highlight
-                        ? "bg-gold/10 border-gold/50 text-foreground font-semibold"
-                        : "bg-background border-border/70 text-muted-foreground"
+                        ? "bg-emerald-50/80 border-emerald-300 text-emerald-950"
+                        : "bg-gold/10 border-gold/40 text-foreground"
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-xl">{r.icon}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{r.icon}</span>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="font-mono font-bold text-[10px] text-gold">
-                            Sello #{r.stamp}
+                          <span className="font-mono font-bold text-[10px] text-gold px-1.5 py-0.2 rounded bg-gold/15">
+                            Hito #{idx + 1} · {r.stamp} Visitas
                           </span>
-                          <strong className="text-foreground text-[11px]">{r.title}</strong>
+                          <strong className="text-foreground text-xs">{r.title}</strong>
                         </div>
-                        <p className="text-[10px] text-muted-foreground">{r.description}</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">{r.description}</p>
                       </div>
                     </div>
 
@@ -354,7 +380,7 @@ export function DigitalStampCard({
                           : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {isEarned ? "Obtenido" : "Pendiente"}
+                      {isEarned ? "Desbloqueado" : `Faltan ${Math.max(0, r.stamp - currentStamps)}`}
                     </span>
                   </div>
                 );

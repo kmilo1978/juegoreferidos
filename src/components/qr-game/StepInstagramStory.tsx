@@ -21,6 +21,7 @@ import {
 import logoHeader from "@/assets/logo-header.png";
 import heroImg from "@/assets/hero-pistacho-cafe.jpg";
 import { clientConfig } from "@/config/clientConfig";
+import { waLink } from "@/data/site";
 
 interface StepInstagramStoryProps {
   participantName: string;
@@ -39,7 +40,7 @@ export function StepInstagramStory({
 }: StepInstagramStoryProps) {
   const { t } = useLanguage();
 
-  const [activeChannel, setActiveChannel] = useState<"whatsapp" | "instagram">("whatsapp");
+  const [activeChannel, setActiveChannel] = useState<"instagram" | "whatsapp">("instagram");
   const [hasSharedWhatsApp, setHasSharedWhatsApp] = useState<boolean>(false);
   const [downloaded, setDownloaded] = useState<boolean>(initialEvidence?.storyGenerated || false);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(
@@ -153,19 +154,18 @@ export function StepInstagramStory({
     setUploadError(null);
   };
 
-  const whatsappInviteMessage = `¡Hola! Te recomiendo visitar *${clientConfig.brand.name}* 🍽️✨\n\nEl ambiente y la comida son espectaculares. Cuando vayas y te sientes en tu mesa, escanea el código en la mesa y participa en su Ruleta de Premios:\n👉 ${typeof window !== "undefined" ? window.location.origin : ""}?ref=${encodeURIComponent(participantName)}\n\n¡Vamos juntos o visítalos hoy, te va a encantar! ❤️`;
-
-  const handleShareWhatsApp = () => {
-    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappInviteMessage)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+  const handleSharePhotoWhatsApp = () => {
+    const msg = `¡Hola ${clientConfig.brand.name}! 📸\nAquí les comparto la foto de mi pedido en la mesa ${tableNumber} (Cliente: ${participantName}) para validar mi visita y jugar en la Ruleta de Premios.`;
+    window.open(waLink(msg), "_blank", "noopener,noreferrer");
     setHasSharedWhatsApp(true);
   };
 
   const handleNextWhatsApp = () => {
     onComplete({
       storyGenerated: true,
+      screenshotFileUrl: previewUrl,
       sharedVia: "whatsapp",
-      instagramHandle: "Recomendado por WhatsApp",
+      instagramHandle: "Foto enviada por WhatsApp",
     });
   };
 
@@ -202,38 +202,25 @@ export function StepInstagramStory({
           <div className="flex items-center justify-center gap-2 mb-3">
             <span className="h-px w-6 bg-gold" />
             <span className="text-xs uppercase tracking-[0.24em] text-gold font-medium">
-              {t("Paso 2 · Desbloquea tu Giro", "Step 2 · Unlock Your Spin")}
+              {t("Paso 2 · Comparte tu Foto y Juega", "Step 2 · Share Photo & Play")}
             </span>
             <span className="h-px w-6 bg-gold" />
           </div>
 
           <h2 className="font-display text-2xl sm:text-3xl text-foreground font-normal tracking-tight">
-            {t("Comparte tu Visita y Juega", "Share Your Visit & Play")}
+            {t("Comparte tu Foto de la Visita", "Share Your Visit Photo")}
           </h2>
 
           <p className="mt-2.5 text-sm text-muted-foreground font-light leading-relaxed max-w-lg mx-auto">
             {t(
-              "Elige la opción más fácil para ti: comparte una invitación con amigos por WhatsApp o publica una historia en Instagram para desbloquear tu giro.",
-              "Choose the easiest option: share an invitation with friends on WhatsApp or post a story on Instagram to unlock your spin."
+              `Publica una foto de tu mesa o pedido en Instagram Stories mencionando a ${clientConfig.channels.instagramHandle}, o si prefieres la sencillez de WhatsApp, envíala directamente a nuestro chat oficial.`,
+              `Post a photo of your table or order on Instagram Stories tagging ${clientConfig.channels.instagramHandle}, or if you prefer WhatsApp, send it directly to our official chat.`
             )}
           </p>
 
-          {/* SELECTOR DUAL: WhatsApp (Ideal para adultos) vs Instagram */}
+          {/* SELECTOR DUAL: Instagram (Principal) vs WhatsApp (Alternativa para adultos) */}
           <div className="flex justify-center mt-5">
             <div className="inline-flex p-1 rounded-2xl bg-muted/80 border border-border">
-              <button
-                type="button"
-                onClick={() => setActiveChannel("whatsapp")}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  activeChannel === "whatsapp"
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span>{t("💬 Recomendar por WhatsApp (Fácil)", "💬 Recommend on WhatsApp (Easy)")}</span>
-              </button>
-
               <button
                 type="button"
                 onClick={() => setActiveChannel("instagram")}
@@ -244,7 +231,20 @@ export function StepInstagramStory({
                 }`}
               >
                 <Instagram className="h-4 w-4" />
-                <span>{t("📸 Instagram Story", "📸 Instagram Story")}</span>
+                <span>{t("📸 Instagram Story (Principal)", "📸 Instagram Story (Primary)")}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveChannel("whatsapp")}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  activeChannel === "whatsapp"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span>{t("💬 Enviar Foto por WhatsApp", "💬 Send Photo via WhatsApp")}</span>
               </button>
             </div>
           </div>
@@ -252,7 +252,7 @@ export function StepInstagramStory({
       </Reveal>
 
       {/* ========================================================================= */}
-      {/* CANAL 1: WHATSAPP (IDEAL PARA ADULTOS Y FAMILIAS - CERO COMPLICACIONES)    */}
+      {/* CANAL 2: WHATSAPP (ALTERNATIVA PARA ADULTOS QUE NO TIENEN O NO USAN IG)   */}
       {/* ========================================================================= */}
       {activeChannel === "whatsapp" && (
         <Reveal delay={100}>
@@ -263,43 +263,88 @@ export function StepInstagramStory({
               </div>
               <div className="space-y-0.5">
                 <p className="text-xs uppercase tracking-wider font-bold">
-                  {t("Recomienda a un amigo, familiar o grupo", "Recommend to a friend, family or group")}
+                  {t("¿No usas Instagram? Envía tu foto por WhatsApp", "Don't use Instagram? Send photo via WhatsApp")}
                 </p>
                 <p className="text-[11px] text-emerald-800 font-light">
                   {t(
-                    "Solo toca el botón verde para enviarles una invitación por WhatsApp con tu enlace. ¡Es rápido, cómodo y no necesitas saber de redes sociales!",
-                    "Just tap the green button to send an invitation via WhatsApp with your link. Quick, easy, and no social media skills required!"
+                    "Toma o sube una foto de tu café, postre o mesa y envíala a nuestro WhatsApp oficial para registrar tu visita y desbloquear tu ruleta.",
+                    "Take or upload a photo of your coffee, dessert or table and send it to our official WhatsApp to record your visit and unlock your spin."
                   )}
                 </p>
               </div>
             </div>
 
-            {/* Vista previa del mensaje */}
-            <div className="p-4 rounded-xl bg-muted/40 border border-border text-xs space-y-1.5 text-left">
-              <span className="text-[10px] uppercase font-bold text-muted-foreground block tracking-wider">
-                {t("Mensaje listo para enviar a tus contactos:", "Ready-to-send invitation message:")}
-              </span>
-              <p className="font-mono text-[11px] text-foreground/90 whitespace-pre-line bg-background p-3.5 rounded-xl border border-border/70 leading-relaxed">
-                {whatsappInviteMessage}
-              </p>
+            {/* Subir o tomar foto para WhatsApp */}
+            <div className="space-y-2">
+              <label className="text-[11px] uppercase font-bold text-muted-foreground block tracking-wider text-left">
+                {t("Foto de tu pedido o mesa:", "Photo of your order or table:")}
+              </label>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFileUpload(file);
+                }}
+              />
+
+              {!previewUrl ? (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-emerald-400/60 hover:border-emerald-600 bg-emerald-50/30 hover:bg-emerald-50/50 rounded-2xl p-6 text-center cursor-pointer transition-all"
+                >
+                  <Camera className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-emerald-950 uppercase tracking-wider">
+                    {isUploading ? t("Cargando foto...", "Loading photo...") : t("Toca aquí para tomar o subir tu foto", "Tap here to take or upload your photo")}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {t("Foto de tu café, plato, postre o momento en mesa", "Photo of your coffee, plate or table moment")}
+                  </p>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-emerald-300 bg-emerald-50/70 p-4 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <img src={previewUrl} alt="Foto de mesa" className="h-14 w-14 rounded-xl object-cover border border-emerald-300 shadow-xs" />
+                    <div className="text-left">
+                      <div className="inline-flex items-center gap-1.5 text-xs text-emerald-800 font-bold">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                        <span>{t("Foto seleccionada", "Photo selected")}</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        {t("Lista para enviar al WhatsApp de la casa.", "Ready to send to venue WhatsApp.")}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-xs text-emerald-700 underline hover:text-emerald-900 font-medium"
+                  >
+                    {t("Cambiar foto", "Change photo")}
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Botón de envío por WhatsApp */}
+            {/* Botón de envío directo al WhatsApp del restaurante */}
             <div className="pt-1">
               <button
                 type="button"
-                onClick={handleShareWhatsApp}
+                onClick={handleSharePhotoWhatsApp}
                 className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white text-xs uppercase tracking-[0.18em] font-semibold shadow-md transition-all cursor-pointer"
               >
                 <Share2 className="h-4 w-4" />
-                <span>{t("📲 Abrir WhatsApp y Compartir Invitación", "📲 Open WhatsApp & Share Invitation")}</span>
+                <span>{t("📲 Enviar Foto a WhatsApp del Restaurante", "📲 Send Photo to Restaurant WhatsApp")}</span>
               </button>
             </div>
 
             {hasSharedWhatsApp && (
               <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-semibold flex items-center justify-center gap-2 animate-fade-in">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                <span>{t("✓ ¡Invitación enviada por WhatsApp! Tu ruleta ya está lista.", "✓ Invitation sent via WhatsApp! Your roulette is ready.")}</span>
+                <span>{t("✓ ¡Foto enviada por WhatsApp! Ya puedes girar la ruleta.", "✓ Photo sent via WhatsApp! You can now spin the wheel.")}</span>
               </div>
             )}
 

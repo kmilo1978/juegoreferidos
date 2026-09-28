@@ -1011,10 +1011,10 @@ export function AdminPanelModal({
                   <div className="p-4 rounded-2xl bg-amber-500/10 border border-gold/30 text-xs text-foreground space-y-1">
                     <p className="font-semibold text-gold uppercase tracking-wider flex items-center gap-1.5">
                       <Sparkles className="h-4 w-4 text-gold" />
-                      Catálogo Progresivo de Fidelización (15 Recompensas · 3 Hitos cada 5 visitas)
+                      Catálogo de Premios por Visitas (3 Grandes Hitos: Sellos #5, #10 y #15)
                     </p>
                     <p className="text-muted-foreground leading-relaxed">
-                      Personaliza cada uno de los premios que los comensales desbloquean en sus visitas. Los Sellos #5, #10 y #15 son los 3 grandes hitos del cliente.
+                      Solo los sellos #5, #10 y #15 otorgan premios. Las visitas intermedias (1-4, 6-9, 11-14) son sellos de acumulación. Aquí puedes personalizar los 3 premios:
                     </p>
                   </div>
 
@@ -1026,7 +1026,7 @@ export function AdminPanelModal({
                   )}
 
                   <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1">
-                    {stampRewards.slice(0, 15).map((reward, index) => (
+                    {stampRewards.map((reward, index) => (
                       <div
                         key={reward.stamp}
                         className={`p-3.5 rounded-2xl border transition-all text-xs space-y-2.5 ${

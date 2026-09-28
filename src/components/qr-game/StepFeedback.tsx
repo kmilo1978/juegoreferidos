@@ -2,8 +2,8 @@ import { useState } from "react";
 import { FeedbackData } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
-import { ExternalLink, MessageCircle, CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
-import { waLink } from "@/data/site";
+import { ExternalLink, MessageCircle, CheckCircle2, Sparkles, ArrowRight, Share2 } from "lucide-react";
+import { waLink, waShareLink } from "@/data/site";
 import emblemaDorado from "@/assets/emblema-dorado.png";
 import { clientConfig } from "@/config/clientConfig";
 
@@ -28,6 +28,7 @@ export function StepFeedback({
   const [name, setName] = useState<string>(customerName);
   const [comment, setComment] = useState<string>(initialFeedback?.comment || "");
   const [hasSentWhatsApp, setHasSentWhatsApp] = useState(false);
+  const [hasSharedInvite, setHasSharedInvite] = useState(false);
 
   const ratingLabels: Record<number, string> = {
     1: t("1 de 5 · Experiencia deficiente", "1 out of 5 · Poor experience"),
@@ -46,6 +47,13 @@ export function StepFeedback({
     if (val >= 4) {
       window.open("https://g.page/r/CfPSfNSGX8u1EBM/review", "_blank", "noopener,noreferrer");
     }
+  };
+
+  const handleInviteFriendsWhatsApp = () => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const inviteMessage = `¡Hola! Te recomiendo mucho visitar *${clientConfig.brand.name}* 🍽️✨\n\nEl ambiente y la comida son espectaculares. Cuando vayas y te sientes en tu mesa, escanea el código en la mesa y participa en su Ruleta de Premios:\n👉 ${origin}?ref=${encodeURIComponent(customerName || name || "Amigo")}\n\n¡Vamos juntos o visítalos hoy, te va a encantar! ❤️`;
+    window.open(waShareLink(inviteMessage), "_blank", "noopener,noreferrer");
+    setHasSharedInvite(true);
   };
 
   const handleSendWhatsApp = (e: React.FormEvent) => {
@@ -174,6 +182,35 @@ export function StepFeedback({
                 <span>{t("Escribir reseña en Google Maps", "Write review on Google Maps")}</span>
                 <ExternalLink className="h-4 w-4" />
               </a>
+            </div>
+
+            {/* INVITAR A AMIGOS POR WHATSAPP TRAS CALIFICAR EN GOOGLE */}
+            <div className="mt-7 pt-5 border-t border-border/70 text-center space-y-2.5">
+              <span className="text-[10px] uppercase tracking-wider font-bold text-amber-900 block">
+                {t("🎁 Comparte la Experiencia con Amigos", "🎁 Share Experience with Friends")}
+              </span>
+              <p className="text-xs text-muted-foreground font-light max-w-md mx-auto">
+                {t(
+                  "Ahora que has calificado tu visita en Google, invita a tus amigos o familiares por WhatsApp a disfrutar de nuestra casa y ganar su propio premio en mesa:",
+                  "Now that you've reviewed your visit on Google, invite friends or family via WhatsApp to enjoy our venue and win their own prize:"
+                )}
+              </p>
+              <div className="pt-1 flex flex-col items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleInviteFriendsWhatsApp}
+                  className="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs uppercase tracking-wider font-semibold shadow-sm transition-all cursor-pointer"
+                >
+                  <Share2 className="h-4 w-4" />
+                  <span>{t("💬 Invitar a Amigos por WhatsApp", "💬 Invite Friends on WhatsApp")}</span>
+                </button>
+
+                {hasSharedInvite && (
+                  <span className="text-[11px] text-emerald-700 font-semibold animate-fade-in">
+                    ✓ ¡Invitación enviada por WhatsApp! Gracias por recomendarnos.
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </Reveal>

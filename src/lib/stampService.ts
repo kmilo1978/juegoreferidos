@@ -15,22 +15,40 @@ export interface StampReward {
   highlight?: boolean; // Para hitos especiales como sellos 5, 10 y 15
 }
 
-export const STAMP_REWARDS_15: StampReward[] = [
-  { stamp: 1, title: "Café Americano de Especialidad", description: "Bebida caliente de bienvenida recién infusionada", category: "bebida", icon: "☕" },
-  { stamp: 2, title: "Galleta Artesanal de Pistacho", description: "Galleta horneada con trozos de pistacho y chocolate", category: "panaderia", icon: "🍪" },
-  { stamp: 3, title: "Croissant Francés de Mantequilla", description: "Hojaldre clásico crocante elaborado a mano", category: "panaderia", icon: "🥐" },
-  { stamp: 4, title: "Upgrade de Leche Vegetal / Topping", description: "Gratis en cualquier café o bebida fría de la casa", category: "bebida", icon: "🥛" },
-  { stamp: 5, title: "🎁 HITO 1: Porción de Torta Artesanal", description: "Cualquier porción de la vitrina pastelera del día por tus 5 visitas", category: "postre", icon: "🍰", highlight: true },
-  { stamp: 6, title: "Bebida Fría o Frappé de Autor", description: "Frappé moka, té frío infusionado o soda saborizada", category: "bebida", icon: "🥤" },
-  { stamp: 7, title: "Toast de Masa Madre Gourmet", description: "Tostada con aguacate fresco, queso o mantequilla trufada", category: "panaderia", icon: "🥪" },
-  { stamp: 8, title: "Bono de 20% en tu Factura de Hoy", description: "Descuento aplicable a todo tu consumo en mesa", category: "descuento", icon: "🎟️" },
-  { stamp: 9, title: "Caja de 4 Trufas de Chocolate Belga", description: "Empaque especial con trufas artesanales premium", category: "postre", icon: "🍫" },
-  { stamp: 10, title: "👑 HITO 2: Brunch Completo de Autor", description: "Plato de brunch a elección con bebida de autor por tus 10 visitas", category: "vip", icon: "👑", highlight: true },
-  { stamp: 11, title: "Dúo de Cupcakes de Autor para Llevar", description: "Pastelería fina empacada para disfrutar en casa", category: "postre", icon: "🧁" },
-  { stamp: 12, title: "Método de Filtrado V60 o Prensa Francesa", description: "Preparación artesanal en mesa con café de origen", category: "bebida", icon: "☕" },
-  { stamp: 13, title: "Bono de 25% en tu Cuenta Total", description: "Descuento exclusivo en el consumo de toda la mesa", category: "descuento", icon: "🏷️" },
-  { stamp: 14, title: "Torta Mediana para Compartir", description: "Torta artesanal para llevar a casa o celebrar", category: "postre", icon: "🎂" },
-  { stamp: 15, title: "🌟 HITO 3: Experiencia VIP Degustación para 2", description: "Menú degustación de autor completo para dos personas con atención VIP", category: "vip", icon: "🌟", highlight: true },
+export interface StampReward {
+  stamp: number; // 5, 10 o 15
+  title: string;
+  description: string;
+  category: "bebida" | "panaderia" | "postre" | "descuento" | "vip";
+  icon: string;
+  highlight?: boolean;
+}
+
+export const STAMP_MILESTONES_3: StampReward[] = [
+  {
+    stamp: 5,
+    title: "🎁 Premio Sello 5: Porción de Torta Artesanal",
+    description: "Cualquier porción de la vitrina pastelera de la casa por tus 5 visitas.",
+    category: "postre",
+    icon: "🍰",
+    highlight: true,
+  },
+  {
+    stamp: 10,
+    title: "👑 Premio Sello 10: Brunch Completo de Autor",
+    description: "Plato de brunch o especialidad a elección con bebida de autor por tus 10 visitas.",
+    category: "vip",
+    icon: "👑",
+    highlight: true,
+  },
+  {
+    stamp: 15,
+    title: "🌟 Gran Premio Sello 15: Menú Degustación para 2",
+    description: "Experiencia gastronómica VIP de autor para 2 personas con atención de la casa.",
+    category: "vip",
+    icon: "🌟",
+    highlight: true,
+  },
 ];
 
 export interface StampCardState {
@@ -57,11 +75,11 @@ export class StampService {
   }
 
   private static getRewardsKey(): string {
-    return "juegoreferidos_custom_stamp_rewards";
+    return "juegoreferidos_custom_milestone_prizes_v2";
   }
 
   /**
-   * Obtiene la lista completa de recompensas de sellos (personalizadas o por defecto)
+   * Obtiene los 3 grandes premios (Sellos 5, 10 y 15)
    */
   static getStampRewards(): StampReward[] {
     if (typeof window !== "undefined") {
@@ -77,11 +95,11 @@ export class StampService {
         // ignore
       }
     }
-    return STAMP_REWARDS_15;
+    return STAMP_MILESTONES_3;
   }
 
   /**
-   * Guarda recompensas de sellos personalizadas
+   * Guarda los premios personalizados de los sellos 5, 10 y 15
    */
   static saveStampRewards(rewards: StampReward[]): void {
     if (typeof window !== "undefined") {
@@ -94,7 +112,7 @@ export class StampService {
   }
 
   /**
-   * Restablece las recompensas a los valores gastronómicos originales
+   * Restablece los premios a los 3 hitos originales
    */
   static resetStampRewardsToDefault(): StampReward[] {
     if (typeof window !== "undefined") {
@@ -104,7 +122,7 @@ export class StampService {
         // ignore
       }
     }
-    return STAMP_REWARDS_15;
+    return STAMP_MILESTONES_3;
   }
 
   /**
@@ -143,15 +161,33 @@ export class StampService {
   }
 
   /**
-   * Obtiene los 3 grandes hitos cada 5 visitas (Sello 5, 10 y 15)
+   * Obtiene los 3 grandes premios cada 5 visitas (Sello 5, 10 y 15)
    */
   static getMilestoneRewards(): StampReward[] {
     const rewards = this.getStampRewards();
     return [
-      rewards[4] || STAMP_REWARDS_15[4],
-      rewards[9] || STAMP_REWARDS_15[9],
-      rewards[14] || STAMP_REWARDS_15[14],
+      rewards[0] || STAMP_MILESTONES_3[0],
+      rewards[1] || STAMP_MILESTONES_3[1],
+      rewards[2] || STAMP_MILESTONES_3[2],
     ];
+  }
+
+  /**
+   * Indica si un sello específico es un hito con premio (5, 10 o 15)
+   */
+  static isPrizeStamp(stampNumber: number): boolean {
+    return stampNumber === 5 || stampNumber === 10 || stampNumber === 15;
+  }
+
+  /**
+   * Obtiene el premio si es sello 5, 10 o 15. Si es de visita (1-4, etc.) devuelve null.
+   */
+  static getRewardForStamp(stampNumber: number): StampReward | null {
+    const prizes = this.getMilestoneRewards();
+    if (stampNumber === 5) return prizes[0];
+    if (stampNumber === 10) return prizes[1];
+    if (stampNumber === 15) return prizes[2];
+    return null;
   }
 
   /**
@@ -192,30 +228,20 @@ export class StampService {
   }
 
   /**
-   * Obtiene el premio correspondiente a un sello específico
-   */
-  static getRewardForStamp(stampNumber: number): StampReward {
-    const rewards = this.getStampRewards();
-    const index = Math.max(1, Math.min(rewards.length, stampNumber)) - 1;
-    return rewards[index] || rewards[0] || STAMP_REWARDS_15[0];
-  }
-
-  /**
    * Obtiene el estado actual de sellos y recompensas del cliente
    */
   static getCustomerStampCard(whatsapp: string): StampCardState {
-    const activeMode = this.getGlobalMode();
-    const rewards = this.getStampRewards();
-    const fallbackReward = this.getRewardForStamp(activeMode);
+    const activeMode = 15;
+    const milestones = this.getMilestoneRewards();
 
     if (typeof window === "undefined") {
       return {
         currentStamps: 1,
-        totalRequired: activeMode,
-        mode: activeMode,
-        rewardTitle: fallbackReward.title,
-        nextReward: this.getRewardForStamp(2),
-        unlockedRewards: [rewards[0]],
+        totalRequired: 15,
+        mode: 15,
+        rewardTitle: milestones[0].title,
+        nextReward: milestones[0],
+        unlockedRewards: [],
         isRewardUnlocked: false,
         historyVisits: [],
       };
@@ -237,18 +263,17 @@ export class StampService {
       // ignore
     }
 
-    const totalRequired = activeMode;
+    const totalRequired = 15;
     const isRewardUnlocked = currentStamps >= totalRequired;
-    const currentReward = this.getRewardForStamp(Math.min(currentStamps, totalRequired));
-    const nextReward = this.getRewardForStamp(Math.min(currentStamps + 1, totalRequired));
-    const unlockedRewards = rewards.slice(0, Math.min(currentStamps, totalRequired));
+    const nextMilestone = this.getNextMilestone(currentStamps);
+    const unlockedRewards = milestones.filter((m) => currentStamps >= m.stamp);
 
     return {
       currentStamps,
       totalRequired,
-      mode: activeMode,
-      rewardTitle: currentReward.title,
-      nextReward,
+      mode: 15,
+      rewardTitle: nextMilestone.reward.title,
+      nextReward: nextMilestone.reward,
       unlockedRewards,
       isRewardUnlocked,
       historyVisits,
