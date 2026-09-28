@@ -11,6 +11,7 @@ interface GameHeaderProps {
   onChangeMode: (mode: "game" | "feedback") => void;
   onOpenAdmin: () => void;
   onResetSession: () => void;
+  onOpenTableStand?: () => void;
 }
 
 export function GameHeader({
@@ -20,6 +21,7 @@ export function GameHeader({
   onChangeMode,
   onOpenAdmin,
   onResetSession,
+  onOpenTableStand,
 }: GameHeaderProps) {
   const { t } = useLanguage();
   const [timeLeft, setTimeLeft] = useState<number>(0);
@@ -71,6 +73,17 @@ export function GameHeader({
           </div>
 
           <div className="flex items-center gap-2">
+            {onOpenTableStand && (
+              <button
+                onClick={onOpenTableStand}
+                type="button"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded-lg border border-gold/40 bg-gold/10 text-gold font-medium hover:bg-gold/20 transition-all shadow-2xs"
+                title={t("Ver e imprimir cartel para la mesa o caja", "View and print placard for table or cashier")}
+              >
+                <QrCode className="h-3 w-3" />
+                <span className="hidden sm:inline">{t("Imprimir QR", "Print QR")}</span>
+              </button>
+            )}
             <button
               onClick={onResetSession}
               type="button"

@@ -5,6 +5,7 @@ import { Reveal } from "@/components/shared/Reveal";
 import confetti from "canvas-confetti";
 import { Sparkles, Trophy, ArrowRight } from "lucide-react";
 import emblemaDorado from "@/assets/emblema-dorado.png";
+import { playRouletteTickSound, playVictoryFanfareSound } from "../../lib/soundEffects";
 
 interface StepRouletteWheelProps {
   prizes: GamePrize[];
@@ -207,6 +208,12 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
 
     setIsSpinning(true);
     setCountdown(5);
+
+    // Tics de sonido mecánicos durante el giro
+    const tickInterval = setInterval(() => {
+      playRouletteTickSound();
+    }, 120);
+
     const countdownInterval = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
@@ -227,10 +234,12 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
 
     // Esperar al fin de la animación exactamente 5.2 segundos
     setTimeout(() => {
+      clearInterval(tickInterval);
       clearInterval(countdownInterval);
       setIsSpinning(false);
       setHasSpun(true);
       setWonPrize(prize);
+      playVictoryFanfareSound();
       fireConfetti();
     }, 5200);
   };
@@ -254,7 +263,7 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
           <p className="mt-2 text-sm text-muted-foreground font-light max-w-md mx-auto">
             {t(
               `Gira la ruleta exclusiva de Bliss Soul Bakery para descubrir tu premio especial, ${participantName}.`,
-              `Spin the exclusive Bliss Soul Bakery roulette to unveil your special prize, ${participantName}.`,
+              `Spin the exclusive Bliss Soul Bakery roulette to unveil your special prize, ${participantName}.`
             )}
           </p>
         </div>
@@ -264,23 +273,33 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
       <Reveal delay={100}>
         <div className="mt-8 flex flex-col items-center">
           <div className="relative w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] flex items-center justify-center select-none">
-            {/* Puntero Indicador Dorado Fijo en el borde superior */}
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center filter drop-shadow-md">
-              <div className="w-6 h-8 bg-gradient-to-b from-amber-200 via-gold to-amber-800 rounded-b-md clip-pointer shadow-md transform scale-110" />
-              <div className="w-2.5 h-2.5 rounded-full bg-white border-2 border-gold -mt-2 shadow-xs" />
+            {/* Puntero Indicador Dorado Fijo en el borde superior en aguja triangular limpia */}
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)]">
+              <svg width="28" height="36" viewBox="0 0 28 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 36L1.00962 4.5L26.9904 4.5L14 36Z" fill="url(#goldNeedleGrad)" stroke="#ffffff" strokeWidth="1.5" />
+                <circle cx="14" cy="9" r="4" fill="#ffffff" stroke="#a27e2c" strokeWidth="1.5" />
+                <defs>
+                  <linearGradient id="goldNeedleGrad" x1="14" y1="0" x2="14" y2="36" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#f7edd0" />
+                    <stop offset="0.4" stopColor="#a27e2c" />
+                    <stop offset="1" stopColor="#594314" />
+                  </linearGradient>
+                </defs>
+              </svg>
             </div>
 
-            {/* Canvas giratorio */}
+            {/* Canvas giratorio con aceleración por hardware GPU */}
             <div
               style={{
-                transform: `rotate(${rotationAngle}deg)`,
+                transform: `translate3d(0, 0, 0) rotate(${rotationAngle}deg)`,
                 transition: isSpinning
-                  ? "transform 5.2s cubic-bezier(0.15, 0.95, 0.22, 1.0)"
+                  ? "transform 5.2s cubic-bezier(0.12, 0.98, 0.22, 1.0)"
                   : "none",
+                willChange: "transform",
               }}
               className="w-full h-full flex items-center justify-center"
             >
-              <canvas ref={canvasRef} className="w-full h-full object-contain rounded-full" />
+              <canvas ref={canvasRef} className="w-full h-full object-contain rounded-full shadow-2xl" />
             </div>
           </div>
 

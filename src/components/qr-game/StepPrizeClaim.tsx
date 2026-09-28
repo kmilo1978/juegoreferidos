@@ -7,6 +7,7 @@ import { CheckCircle2, Share2, Sparkles } from "lucide-react";
 import { waLink } from "@/data/site";
 import logoHeader from "@/assets/logo-header.png";
 import { StepFeedback } from "./StepFeedback";
+import { clientConfig } from "@/config/clientConfig";
 
 interface StepPrizeClaimProps {
   prize: WonPrize;
@@ -36,6 +37,14 @@ Restaurante: Bliss Soul Bakery
 
   const handleOpenWhatsApp = () => {
     window.open(waLink(whatsappMessage), "_blank", "noopener,noreferrer");
+  };
+
+  const handleReferFriend = () => {
+    const brandName = clientConfig.brand.name;
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const inviteMessage = `¡Hola! Acabo de ganar un beneficio en *${brandName}* jugando en su ruleta de mesa 🥐✨\n\nTe recomiendo visitarlo o pedir. Puedes probar la ruleta aquí:\n👉 ${origin}?ref=${encodeURIComponent(prize.participantName)}\n\n¡Es una delicia!`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(inviteMessage)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -250,6 +259,38 @@ Restaurante: Bliss Soul Bakery
               )}
               ”
             </p>
+          </div>
+        </div>
+      </Reveal>
+
+      {/* MOTOR VIRAL DE REFERIDOS (ESTILO PERKZILLA / REFER-A-FRIEND) */}
+      <Reveal delay={150}>
+        <div className="mt-8 rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 via-white to-orange-50/50 p-6 sm:p-8 text-center shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100/90 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-3">
+            <Share2 className="h-3.5 w-3.5 text-amber-800" />
+            <span>{t("Multiplica tus Oportunidades", "Multiply Your Chances")}</span>
+          </div>
+
+          <h3 className="font-display text-xl sm:text-2xl text-foreground font-medium">
+            {t("¿Quieres sumar puntos para el Gran Sorteo Semanal?", "Want more entries for the Weekly Grand Prize?")}
+          </h3>
+
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground font-light max-w-md mx-auto leading-relaxed">
+            {t(
+              "Comparte esta experiencia con tus amigos en WhatsApp. Por cada amigo que conozca y juegue en la ruleta, sumas una participación adicional a tu nombre para los premios especiales del domingo.",
+              "Share this experience with your friends on WhatsApp. For every friend who plays, you get an extra entry for Sunday's special prizes."
+            )}
+          </p>
+
+          <div className="mt-5">
+            <button
+              type="button"
+              onClick={handleReferFriend}
+              className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm tracking-wider uppercase shadow-md hover:shadow-lg transition-all"
+            >
+              <Share2 className="h-4 w-4" />
+              <span>{t("Invitar Amigos por WhatsApp", "Invite Friends via WhatsApp")}</span>
+            </button>
           </div>
         </div>
       </Reveal>

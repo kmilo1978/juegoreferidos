@@ -17,6 +17,7 @@ import { StepRouletteWheel } from "./components/qr-game/StepRouletteWheel";
 import { StepPrizeClaim } from "./components/qr-game/StepPrizeClaim";
 import { AdminPanelModal } from "./components/qr-game/AdminPanelModal";
 import { PinAuthModal } from "./components/qr-game/PinAuthModal";
+import { TableStandModal } from "./components/qr-game/TableStandModal";
 import { MessageCircle } from "lucide-react";
 import { site } from "./data/site";
 
@@ -56,6 +57,7 @@ function JuegoQrPage() {
   const [history, setHistory] = useState<WonPrize[]>([]);
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
+  const [isTableStandOpen, setIsTableStandOpen] = useState<boolean>(false);
 
   // Cargar premio guardado en sessionStorage para evitar pérdida en recargas
   useEffect(() => {
@@ -216,6 +218,7 @@ function JuegoQrPage() {
         onChangeMode={setActiveMode}
         onOpenAdmin={() => setIsAdminOpen(true)}
         onResetSession={handleResetSession}
+        onOpenTableStand={() => setIsTableStandOpen(true)}
       />
 
       {/* Contenido principal según el modo seleccionado */}
@@ -305,6 +308,12 @@ function JuegoQrPage() {
         onUpdatePrizes={setPrizes}
         history={history}
         onGenerateNewTable={handleResetSession}
+      />
+
+      {/* Modal de Arte y Ficha para Mesa / Caja */}
+      <TableStandModal
+        isOpen={isTableStandOpen}
+        onClose={() => setIsTableStandOpen(false)}
       />
     </div>
   );
