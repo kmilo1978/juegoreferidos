@@ -20,27 +20,10 @@ export function GameHeader({
   currentStep,
   activeMode,
   onChangeMode,
-  onOpenAdmin,
   onResetSession,
-  onOpenTableStand,
+  onSelectStep,
 }: GameHeaderProps) {
   const { t } = useLanguage();
-  const [timeLeft, setTimeLeft] = useState<number>(0);
-
-  useEffect(() => {
-    const updateCountdown = () => {
-      const remaining = Math.max(0, Math.floor((session.expiresAt - Date.now()) / 1000));
-      setTimeLeft(remaining);
-    };
-
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
-    return () => clearInterval(interval);
-  }, [session.expiresAt]);
-
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
-  const timeFormatted = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
 
   const gameSteps = [
     { num: 1, label: t("Tus Datos", "Your Info") },

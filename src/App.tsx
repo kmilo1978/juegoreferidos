@@ -114,30 +114,25 @@ function JuegoQrPage() {
         sessionStorage.removeItem("juego_won_prize");
         setChosenGameMode("precision");
         setCurrentStep(2);
-        return () => clearInterval(pollInterval);
-      }
-      if (params.get("juego") === "ruleta" || params.get("test") === "ruleta") {
+      } else if (params.get("juego") === "ruleta" || params.get("test") === "ruleta") {
         sessionStorage.removeItem("juego_won_prize");
         setChosenGameMode("roulette");
         setCurrentStep(2);
-        return () => clearInterval(pollInterval);
-      }
-      if (params.get("reset") === "1") {
+      } else if (params.get("reset") === "1") {
         sessionStorage.removeItem("juego_won_prize");
         setCurrentStep(1);
-        return () => clearInterval(pollInterval);
+      } else {
+        try {
+          const savedPrize = sessionStorage.getItem("juego_won_prize");
+          if (savedPrize) {
+            const parsed = JSON.parse(savedPrize) as WonPrize;
+            setWonPrize(parsed);
+            setCurrentStep(3);
+          }
+        } catch {
+          // Ignorar errores de parseo
+        }
       }
-    }
-
-    try {
-      const savedPrize = sessionStorage.getItem("juego_won_prize");
-      if (savedPrize) {
-        const parsed = JSON.parse(savedPrize) as WonPrize;
-        setWonPrize(parsed);
-        setCurrentStep(3);
-      }
-    } catch {
-      // Ignorar errores de parseo
     }
 
     // Escuchar cambios reactivos en la configuración de juego desde el backend o modal
@@ -397,8 +392,8 @@ function JuegoQrPage() {
             {/* PASO 2: EL DESAFÍO (SELECCIONADO POR EL DUEÑO EN EL BACKEND) */}
             {currentStep === 2 && (
               <div>
-                {/* 1. MODO RETO DE PRECISIÓN 10 SEGUNDOS (ELEGIDO EN BACKEND) */}
-                {(gameConfig.gameMode === "precision" || chosenGameMode === "precision") && (
+                {/* 1. MODO RETO DE PRECISIÓN 10 SEGUNDOS (ELEGIDO EN BACKEND O SELECCIONADO) */}
+                {(chosenGameMode === "precision" || (gameConfig?.gameMode === "precision" && chosenGameMode !== "roulette")) && (
                   <StepPrecisionTimer
                     prizes={prizes}
                     participantName={participant?.fullName || "Invitado"}
@@ -410,8 +405,8 @@ function JuegoQrPage() {
                   />
                 )}
 
-                {/* 2. MODO RULETA DE LA FORTUNA (ELEGIDO EN BACKEND) */}
-                {gameConfig.gameMode === "roulette" && chosenGameMode !== "precision" && (
+                {/* 2. MODO RULETA DE LA FORTUNA (ELEGIDO EN BACKEND O SELECCIONADO) */}
+                {(chosenGameMode === "roulette" || (gameConfig?.gameMode === "roulette" && chosenGameMode !== "precision")) && (
                   <StepRouletteWheel
                     prizes={prizes}
                     participantName={participant?.fullName || "Invitado"}
@@ -420,7 +415,7 @@ function JuegoQrPage() {
                 )}
 
                 {/* 3. MODO HÍBRIDO (SI EL DUEÑO LO HABILITA EN BACKEND) */}
-                {(gameConfig.gameMode === "hybrid" || gameConfig.gameMode === "stamps") && !chosenGameMode && (
+                {(gameConfig?.gameMode === "hybrid" || gameConfig?.gameMode === "stamps") && !chosenGameMode && (
                   <div className="max-w-xl mx-auto py-4">
                     <div className="text-center mb-8">
                       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 text-xs font-semibold mb-2">
@@ -493,31 +488,65 @@ function JuegoQrPage() {
                     </div>
                   </div>
                 )}
+
+                {/* FALLBACK SI NINGUNO COINCIDE */}
+                {!chosenGameMode && gameConfig?.gameMode !== "precision" && gameConfig?.gameMode !== "roulette" && gameConfig?.gameMode !== "hybrid" && gameConfig?.gameMode !== "stamps" && (
+                  <StepPrecisionTimer
+                    prizes={prizes}
+                    participantName={participant?.fullName || "Invitado"}
+                    onPrizeWon={handlePrizeWon}
+                    onExit={() => {
+                      setCurrentStep(4);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  />
+                )}
               </div>
             )}
 
             {/* PASO 3: TU PREMIO (CUPÓN EXCLUSIVO) */}
-            {currentStep === 3 && wonPrize && (
-              <div className="space-y-6">
-                <StepPrizeClaim
-                  prize={wonPrize}
-                  onValidateAtCashier={handleOpenValidatePin}
-                />
+            {currentStep === 3 && (
+              wonPrize ? (
+                <div className="space-y-6">
+                  <StepPrizeClaim
+                    prize={wonPrize}
+                    onValidateAtCashier={handleOpenValidatePin}
+                  />
 
-                {/* Atajo discreto para modo desarrollo si ?debug=1 */}
-                {typeof window !== "undefined" && window.location.search.includes("debug=1") && (
-                  <div className="text-center pt-2">
-                    <button
-                      type="button"
-                      onClick={handleResetSession}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-900 text-amber-400 text-xs font-semibold"
-                    >
-                      <RotateCcw className="h-3.5 w-3.5" />
-                      <span>Debug: Reiniciar Sesión</span>
-                    </button>
+                  {/* Atajo discreto para modo desarrollo si ?debug=1 */}
+                  {typeof window !== "undefined" && window.location.search.includes("debug=1") && (
+                    <div className="text-center pt-2">
+                      <button
+                        type="button"
+                        onClick={handleResetSession}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-900 text-amber-400 text-xs font-semibold"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                        <span>Debug: Reiniciar Sesión</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-12 space-y-4 max-w-md mx-auto">
+                  <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-700 flex items-center justify-center text-3xl mx-auto">
+                    🎁
                   </div>
-                )}
-              </div>
+                  <h3 className="text-xl font-serif font-bold text-neutral-900">
+                    Aún no has jugado por tu beneficio
+                  </h3>
+                  <p className="text-xs text-neutral-500">
+                    Ingresa tus datos en la mesa para activar tu oportunidad de ganar.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(1)}
+                    className="btn-solid px-6 py-2.5 text-xs font-semibold cursor-pointer"
+                  >
+                    Comenzar Desafío
+                  </button>
+                </div>
+              )
             )}
 
             {/* PASO 4: CALIFICACIÓN & OPINIÓN */}
