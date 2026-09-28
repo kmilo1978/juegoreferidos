@@ -56,6 +56,72 @@ export class StampService {
     return "juegoreferidos_stamp_mode_setting";
   }
 
+  private static getRewardsKey(): string {
+    return "juegoreferidos_custom_stamp_rewards";
+  }
+
+  /**
+   * Obtiene la lista completa de recompensas de sellos (personalizadas o por defecto)
+   */
+  static getStampRewards(): StampReward[] {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem(this.getRewardsKey());
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return STAMP_REWARDS_15;
+  }
+
+  /**
+   * Guarda recompensas de sellos personalizadas
+   */
+  static saveStampRewards(rewards: StampReward[]): void {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(this.getRewardsKey(), JSON.stringify(rewards));
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  /**
+   * Restablece las recompensas a los valores gastronómicos originales
+   */
+  static resetStampRewardsToDefault(): StampReward[] {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem(this.getRewardsKey());
+      } catch {
+        // ignore
+      }
+    }
+    return STAMP_REWARDS_15;
+  }
+
+  /**
+   * Detecta si la hora actual está dentro de la Hora Feliz / Horas Muertas (3:00 PM a 6:00 PM)
+   */
+  static isHappyHour(): boolean {
+    const hour = new Date().getHours();
+    return hour >= 15 && hour < 18; // 15:00 a 17:59 (3 PM a 6 PM)
+  }
+
+  /**
+   * Multiplicador de sellos: 2 en Hora Feliz (3 PM a 6 PM), 1 en horario habitual
+   */
+  static getStampMultiplier(): number {
+    return this.isHappyHour() ? 2 : 1;
+  }
+
   /**
    * Obtiene la modalidad configurada (10 o 15 sellos)
    */
@@ -89,8 +155,9 @@ export class StampService {
    * Obtiene el premio correspondiente a un sello específico
    */
   static getRewardForStamp(stampNumber: number): StampReward {
-    const index = Math.max(1, Math.min(15, stampNumber)) - 1;
-    return STAMP_REWARDS_15[index] || STAMP_REWARDS_15[0];
+    const rewards = this.getStampRewards();
+    const index = Math.max(1, Math.min(rewards.length, stampNumber)) - 1;
+    return rewards[index] || rewards[0] || STAMP_REWARDS_15[0];
   }
 
   /**
@@ -98,6 +165,7 @@ export class StampService {
    */
   static getCustomerStampCard(whatsapp: string): StampCardState {
     const activeMode = this.getGlobalMode();
+    const rewards = this.getStampRewards();
     const fallbackReward = this.getRewardForStamp(activeMode);
 
     if (typeof window === "undefined") {
@@ -107,7 +175,7 @@ export class StampService {
         mode: activeMode,
         rewardTitle: fallbackReward.title,
         nextReward: this.getRewardForStamp(2),
-        unlockedRewards: [STAMP_REWARDS_15[0]],
+        unlockedRewards: [rewards[0]],
         isRewardUnlocked: false,
         historyVisits: [],
       };
@@ -133,7 +201,7 @@ export class StampService {
     const isRewardUnlocked = currentStamps >= totalRequired;
     const currentReward = this.getRewardForStamp(Math.min(currentStamps, totalRequired));
     const nextReward = this.getRewardForStamp(Math.min(currentStamps + 1, totalRequired));
-    const unlockedRewards = STAMP_REWARDS_15.slice(0, Math.min(currentStamps, totalRequired));
+    const unlockedRewards = rewards.slice(0, Math.min(currentStamps, totalRequired));
 
     return {
       currentStamps,
@@ -148,18 +216,21 @@ export class StampService {
   }
 
   /**
-   * Agrega un sello al validar con el PIN del cajero
+   * Agrega sellos al validar con el PIN del cajero.
+   * Aplica automáticamente el multiplicador de sellos dobles (x2) en Horas Muertas (3 PM - 6 PM).
    */
-  static addStamp(whatsapp: string): StampCardState {
+  static addStamp(whatsapp: string, countOverride?: number): StampCardState & { addedCount: number; isHappyHour: boolean } {
     const activeMode = this.getGlobalMode();
     const current = this.getCustomerStampCard(whatsapp);
-    const newCount = Math.min(activeMode, current.currentStamps + 1);
+    const multiplier = countOverride ?? this.getStampMultiplier();
+    const newCount = Math.min(activeMode, current.currentStamps + multiplier);
     const today = new Date().toLocaleDateString("es-CO");
+    const rewards = this.getStampRewards();
 
     const isRewardUnlocked = newCount >= activeMode;
     const currentReward = this.getRewardForStamp(newCount);
     const nextReward = this.getRewardForStamp(Math.min(newCount + 1, activeMode));
-    const unlockedRewards = STAMP_REWARDS_15.slice(0, newCount);
+    const unlockedRewards = rewards.slice(0, newCount);
 
     const updated: StampCardState = {
       currentStamps: newCount,
@@ -180,7 +251,11 @@ export class StampService {
       }
     }
 
-    return updated;
+    return {
+      ...updated,
+      addedCount: multiplier,
+      isHappyHour: this.isHappyHour(),
+    };
   }
 
   /**

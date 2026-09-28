@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { WonPrize } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
 import { GoldenQRCode } from "./GoldenQRCode";
-import { CheckCircle2, Share2, Sparkles, Bell } from "lucide-react";
+import { CheckCircle2, Share2, Sparkles, Bell, Flame, Zap } from "lucide-react";
 import { waLink } from "@/data/site";
 import logoHeader from "@/assets/logo-header.png";
 import { StepFeedback } from "./StepFeedback";
@@ -13,6 +13,7 @@ import { DigitalStampCard } from "./DigitalStampCard";
 import { StampService } from "@/lib/stampService";
 import { PinAuthModal } from "./PinAuthModal";
 import { SupabaseService } from "@/lib/supabaseService";
+import { AddToHomeScreenModal } from "./AddToHomeScreenModal";
 
 interface StepPrizeClaimProps {
   prize: WonPrize;
@@ -57,11 +58,40 @@ Restaurante: ${clientConfig.brand.name}
   );
 
   const createdAtMs = prize.createdAt || Date.now();
-  const expiryDate = new Date(createdAtMs + 7 * 24 * 60 * 60 * 1000).toLocaleDateString("es-CO", {
+  const expiryMs = createdAtMs + 7 * 24 * 60 * 60 * 1000;
+  const expiryDate = new Date(expiryMs).toLocaleDateString("es-CO", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
+
+  const isHappyHourNow = StampService.isHappyHour();
+
+  // GEMA 2: Temporizador en vivo segundo a segundo
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const diff = Math.max(0, expiryMs - Date.now());
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+    return { days, hours, minutes, seconds, totalMs: diff };
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const diff = Math.max(0, expiryMs - Date.now());
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+      setTimeLeft({ days, hours, minutes, seconds, totalMs: diff });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [expiryMs]);
+
+  const totalPeriodMs = 7 * 24 * 60 * 60 * 1000;
+  const progressPercent = Math.min(100, Math.max(2, (timeLeft.totalMs / totalPeriodMs) * 100));
 
   const [isPushSubscribed, setIsPushSubscribed] = useState(() => OneSignalService.isSubscribed());
 
@@ -217,7 +247,64 @@ Restaurante: ${clientConfig.brand.name}
               </div>
             </div>
 
-            {/* Acciones principales: WhatsApp y Validación en Caja */}
+            {/* GEMA 2: TEMPORIZADOR DE CUENTA REGRESIVA VIVA EN EL CUPÓN (FOMO) */}
+            {!isUsed && (
+              <div className="rounded-2xl border-2 border-amber-400/50 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-background p-4 text-center space-y-2.5 shadow-xs">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                    <Flame className="h-4 w-4 text-orange-600 animate-bounce" />
+                    {t("Cuenta Regresiva de Vencimiento", "Countdown to Expiration")}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-bold">
+                    {t("FOMO · Válido por 7 días", "FOMO · Valid for 7 days")}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-4 gap-2 text-center py-1">
+                  <div className="p-2 rounded-xl bg-background border border-amber-300 shadow-2xs">
+                    <span className="font-mono text-xl sm:text-2xl font-black text-foreground block">
+                      {String(timeLeft.days).padStart(2, "0")}
+                    </span>
+                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">Días</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-background border border-amber-300 shadow-2xs">
+                    <span className="font-mono text-xl sm:text-2xl font-black text-foreground block">
+                      {String(timeLeft.hours).padStart(2, "0")}
+                    </span>
+                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">Horas</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-background border border-amber-300 shadow-2xs">
+                    <span className="font-mono text-xl sm:text-2xl font-black text-foreground block">
+                      {String(timeLeft.minutes).padStart(2, "0")}
+                    </span>
+                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">Min</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-background border border-amber-300 shadow-2xs">
+                    <span className="font-mono text-xl sm:text-2xl font-black text-orange-600 block">
+                      {String(timeLeft.seconds).padStart(2, "0")}
+                    </span>
+                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">Seg</span>
+                  </div>
+                </div>
+
+                {/* Barra decreciente de urgencia */}
+                <div className="w-full bg-muted/60 h-2 rounded-full overflow-hidden border border-border">
+                  <div
+                    className="bg-gradient-to-r from-orange-500 via-amber-500 to-gold h-full rounded-full transition-all duration-1000"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+
+                <p className="text-[11px] text-muted-foreground">
+                  {t(
+                    "¡Presenta este comprobante en mesa o caja antes de que finalice el contador!",
+                    "Present this voucher to staff before the countdown timer expires!"
+                  )}
+                </p>
+              </div>
+            )}
+
+            {/* Acciones principales: WhatsApp, Validación en Caja y PWA */}
             <div className="space-y-3 pt-2">
               <button
                 type="button"
@@ -242,6 +329,19 @@ Restaurante: ${clientConfig.brand.name}
                 <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-800 text-[11px] font-medium">
                   <CheckCircle2 className="h-3.5 w-3.5 text-sky-600" />
                   <span>{t("✓ Recordatorios push activados en este dispositivo", "✓ Push reminders active on this device")}</span>
+                </div>
+              )}
+
+              {/* GEMA 3: GUARDAR TARJETA EN PANTALLA DE INICIO (PWA 1-TAP) */}
+              <AddToHomeScreenModal />
+
+              {/* GEMA 1: BANNER DE HORA FELIZ AL VALIDAR EN CAJA */}
+              {!isUsed && isHappyHourNow && (
+                <div className="p-3 rounded-2xl bg-amber-500/15 border-2 border-gold text-amber-950 text-xs font-semibold flex items-center justify-center gap-2 shadow-xs animate-pulse">
+                  <Zap className="h-4 w-4 text-amber-600 fill-amber-500 shrink-0" />
+                  <span>
+                    ⚡ {t("¡HORA FELIZ ACTIVA (3 PM - 6 PM)! Esta validación acreditará +2 SELLOS en tu tarjeta.", "⚡ HAPPY HOUR ACTIVE (3 PM - 6 PM)! Cashier validation awards +2 STAMPS.")}
+                  </span>
                 </div>
               )}
 

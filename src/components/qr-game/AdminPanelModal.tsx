@@ -22,6 +22,15 @@ import {
   RefreshCw,
   KeyRound,
   Copy,
+  Palette,
+  Store,
+  Edit3,
+  Save,
+  Check,
+  Sparkles,
+  Layers,
+  Smartphone,
+  Gift,
 } from "lucide-react";
 import { calculateAnalytics } from "../../lib/analyticsService";
 import { clientConfig } from "../../config/clientConfig";
@@ -52,6 +61,17 @@ import {
   setActiveCashierPin,
   generateNewCashierPin,
 } from "../../lib/tableSecurityService";
+import {
+  getBrandConfig,
+  saveBrandConfig,
+  syncBrandWithComposio,
+  applyBrandColors,
+  BrandIdentityConfig,
+} from "../../lib/brandService";
+import {
+  StampService,
+  StampReward,
+} from "../../lib/stampService";
 
 interface AdminPanelModalProps {
   isOpen: boolean;
@@ -71,7 +91,7 @@ export function AdminPanelModal({
   onGenerateNewTable,
 }: AdminPanelModalProps) {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<"stats" | "prizes" | "campaign" | "messages" | "composio" | "databases">("stats");
+  const [activeTab, setActiveTab] = useState<"stats" | "prizes" | "campaign" | "messages" | "composio" | "databases" | "branding">("stats");
   const [composioConfig, setComposioConfig] = useState<ComposioRuntimeConfig>(() => getComposioConfig());
   const [pushConfig, setPushConfig] = useState<PushRuntimeConfig>(() => getPushConfig());
   const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfig>(() => getSupabaseConfig());
@@ -80,8 +100,66 @@ export function AdminPanelModal({
   const [pushTemplates, setPushTemplates] = useState<PushNotificationTemplate[]>(() => getCustomPushTemplates());
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState<number>(0);
 
+  // Sub-sección para premios: "roulette" (Ruleta) | "stamps" (Tarjeta de Sellos)
+  const [prizeSection, setPrizeSection] = useState<"roulette" | "stamps">("roulette");
+  const [stampRewards, setStampRewards] = useState<StampReward[]>(() => StampService.getStampRewards());
+  const [stampGlobalMode, setStampGlobalMode] = useState<10 | 15>(() => StampService.getGlobalMode());
+  const [stampSaveFeedback, setStampSaveFeedback] = useState<string | null>(null);
+
+  // Estados editables de marca (Branding & Composio)
+  const [brandConfig, setBrandConfig] = useState<BrandIdentityConfig>(() => getBrandConfig());
+  const [brandSyncStatus, setBrandSyncStatus] = useState<{ loading: boolean; msg?: string; success?: boolean }>({ loading: false });
+
   // Estados editables de premios
   const [localPrizes, setLocalPrizes] = useState<GamePrize[]>(prizes);
+
+  // Manejadores de Tarjeta de Sellos
+  const handleUpdateStampReward = (index: number, field: keyof StampReward, val: any) => {
+    const updated = [...stampRewards];
+    updated[index] = { ...updated[index], [field]: val };
+    setStampRewards(updated);
+  };
+
+  const handleSaveStampRewards = () => {
+    StampService.saveStampRewards(stampRewards);
+    StampService.setGlobalMode(stampGlobalMode);
+    setStampSaveFeedback("¡Recompensas de la tarjeta de sellos guardadas con éxito!");
+    setTimeout(() => setStampSaveFeedback(null), 3500);
+  };
+
+  const handleResetStampRewards = () => {
+    if (confirm("¿Deseas restaurar las 15 recompensas gastronómicas por defecto?")) {
+      const def = StampService.resetStampRewardsToDefault();
+      setStampRewards([...def]);
+      setStampSaveFeedback("Catálogo de sellos restaurado a valores originales.");
+      setTimeout(() => setStampSaveFeedback(null), 3500);
+    }
+  };
+
+  // Manejadores de Marca Blanca & Composio
+  const handleBrandChange = (field: keyof BrandIdentityConfig, value: string) => {
+    setBrandConfig((prev) => ({ ...prev, [field]: value }));
+    if (field === "primaryColor") {
+      applyBrandColors(value);
+    }
+  };
+
+  const handleSelectColorPreset = (hex: string) => {
+    handleBrandChange("primaryColor", hex);
+  };
+
+  const handleSaveBrandAndSyncComposio = async () => {
+    setBrandSyncStatus({ loading: true });
+    try {
+      const res = await syncBrandWithComposio(brandConfig);
+      setBrandSyncStatus({ loading: false, msg: res.message, success: res.success });
+      setTimeout(() => {
+        setBrandSyncStatus({ loading: false });
+      }, 4000);
+    } catch (err: any) {
+      setBrandSyncStatus({ loading: false, msg: err?.message || "Error al sincronizar", success: false });
+    }
+  };
 
   // Estadísticas calculadas
   const totalParticipants = history.length;
@@ -222,6 +300,19 @@ export function AdminPanelModal({
           >
             <Database className="h-3.5 w-3.5" />
             <span>{t("Google Sheets & Supabase", "Google Sheets & Supabase")}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("branding")}
+            className={`py-3.5 font-medium uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
+              activeTab === "branding"
+                ? "border-gold text-gold font-semibold"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Palette className="h-3.5 w-3.5" />
+            <span>{t("Marca & Composio", "Brand & Composio")}</span>
           </button>
         </div>
 
@@ -518,90 +609,300 @@ export function AdminPanelModal({
             </div>
           )}
 
-          {/* TAB 2: Configuración de Premios y Probabilidades */}
+          {/* TAB 2: Configuración de Premios (Ruleta y Tarjeta de Sellos) */}
           {activeTab === "prizes" && (
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border bg-muted/30">
-                <div>
-                  <p className="text-xs uppercase tracking-wider font-semibold text-foreground">
-                    Suma total de probabilidades
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Debe sumar exactamente 100% para que el algoritmo sea matemáticamente
-                    equitativo.
-                  </p>
+              {/* Selector de sub-sección: Ruleta vs Tarjeta de Sellos */}
+              <div className="flex flex-wrap items-center justify-between gap-3 p-2 bg-muted/40 rounded-2xl border border-border">
+                <div className="flex items-center gap-1.5 p-1 bg-background rounded-xl border border-border text-xs font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setPrizeSection("roulette")}
+                    className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 ${
+                      prizeSection === "roulette"
+                        ? "bg-gold text-slate-950 font-bold shadow-xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Sliders className="h-3.5 w-3.5" />
+                    <span>🎡 Ruleta de Premios (%)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPrizeSection("stamps")}
+                    className={`px-4 py-2 rounded-lg transition-all flex items-center gap-2 ${
+                      prizeSection === "stamps"
+                        ? "bg-gold text-slate-950 font-bold shadow-xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Award className="h-3.5 w-3.5" />
+                    <span>🌟 Tarjeta de Sellos (10 o 15 Recompensas)</span>
+                  </button>
                 </div>
-                <div
-                  className={`px-4 py-2 rounded-xl text-sm font-bold font-mono ${
-                    isProbValid
-                      ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                      : "bg-red-100 text-red-800 border border-red-300"
-                  }`}
-                >
-                  {totalProb}% / 100%
-                </div>
+
+                {prizeSection === "stamps" && (
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-muted-foreground font-medium">Modalidad:</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStampGlobalMode(10);
+                        StampService.setGlobalMode(10);
+                      }}
+                      className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${
+                        stampGlobalMode === 10
+                          ? "bg-gold text-slate-950 border-gold shadow-xs"
+                          : "bg-background text-muted-foreground border-border hover:border-gold/40"
+                      }`}
+                    >
+                      10 Sellos
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStampGlobalMode(15);
+                        StampService.setGlobalMode(15);
+                      }}
+                      className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${
+                        stampGlobalMode === 15
+                          ? "bg-gold text-slate-950 border-gold shadow-xs"
+                          : "bg-background text-muted-foreground border-border hover:border-gold/40"
+                      }`}
+                    >
+                      15 Sellos
+                    </button>
+                  </div>
+                )}
               </div>
 
-              {/* Lista de premios */}
-              <div className="space-y-3">
-                {localPrizes.map((p) => (
-                  <div
-                    key={p.id}
-                    className="p-4 rounded-xl border border-border/80 bg-background flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className="h-4 w-4 rounded-full border border-black/20 shrink-0"
-                        style={{ backgroundColor: p.color }}
-                      />
-                      <div>
-                        <p className="text-xs font-semibold text-foreground">{p.name}</p>
-                        <p className="text-[11px] text-muted-foreground font-light">{p.terms}</p>
-                      </div>
+              {/* SECCIÓN 1: RULETA DE LA SUERTE Y PROBABILIDADES */}
+              {prizeSection === "roulette" && (
+                <div className="space-y-5 animate-fade-in">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border bg-muted/30">
+                    <div>
+                      <p className="text-xs uppercase tracking-wider font-semibold text-foreground">
+                        Suma total de probabilidades de la Ruleta
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Debe sumar exactamente 100% para que el algoritmo sea matemáticamente equitativo.
+                      </p>
                     </div>
-
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-1.5">
-                        <label className="text-[11px] text-muted-foreground uppercase">
-                          Probabilidad:
-                        </label>
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          value={p.probability}
-                          onChange={(e) => handleProbChange(p.id, Number(e.target.value))}
-                          className="w-16 rounded-lg border border-border px-2 py-1 text-xs text-center font-mono font-bold text-foreground bg-card"
-                        />
-                        <span className="text-xs font-mono text-muted-foreground">%</span>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleToggleActive(p.id)}
-                        className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
-                          p.active
-                            ? "bg-emerald-100 text-emerald-800"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {p.active ? "Activo" : "Inactivo"}
-                      </button>
+                    <div
+                      className={`px-4 py-2 rounded-xl text-sm font-bold font-mono ${
+                        isProbValid
+                          ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                          : "bg-red-100 text-red-800 border border-red-300"
+                      }`}
+                    >
+                      {totalProb}% / 100%
                     </div>
                   </div>
-                ))}
-              </div>
 
-              <div className="pt-2 flex justify-end">
-                <button
-                  type="button"
-                  onClick={handleSavePrizes}
-                  disabled={!isProbValid}
-                  className="btn-solid py-2.5 px-6 text-xs uppercase tracking-wider font-semibold disabled:opacity-40"
-                >
-                  Guardar Cambios de Probabilidades
-                </button>
-              </div>
+                  {/* Lista de premios de la ruleta */}
+                  <div className="space-y-3">
+                    {localPrizes.map((p) => (
+                      <div
+                        key={p.id}
+                        className="p-4 rounded-xl border border-border/80 bg-background flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span
+                            className="h-4 w-4 rounded-full border border-black/20 shrink-0"
+                            style={{ backgroundColor: p.color }}
+                          />
+                          <div>
+                            <p className="text-xs font-semibold text-foreground">{p.name}</p>
+                            <p className="text-[11px] text-muted-foreground font-light">{p.terms}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-1.5">
+                            <label className="text-[11px] text-muted-foreground uppercase">
+                              Probabilidad:
+                            </label>
+                            <input
+                              type="number"
+                              min={0}
+                              max={100}
+                              value={p.probability}
+                              onChange={(e) => handleProbChange(p.id, Number(e.target.value))}
+                              className="w-16 rounded-lg border border-border px-2 py-1 text-xs text-center font-mono font-bold text-foreground bg-card"
+                            />
+                            <span className="text-xs font-mono text-muted-foreground">%</span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleToggleActive(p.id)}
+                            className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
+                              p.active
+                                ? "bg-emerald-100 text-emerald-800"
+                                : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {p.active ? "Activo" : "Inactivo"}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-2 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={handleSavePrizes}
+                      disabled={!isProbValid}
+                      className="btn-solid py-2.5 px-6 text-xs uppercase tracking-wider font-semibold disabled:opacity-40"
+                    >
+                      Guardar Cambios de Probabilidades
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* SECCIÓN 2: CATÁLOGO DE PREMIOS DE LA TARJETA DE SELLOS */}
+              {prizeSection === "stamps" && (
+                <div className="space-y-4 animate-fade-in">
+                  <div className="p-4 rounded-2xl bg-amber-500/10 border border-gold/30 text-xs text-foreground space-y-1">
+                    <p className="font-semibold text-gold uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="h-4 w-4 text-gold" />
+                      Catálogo Progresivo de Fidelización ({stampGlobalMode} Recompensas)
+                    </p>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Personaliza cada uno de los premios que los comensales desbloquean en sus visitas. Puedes editar el nombre, icono emoji, descripción, categoría gastronómica y si es un hito estelar (estrella dorada).
+                    </p>
+                  </div>
+
+                  {stampSaveFeedback && (
+                    <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-semibold flex items-center gap-2 animate-fade-in">
+                      <Check className="h-4 w-4 text-emerald-600" />
+                      <span>{stampSaveFeedback}</span>
+                    </div>
+                  )}
+
+                  <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1">
+                    {stampRewards.slice(0, stampGlobalMode).map((reward, index) => (
+                      <div
+                        key={reward.stamp}
+                        className={`p-3.5 rounded-2xl border transition-all text-xs space-y-2.5 ${
+                          reward.highlight
+                            ? "bg-gold/10 border-gold/60 shadow-xs"
+                            : "bg-background border-border/80"
+                        }`}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/50 pb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="h-6 px-2.5 rounded-full bg-gold text-slate-950 font-mono font-bold flex items-center justify-center text-xs">
+                              Sello #{reward.stamp}
+                            </span>
+                            <span className="text-xl">{reward.icon}</span>
+                            <span className="font-bold text-foreground truncate max-w-[200px]">
+                              {reward.title || `Recompensa Sello #${reward.stamp}`}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <label className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!reward.highlight}
+                                onChange={(e) =>
+                                  handleUpdateStampReward(index, "highlight", e.target.checked)
+                                }
+                                className="rounded text-gold focus:ring-gold"
+                              />
+                              <span>Hito Estelar ⭐</span>
+                            </label>
+
+                            <select
+                              value={reward.category}
+                              onChange={(e) =>
+                                handleUpdateStampReward(index, "category", e.target.value)
+                              }
+                              className="px-2 py-1 rounded-lg border border-border bg-card text-[11px] font-medium"
+                            >
+                              <option value="bebida">☕ Bebida</option>
+                              <option value="panaderia">🥐 Panadería</option>
+                              <option value="postre">🍰 Postre</option>
+                              <option value="descuento">🎟️ Descuento</option>
+                              <option value="vip">👑 Experiencia VIP</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1">
+                          <div className="sm:col-span-2">
+                            <label className="text-[10px] text-muted-foreground uppercase block font-semibold">
+                              Icono (Emoji):
+                            </label>
+                            <input
+                              type="text"
+                              value={reward.icon}
+                              onChange={(e) =>
+                                handleUpdateStampReward(index, "icon", e.target.value)
+                              }
+                              className="w-full text-center text-lg p-1.5 rounded-lg border border-border bg-card font-mono"
+                              maxLength={4}
+                            />
+                          </div>
+
+                          <div className="sm:col-span-5">
+                            <label className="text-[10px] text-muted-foreground uppercase block font-semibold">
+                              Título del Premio:
+                            </label>
+                            <input
+                              type="text"
+                              value={reward.title}
+                              onChange={(e) =>
+                                handleUpdateStampReward(index, "title", e.target.value)
+                              }
+                              className="w-full p-2 rounded-lg border border-border bg-card font-medium text-foreground text-xs"
+                              placeholder="Ej: Café Americano de Especialidad"
+                            />
+                          </div>
+
+                          <div className="sm:col-span-5">
+                            <label className="text-[10px] text-muted-foreground uppercase block font-semibold">
+                              Descripción del Beneficio:
+                            </label>
+                            <input
+                              type="text"
+                              value={reward.description}
+                              onChange={(e) =>
+                                handleUpdateStampReward(index, "description", e.target.value)
+                              }
+                              className="w-full p-2 rounded-lg border border-border bg-card text-muted-foreground text-xs"
+                              placeholder="Ej: Infusión fresca recién preparada"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-3 flex flex-wrap items-center justify-between gap-3 border-t border-border">
+                    <button
+                      type="button"
+                      onClick={handleResetStampRewards}
+                      className="px-4 py-2 rounded-xl border border-border text-muted-foreground hover:text-foreground text-xs font-semibold inline-flex items-center gap-1.5 transition-colors"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      <span>Restaurar Recompensas Originales</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleSaveStampRewards}
+                      className="btn-solid py-2.5 px-6 text-xs uppercase tracking-wider font-semibold inline-flex items-center gap-2 shadow-sm"
+                    >
+                      <Save className="h-4 w-4" />
+                      <span>Guardar Recompensas de la Tarjeta</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1389,6 +1690,389 @@ Presenta este código al momento de pagar:
                 </div>
               </div>
 
+            </div>
+          )}
+
+          {/* TAB 7: Motor de Marca Blanca, Identidad Visual & Composio */}
+          {activeTab === "branding" && (
+            <div className="space-y-6 animate-fade-in text-xs">
+              {/* Banner superior */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-gold/15 to-amber-500/10 border-2 border-gold/40 text-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-gold tracking-widest flex items-center gap-1.5">
+                    <Palette className="h-4 w-4 text-gold" />
+                    Motor de Marca Blanca & Composio.dev
+                  </span>
+                  <h3 className="font-display text-base sm:text-lg font-bold">
+                    Personaliza tu Restaurante o Negocio al 100%
+                  </h3>
+                  <p className="text-muted-foreground text-xs leading-relaxed max-w-xl">
+                    Edita el nombre comercial, eslogan, logotipo, paleta cromática y canales de contacto. Al hacer clic en <strong>"Sincronizar con Composio & Guardar"</strong>, los cambios se aplican de inmediato en toda la aplicación y quedan grabados.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleSaveBrandAndSyncComposio}
+                  disabled={brandSyncStatus.loading}
+                  className="btn-solid py-3 px-6 text-xs uppercase tracking-wider font-bold inline-flex items-center justify-center gap-2 shrink-0 shadow-md hover:scale-102 transition-all disabled:opacity-50"
+                >
+                  {brandSyncStatus.loading ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      <span>Sincronizando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="h-4 w-4" />
+                      <span>Sincronizar con Composio & Guardar</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Banner de estado de sincronización */}
+              {brandSyncStatus.msg && (
+                <div
+                  className={`p-3.5 rounded-xl border flex items-center gap-2.5 text-xs font-semibold animate-fade-in ${
+                    brandSyncStatus.success
+                      ? "bg-emerald-50 border-emerald-300 text-emerald-950"
+                      : "bg-red-50 border-red-300 text-red-950"
+                  }`}
+                >
+                  <Check className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span>{brandSyncStatus.msg}</span>
+                </div>
+              )}
+
+              {/* Grid principal: Formulario a la izquierda + Live Preview a la derecha */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* COLUMNA IZQUIERDA: FORMULARIO DE PERSONALIZACIÓN */}
+                <div className="lg:col-span-7 space-y-4">
+                  {/* Tarjeta 1: Identidad Básica */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-background border border-border/80 space-y-3.5 shadow-2xs">
+                    <div className="flex items-center gap-2 border-b border-border/60 pb-2">
+                      <Store className="h-4 w-4 text-gold" />
+                      <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                        1. Identidad de Marca & Nombre Comercial
+                      </h4>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="sm:col-span-2">
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+                          Nombre del Restaurante / Establecimiento:
+                        </label>
+                        <input
+                          type="text"
+                          value={brandConfig.name}
+                          onChange={(e) => handleBrandChange("name", e.target.value)}
+                          placeholder="Ej: Bliss Soul Bakery & Café"
+                          className="w-full p-2.5 rounded-xl border border-border bg-card font-medium text-foreground text-xs focus:border-gold outline-hidden"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+                          Eslogan Principal (Español):
+                        </label>
+                        <input
+                          type="text"
+                          value={brandConfig.tagline}
+                          onChange={(e) => handleBrandChange("tagline", e.target.value)}
+                          placeholder="Ej: Sabores inolvidables en cada visita."
+                          className="w-full p-2.5 rounded-xl border border-border bg-card text-foreground text-xs focus:border-gold outline-hidden"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+                          Eslogan en Inglés (English Tagline):
+                        </label>
+                        <input
+                          type="text"
+                          value={brandConfig.taglineEn}
+                          onChange={(e) => handleBrandChange("taglineEn", e.target.value)}
+                          placeholder="Ej: Unforgettable flavors in every visit."
+                          className="w-full p-2.5 rounded-xl border border-border bg-card text-foreground text-xs focus:border-gold outline-hidden"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+                          Moneda Oficial del Menú:
+                        </label>
+                        <input
+                          type="text"
+                          value={brandConfig.currency}
+                          onChange={(e) => handleBrandChange("currency", e.target.value)}
+                          placeholder="COP, USD, MXN, EUR..."
+                          className="w-full p-2.5 rounded-xl border border-border bg-card font-mono text-foreground text-xs focus:border-gold outline-hidden"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tarjeta 2: Paleta Cromática Dinámica */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-background border border-border/80 space-y-3.5 shadow-2xs">
+                    <div className="flex items-center gap-2 border-b border-border/60 pb-2">
+                      <Palette className="h-4 w-4 text-gold" />
+                      <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                        2. Paleta Cromática Corporativa
+                      </h4>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1.5">
+                          Color Primario (Botones, Acentos, Borde Dorado y QR):
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="color"
+                            value={brandConfig.primaryColor}
+                            onChange={(e) => handleBrandChange("primaryColor", e.target.value)}
+                            className="h-10 w-14 rounded-xl border border-border cursor-pointer p-0.5 bg-card"
+                          />
+                          <input
+                            type="text"
+                            value={brandConfig.primaryColor}
+                            onChange={(e) => handleBrandChange("primaryColor", e.target.value)}
+                            className="w-32 p-2.5 rounded-xl border border-border bg-card font-mono text-xs font-bold text-foreground focus:border-gold outline-hidden uppercase"
+                          />
+                          <div
+                            className="h-9 px-4 rounded-xl border flex items-center justify-center text-white text-xs font-bold shadow-xs"
+                            style={{ backgroundColor: brandConfig.primaryColor }}
+                          >
+                            Muestra Activa
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Paletas gastronómicas de 1 toque */}
+                      <div>
+                        <span className="text-[10px] uppercase font-semibold text-muted-foreground block mb-2">
+                          Paletas Gastronómicas Predefinidas (1 Toque):
+                        </span>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          {[
+                            { name: "Dorado Real", hex: "#a27e2c" },
+                            { name: "Borgoña Gourmet", hex: "#8b1e2c" },
+                            { name: "Esmeralda Café", hex: "#1e6b52" },
+                            { name: "Azul Bistro", hex: "#1e3a8a" },
+                            { name: "Chocolate Fino", hex: "#5c3826" },
+                            { name: "Naranja Brasa", hex: "#d9531e" },
+                            { name: "Violeta Lounge", hex: "#6d28d9" },
+                            { name: "Negro Élite", hex: "#18181b" },
+                          ].map((c) => (
+                            <button
+                              key={c.hex}
+                              type="button"
+                              onClick={() => handleSelectColorPreset(c.hex)}
+                              className={`p-2 rounded-xl border flex items-center gap-2 transition-all ${
+                                brandConfig.primaryColor.toLowerCase() === c.hex.toLowerCase()
+                                  ? "border-foreground bg-muted/60 shadow-xs font-bold"
+                                  : "border-border hover:border-foreground/40 bg-card"
+                              }`}
+                            >
+                              <span
+                                className="h-4 w-4 rounded-full border border-black/20 shrink-0"
+                                style={{ backgroundColor: c.hex }}
+                              />
+                              <span className="text-[10px] text-foreground truncate">{c.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tarjeta 3: Logotipo & Emblemas */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-background border border-border/80 space-y-3.5 shadow-2xs">
+                    <div className="flex items-center gap-2 border-b border-border/60 pb-2">
+                      <Sparkles className="h-4 w-4 text-gold" />
+                      <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                        3. Logotipo Oficial & Emblema Central
+                      </h4>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+                          URL del Logotipo Principal (Encabezado y Vouchers):
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={brandConfig.logoUrl}
+                            onChange={(e) => handleBrandChange("logoUrl", e.target.value)}
+                            placeholder="https://.../logo.png"
+                            className="w-full p-2.5 rounded-xl border border-border bg-card text-foreground text-xs focus:border-gold outline-hidden"
+                          />
+                          {brandConfig.logoUrl && (
+                            <img
+                              src={brandConfig.logoUrl}
+                              alt="Logo preview"
+                              className="h-10 w-16 object-contain rounded-lg border border-border bg-neutral-900 p-1"
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+                          URL del Emblema Central (Centro de la Ruleta y QR):
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={brandConfig.emblemUrl}
+                            onChange={(e) => handleBrandChange("emblemUrl", e.target.value)}
+                            placeholder="https://.../emblema.png"
+                            className="w-full p-2.5 rounded-xl border border-border bg-card text-foreground text-xs focus:border-gold outline-hidden"
+                          />
+                          {brandConfig.emblemUrl && (
+                            <img
+                              src={brandConfig.emblemUrl}
+                              alt="Emblema preview"
+                              className="h-10 w-10 object-contain rounded-lg border border-border bg-neutral-900 p-1"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tarjeta 4: Canales de Contacto & Redes */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-background border border-border/80 space-y-3.5 shadow-2xs">
+                    <div className="flex items-center gap-2 border-b border-border/60 pb-2">
+                      <Smartphone className="h-4 w-4 text-gold" />
+                      <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                        4. Canales de Contacto & Reputación Google
+                      </h4>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+                          WhatsApp Oficial (con código país):
+                        </label>
+                        <input
+                          type="text"
+                          value={brandConfig.whatsappNumber}
+                          onChange={(e) => handleBrandChange("whatsappNumber", e.target.value)}
+                          placeholder="Ej: 573022777295"
+                          className="w-full p-2.5 rounded-xl border border-border bg-card font-mono text-foreground text-xs focus:border-gold outline-hidden"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+                          Usuario de Instagram:
+                        </label>
+                        <input
+                          type="text"
+                          value={brandConfig.instagramHandle}
+                          onChange={(e) => handleBrandChange("instagramHandle", e.target.value)}
+                          placeholder="@tu_restaurante"
+                          className="w-full p-2.5 rounded-xl border border-border bg-card text-foreground text-xs focus:border-gold outline-hidden"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+                          Enlace a Reseñas de Google Maps:
+                        </label>
+                        <input
+                          type="text"
+                          value={brandConfig.googleMapsReviewUrl}
+                          onChange={(e) => handleBrandChange("googleMapsReviewUrl", e.target.value)}
+                          placeholder="https://g.page/r/.../review"
+                          className="w-full p-2.5 rounded-xl border border-border bg-card text-foreground text-xs focus:border-gold outline-hidden"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* COLUMNA DERECHA: LIVE PREVIEW INTERACTIVO */}
+                <div className="lg:col-span-5 space-y-4">
+                  <div className="p-4 sm:p-5 rounded-2xl bg-neutral-900 text-white border-2 border-gold/40 shadow-xl space-y-4 sticky top-4">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <span className="text-[10px] uppercase tracking-widest text-gold font-bold flex items-center gap-1.5">
+                        <Eye className="h-3.5 w-3.5" />
+                        Vista Previa en Vivo (Live Mockup)
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full bg-white/10 text-white text-[9px] font-mono">
+                        Tiempo Real
+                      </span>
+                    </div>
+
+                    {/* Mockup del encabezado móvil */}
+                    <div className="p-3.5 rounded-2xl bg-neutral-800/80 border border-white/10 text-center space-y-2">
+                      {brandConfig.logoUrl ? (
+                        <img
+                          src={brandConfig.logoUrl}
+                          alt="Logo"
+                          className="h-8 max-w-[120px] mx-auto object-contain brightness-0 invert"
+                        />
+                      ) : (
+                        <div className="h-8 flex items-center justify-center font-display font-bold text-base text-gold">
+                          {brandConfig.name}
+                        </div>
+                      )}
+                      <p className="font-display font-bold text-xs text-white">
+                        {brandConfig.name}
+                      </p>
+                      <p className="text-[10px] text-white/60 italic leading-snug">
+                        "{brandConfig.tagline}"
+                      </p>
+                    </div>
+
+                    {/* Mockup del Voucher de Premio */}
+                    <div className="p-4 rounded-2xl bg-card text-foreground border-2 border-gold/50 shadow-md space-y-3 text-center">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider border border-emerald-200">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>Disponible para Aplicar</span>
+                      </div>
+
+                      <div>
+                        <span className="text-[9px] uppercase tracking-widest text-muted-foreground block">
+                          Beneficio asignado
+                        </span>
+                        <h4 className="font-display font-bold text-sm text-foreground">
+                          Postre de Autor o Descuento Especial
+                        </h4>
+                      </div>
+
+                      {/* Mini Botón con el Color Corporativo */}
+                      <button
+                        type="button"
+                        className="w-full py-2.5 px-4 rounded-xl text-white font-bold text-xs uppercase tracking-wider transition-all shadow-sm"
+                        style={{ backgroundColor: brandConfig.primaryColor }}
+                      >
+                        Presentar en Caja ({brandConfig.name})
+                      </button>
+
+                      <div className="pt-2 border-t border-border flex items-center justify-between text-[10px] text-muted-foreground">
+                        <span>WhatsApp: {brandConfig.whatsappNumber}</span>
+                        <span>{brandConfig.currency}</span>
+                      </div>
+                    </div>
+
+                    {/* Explicación de Composio */}
+                    <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 text-[11px] text-white/80 space-y-1 leading-relaxed">
+                      <p className="font-bold text-gold flex items-center gap-1.5">
+                        <Zap className="h-3.5 w-3.5 text-gold" />
+                        Integración Composio.dev
+                      </p>
+                      <p className="text-[10px] text-white/60">
+                        Al presionar guardar, este perfil de marca se sincroniza con tus agentes y webhooks para que los mensajes de WhatsApp, correos automáticos y tablas de clientes reflejen la identidad de tu marca automáticamente.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>

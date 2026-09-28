@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   StampCardState,
   StampService,
-  STAMP_REWARDS_15,
   StampReward,
 } from "@/lib/stampService";
 import {
@@ -15,8 +14,10 @@ import {
   ChevronUp,
   Award,
   Layers,
+  Zap,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { AddToHomeScreenModal } from "./AddToHomeScreenModal";
 
 interface DigitalStampCardProps {
   stampCard: StampCardState;
@@ -31,6 +32,7 @@ export function DigitalStampCard({
   const [selectedReward, setSelectedReward] = useState<StampReward | null>(null);
   const [showAllCatalog, setShowAllCatalog] = useState(false);
   const [activeMode, setActiveMode] = useState<10 | 15>(() => initialStampCard.mode || 15);
+  const isHappyHourActive = StampService.isHappyHour();
 
   const totalRequired = activeMode;
   const stamps = Array.from({ length: totalRequired }, (_, i) => i + 1);
@@ -96,6 +98,23 @@ export function DigitalStampCard({
             "Each visit validated with PIN earns a stamp and unlocks a higher-tier culinary perk."
           )}
         </p>
+
+        {/* GEMA 1: BANNER DE HORA FELIZ / HORAS MUERTAS (3:00 PM - 6:00 PM) */}
+        {isHappyHourActive ? (
+          <div className="mt-3 p-3 rounded-2xl bg-gradient-to-r from-amber-500/20 via-gold/30 to-amber-500/20 border-2 border-gold text-amber-950 text-xs font-semibold flex items-center justify-center gap-2 shadow-sm animate-pulse">
+            <Zap className="h-4 w-4 text-amber-600 fill-amber-500 shrink-0" />
+            <span>
+              ⚡ {t("¡HORA FELIZ ACTIVA (3:00 PM - 6:00 PM)! Hoy cada visita suma DOBLE SELLO (x2) en caja.", "⚡ HAPPY HOUR ACTIVE (3:00 PM - 6:00 PM)! Visits award DOUBLE STAMPS (x2) today.")}
+            </span>
+          </div>
+        ) : (
+          <div className="mt-3 py-1.5 px-3 rounded-full bg-muted/60 text-muted-foreground text-[10px] inline-flex items-center gap-1.5 border border-border/60">
+            <Zap className="h-3 w-3 text-gold" />
+            <span>
+              {t("Horas Felices (3 PM a 6 PM): Cada visita en la tarde otorga Doble Sello (x2)", "Happy Hours (3 PM to 6 PM): Afternoon visits earn Double Stamps (x2)")}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* REJILLA DE CASILLAS DE SELLOS (ADAPTABLE PARA 10 O 15) */}
@@ -211,6 +230,11 @@ export function DigitalStampCard({
           </div>
         </div>
 
+        {/* GEMA 3: GUARDAR TARJETA EN PANTALLA DE INICIO (1-TAP) */}
+        <div className="pt-1">
+          <AddToHomeScreenModal />
+        </div>
+
         {/* BOTÓN PARA DESPLEGAR EL CATÁLOGO COMPLETO DE LOS 15 PREMIOS */}
         <button
           type="button"
@@ -234,7 +258,7 @@ export function DigitalStampCard({
             </p>
 
             <div className="max-h-72 overflow-y-auto space-y-1.5 pr-1">
-              {STAMP_REWARDS_15.slice(0, totalRequired).map((r) => {
+              {StampService.getStampRewards().slice(0, totalRequired).map((r) => {
                 const isEarned = r.stamp <= currentStamps;
                 return (
                   <div

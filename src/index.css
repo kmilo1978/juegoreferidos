@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+@theme {
+  --color-gold: var(--gold, #a27e2c);
+  --color-gold-light: var(--gold-light, #d1b374);
+  --color-ink: var(--ink, #1e1b18);
+  --color-bg-cream: var(--bg-cream, #fcfaf7);
+}
+
 @layer base {
   :root {
     --gold: #a27e2c;
@@ -22,14 +29,14 @@
 }
 
 .btn-solid {
-  background-color: #a27e2c;
+  background-color: var(--gold, #a27e2c);
   color: #ffffff;
   border-radius: 0.75rem;
   transition: all 0.3s ease;
 }
 
 .btn-solid:hover {
-  background-color: #8c6b22;
+  filter: brightness(0.9);
   box-shadow: 0 4px 14px rgba(162, 126, 44, 0.35);
 }
 

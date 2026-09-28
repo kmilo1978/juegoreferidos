@@ -78,29 +78,44 @@ export interface ClientConfig {
 import logoHeader from "@/assets/logo-header.png";
 import emblemaDorado from "@/assets/emblema-dorado.png";
 
+// Obtener datos personalizados si el usuario los configuró desde el panel de control
+const getStoredBrand = () => {
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem("juegoreferidos_brand_identity");
+      if (stored) return JSON.parse(stored);
+    } catch {
+      // ignore
+    }
+  }
+  return null;
+};
+
+const storedBrand = getStoredBrand();
+
 export const clientConfig: ClientConfig = {
   brand: {
-    name: "Tu Restaurante & Café",
-    tagline: "Sabores inolvidables, momentos que alegran el día.",
-    taglineEn: "Unforgettable flavors, moments that brighten your day.",
-    logoUrl: logoHeader,
-    emblemUrl: emblemaDorado,
-    currency: "COP",
+    name: storedBrand?.name || "Tu Restaurante & Café",
+    tagline: storedBrand?.tagline || "Sabores inolvidables, momentos que alegran el día.",
+    taglineEn: storedBrand?.taglineEn || "Unforgettable flavors, moments that brighten your day.",
+    logoUrl: storedBrand?.logoUrl || logoHeader,
+    emblemUrl: storedBrand?.emblemUrl || emblemaDorado,
+    currency: storedBrand?.currency || "COP",
   },
   theme: {
-    primaryColor: "#a27e2c",    // Color corporativo principal
-    primaryHover: "#8c6b22",
-    backgroundColor: "#fcfaf7", // Fondo claro y elegante
-    cardColor: "#ffffff",
-    textColor: "#1e1b18",       // Carbón de lectura
-    mutedColor: "#737373",
+    primaryColor: storedBrand?.primaryColor || "#a27e2c",    // Color corporativo principal
+    primaryHover: storedBrand?.primaryHover || "#8c6b22",
+    backgroundColor: storedBrand?.backgroundColor || "#fcfaf7", // Fondo claro y elegante
+    cardColor: storedBrand?.cardColor || "#ffffff",
+    textColor: storedBrand?.textColor || "#1e1b18",       // Carbón de lectura
+    mutedColor: storedBrand?.mutedColor || "#737373",
   },
   channels: {
-    instagramHandle: "@turestaurante",
-    instagramProfileUrl: "https://www.instagram.com/",
-    whatsappNumber: "573000000000",
-    googleMapsReviewUrl: "https://maps.google.com",
-    supportEmail: "contacto@turestaurante.com",
+    instagramHandle: storedBrand?.instagramHandle || "@turestaurante",
+    instagramProfileUrl: storedBrand?.instagramProfileUrl || "https://www.instagram.com/",
+    whatsappNumber: storedBrand?.whatsappNumber || "573000000000",
+    googleMapsReviewUrl: storedBrand?.googleMapsReviewUrl || "https://maps.google.com",
+    supportEmail: storedBrand?.supportEmail || "contacto@turestaurante.com",
   },
   security: {
     cashierPin: "1978",
