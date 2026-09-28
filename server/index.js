@@ -1746,12 +1746,12 @@ function renderBackendDashboard() {
         </div>
 
         <!-- DIAGNÓSTICO Y RECOMENDACIÓN INTELIGENTE DE HORAS MUERTAS -->
-        <div style="margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); display: flex; flex-direction: column; sm:flex-direction: row; justify-content: space-between; align-items: center; gap: 14px;">
+        <div style="margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: #FFFBEB; border: 1px solid #FCD34D; display: flex; flex-direction: column; sm:flex-direction: row; justify-content: space-between; align-items: center; gap: 14px;">
           <div style="display: flex; align-items: center; gap: 10px;">
             <span style="font-size: 24px;">⚡</span>
             <div>
-              <strong style="color: #fbbf24; font-size: 13px; display: block;">Franja de Horas Muertas Detectada: 3:00 PM a 6:00 PM</strong>
-              <p style="font-size: 11px; color: #d1d5db; margin: 2px 0 0 0;">
+              <strong style="color: #92400E; font-size: 13px; display: block;">Franja de Horas Muertas Detectada: 3:00 PM a 6:00 PM</strong>
+              <p style="font-size: 11px; color: var(--text-secondary); margin: 2px 0 0 0;">
                 El flujo de comensales baja a menos del 25%. Es el momento óptimo para activar la campaña automática de <strong>Happy Hour 2x1</strong> o regalar <strong>Doble Sello</strong>.
               </p>
             </div>
@@ -1769,7 +1769,7 @@ function renderBackendDashboard() {
           <div class="panel-header">
             <div class="panel-title">
               <span>🎟️ Cupones y Tarjetas de Sellos</span>
-              <span style="font-size: 11px; background: #1f2937; padding: 2px 8px; border-radius: 6px; color: var(--text-muted);">Base de Datos Local</span>
+              <span style="font-size: 11px; background: #F1F5F9; border: 1px solid var(--card-border); padding: 2px 8px; border-radius: 6px; color: var(--text-muted);">Base de Datos Local</span>
             </div>
             <input type="text" id="searchInput" placeholder="🔍 Buscar código, cliente o tel..." class="form-input" style="width: 220px;" onkeyup="filterTable()">
           </div>
@@ -1782,40 +1782,53 @@ function renderBackendDashboard() {
                   <th>Hora</th>
                   <th>Cliente & WhatsApp</th>
                   <th>Premio Ganado</th>
-                  <th>Sellos Visita</th>
+                  <th>Nivel & Sellos</th>
                   <th>Estado en Caja</th>
                 </tr>
               </thead>
               <tbody id="tableBody">
                 ${
                   db.prizes.length === 0
-                    ? '<tr><td colspan="6" style="text-align: center; color: #6b7280; padding: 24px;">No hay cupones registrados aún.</td></tr>'
+                    ? '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">No hay cupones registrados aún.</td></tr>'
                     : db.prizes
                         .map((p) => {
                           const stamps = p.stamps || 1;
                           const stars = "★".repeat(Math.min(5, stamps)) + "☆".repeat(Math.max(0, 5 - stamps));
                           const isUsed = p.status === "UTILIZADO";
+                          const isSecondChance = (p.prizeName || "").includes("2ª Oportunidad");
+                          const tierBadge = stamps >= 11
+                            ? '<span style="background: #FFFBEB; color: #78350F; border: 1px solid #F59E0B; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 700;">👑 Embajador VIP</span>'
+                            : stamps >= 6
+                            ? '<span style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 700;">🥐 Gourmet Regular</span>'
+                            : '<span style="background: #FFFBEB; color: #92400E; border: 1px solid #FCD34D; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 700;">☕ Café Inicial</span>';
+
                           return `
                           <tr>
                             <td><span class="badge-code">${p.uniqueCode}</span></td>
-                            <td><span style="color: #fbbf24; font-family: monospace; font-size: 11px;">${p.wonAt || "Hoy"}</span></td>
+                            <td><span style="color: var(--text-muted); font-family: monospace; font-size: 11px;">${p.wonAt || "Hoy"}</span></td>
                             <td>
-                              <strong style="color: var(--text);">${p.customerName || "Cliente"}</strong>
+                              <strong style="color: var(--text); font-size: 12px;">${p.customerName || "Cliente"}</strong>
                               <div style="font-size: 11px; color: var(--text-muted);">${p.whatsapp || "Sin número"}</div>
                             </td>
-                            <td style="color: #e5e7eb;">
-                              ${p.prizeName}
-                              <div style="font-size: 10px; color: #6b7280;">Mesa: ${p.tableNumber || "1"}</div>
+                            <td>
+                              <div style="font-weight: 700; color: var(--text); font-size: 12px;">${p.prizeName}</div>
+                              <div style="font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-top: 3px;">
+                                <span style="background: #F1F5F9; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--card-border);">${p.tableNumber || "Mesa 1"}</span>
+                                ${isSecondChance ? '<span style="background: var(--accent-light); color: var(--accent); padding: 1px 6px; border-radius: 4px; font-weight: 700;">⭐ 2ª Oportunidad</span>' : ''}
+                              </div>
                             </td>
                             <td>
-                              <span class="stars-cell">${stars}</span>
-                              <div style="font-size: 10px; color: var(--text-muted);">${stamps}/15 visitas</div>
+                              <div class="stars-cell">${stars}</div>
+                              <div style="margin-top: 3px; display: flex; align-items: center; gap: 4px;">
+                                ${tierBadge}
+                                <span style="font-size: 10px; color: var(--text-muted); font-family: monospace;">(${stamps}/15)</span>
+                              </div>
                             </td>
                             <td>
                               <span class="${isUsed ? "badge-status-used" : "badge-status-available"}">
                                 ${isUsed ? "✓ CANJEADO" : "⏳ DISPONIBLE"}
                               </span>
-                              ${isUsed && p.usedAt ? `<div style="font-size: 10px; color: #6b7280; margin-top: 2px;">Hora: ${p.usedAt}</div>` : ""}
+                              ${isUsed && p.usedAt ? `<div style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">Hora: ${p.usedAt}</div>` : ""}
                             </td>
                           </tr>
                           `;
@@ -2034,12 +2047,12 @@ function renderBackendDashboard() {
           const statusLabel = isPending ? "🟡 PREMIO PENDIENTE" : isPlaying ? "🔵 JUGANDO AHORA" : isRedeemed ? "✓ PREMIO CANJEADO" : "🟢 DISPONIBLE";
 
           return `
-            <div id="table-card-${table.number}" style="background: var(--card-bg); border: 2px solid ${statusBorder}; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 14px rgba(0,0,0,0.25); transition: all 0.2s ease;">
+            <div id="table-card-${table.number}" style="background: var(--card-bg); border: 2px solid ${statusBorder}; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: all 0.2s ease;">
               <!-- Encabezado de la Mesa -->
               <div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                   <div>
-                    <span style="font-size: 16px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 16px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 6px;">
                       <span>🪑</span> ${table.name}
                     </span>
                     <span style="font-size: 11px; color: var(--text-muted); font-family: monospace;">${table.zone} · ${table.capacity} pers</span>
@@ -2050,7 +2063,7 @@ function renderBackendDashboard() {
                 </div>
 
                 <!-- Datos del Comensal y Variable Conectada -->
-                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 12px; margin: 10px 0; font-size: 11px; space-y: 4px;">
+                <div style="background: #F8FAFC; border: 1px solid var(--card-border); border-radius: 10px; padding: 10px 12px; margin: 10px 0; font-size: 11px; space-y: 4px;">
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                     <span style="color: var(--text-muted);">Comensal:</span>
                     <strong style="color: var(--text);">${table.currentCustomer || "Mesa Libre"}</strong>
@@ -2058,21 +2071,21 @@ function renderBackendDashboard() {
                   ${table.currentWhatsapp ? `
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                     <span style="color: var(--text-muted);">WhatsApp:</span>
-                    <span style="color: #34d399; font-family: monospace;">+${table.currentWhatsapp}</span>
+                    <span style="color: var(--success); font-family: monospace; font-weight: 700;">+${table.currentWhatsapp}</span>
                   </div>` : ""}
                   ${table.prizeWon ? `
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                     <span style="color: var(--text-muted);">Premio:</span>
-                    <span style="color: #fbbf24; font-weight: 700; text-align: right;">${table.prizeWon}</span>
+                    <span style="color: var(--accent); font-weight: 700; text-align: right;">${table.prizeWon}</span>
                   </div>` : ""}
                   ${table.uniqueCode ? `
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                     <span style="color: var(--text-muted);">Cupón:</span>
-                    <span style="color: #fff; background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px; font-family: monospace; font-weight: 800;">${table.uniqueCode}</span>
+                    <span style="color: var(--info); background: var(--info-bg); border: 1px solid rgba(37,99,235,0.2); padding: 1px 6px; border-radius: 4px; font-family: monospace; font-weight: 800;">${table.uniqueCode}</span>
                   </div>` : ""}
-                  <div style="display: flex; justify-content: space-between; margin-top: 6px; padding-top: 4px; border-top: 1px dashed rgba(255,255,255,0.08); font-size: 10px;">
-                    <span style="color: #6b7280;">Variable: mesa.${table.number}</span>
-                    <span style="color: #38bdf8; font-family: monospace;">${table.activeSessionId || "ID: Libre"}</span>
+                  <div style="display: flex; justify-content: space-between; margin-top: 6px; padding-top: 4px; border-top: 1px dashed var(--card-border); font-size: 10px;">
+                    <span style="color: var(--text-muted);">Variable: mesa.${table.number}</span>
+                    <span style="color: var(--info); font-family: monospace;">${table.activeSessionId || "ID: Libre"}</span>
                   </div>
                 </div>
               </div>
@@ -3964,27 +3977,40 @@ function renderBackendDashboard() {
               const stamps = p.stamps || 1;
               const stars = "★".repeat(Math.min(5, stamps)) + "☆".repeat(Math.max(0, 5 - stamps));
               const isUsed = p.status === "UTILIZADO";
+              const isSecondChance = (p.prizeName || "").includes("2ª Oportunidad");
+              const tierBadge = stamps >= 11
+                ? '<span style="background: #FFFBEB; color: #78350F; border: 1px solid #F59E0B; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 700;">👑 Embajador VIP</span>'
+                : stamps >= 6
+                ? '<span style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 700;">🥐 Gourmet Regular</span>'
+                : '<span style="background: #FFFBEB; color: #92400E; border: 1px solid #FCD34D; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 700;">☕ Café Inicial</span>';
+
               return \`
                 <tr>
                   <td><span class="badge-code">\${p.uniqueCode}</span></td>
-                  <td><span style="color: #fbbf24; font-family: monospace; font-size: 11px;">\${p.wonAt || "Hoy"}</span></td>
+                  <td><span style="color: var(--text-muted); font-family: monospace; font-size: 11px;">\${p.wonAt || "Hoy"}</span></td>
                   <td>
-                    <strong style="color: var(--text);">\${p.customerName || "Cliente"}</strong>
+                    <strong style="color: var(--text); font-size: 12px;">\${p.customerName || "Cliente"}</strong>
                     <div style="font-size: 11px; color: var(--text-muted);">\${p.whatsapp || "Sin número"}</div>
                   </td>
-                  <td style="color: #e5e7eb;">
-                    \${p.prizeName}
-                    <div style="font-size: 10px; color: #6b7280;">Mesa: \${p.tableNumber || "1"}</div>
+                  <td>
+                    <div style="font-weight: 700; color: var(--text); font-size: 12px;">\${p.prizeName}</div>
+                    <div style="font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-top: 3px;">
+                      <span style="background: #F1F5F9; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--card-border);">\${p.tableNumber || "Mesa 1"}</span>
+                      \${isSecondChance ? '<span style="background: var(--accent-light); color: var(--accent); padding: 1px 6px; border-radius: 4px; font-weight: 700;">⭐ 2ª Oportunidad</span>' : ''}
+                    </div>
                   </td>
                   <td>
-                    <span class="stars-cell">\${stars}</span>
-                    <div style="font-size: 10px; color: var(--text-muted);">\${stamps}/15 visitas</div>
+                    <div class="stars-cell">\${stars}</div>
+                    <div style="margin-top: 3px; display: flex; align-items: center; gap: 4px;">
+                      \${tierBadge}
+                      <span style="font-size: 10px; color: var(--text-muted); font-family: monospace;">(\${stamps}/15)</span>
+                    </div>
                   </td>
                   <td>
                     <span class="\${isUsed ? "badge-status-used" : "badge-status-available"}">
                       \${isUsed ? "✓ CANJEADO" : "⏳ DISPONIBLE"}
                     </span>
-                    \${isUsed && p.usedAt ? \`<div style="font-size: 10px; color: #6b7280; margin-top: 2px;">Hora: \${p.usedAt}</div>\` : ""}
+                    \${isUsed && p.usedAt ? \`<div style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">Hora: \${p.usedAt}</div>\` : ""}
                   </td>
                 </tr>
               \`;
