@@ -801,18 +801,39 @@ function renderBackendDashboard() {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${s.brand.name} · Backend & Panel de Control de Operaciones</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     :root {
-      --bg: #090d16;
-      --card-bg: #111827;
-      --card-border: #1f293d;
-      --accent: ${s.brand.primaryColor || '#d97706'};
-      --accent-hover: #b45309;
-      --accent-glow: rgba(217, 119, 6, 0.18);
-      --success: #10b981;
-      --success-glow: rgba(16, 185, 129, 0.15);
-      --text: #f3f4f6;
-      --text-muted: #9ca3af;
-      --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --bg: #F1F5F9;
+      --card-bg: #FFFFFF;
+      --card-border: #E2E8F0;
+      --sidebar-bg: #FFFFFF;
+      --accent: ${s.brand.primaryColor || '#a27e2c'};
+      --accent-light: rgba(162, 126, 44, 0.10);
+      --accent-hover: #8c6b22;
+      --accent-glow: rgba(162, 126, 44, 0.20);
+      --success: #059669;
+      --success-bg: #ECFDF5;
+      --success-glow: rgba(5, 150, 105, 0.12);
+      --warning: #D97706;
+      --warning-bg: #FFFBEB;
+      --danger: #DC2626;
+      --danger-bg: #FEF2F2;
+      --info: #2563EB;
+      --info-bg: #EFF6FF;
+      --text: #0F172A;
+      --text-secondary: #334155;
+      --text-muted: #64748B;
+      --text-light: #94A3B8;
+      --bronze: #92400E;
+      --bronze-bg: #FEF3C7;
+      --bronze-border: #FCD34D;
+      --silver: #475569;
+      --silver-bg: #F1F5F9;
+      --silver-border: #CBD5E1;
+      --gold: #92400E;
+      --gold-bg: #FFFBEB;
+      --gold-border: #F59E0B;
+      --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -820,15 +841,15 @@ function renderBackendDashboard() {
       color: var(--text);
       font-family: var(--font-family);
       line-height: 1.5;
-      padding: 24px 16px;
+      padding: 20px 16px;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
-    .container { max-width: 1280px; margin: 0 auto; }
+    .container { max-width: 1320px; margin: 0 auto; }
 
     /* ENCABEZADO */
     header {
-      background: linear-gradient(135deg, #131c2e 0%, #0d1322 100%);
+      background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
       border: 1px solid var(--card-border);
       border-radius: 18px;
       padding: 22px 28px;
@@ -838,14 +859,15 @@ function renderBackendDashboard() {
       justify-content: space-between;
       gap: 16px;
       margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
     }
     .status-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #34d399;
+      background: var(--success-bg);
+      border: 1px solid rgba(5, 150, 105, 0.3);
+      color: var(--success);
       padding: 4px 10px;
       border-radius: 9999px;
       font-size: 11px;
@@ -855,21 +877,21 @@ function renderBackendDashboard() {
     }
     .pulse-dot {
       width: 8px; height: 8px;
-      background-color: #10b981;
+      background-color: var(--success);
       border-radius: 50%;
       animation: pulse 1.8s infinite;
     }
     @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+      0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.6); }
+      70% { box-shadow: 0 0 0 8px rgba(5, 150, 105, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
     }
-    h1 { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+    h1 { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
     .header-desc { font-size: 13px; color: var(--text-muted); }
     .btn-frontend {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #0b0f19;
-      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+      color: #FFFFFF;
+      font-weight: 700;
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -879,10 +901,10 @@ function renderBackendDashboard() {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3);
+      box-shadow: 0 4px 14px var(--accent-glow);
       transition: all 0.2s;
     }
-    .btn-frontend:hover { transform: translateY(-1px); filter: brightness(1.1); }
+    .btn-frontend:hover { transform: translateY(-1px); filter: brightness(1.08); }
 
     /* LAYOUT PRINCIPAL DE 2 COLUMNAS (BARRA VERTICAL A LA IZQUIERDA / CONTENIDO A LA DERECHA) */
     .dashboard-layout {
@@ -896,7 +918,7 @@ function renderBackendDashboard() {
         align-items: flex-start;
       }
       .nav-sidebar {
-        width: 280px;
+        width: 268px;
         flex-shrink: 0;
         position: sticky;
         top: 20px;
@@ -913,50 +935,51 @@ function renderBackendDashboard() {
       padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      gap: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
     }
     .sidebar-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 11px;
-      font-weight: 800;
-      color: #9ca3af;
-      letter-spacing: 0.05em;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      padding-bottom: 8px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 10px;
     }
     .badge-role {
-      background: rgba(217, 119, 6, 0.2);
-      color: #fbbf24;
+      background: var(--accent-light);
+      color: var(--accent);
       font-size: 10px;
       padding: 2px 8px;
       border-radius: 9999px;
-      border: 1px solid rgba(217, 119, 6, 0.4);
+      border: 1px solid rgba(162, 126, 44, 0.3);
       font-family: monospace;
       font-weight: 700;
     }
     .nav-group {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
     }
     .nav-group-title {
       font-size: 10px;
-      font-weight: 800;
-      color: #fbbf24;
+      font-weight: 700;
+      color: var(--text-light);
       letter-spacing: 0.08em;
-      margin-bottom: 2px;
-      padding-left: 4px;
+      margin-bottom: 4px;
+      padding-left: 6px;
+      text-transform: uppercase;
     }
     .nav-tab-btn {
-      background: #111827;
-      color: #9ca3af;
-      border: 1px solid var(--card-border);
-      padding: 9px 12px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid transparent;
+      padding: 8px 10px;
       border-radius: 10px;
-      font-size: 12px;
+      font-size: 12.5px;
       cursor: pointer;
       transition: all 0.15s ease;
       display: flex;
@@ -966,24 +989,24 @@ function renderBackendDashboard() {
       width: 100%;
     }
     .nav-tab-btn:hover {
-      color: #fff;
-      background: #1f2937;
-      border-color: rgba(217, 119, 6, 0.4);
+      color: var(--text);
+      background: #F8FAFC;
+      border-color: var(--card-border);
     }
     .nav-tab-btn.active {
-      background: linear-gradient(135deg, rgba(217, 119, 6, 0.25) 0%, rgba(217, 119, 6, 0.08) 100%);
-      color: #fbbf24;
-      border-color: #d97706;
-      box-shadow: 0 2px 8px rgba(217, 119, 6, 0.2);
+      background: var(--accent-light);
+      color: var(--accent);
+      border-color: rgba(162, 126, 44, 0.35);
+      font-weight: 600;
     }
-    .tab-title { font-weight: 700; font-size: 12px; line-height: 1.2; }
-    .tab-sub { font-size: 10px; font-weight: 400; color: #6b7280; margin-top: 1px; }
-    .nav-tab-btn.active .tab-sub { color: #d97706; }
+    .tab-title { font-weight: 600; font-size: 12.5px; line-height: 1.2; }
+    .tab-sub { font-size: 10px; font-weight: 400; color: var(--text-light); margin-top: 1px; }
+    .nav-tab-btn.active .tab-sub { color: var(--accent); }
 
     /* GUÍAS RÁPIDAS EXPLICATIVAS PARA SECCIONES CON CIERTA COMPLEJIDAD */
     .quick-guide-box {
-      background: rgba(245, 158, 11, 0.06);
-      border: 1px solid rgba(245, 158, 11, 0.3);
+      background: var(--warning-bg);
+      border: 1px solid rgba(217, 119, 6, 0.25);
       border-radius: 14px;
       padding: 14px 16px;
       margin-bottom: 20px;
@@ -994,7 +1017,7 @@ function renderBackendDashboard() {
       gap: 10px;
       font-size: 12px;
       font-weight: 700;
-      color: #fbbf24;
+      color: var(--warning);
       margin-bottom: 6px;
     }
     .quick-guide-grid {
@@ -1004,19 +1027,19 @@ function renderBackendDashboard() {
       margin-top: 10px;
     }
     .quick-guide-item {
-      background: rgba(17, 24, 39, 0.6);
-      border: 1px solid rgba(245, 158, 11, 0.15);
+      background: #FFFFFF;
+      border: 1px solid var(--card-border);
       border-radius: 10px;
       padding: 10px;
       font-size: 11px;
     }
     .quick-guide-item strong {
-      color: #f3f4f6;
+      color: var(--text);
       display: block;
       margin-bottom: 3px;
     }
     .quick-guide-item span {
-      color: #9ca3af;
+      color: var(--text-muted);
       line-height: 1.4;
       display: block;
     }
@@ -1028,7 +1051,7 @@ function renderBackendDashboard() {
     /* TARJETAS DE MÉTRICAS */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
       margin-bottom: 20px;
     }
@@ -1038,14 +1061,15 @@ function renderBackendDashboard() {
       border-radius: 16px;
       padding: 18px 20px;
       position: relative;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-    .stat-title { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); }
-    .stat-value { font-size: 28px; font-weight: 800; color: #fff; margin: 4px 0; display: block; }
-    .stat-sub { font-size: 11px; color: #6b7280; }
+    .stat-title { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); letter-spacing: 0.04em; }
+    .stat-value { font-size: 28px; font-weight: 800; color: var(--text); margin: 4px 0; display: block; }
+    .stat-sub { font-size: 11px; color: var(--text-light); }
 
     /* TARJETAS SELECTORAS DE MODO DE JUEGO */
     .game-mode-card {
-      background: #111827;
+      background: #F8FAFC;
       border: 2px solid var(--card-border);
       border-radius: 12px;
       padding: 16px;
@@ -1057,18 +1081,18 @@ function renderBackendDashboard() {
       justify-content: space-between;
     }
     .game-mode-card:hover {
-      border-color: rgba(217, 119, 6, 0.6);
-      background: #1f2937;
+      border-color: rgba(162, 126, 44, 0.5);
+      background: rgba(162, 126, 44, 0.06);
     }
     .game-mode-card.active {
-      border-color: #d97706;
-      background: rgba(217, 119, 6, 0.12);
-      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+      border-color: var(--accent);
+      background: var(--accent-light);
+      box-shadow: 0 4px 12px var(--accent-glow);
     }
     .game-mode-card .mode-check {
       font-size: 10px;
       font-family: monospace;
-      color: #fbbf24;
+      color: var(--accent);
       font-weight: 800;
     }
 
@@ -1086,6 +1110,7 @@ function renderBackendDashboard() {
       border: 1px solid var(--card-border);
       border-radius: 16px;
       padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .panel-header {
       display: flex;
@@ -1097,77 +1122,162 @@ function renderBackendDashboard() {
       border-bottom: 1px solid var(--card-border);
       padding-bottom: 12px;
     }
-    .panel-title { font-size: 15px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .panel-title { font-size: 15px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
 
     /* TABLA */
     .table-container { overflow-x: auto; max-height: 480px; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
     th {
-      background: #0b0f19;
+      background: #F8FAFC;
       color: var(--text-muted);
       font-weight: 700;
       text-transform: uppercase;
       font-size: 10px;
+      letter-spacing: 0.05em;
       padding: 10px 12px;
       border-bottom: 1px solid var(--card-border);
       position: sticky; top: 0;
     }
-    td { padding: 12px; border-bottom: 1px solid #1a2234; }
-    tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+    td { padding: 12px; border-bottom: 1px solid #F1F5F9; color: var(--text-secondary); }
+    tbody tr:hover { background: #FAFBFC; }
     .badge-code {
       font-family: monospace; font-size: 11px; font-weight: 700;
-      background: #1e293b; padding: 3px 6px; border-radius: 6px; color: #38bdf8;
+      background: var(--info-bg); padding: 3px 6px; border-radius: 6px; color: var(--info);
     }
     .badge-status-available {
-      background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3);
-      color: #fbbf24; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;
+      background: var(--warning-bg); border: 1px solid rgba(217, 119, 6, 0.3);
+      color: var(--warning); padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;
     }
     .badge-status-used {
-      background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #34d399; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;
+      background: var(--success-bg); border: 1px solid rgba(5, 150, 105, 0.3);
+      color: var(--success); padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;
     }
-    .stars-cell { color: #fbbf24; font-size: 13px; }
+    .stars-cell { color: var(--accent); font-size: 13px; }
 
     /* LOGS */
     .log-box {
-      background: #060911; border: 1px solid var(--card-border); border-radius: 12px;
+      background: #F8FAFC; border: 1px solid var(--card-border); border-radius: 12px;
       height: 400px; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px;
     }
-    .log-item { background: #0f1626; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 8px 10px; }
+    .log-item { background: #FFFFFF; border: 1px solid var(--card-border); border-radius: 8px; padding: 8px 10px; }
     .log-top { display: flex; align-items: center; justify-content: space-between; }
     .method-tag { font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 10px; }
-    .method-post { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-    .method-get { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
-    .log-url { color: #f3f4f6; font-weight: 700; }
-    .log-time { color: #6b7280; font-size: 10px; }
-    .log-detail { color: #9ca3af; word-break: break-all; margin-top: 2px; }
+    .method-post { background: var(--success-bg); color: var(--success); }
+    .method-get { background: var(--info-bg); color: var(--info); }
+    .log-url { color: var(--text); font-weight: 700; }
+    .log-time { color: var(--text-light); font-size: 10px; }
+    .log-detail { color: var(--text-muted); word-break: break-all; margin-top: 2px; }
 
     /* FORMULARIOS Y CONTROLES DEL BACKEND */
     .form-group { margin-bottom: 14px; }
-    .form-label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .form-label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.04em; }
     .form-input {
-      width: 100%; background: #0b0f19; border: 1px solid var(--card-border); color: #fff;
+      width: 100%; background: #FFFFFF; border: 1px solid var(--card-border); color: var(--text);
       padding: 9px 14px; border-radius: 10px; font-size: 12px; outline: none; transition: border-color 0.2s;
     }
-    .form-input:focus { border-color: var(--accent); }
-    .form-help { font-size: 10px; color: #6b7280; margin-top: 4px; display: block; }
+    .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+    .form-help { font-size: 10px; color: var(--text-light); margin-top: 4px; display: block; }
     .btn-save {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #000; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+      color: #fff; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;
       padding: 10px 22px; border-radius: 10px; border: none; cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 4px 12px var(--accent-glow);
     }
-    .btn-save:hover { filter: brightness(1.1); transform: translateY(-1px); }
-    .toast-success { color: #34d399; font-size: 11px; font-weight: 700; display: none; }
+    .btn-save:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-secondary {
+      background: #FFFFFF; color: var(--text-secondary); border: 1px solid var(--card-border);
+      font-weight: 600; font-size: 12px; padding: 8px 16px; border-radius: 10px; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-secondary:hover { background: #F8FAFC; border-color: #CBD5E1; }
+    .toast-success { color: var(--success); font-size: 11px; font-weight: 700; display: none; }
 
     /* PRESETS DE ICONOS Y EMOJIS */
     .icon-preset-btn {
-      background: #0b0f19; border: 1px solid var(--card-border); color: #fff;
+      background: #F8FAFC; border: 1px solid var(--card-border); color: var(--text);
       padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; transition: all 0.15s;
       display: inline-flex; align-items: center; gap: 4px;
     }
-    .icon-preset-btn:hover { border-color: #d97706; background: rgba(217, 119, 6, 0.1); }
-    .icon-preset-btn.active { border-color: #f59e0b; background: rgba(245, 158, 11, 0.25); font-weight: 700; }
+    .icon-preset-btn:hover { border-color: var(--accent); background: var(--accent-light); }
+    .icon-preset-btn.active { border-color: var(--accent); background: var(--accent-light); font-weight: 700; color: var(--accent); }
+
+    /* BARRA DE PROGRESO DE NIVELES DE FIDELIZACIÓN */
+    .loyalty-progress-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 22px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .loyalty-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .loyalty-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .loyalty-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .progress-track {
+      position: relative;
+      height: 10px;
+      background: #E2E8F0;
+      border-radius: 9999px;
+      margin: 8px 0 28px;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, #D97706 0%, #F59E0B 50%, #FCD34D 100%);
+      transition: width 0.6s ease;
+    }
+    .progress-milestones {
+      display: flex;
+      justify-content: space-between;
+      margin-top: -22px;
+    }
+    .progress-milestone { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .milestone-dot {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 0 0 2px #E2E8F0;
+      background: #E2E8F0;
+      z-index: 1;
+    }
+    .milestone-dot.reached { background: #F59E0B; box-shadow: 0 0 0 2px #FCD34D; }
+    .milestone-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-align: center; white-space: nowrap; }
+    .milestone-label.reached { color: var(--accent); }
+    .tier-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .tier-card { border-radius: 14px; padding: 16px; border: 2px solid; position: relative; overflow: hidden; }
+    .tier-card.bronze { background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border-color: #FCD34D; }
+    .tier-card.silver { background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border-color: #CBD5E1; }
+    .tier-card.gold { background: linear-gradient(135deg, #FFFBEB 0%, #FEF9C3 100%); border-color: #F59E0B; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2); }
+    .tier-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+    .tier-name { font-size: 13px; font-weight: 800; margin-bottom: 2px; }
+    .tier-name.bronze { color: #92400E; }
+    .tier-name.silver { color: #475569; }
+    .tier-name.gold { color: #78350F; }
+    .tier-range { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
+    .tier-discount { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+    .tier-discount.bronze { color: #92400E; }
+    .tier-discount.silver { color: #475569; }
+    .tier-discount.gold { color: #78350F; }
+    .tier-benefit { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -1359,18 +1469,73 @@ function renderBackendDashboard() {
         </div>
         <div class="stat-card">
           <span class="stat-title">Canjeados en Caja</span>
-          <span class="stat-value" id="stat-redeemed" style="color: #34d399;">${redeemed}</span>
+          <span class="stat-value" id="stat-redeemed" style="color: var(--success);">${redeemed}</span>
           <span class="stat-sub">Verificados con PIN del cajero</span>
         </div>
         <div class="stat-card">
           <span class="stat-title">Efectividad de Mesa</span>
-          <span class="stat-value" id="stat-rate" style="color: #fbbf24;">${conversionRate}%</span>
+          <span class="stat-value" id="stat-rate" style="color: var(--accent);">${conversionRate}%</span>
           <span class="stat-sub">Premios convertidos a consumo</span>
         </div>
         <div class="stat-card">
           <span class="stat-title">Clientes Únicos</span>
-          <span class="stat-value" id="stat-customers" style="color: #38bdf8;">${totalCustomers}</span>
+          <span class="stat-value" id="stat-customers" style="color: var(--info);">${totalCustomers}</span>
           <span class="stat-sub">Con acumulación de sellos</span>
+        </div>
+      </div>
+
+      <!-- BARRA DE PROGRESO DE NIVELES DE FIDELIZACIÓN -->
+      <div class="loyalty-progress-bar">
+        <div class="loyalty-header">
+          <div>
+            <div class="loyalty-title">🏅 Sistema de Niveles de Fidelización</div>
+            <div class="loyalty-subtitle">Los clientes avanzan automáticamente según sus visitas acumuladas</div>
+          </div>
+          <span style="background: var(--accent-light); color: var(--accent); border: 1px solid rgba(162,126,44,0.3); font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 9999px; font-family: monospace;">PROGRAMA ACTIVO</span>
+        </div>
+
+        <!-- Barra principal -->
+        <div class="progress-track">
+          <div class="progress-fill" style="width: ${Math.min(100, Math.max(5, totalCustomers > 0 ? Math.round((returningCount / totalCustomers) * 100) : 5))}%;"></div>
+        </div>
+        <div class="progress-milestones">
+          <div class="progress-milestone">
+            <div class="milestone-dot reached"></div>
+            <div class="milestone-label reached">☕ Café Inicial<br>1–5 visitas<br><strong>10% desc.</strong></div>
+          </div>
+          <div class="progress-milestone">
+            <div class="milestone-dot ${returningCount >= 3 ? 'reached' : ''}"></div>
+            <div class="milestone-label ${returningCount >= 3 ? 'reached' : ''}">🥐 Gourmet Regular<br>6–10 visitas<br><strong>15% desc.</strong></div>
+          </div>
+          <div class="progress-milestone">
+            <div class="milestone-dot ${returningCount >= 8 ? 'reached' : ''}"></div>
+            <div class="milestone-label ${returningCount >= 8 ? 'reached' : ''}">👑 Embajador VIP<br>11–15 visitas<br><strong>25% desc.</strong></div>
+          </div>
+        </div>
+
+        <!-- Tarjetas de nivel -->
+        <div class="tier-cards-grid">
+          <div class="tier-card bronze">
+            <span class="tier-icon">☕</span>
+            <div class="tier-name bronze">Café Inicial</div>
+            <div class="tier-range">Visitas 1 a 5 · Nivel Bronce</div>
+            <div class="tier-discount bronze">10%</div>
+            <div class="tier-benefit">Descuento en cualquier bebida artesanal o postre de la vitrina en cada visita.</div>
+          </div>
+          <div class="tier-card silver">
+            <span class="tier-icon">🥐</span>
+            <div class="tier-name silver">Gourmet Regular</div>
+            <div class="tier-range">Visitas 6 a 10 · Nivel Plata</div>
+            <div class="tier-discount silver">15%</div>
+            <div class="tier-benefit">Descuento especial en menú completo más acceso prioritario a ediciones especiales.</div>
+          </div>
+          <div class="tier-card gold">
+            <span class="tier-icon">👑</span>
+            <div class="tier-name gold">Embajador VIP</div>
+            <div class="tier-range">Visitas 11 a 15 · Nivel Oro</div>
+            <div class="tier-discount gold">25%</div>
+            <div class="tier-benefit">Máximo descuento + experiencias gastronómicas exclusivas de autor para 2 personas.</div>
+          </div>
         </div>
       </div>
 
@@ -1387,37 +1552,37 @@ function renderBackendDashboard() {
           <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
             <div style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--card-border);">
               <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                <span style="color: #fff; font-weight: 600;">1. Vistas de QR en Mesa / Enlace</span>
-                <span style="color: #38bdf8; font-weight: 700;">${funnelViews} (100%)</span>
+                <span style="color: var(--text); font-weight: 600;">1. Vistas de QR en Mesa / Enlace</span>
+                <span style="color: var(--info); font-weight: 700;">${funnelViews} (100%)</span>
               </div>
-              <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 9999px; overflow: hidden;">
+              <div style="width: 100%; height: 8px; background: #E2E8F0; border-radius: 9999px; overflow: hidden;">
                 <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #0284c7, #38bdf8);"></div>
               </div>
             </div>
-            <div style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+            <div style="background: #F8FAFC; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--card-border);">
               <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                <span style="color: #fff; font-weight: 600;">2. Jugadas en Ruleta / Sellos</span>
-                <span style="color: #a855f7; font-weight: 700;">${funnelPlays} (${Math.round((funnelPlays / funnelViews) * 100)}%)</span>
+                <span style="color: var(--text); font-weight: 600;">2. Jugadas en Ruleta / Sellos</span>
+                <span style="color: #7C3AED; font-weight: 700;">${funnelPlays} (${Math.round((funnelPlays / funnelViews) * 100)}%)</span>
               </div>
-              <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 9999px; overflow: hidden;">
+              <div style="width: 100%; height: 8px; background: #E2E8F0; border-radius: 9999px; overflow: hidden;">
                 <div style="width: ${Math.max(15, Math.round((funnelPlays / funnelViews) * 100))}%; height: 100%; background: linear-gradient(90deg, #7c3aed, #a855f7);"></div>
               </div>
             </div>
-            <div style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+            <div style="background: #F8FAFC; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--card-border);">
               <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                <span style="color: #fff; font-weight: 600;">3. Canjes en Caja (Consumo Real)</span>
-                <span style="color: #34d399; font-weight: 700;">${funnelRedeemed} (${conversionRate}%)</span>
+                <span style="color: var(--text); font-weight: 600;">3. Canjes en Caja (Consumo Real)</span>
+                <span style="color: var(--success); font-weight: 700;">${funnelRedeemed} (${conversionRate}%)</span>
               </div>
-              <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 9999px; overflow: hidden;">
+              <div style="width: 100%; height: 8px; background: #E2E8F0; border-radius: 9999px; overflow: hidden;">
                 <div style="width: ${Math.max(10, conversionRate)}%; height: 100%; background: linear-gradient(90deg, #059669, #34d399);"></div>
               </div>
             </div>
-            <div style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+            <div style="background: #F8FAFC; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--card-border);">
               <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                <span style="color: #fff; font-weight: 600;">4. Clientes Recurrentes (+2 visitas)</span>
-                <span style="color: #fbbf24; font-weight: 700;">${funnelReturning} (${totalCustomers > 0 ? Math.round((funnelReturning / totalCustomers) * 100) : 0}%)</span>
+                <span style="color: var(--text); font-weight: 600;">4. Clientes Recurrentes (+2 visitas)</span>
+                <span style="color: var(--accent); font-weight: 700;">${funnelReturning} (${totalCustomers > 0 ? Math.round((funnelReturning / totalCustomers) * 100) : 0}%)</span>
               </div>
-              <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 9999px; overflow: hidden;">
+              <div style="width: 100%; height: 8px; background: #E2E8F0; border-radius: 9999px; overflow: hidden;">
                 <div style="width: ${Math.max(8, totalCustomers > 0 ? Math.round((funnelReturning / totalCustomers) * 100) : 0)}%; height: 100%; background: linear-gradient(90deg, #d97706, #fbbf24);"></div>
               </div>
             </div>
@@ -1430,19 +1595,19 @@ function renderBackendDashboard() {
             <div class="panel-title">
               <span>🎁 Distribución de Premios Ganados</span>
             </div>
-            <span class="badge-role" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">${prizeDistribution.length} TIPOS</span>
+            <span class="badge-role">${prizeDistribution.length} TIPOS</span>
           </div>
           <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
             ${prizeDistribution.length === 0
-              ? '<div style="color: #6b7280; font-size: 12px; text-align: center; padding: 20px;">No hay premios registrados aún.</div>'
+              ? '<div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 20px;">No hay premios registrados aún.</div>'
               : prizeDistribution.map(p => `
                 <div>
                   <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                    <span style="color: #e5e7eb; font-weight: 500;">${p.name}</span>
-                    <span style="color: #fbbf24; font-weight: 700;">${p.count} (${p.percentage}%)</span>
+                    <span style="color: var(--text-secondary); font-weight: 500;">${p.name}</span>
+                    <span style="color: var(--accent); font-weight: 700;">${p.count} (${p.percentage}%)</span>
                   </div>
-                  <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 9999px; overflow: hidden;">
-                    <div style="width: ${Math.max(p.percentage, 8)}%; height: 100%; background: #fbbf24; border-radius: 9999px;"></div>
+                  <div style="width: 100%; height: 6px; background: #E2E8F0; border-radius: 9999px; overflow: hidden;">
+                    <div style="width: ${Math.max(p.percentage, 8)}%; height: 100%; background: var(--accent); border-radius: 9999px;"></div>
                   </div>
                 </div>
               `).join("")
