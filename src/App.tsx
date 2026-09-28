@@ -1,0 +1,319 @@
+import { useState, useEffect } from "react";
+import { LanguageProvider, useLanguage } from "./context/LanguageContext";
+import {
+  TableSession,
+  ParticipantData,
+  FeedbackData,
+  InstagramEvidence,
+  GamePrize,
+  WonPrize,
+  DEFAULT_PRIZES,
+} from "./components/qr-game/gameTypes";
+import { GameHeader } from "./components/qr-game/GameHeader";
+import { StepFeedback } from "./components/qr-game/StepFeedback";
+import { StepUserData } from "./components/qr-game/StepUserData";
+import { StepInstagramStory } from "./components/qr-game/StepInstagramStory";
+import { StepRouletteWheel } from "./components/qr-game/StepRouletteWheel";
+import { StepPrizeClaim } from "./components/qr-game/StepPrizeClaim";
+import { AdminPanelModal } from "./components/qr-game/AdminPanelModal";
+import { PinAuthModal } from "./components/qr-game/PinAuthModal";
+import { MessageCircle } from "lucide-react";
+import { site } from "./data/site";
+
+function getInitialTable(): string {
+  if (typeof window !== "undefined") {
+    const params = new URLSearchParams(window.location.search);
+    const mesa = params.get("mesa");
+    if (mesa) return `Mesa ${mesa.replace(/[^0-9a-zA-Z]/g, "")}`;
+  }
+  return "Consumo en Sala";
+}
+
+function createInitialSession(tableNum = getInitialTable()): TableSession {
+  return {
+    id: `SES-${Date.now().toString(36).toUpperCase()}`,
+    tableNumber: tableNum,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + 20 * 60 * 1000, // 20 minutos de vigencia
+    status: "active",
+  };
+}
+
+function JuegoQrPage() {
+  const { t } = useLanguage();
+
+  // Modo activo: 'game' (jugar primero) o 'feedback' (solo calificar)
+  const [activeMode, setActiveMode] = useState<"game" | "feedback">("game");
+
+  // Estados del juego
+  const [session, setSession] = useState<TableSession>(() => createInitialSession());
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [feedback, setFeedback] = useState<FeedbackData | undefined>();
+  const [participant, setParticipant] = useState<ParticipantData | undefined>();
+  const [instagramEvidence, setInstagramEvidence] = useState<InstagramEvidence | undefined>();
+  const [prizes, setPrizes] = useState<GamePrize[]>(DEFAULT_PRIZES);
+  const [wonPrize, setWonPrize] = useState<WonPrize | null>(null);
+  const [history, setHistory] = useState<WonPrize[]>([]);
+  const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
+  const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
+
+  // Cargar premio guardado en sessionStorage para evitar pérdida en recargas
+  useEffect(() => {
+    try {
+      const savedPrize = sessionStorage.getItem("bliss_won_prize");
+      if (savedPrize) {
+        const parsed = JSON.parse(savedPrize) as WonPrize;
+        setWonPrize(parsed);
+        setCurrentStep(4);
+      }
+    } catch {
+      // Ignorar errores de parseo
+    }
+  }, []);
+
+  // Generar nueva sesión para simular otra mesa o nuevo comensal
+  const handleResetSession = () => {
+    setSession(createInitialSession());
+    setCurrentStep(1);
+    setFeedback(undefined);
+    setParticipant(undefined);
+    setInstagramEvidence(undefined);
+    setWonPrize(null);
+    try {
+      sessionStorage.removeItem("bliss_won_prize");
+    } catch {
+      // ignore
+    }
+  };
+
+  // PASO 1 -> PASO 2 (Tus Datos -> Instagram)
+  const handleUserDataComplete = (data: ParticipantData) => {
+    setParticipant(data);
+    setCurrentStep(2);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // PASO 2 -> PASO 3 (Instagram -> Ruleta)
+  const handleInstagramComplete = (data: InstagramEvidence) => {
+    setInstagramEvidence(data);
+    setCurrentStep(3);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // PASO 3 -> PASO 4 (Ruleta -> Premio ganado)
+  const handlePrizeWon = (prize: GamePrize) => {
+    const randomCode = `BLISS-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+    const dateStr = new Date().toLocaleDateString("es-CO", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const newWon: WonPrize = {
+      uniqueCode: randomCode,
+      prizeId: prize.id,
+      prizeName: prize.name,
+      prizeNameEn: prize.nameEn,
+      value: prize.value,
+      tableNumber: session.tableNumber,
+      participantName: participant?.fullName || "Cliente de la Casa",
+      participantWhatsapp: participant?.whatsapp || "573000000000",
+      wonAt: dateStr,
+      status: "DISPONIBLE",
+    };
+
+    setWonPrize(newWon);
+    setHistory((prev) => [newWon, ...prev]);
+    setCurrentStep(4);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // Guardar en sessionStorage para protegerlo de F5
+    try {
+      sessionStorage.setItem("bliss_won_prize", JSON.stringify(newWon));
+    } catch {
+      // ignore
+    }
+
+    // Enviar a Google Sheets silenciosamente si el webhook está configurado
+    if (site.googleSheetWebhookUrl) {
+      try {
+        fetch(site.googleSheetWebhookUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "CREATE_PRIZE",
+            fullName: newWon.participantName,
+            whatsapp: newWon.participantWhatsapp,
+            email: participant?.email || "N/A",
+            instagram: instagramEvidence?.instagramHandle || "N/A",
+            prizeName: newWon.prizeName,
+            uniqueCode: newWon.uniqueCode,
+          }),
+        }).catch(() => {});
+      } catch {
+        // Cero fallos visuales si no hay red
+      }
+    }
+  };
+
+  // Abrir modal de PIN al pulsar "Validar en caja"
+  const handleOpenValidatePin = () => {
+    setIsPinModalOpen(true);
+  };
+
+  // Validación de cobro en caja tras ingresar PIN correcto
+  const handlePinSuccess = () => {
+    if (!wonPrize) return;
+    const dateStr = new Date().toLocaleTimeString("es-CO", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const updated: WonPrize = {
+      ...wonPrize,
+      status: "UTILIZADO",
+      usedAt: dateStr,
+    };
+
+    setWonPrize(updated);
+    setHistory((prev) => prev.map((h) => (h.uniqueCode === wonPrize.uniqueCode ? updated : h)));
+
+    try {
+      sessionStorage.setItem("bliss_won_prize", JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+
+    // Actualizar estado en Google Sheets
+    if (site.googleSheetWebhookUrl) {
+      try {
+        fetch(site.googleSheetWebhookUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "VALIDATE_PIN",
+            uniqueCode: wonPrize.uniqueCode,
+            pin: "1978",
+          }),
+        }).catch(() => {});
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#fcfaf7] text-neutral-900 flex flex-col selection:bg-amber-600/20 selection:text-amber-800">
+      {/* Cabecera dinámica de la experiencia */}
+      <GameHeader
+        session={session}
+        currentStep={currentStep}
+        activeMode={activeMode}
+        onChangeMode={setActiveMode}
+        onOpenAdmin={() => setIsAdminOpen(true)}
+        onResetSession={handleResetSession}
+      />
+
+      {/* Contenido principal según el modo seleccionado */}
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8 md:py-12">
+        {activeMode === "feedback" ? (
+          /* MODO DIRECTO: Solo calificar visita (Feedback inteligente) */
+          <div>
+            <StepFeedback
+              initialFeedback={feedback}
+              customerName={participant?.fullName}
+              isStandAlone={true}
+              onComplete={(fb) => setFeedback(fb)}
+              onSwitchToGame={() => setActiveMode("game")}
+            />
+          </div>
+        ) : (
+          /* MODO JUEGO: Jugar la ruleta primero, ganar y luego dejar reseña como broche de oro */
+          <div>
+            {currentStep === 1 && (
+              <div>
+                <StepUserData
+                  initialData={participant}
+                  onBack={() => setActiveMode("feedback")}
+                  onComplete={handleUserDataComplete}
+                />
+
+                {/* Alternativa rápida hacia solo calificar */}
+                <div className="mt-6 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setActiveMode("feedback")}
+                    className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-amber-700 transition-colors"
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" />
+                    <span>
+                      {t(
+                        "¿Prefieres solo calificar tu visita sin jugar la ruleta? Toca aquí",
+                        "Prefer to just rate your visit without playing? Click here"
+                      )}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {currentStep === 2 && (
+              <StepInstagramStory
+                participantName={participant?.fullName || "Cliente"}
+                tableNumber={session.tableNumber}
+                initialEvidence={instagramEvidence}
+                onBack={() => setCurrentStep(1)}
+                onComplete={handleInstagramComplete}
+              />
+            )}
+
+            {currentStep === 3 && (
+              <StepRouletteWheel
+                prizes={prizes}
+                participantName={participant?.fullName || "Invitado"}
+                onPrizeWon={handlePrizeWon}
+              />
+            )}
+
+            {currentStep === 4 && wonPrize && (
+              <StepPrizeClaim
+                prize={wonPrize}
+                onValidateAtCashier={handleOpenValidatePin}
+              />
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Modal del Teclado PIN para el Cajero o Mesero */}
+      <PinAuthModal
+        isOpen={isPinModalOpen}
+        onClose={() => setIsPinModalOpen(false)}
+        onSuccess={handlePinSuccess}
+        correctPin="1978"
+      />
+
+      {/* Modal del Panel Administrativo */}
+      <AdminPanelModal
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
+        prizes={prizes}
+        onUpdatePrizes={setPrizes}
+        history={history}
+        onGenerateNewTable={handleResetSession}
+      />
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <JuegoQrPage />
+    </LanguageProvider>
+  );
+}
