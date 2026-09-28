@@ -2009,7 +2009,7 @@ function renderBackendDashboard() {
       document.querySelectorAll('.nav-tab-btn').forEach(el => el.classList.remove('active'));
       const target = document.getElementById(tabId);
       if (target) target.classList.add('active');
-      const activeBtn = document.querySelector(`.nav-tab-btn[onclick="switchTab('${tabId}')"]`);
+      const activeBtn = document.querySelector('.nav-tab-btn[onclick="switchTab(\'' + tabId + '\')"]');
       if (activeBtn) activeBtn.classList.add('active');
     }
 
