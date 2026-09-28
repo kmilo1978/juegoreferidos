@@ -3,11 +3,12 @@ import { WonPrize } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
 import { GoldenQRCode } from "./GoldenQRCode";
-import { CheckCircle2, Share2, Sparkles } from "lucide-react";
+import { CheckCircle2, Share2, Sparkles, Bell } from "lucide-react";
 import { waLink } from "@/data/site";
 import logoHeader from "@/assets/logo-header.png";
 import { StepFeedback } from "./StepFeedback";
 import { clientConfig } from "@/config/clientConfig";
+import { OneSignalService } from "@/lib/oneSignalService";
 
 interface StepPrizeClaimProps {
   prize: WonPrize;
@@ -45,6 +46,24 @@ Restaurante: ${clientConfig.brand.name}
     const inviteMessage = `¡Hola! Te recomiendo mucho visitar *${brandName}* 🍽️✨\n\nEl ambiente y la comida son espectaculares. Además, cuando vayas a visitarlos y te sientes en tu mesa, puedes escanear el QR y participar en su Ruleta de Premios:\n👉 ${origin}?ref=${encodeURIComponent(prize.participantName)}\n\n¡Vamos juntos o visítalos hoy, te va a encantar!`;
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(inviteMessage)}`;
     window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const [isPushSubscribed, setIsPushSubscribed] = useState(() => OneSignalService.isSubscribed());
+
+  const handleEnablePush = async () => {
+    const granted = await OneSignalService.requestPermission({
+      name: prize.participantName,
+      prize: prize.prizeName,
+      code: prize.uniqueCode,
+      table: prize.tableNumber,
+    });
+    if (granted) {
+      setIsPushSubscribed(true);
+      OneSignalService.showLocalTestNotification(
+        "¡Recordatorio activado! 🎁",
+        `Tu beneficio "${prize.prizeName}" está listo para redimir en mesa o caja.`
+      );
+    }
   };
 
   return (
@@ -184,6 +203,23 @@ Restaurante: ${clientConfig.brand.name}
                 <Share2 className="h-4 w-4" />
                 <span>{t("Enviar comprobante a WhatsApp", "Send voucher to WhatsApp")}</span>
               </button>
+
+              {/* Botón de Notificaciones Web Push (OneSignal / PWA) */}
+              {!isPushSubscribed ? (
+                <button
+                  type="button"
+                  onClick={handleEnablePush}
+                  className="w-full inline-flex items-center justify-center gap-2.5 py-3 px-6 rounded-xl border border-sky-400 bg-sky-50 hover:bg-sky-100 text-sky-900 text-xs uppercase tracking-[0.16em] font-semibold transition-all shadow-xs"
+                >
+                  <Bell className="h-4 w-4 text-sky-600 animate-bounce" />
+                  <span>{t("🔔 Recordarme en mi celular (Push)", "🔔 Remind me on phone (Push)")}</span>
+                </button>
+              ) : (
+                <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-800 text-[11px] font-medium">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-sky-600" />
+                  <span>{t("✓ Recordatorios push activados en este dispositivo", "✓ Push reminders active on this device")}</span>
+                </div>
+              )}
 
               {/* Botón de Validación en Caja */}
               {!isUsed ? (

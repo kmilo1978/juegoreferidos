@@ -63,6 +63,16 @@ export interface ClientConfig {
     enableSoundEffects: boolean; // Sonido realista de ruleta y fanfarria al ganar
     enableConfetti: boolean;     // Explosión de confeti dorado
   };
+
+  // 7. Notificaciones Web Push (OneSignal / PWA)
+  pushNotifications: {
+    enabled: boolean;
+    appId: string; // OneSignal App ID
+    safariWebId?: string;
+    promptTitle: string;
+    promptMessage: string;
+    allowLocalhost: boolean;
+  };
 }
 
 import logoHeader from "@/assets/logo-header.png";
@@ -113,5 +123,13 @@ export const clientConfig: ClientConfig = {
   experience: {
     enableSoundEffects: true,
     enableConfetti: true,
+  },
+  pushNotifications: {
+    enabled: true,
+    appId: "", // El cliente pega aquí su App ID de OneSignal o desde el Panel Admin
+    safariWebId: "",
+    promptTitle: "¡No pierdas tu beneficio!",
+    promptMessage: "¿Deseas recibir un recordatorio antes de que venza tu premio y avisos de 2x1 exclusivos en tu celular?",
+    allowLocalhost: true,
   },
 };

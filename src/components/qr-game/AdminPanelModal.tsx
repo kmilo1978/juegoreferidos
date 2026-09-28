@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   Users,
   Zap,
+  Bell,
 } from "lucide-react";
 import { calculateAnalytics } from "../../lib/analyticsService";
 import { clientConfig } from "../../config/clientConfig";
@@ -23,6 +24,12 @@ import {
   saveComposioConfig,
   ComposioRuntimeConfig,
 } from "../../lib/composioService";
+import {
+  getPushConfig,
+  savePushConfig,
+  PushRuntimeConfig,
+  OneSignalService,
+} from "../../lib/oneSignalService";
 
 interface AdminPanelModalProps {
   isOpen: boolean;
@@ -44,6 +51,7 @@ export function AdminPanelModal({
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"stats" | "prizes" | "campaign" | "messages" | "composio">("stats");
   const [composioConfig, setComposioConfig] = useState<ComposioRuntimeConfig>(() => getComposioConfig());
+  const [pushConfig, setPushConfig] = useState<PushRuntimeConfig>(() => getPushConfig());
 
   // Estados editables de premios
   const [localPrizes, setLocalPrizes] = useState<GamePrize[]>(prizes);
@@ -172,8 +180,8 @@ export function AdminPanelModal({
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Zap className="h-3.5 w-3.5" />
-            <span>{t("Composio & APIs", "Composio & APIs")}</span>
+            <Bell className="h-3.5 w-3.5" />
+            <span>{t("Composio & Web Push", "Composio & Web Push")}</span>
           </button>
         </div>
 
@@ -757,6 +765,83 @@ Presenta este código al momento de pagar:
                   >
                     🚀 Probar Envío de Prueba
                   </button>
+                </div>
+              </div>
+
+              {/* SECCIÓN 2: ONESIGNAL WEB PUSH (SIN WHATSAPP API) */}
+              <div className="rounded-2xl border-2 border-sky-400/50 bg-gradient-to-br from-sky-500/10 via-background to-sky-500/5 p-5 space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <span className="h-6 w-6 rounded-lg bg-sky-500/20 flex items-center justify-center text-sky-600 font-bold">
+                      🔔
+                    </span>
+                    <div>
+                      <h4 className="font-semibold text-foreground text-sm uppercase tracking-wider">
+                        OneSignal · Notificaciones Web Push
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground">Envía alertas a los celulares sin costo de Meta ni WhatsApp API.</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = { ...pushConfig, enabled: !pushConfig.enabled };
+                      setPushConfig(next);
+                    }}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      pushConfig.enabled ? "bg-sky-600" : "bg-muted"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        pushConfig.enabled ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block font-semibold text-foreground mb-1">
+                      OneSignal App ID:
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                      value={pushConfig.appId}
+                      onChange={(e) => setPushConfig({ ...pushConfig, appId: e.target.value })}
+                      className="w-full bg-muted/30 border border-border rounded-xl px-3.5 py-2.5 font-mono text-xs text-foreground focus:ring-1 focus:ring-sky-500 focus:outline-none"
+                    />
+                    <span className="text-[10px] text-muted-foreground mt-1 block">
+                      Obtén tu App ID gratis en tu cuenta de <a href="https://onesignal.com" target="_blank" rel="noopener noreferrer" className="text-sky-600 underline font-medium">onesignal.com</a> (hasta 10.000 suscriptores gratis).
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        savePushConfig(pushConfig);
+                        alert("¡Configuración de OneSignal Web Push guardada con éxito!");
+                      }}
+                      className="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-semibold uppercase tracking-wider text-xs shadow-sm transition"
+                    >
+                      💾 Guardar Configuración Push
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        OneSignalService.showLocalTestNotification(
+                          "¡Prueba de Notificación Push! 🎁",
+                          "Así recibirán tus clientes los avisos de promociones y cupones en su pantalla."
+                        );
+                      }}
+                      className="px-4 py-2 border border-sky-300 bg-sky-50/80 hover:bg-sky-100 text-sky-900 rounded-xl font-medium text-xs transition"
+                    >
+                      🔔 Probar Notificación en Pantalla
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

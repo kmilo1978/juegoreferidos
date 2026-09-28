@@ -20,6 +20,7 @@ import { PinAuthModal } from "./components/qr-game/PinAuthModal";
 import { TableStandModal } from "./components/qr-game/TableStandModal";
 import { recordPageView, getStoredHistory, saveStoredHistory } from "./lib/analyticsService";
 import { ComposioService } from "./lib/composioService";
+import { OneSignalService } from "./lib/oneSignalService";
 import { MessageCircle } from "lucide-react";
 import { site } from "./data/site";
 import { clientConfig } from "./config/clientConfig";
@@ -77,6 +78,7 @@ function JuegoQrPage() {
   // Registrar visita y cargar historial persistente
   useEffect(() => {
     recordPageView();
+    OneSignalService.init();
 
     const stored = getStoredHistory();
     if (stored && stored.length > 0) {
