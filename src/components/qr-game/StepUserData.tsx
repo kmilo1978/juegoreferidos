@@ -88,19 +88,19 @@ export function StepUserData({ initialData, onBack, onComplete }: StepUserDataPr
           <div className="flex items-center justify-center gap-2 mb-3">
             <span className="h-px w-6 bg-gold" />
             <span className="text-xs uppercase tracking-[0.24em] text-gold font-medium">
-              {t("Paso 2 · Registro", "Step 2 · Registration")}
+              {t("Paso 1 · Identificación", "Step 1 · Identification")}
             </span>
             <span className="h-px w-6 bg-gold" />
           </div>
 
           <h2 className="font-display text-2xl sm:text-3xl text-foreground font-normal tracking-tight">
-            {t("Datos del Participante", "Participant Details")}
+            {t("Tus Datos para el Desafío", "Your Details for the Challenge")}
           </h2>
 
           <p className="mt-3 text-sm text-muted-foreground font-light leading-relaxed max-w-lg mx-auto">
             {t(
-              "Ingresa tus datos para vincular tu participación a esta cuenta y enviar tu premio directamente a tu WhatsApp.",
-              "Enter your details to link your participation to this bill and send your prize directly to your WhatsApp.",
+              "Ingresa tus datos para registrar tu mesa y activar tu oportunidad de ganar un beneficio de la casa hoy.",
+              "Enter your details to register your table and activate your chance to win a complimentary treat today."
             )}
           </p>
         </div>
@@ -286,22 +286,13 @@ export function StepUserData({ initialData, onBack, onComplete }: StepUserDataPr
             </label>
           </div>
 
-          {/* Botones de navegación */}
-          <div className="pt-4 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 border-t border-border/50">
-            <button
-              type="button"
-              onClick={onBack}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-5 text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>{t("Volver al feedback", "Back to feedback")}</span>
-            </button>
-
+          {/* Botón de acción directo al juego */}
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-end gap-4 border-t border-border/50">
             <button
               type="submit"
-              className="btn-solid w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-8 text-xs uppercase tracking-[0.2em] font-medium transition-all shadow-xs"
+              className="btn-solid w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-8 text-xs uppercase tracking-[0.2em] font-semibold transition-all shadow-md active:scale-98"
             >
-              <span>{t("Continuar a Instagram Story", "Continue to IG Story")}</span>
+              <span>{t("Continuar al Desafío", "Continue to Challenge")}</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>

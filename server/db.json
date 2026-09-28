@@ -27,6 +27,22 @@
   },
   "logs": [
     {
+      "id": "mulueles3t9",
+      "timestamp": "5:52:19 p. m.",
+      "method": "POST",
+      "url": "/api/game-config",
+      "status": 200,
+      "detail": "Mecánica de juego actualizada: roulette"
+    },
+    {
+      "id": "muluegedfxp",
+      "timestamp": "5:52:12 p. m.",
+      "method": "POST",
+      "url": "/api/game-config",
+      "status": 200,
+      "detail": "Mecánica de juego actualizada: precision"
+    },
+    {
       "id": "mult1dwmde2",
       "timestamp": "5:14:03 p. m.",
       "method": "POST",

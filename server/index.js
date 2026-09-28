@@ -1229,13 +1229,20 @@ function renderBackendDashboard() {
             </button>
           </div>
 
-          <!-- GRUPO 2: FIDELIZACIÓN -->
+          <!-- GRUPO 2: FIDELIZACIÓN & JUEGOS -->
           <div class="nav-group">
-            <span class="nav-group-title">🎯 FIDELIZACIÓN</span>
+            <span class="nav-group-title">🎯 EXPERIENCIA & JUEGOS</span>
+            <button type="button" class="nav-tab-btn" data-tab="tab-game-mode" onclick="switchTab('tab-game-mode', this)">
+              <span>🎮</span>
+              <div>
+                <div class="tab-title">Selección de Juego</div>
+                <div class="tab-sub">Ruleta vs Reto 10s</div>
+              </div>
+            </button>
             <button type="button" class="nav-tab-btn" data-tab="tab-roulette" onclick="switchTab('tab-roulette', this)">
               <span>🎡</span>
               <div>
-                <div class="tab-title">Ruleta de Premios</div>
+                <div class="tab-title">Premios de Ruleta</div>
                 <div class="tab-sub">Probabilidades (100%)</div>
               </div>
             </button>
@@ -1924,30 +1931,33 @@ function renderBackendDashboard() {
     <!-- ========================================================================= -->
     <!-- PESTAÑA 4: RULETA DE PREMIOS & PROBABILIDADES                             -->
     <!-- ========================================================================= -->
-    <div id="tab-roulette" class="tab-content">
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA: SELECCIÓN DE JUEGO EN MESA (RULETA VS RETO 10S)                  -->
+    <!-- ========================================================================= -->
+    <div id="tab-game-mode" class="tab-content">
       <!-- GUÍA RÁPIDA -->
       <div class="quick-guide-box">
         <div class="quick-guide-header">
           <span>💡</span>
-          <span>Guía Rápida: Ruleta de Premios & Probabilidades</span>
+          <span>Guía Rápida: Selección del Juego Activo en Mesa</span>
         </div>
         <div class="quick-guide-grid">
           <div class="quick-guide-item">
-            <strong>🎯 Suma 100% Obligatoria</strong>
-            <span>La suma de todas las probabilidades activas debe dar exactamente 100% para mantener el equilibrio matemático.</span>
+            <strong>⏱️ Reto de Precisión 10 Segundos</strong>
+            <span>Desafío de reflejos táctiles: el cliente debe frenar el cronómetro exactamente en 10.000s para ganar.</span>
           </div>
           <div class="quick-guide-item">
-            <strong>🎁 Tipos de Beneficio</strong>
-            <span>Configura descuentos en %, productos de cortesía o promociones para elevar el ticket promedio en mesa.</span>
+            <strong>🎡 Ruleta de la Fortuna</strong>
+            <span>Giro animado por algoritmos de probabilidad matemática configurados en la pestaña Premios de Ruleta.</span>
           </div>
           <div class="quick-guide-item">
-            <strong>⚡ Sincronización en Vivo</strong>
-            <span>Al presionar guardar, el frontend de comensales lee las nuevas opciones al instante sin recargar.</span>
+            <strong>⚡ Sincronización Inmediata</strong>
+            <span>Al presionar "Guardar Selección", el frontend de las mesas adopta el nuevo juego de inmediato.</span>
           </div>
         </div>
       </div>
 
-      <!-- SECCIÓN: SELECTOR DE MECÁNICA DE JUEGO ACTIVA EN MESA -->
+      <!-- PANEL SELECTOR DE MECÁNICA DE JUEGO -->
       <div class="panel" style="margin-bottom: 24px; border: 1px solid #d97706; background: rgba(217, 119, 6, 0.04);">
         <div class="panel-header">
           <div class="panel-title">
@@ -1955,7 +1965,7 @@ function renderBackendDashboard() {
           </div>
           <div>
             <span id="toast-game-mode" class="toast-success">✓ ¡Mecánica de juego actualizada!</span>
-            <button class="btn-save" onclick="saveGameModeConfig()">💾 Guardar Experiencia</button>
+            <button class="btn-save" onclick="saveGameModeConfig()">💾 Guardar Selección de Juego</button>
           </div>
         </div>
 
@@ -2040,7 +2050,12 @@ function renderBackendDashboard() {
           </div>
         </div>
       </div>
+    </div>
 
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA: PREMIOS DE RULETA & PROBABILIDADES MATEMÁTICAS (SUMA = 100%)      -->
+    <!-- ========================================================================= -->
+    <div id="tab-roulette" class="tab-content">
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">

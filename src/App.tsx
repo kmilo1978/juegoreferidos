@@ -98,24 +98,34 @@ function JuegoQrPage() {
       setHistory(stored);
     }
 
-    // Sincronizar configuración en vivo con el backend
-    GameConfigService.syncFromBackend().then((cfg) => {
-      if (cfg) setGameConfig(cfg);
-    });
+    // Sincronizar configuración en vivo con el backend al inicio y periódicamente
+    const syncBackendConfig = () => {
+      GameConfigService.syncFromBackend().then((cfg) => {
+        if (cfg) setGameConfig(cfg);
+      });
+    };
+    syncBackendConfig();
+    const pollInterval = setInterval(syncBackendConfig, 4000);
 
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      // Atajos para probar directamente el nuevo juego
-      if (params.get("juego") === "precision" || params.get("test") === "precision" || params.get("paso") === "3") {
+      // Atajos para probar directamente el juego elegido o forzar uno
+      if (params.get("juego") === "precision" || params.get("test") === "precision" || params.get("paso") === "2") {
         sessionStorage.removeItem("juego_won_prize");
         setChosenGameMode("precision");
-        setCurrentStep(3);
-        return;
+        setCurrentStep(2);
+        return () => clearInterval(pollInterval);
+      }
+      if (params.get("juego") === "ruleta" || params.get("test") === "ruleta") {
+        sessionStorage.removeItem("juego_won_prize");
+        setChosenGameMode("roulette");
+        setCurrentStep(2);
+        return () => clearInterval(pollInterval);
       }
       if (params.get("reset") === "1") {
         sessionStorage.removeItem("juego_won_prize");
         setCurrentStep(1);
-        return;
+        return () => clearInterval(pollInterval);
       }
     }
 
@@ -124,7 +134,7 @@ function JuegoQrPage() {
       if (savedPrize) {
         const parsed = JSON.parse(savedPrize) as WonPrize;
         setWonPrize(parsed);
-        setCurrentStep(4);
+        setCurrentStep(3);
       }
     } catch {
       // Ignorar errores de parseo
@@ -138,7 +148,10 @@ function JuegoQrPage() {
       }
     };
     window.addEventListener("game-config-changed", handleConfigChange);
-    return () => window.removeEventListener("game-config-changed", handleConfigChange);
+    return () => {
+      clearInterval(pollInterval);
+      window.removeEventListener("game-config-changed", handleConfigChange);
+    };
   }, []);
 
   // Helper para identificar número de mesa (1 a 10)
@@ -176,7 +189,7 @@ function JuegoQrPage() {
     }
   };
 
-  // PASO 1 -> PASO 2 (Tus Datos -> Instagram)
+  // PASO 1 (Tus Datos) -> PASO 2 (¡El Juego Elegido en el Backend!)
   const handleUserDataComplete = (data: ParticipantData) => {
     // 🛡️ CONTROL ANTI-FRAUDE: 1 SOLO GIRO POR PERSONA / POR DÍA
     const now = Date.now();
@@ -192,20 +205,20 @@ function JuegoQrPage() {
 
     if (existingActivePrize) {
       const wantReplay = confirm(
-        `¡Hola, ${data.fullName}! Tienes un premio registrado hoy: "${existingActivePrize.prizeName}".\n\n¿Deseas probar y jugar el nuevo juego de todos modos en esta prueba? Presiona "Aceptar" para probar o "Cancelar" para ver tu cupón.`
+        `¡Hola, ${data.fullName}! Tienes un cupón registrado hoy: "${existingActivePrize.prizeName}".\n\n¿Deseas volver a jugar en esta prueba? Presiona "Aceptar" para probar o "Cancelar" para ver tu cupón.`
       );
       if (wantReplay) {
         setParticipant(data);
-        setCurrentStep(3);
-        setChosenGameMode(gameConfig.gameMode === "roulette" ? "roulette" : "precision");
+        setCurrentStep(2);
         return;
       }
       setWonPrize(existingActivePrize);
-      setCurrentStep(4);
+      setCurrentStep(3);
       return;
     }
 
     setParticipant(data);
+    // ¡EL JUEGO ES DIRECTAMENTE DESPUÉS DE DEJAR LOS DATOS!
     setCurrentStep(2);
     window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -260,7 +273,7 @@ function JuegoQrPage() {
       saveStoredHistory(updated);
       return updated;
     });
-    setCurrentStep(4);
+    setCurrentStep(3);
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     // Actualizar variable de la mesa a PREMIO PENDIENTE
@@ -348,14 +361,9 @@ function JuegoQrPage() {
         currentStep={currentStep}
         activeMode={activeMode}
         onChangeMode={setActiveMode}
-        onOpenAdmin={() => setIsAdminOpen(true)}
         onResetSession={handleResetSession}
-        onOpenTableStand={() => setIsTableStandOpen(true)}
         onSelectStep={(step) => {
           setCurrentStep(step);
-          if (step === 3 && !chosenGameMode) {
-            setChosenGameMode(gameConfig.gameMode === "roulette" ? "roulette" : "precision");
-          }
         }}
       />
 
@@ -373,8 +381,9 @@ function JuegoQrPage() {
             />
           </div>
         ) : (
-          /* MODO JUEGO: Jugar la ruleta primero, ganar y luego dejar reseña como broche de oro */
+          /* MODO JUEGO: Datos del comensal -> El Desafío Elegido en Backend -> Reclamo de Premio -> Calificación */
           <div>
+            {/* PASO 1: DATOS DEL PARTICIPANTE */}
             {currentStep === 1 && (
               <div>
                 <StepUserData
@@ -382,40 +391,27 @@ function JuegoQrPage() {
                   onBack={() => setActiveMode("feedback")}
                   onComplete={handleUserDataComplete}
                 />
-
-                {/* Alternativa rápida hacia solo calificar */}
-                <div className="mt-6 text-center">
-                  <button
-                    type="button"
-                    onClick={() => setActiveMode("feedback")}
-                    className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-amber-700 transition-colors"
-                  >
-                    <MessageCircle className="h-3.5 w-3.5" />
-                    <span>
-                      {t(
-                        "¿Prefieres solo calificar tu visita sin jugar la ruleta? Toca aquí",
-                        "Prefer to just rate your visit without playing? Click here"
-                      )}
-                    </span>
-                  </button>
-                </div>
               </div>
             )}
 
+            {/* PASO 2: EL DESAFÍO (SELECCIONADO POR EL DUEÑO EN EL BACKEND) */}
             {currentStep === 2 && (
-              <StepInstagramStory
-                participantName={participant?.fullName || "Cliente"}
-                tableNumber={session.tableNumber}
-                initialEvidence={instagramEvidence}
-                onBack={() => setCurrentStep(1)}
-                onComplete={handleInstagramComplete}
-              />
-            )}
-
-            {currentStep === 3 && (
               <div>
-                {/* 1. MODO DIRECTO: SOLO RULETA */}
-                {gameConfig.gameMode === "roulette" && (
+                {/* 1. MODO RETO DE PRECISIÓN 10 SEGUNDOS (ELEGIDO EN BACKEND) */}
+                {(gameConfig.gameMode === "precision" || chosenGameMode === "precision") && (
+                  <StepPrecisionTimer
+                    prizes={prizes}
+                    participantName={participant?.fullName || "Invitado"}
+                    onPrizeWon={handlePrizeWon}
+                    onExit={() => {
+                      setCurrentStep(4);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  />
+                )}
+
+                {/* 2. MODO RULETA DE LA FORTUNA (ELEGIDO EN BACKEND) */}
+                {gameConfig.gameMode === "roulette" && chosenGameMode !== "precision" && (
                   <StepRouletteWheel
                     prizes={prizes}
                     participantName={participant?.fullName || "Invitado"}
@@ -423,144 +419,120 @@ function JuegoQrPage() {
                   />
                 )}
 
-                {/* 2. MODO DIRECTO: SOLO RETO DE PRECISIÓN 10S */}
-                {gameConfig.gameMode === "precision" && (
-                  <StepPrecisionTimer
-                    prizes={prizes}
-                    participantName={participant?.fullName || "Invitado"}
-                    onPrizeWon={handlePrizeWon}
-                  />
-                )}
-
-                {/* 3. MODO HÍBRIDO / LIBRE ELECCIÓN POR EL COMENSAL */}
-                {(gameConfig.gameMode === "hybrid" || gameConfig.gameMode === "stamps") && (
-                  <div>
-                    {chosenGameMode === "precision" ? (
-                      <StepPrecisionTimer
-                        prizes={prizes}
-                        participantName={participant?.fullName || "Invitado"}
-                        onPrizeWon={handlePrizeWon}
-                        onSwitchToRoulette={() => setChosenGameMode("roulette")}
-                      />
-                    ) : chosenGameMode === "roulette" ? (
-                      <div>
-                        <div className="mb-4 text-center">
-                          <button
-                            type="button"
-                            onClick={() => setChosenGameMode("precision")}
-                            className="text-xs text-neutral-500 hover:text-amber-700 transition-colors inline-flex items-center gap-1.5"
-                          >
-                            <Timer className="h-3.5 w-3.5 text-amber-600" />
-                            <span>
-                              {t(
-                                "¿Prefieres el Reto de Precisión 10s en vez de la ruleta? Toca aquí",
-                                "Prefer the 10s Precision Challenge instead? Click here"
-                              )}
-                            </span>
-                          </button>
-                        </div>
-                        <StepRouletteWheel
-                          prizes={prizes}
-                          participantName={participant?.fullName || "Invitado"}
-                          onPrizeWon={handlePrizeWon}
-                        />
+                {/* 3. MODO HÍBRIDO (SI EL DUEÑO LO HABILITA EN BACKEND) */}
+                {(gameConfig.gameMode === "hybrid" || gameConfig.gameMode === "stamps") && !chosenGameMode && (
+                  <div className="max-w-xl mx-auto py-4">
+                    <div className="text-center mb-8">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 text-xs font-semibold mb-2">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        <span>{t("Experiencia Interactiva en Mesa", "Interactive Table Experience")}</span>
                       </div>
-                    ) : (
-                      /* PANTALLA DE SELECCIÓN DE EXPERIENCIA EN MESA */
-                      <div className="max-w-xl mx-auto py-4">
-                        <div className="text-center mb-8">
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 text-xs font-semibold mb-2">
-                            <Sparkles className="h-3.5 w-3.5" />
-                            <span>{t("Experiencia Interactiva en Mesa", "Interactive Table Experience")}</span>
+                      <h2 className="text-2xl sm:text-3xl font-serif font-bold text-neutral-900 tracking-tight">
+                        {t("¡Elige tu Desafío!", "Choose Your Challenge!")}
+                      </h2>
+                      <p className="text-sm text-neutral-600 mt-2 max-w-md mx-auto">
+                        {t(
+                          "¡Hola " + (participant?.fullName || "Invitado") + "! Selecciona cómo deseas obtener tu beneficio de la casa hoy:",
+                          "Hello " + (participant?.fullName || "Guest") + "! Select how you'd like to get your house reward today:"
+                        )}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Opción 1: Ruleta de la Fortuna */}
+                      <button
+                        type="button"
+                        onClick={() => setChosenGameMode("roulette")}
+                        className="group relative p-6 rounded-3xl bg-white border-2 border-neutral-200 hover:border-amber-500 hover:shadow-xl transition-all duration-200 text-left flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                            🎡
                           </div>
-                          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-neutral-900 tracking-tight">
-                            {t("¡Elige tu Desafío!", "Choose Your Challenge!")}
-                          </h2>
-                          <p className="text-sm text-neutral-600 mt-2 max-w-md mx-auto">
+                          <h3 className="text-lg font-serif font-bold text-neutral-900 mb-1">
+                            {t("Ruleta de la Fortuna", "Roulette of Fortune")}
+                          </h3>
+                          <p className="text-xs text-neutral-500 leading-relaxed mb-4">
                             {t(
-                              "¡Hola " + (participant?.fullName || "Invitado") + "! Selecciona cómo deseas obtener tu beneficio de la casa hoy:",
-                              "Hello " + (participant?.fullName || "Guest") + "! Select how you'd like to get your house reward today:"
+                              "Gira el disco dorado con sonido y animación realista. Emoción instantánea y beneficios directos.",
+                              "Spin the golden wheel with realistic sound effects. Instant excitement and rewards."
                             )}
                           </p>
                         </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {/* Opción 1: Ruleta de la Fortuna */}
-                          <button
-                            type="button"
-                            onClick={() => setChosenGameMode("roulette")}
-                            className="group relative p-6 rounded-3xl bg-white border-2 border-neutral-200 hover:border-amber-500 hover:shadow-xl transition-all duration-200 text-left flex flex-col justify-between"
-                          >
-                            <div>
-                              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-                                🎡
-                              </div>
-                              <h3 className="text-lg font-serif font-bold text-neutral-900 mb-1">
-                                {t("Ruleta de la Fortuna", "Roulette of Fortune")}
-                              </h3>
-                              <p className="text-xs text-neutral-500 leading-relaxed mb-4">
-                                {t(
-                                  "Gira el disco dorado con sonido y animación realista. Emoción instantánea y beneficios directos.",
-                                  "Spin the golden wheel with realistic sound effects. Instant excitement and rewards."
-                                )}
-                              </p>
-                            </div>
-                            <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-700 group-hover:translate-x-1 transition-transform">
-                              <span>{t("Girar Ruleta", "Spin Wheel")}</span>
-                              <span>→</span>
-                            </div>
-                          </button>
-
-                          {/* Opción 2: Reto de Precisión 10s */}
-                          <button
-                            type="button"
-                            onClick={() => setChosenGameMode("precision")}
-                            className="group relative p-6 rounded-3xl bg-white border-2 border-neutral-200 hover:border-amber-500 hover:shadow-xl transition-all duration-200 text-left flex flex-col justify-between"
-                          >
-                            <div>
-                              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-                                ⏱️
-                              </div>
-                              <h3 className="text-lg font-serif font-bold text-neutral-900 mb-1">
-                                {t("Reto Precisión 10s", "10s Precision Challenge")}
-                              </h3>
-                              <p className="text-xs text-neutral-500 leading-relaxed mb-4">
-                                {t(
-                                  "Pon a prueba tus reflejos en la mesa. Detén el cronómetro exactamente en 10.000s para ganar.",
-                                  "Test your reflexes at the table. Stop the timer at exactly 10.000s to win."
-                                )}
-                              </p>
-                            </div>
-                            <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-700 group-hover:translate-x-1 transition-transform">
-                              <span>{t("Retar Cronómetro", "Challenge Timer")}</span>
-                              <span>→</span>
-                            </div>
-                          </button>
+                        <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-700 group-hover:translate-x-1 transition-transform">
+                          <span>{t("Girar Ruleta", "Spin Wheel")}</span>
+                          <span>→</span>
                         </div>
-                      </div>
-                    )}
+                      </button>
+
+                      {/* Opción 2: Reto de Precisión 10s */}
+                      <button
+                        type="button"
+                        onClick={() => setChosenGameMode("precision")}
+                        className="group relative p-6 rounded-3xl bg-white border-2 border-neutral-200 hover:border-amber-500 hover:shadow-xl transition-all duration-200 text-left flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                            ⏱️
+                          </div>
+                          <h3 className="text-lg font-serif font-bold text-neutral-900 mb-1">
+                            {t("Reto Precisión 10s", "10s Precision Challenge")}
+                          </h3>
+                          <p className="text-xs text-neutral-500 leading-relaxed mb-4">
+                            {t(
+                              "Pon a prueba tus reflejos en la mesa. Detén el cronómetro exactamente en 10.000s para ganar.",
+                              "Test your reflexes at the table. Stop the timer at exactly 10.000s to win."
+                            )}
+                          </p>
+                        </div>
+                        <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-700 group-hover:translate-x-1 transition-transform">
+                          <span>{t("Retar Cronómetro", "Challenge Timer")}</span>
+                          <span>→</span>
+                        </div>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
             )}
 
-            {currentStep === 4 && wonPrize && (
+            {/* PASO 3: TU PREMIO (CUPÓN EXCLUSIVO) */}
+            {currentStep === 3 && wonPrize && (
               <div className="space-y-6">
                 <StepPrizeClaim
                   prize={wonPrize}
                   onValidateAtCashier={handleOpenValidatePin}
                 />
 
-                <div className="text-center pt-2">
-                  <button
-                    type="button"
-                    onClick={handleResetSession}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-amber-500/40 text-amber-400 hover:bg-neutral-800 text-xs font-semibold shadow-md transition-all active:scale-95 cursor-pointer"
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                    <span>{t("🔄 Reiniciar y Probar Nuevo Juego en Mesa", "🔄 Reset and Try Another Table Game")}</span>
-                  </button>
-                </div>
+                {/* Atajo discreto para modo desarrollo si ?debug=1 */}
+                {typeof window !== "undefined" && window.location.search.includes("debug=1") && (
+                  <div className="text-center pt-2">
+                    <button
+                      type="button"
+                      onClick={handleResetSession}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-900 text-amber-400 text-xs font-semibold"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      <span>Debug: Reiniciar Sesión</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* PASO 4: CALIFICACIÓN & OPINIÓN */}
+            {currentStep === 4 && (
+              <div>
+                <StepFeedback
+                  initialFeedback={feedback}
+                  customerName={participant?.fullName}
+                  isStandAlone={false}
+                  onComplete={(fb) => setFeedback(fb)}
+                  onSwitchToGame={() => {
+                    setCurrentStep(1);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                />
               </div>
             )}
           </div>
