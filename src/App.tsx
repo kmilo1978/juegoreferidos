@@ -53,7 +53,17 @@ function JuegoQrPage() {
   const [feedback, setFeedback] = useState<FeedbackData | undefined>();
   const [participant, setParticipant] = useState<ParticipantData | undefined>();
   const [instagramEvidence, setInstagramEvidence] = useState<InstagramEvidence | undefined>();
-  const [prizes, setPrizes] = useState<GamePrize[]>(DEFAULT_PRIZES);
+  const [prizes, setPrizes] = useState<GamePrize[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("juegoreferidos_custom_prizes");
+        if (stored) return JSON.parse(stored);
+      } catch {
+        // ignore
+      }
+    }
+    return DEFAULT_PRIZES;
+  });
   const [wonPrize, setWonPrize] = useState<WonPrize | null>(null);
   const [history, setHistory] = useState<WonPrize[]>([]);
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
@@ -96,8 +106,39 @@ function JuegoQrPage() {
     }
   };
 
+  // Guardar configuración de premios de forma permanente
+  const handleUpdatePrizes = (newPrizes: GamePrize[]) => {
+    setPrizes(newPrizes);
+    try {
+      localStorage.setItem("juegoreferidos_custom_prizes", JSON.stringify(newPrizes));
+    } catch {
+      // ignore
+    }
+  };
+
   // PASO 1 -> PASO 2 (Tus Datos -> Instagram)
   const handleUserDataComplete = (data: ParticipantData) => {
+    // 🛡️ CONTROL ANTI-FRAUDE: 1 SOLO GIRO POR PERSONA / POR DÍA
+    const now = Date.now();
+    const twentyFourHoursMs = 24 * 60 * 60 * 1000;
+    const cleanWhatsapp = data.whatsapp.replace(/\D/g, "");
+
+    const existingActivePrize = history.find(
+      (h) =>
+        h.participantWhatsapp === cleanWhatsapp &&
+        h.createdAt &&
+        now - h.createdAt < twentyFourHoursMs
+    );
+
+    if (existingActivePrize) {
+      alert(
+        `¡Hola, ${data.fullName}! Detectamos que ya participaste hoy con el número (+${cleanWhatsapp}).\n\nTienes activo tu premio: "${existingActivePrize.prizeName}" (Código: ${existingActivePrize.uniqueCode}). Para mantener la equidad en el sorteo, se permite 1 giro diario por persona.\n\nTe llevamos directamente a tu cupón.`
+      );
+      setWonPrize(existingActivePrize);
+      setCurrentStep(4);
+      return;
+    }
+
     setParticipant(data);
     setCurrentStep(2);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -322,7 +363,7 @@ function JuegoQrPage() {
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
         prizes={prizes}
-        onUpdatePrizes={setPrizes}
+        onUpdatePrizes={handleUpdatePrizes}
         history={history}
         onGenerateNewTable={handleResetSession}
       />
