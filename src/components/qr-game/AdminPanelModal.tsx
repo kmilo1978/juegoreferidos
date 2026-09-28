@@ -65,7 +65,13 @@ import {
   generateNewCashierPin,
   getMasterAdminPin,
   setMasterAdminPin,
+  getManagerAdminPin,
+  setManagerAdminPin,
+  getRolePermissions,
+  saveRolePermissions,
   authenticatePin,
+  hasPermission,
+  RolePermissions,
 } from "../../lib/tableSecurityService";
 import {
   getBrandConfig,
@@ -113,14 +119,40 @@ export function AdminPanelModal({
   const [stampGlobalMode] = useState<15>(15);
   const [stampSaveFeedback, setStampSaveFeedback] = useState<string | null>(null);
 
-  // Estados de Control de Acceso por Roles (RBAC)
-  const [authenticatedRole, setAuthenticatedRole] = useState<"admin" | "cashier" | null>(null);
+  // Estados de Control de Acceso por Roles (RBAC 3 Niveles: Owner, Admin, Cashier)
+  const [authenticatedRole, setAuthenticatedRole] = useState<"owner" | "admin" | "cashier" | null>(null);
   const [pinInput, setPinInput] = useState<string>("");
   const [pinError, setPinError] = useState<string | null>(null);
   const [masterPin, setMasterPin] = useState<string>(() => getMasterAdminPin());
+  const [managerPin, setManagerPin] = useState<string>(() => getManagerAdminPin());
   const [newMasterPinInput, setNewMasterPinInput] = useState<string>("");
+  const [newManagerPinInput, setNewManagerPinInput] = useState<string>("");
   const [newCashierPinInput, setNewCashierPinInput] = useState<string>("");
+  const [rolePermissions, setRolePermissions] = useState<RolePermissions>(() => getRolePermissions());
   const [pinChangeFeedback, setPinChangeFeedback] = useState<string | null>(null);
+
+  const canAccessTab = (tab: "stats" | "prizes" | "campaign" | "messages" | "composio" | "databases" | "branding"): boolean => {
+    if (authenticatedRole === "owner") return true;
+    if (!authenticatedRole) return false;
+    switch (tab) {
+      case "stats":
+        return hasPermission(authenticatedRole, "viewMetrics");
+      case "prizes":
+        return hasPermission(authenticatedRole, "manageRoulette") || hasPermission(authenticatedRole, "manageStamps");
+      case "campaign":
+        return hasPermission(authenticatedRole, "manageChannels");
+      case "messages":
+        return hasPermission(authenticatedRole, "redeemPrizes") || hasPermission(authenticatedRole, "manageChannels");
+      case "composio":
+        return hasPermission(authenticatedRole, "manageComposio");
+      case "databases":
+        return hasPermission(authenticatedRole, "manageDatabases");
+      case "branding":
+        return hasPermission(authenticatedRole, "manageBrand");
+      default:
+        return false;
+    }
+  };
 
   const handlePinSubmit = (pinToTest?: string) => {
     const pin = pinToTest ?? pinInput;
@@ -129,11 +161,11 @@ export function AdminPanelModal({
       setAuthenticatedRole(role);
       setPinError(null);
       setPinInput("");
-      if (role === "cashier" && activeTab !== "stats" && activeTab !== "messages") {
+      if (!canAccessTab(activeTab)) {
         setActiveTab("stats");
       }
     } else {
-      setPinError("PIN no reconocido. Ingresa 8888 (Dueño) o 1978 (Cajero).");
+      setPinError("PIN no reconocido. Ingresa 8888 (Dueño), 5555 (Admin) o 1978 (Cajero).");
       setPinInput("");
     }
   };
@@ -166,6 +198,28 @@ export function AdminPanelModal({
       setNewMasterPinInput("");
       setPinChangeFeedback("¡PIN Maestro de Dueño actualizado con éxito!");
       setTimeout(() => setPinChangeFeedback(null), 3000);
+      fetch("http://localhost:3001/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ security: { masterAdminPin: newMasterPinInput } }),
+      }).catch(() => {});
+    } else {
+      alert("El PIN debe contener exactamente 4 dígitos numéricos.");
+    }
+  };
+
+  const handleSaveManagerPin = () => {
+    if (newManagerPinInput.length === 4 && /^\d{4}$/.test(newManagerPinInput)) {
+      setManagerAdminPin(newManagerPinInput);
+      setManagerPin(newManagerPinInput);
+      setNewManagerPinInput("");
+      setPinChangeFeedback("¡PIN de Administrador actualizado con éxito!");
+      setTimeout(() => setPinChangeFeedback(null), 3000);
+      fetch("http://localhost:3001/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ security: { managerAdminPin: newManagerPinInput } }),
+      }).catch(() => {});
     } else {
       alert("El PIN debe contener exactamente 4 dígitos numéricos.");
     }
@@ -178,9 +232,31 @@ export function AdminPanelModal({
       setNewCashierPinInput("");
       setPinChangeFeedback("¡PIN de Cajero actualizado con éxito!");
       setTimeout(() => setPinChangeFeedback(null), 3000);
+      fetch("http://localhost:3001/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ security: { cashierPin: newCashierPinInput } }),
+      }).catch(() => {});
     } else {
       alert("El PIN debe contener exactamente 4 dígitos numéricos.");
     }
+  };
+
+  const handleTogglePermission = (role: "admin" | "cashier", perm: keyof RolePermissions["admin"]) => {
+    const updated: RolePermissions = {
+      ...rolePermissions,
+      [role]: {
+        ...rolePermissions[role],
+        [perm]: !rolePermissions[role][perm],
+      },
+    };
+    setRolePermissions(updated);
+    saveRolePermissions(updated);
+    fetch("http://localhost:3001/api/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ security: { roles: updated } }),
+    }).catch(() => {});
   };
 
   // Estados editables de marca (Branding & Composio)
@@ -385,23 +461,32 @@ export function AdminPanelModal({
             <p className="text-[10px] text-neutral-500 uppercase tracking-wider font-semibold">
               Accesos de Prueba:
             </p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-3 gap-2 text-xs">
               <button
                 type="button"
                 onClick={() => handlePinSubmit(masterPin || "8888")}
-                className="p-2 rounded-xl bg-gold/15 hover:bg-gold/25 border border-gold/40 text-gold text-[11px] font-bold flex flex-col items-center gap-0.5 transition-all"
+                className="p-2 rounded-xl bg-gold/15 hover:bg-gold/25 border border-gold/40 text-gold text-[10px] font-bold flex flex-col items-center gap-0.5 transition-all text-center"
               >
                 <span>👑 Dueño Master</span>
-                <span className="font-mono text-[10px] text-gold/80">PIN: {masterPin || "8888"}</span>
+                <span className="font-mono text-[9px] text-gold/80">PIN: {masterPin || "8888"}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handlePinSubmit(managerPin || "5555")}
+                className="p-2 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-400/40 text-indigo-300 text-[10px] font-bold flex flex-col items-center gap-0.5 transition-all text-center"
+              >
+                <span>👔 Admin / Gerente</span>
+                <span className="font-mono text-[9px] text-indigo-300/80">PIN: {managerPin || "5555"}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handlePinSubmit(activePin || "1978")}
-                className="p-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-400/40 text-sky-300 text-[11px] font-bold flex flex-col items-center gap-0.5 transition-all"
+                className="p-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-400/40 text-sky-300 text-[10px] font-bold flex flex-col items-center gap-0.5 transition-all text-center"
               >
                 <span>💼 Cajero / Turno</span>
-                <span className="font-mono text-[10px] text-sky-400/80">PIN: {activePin || "1978"}</span>
+                <span className="font-mono text-[9px] text-sky-400/80">PIN: {activePin || "1978"}</span>
               </button>
             </div>
           </div>
@@ -410,7 +495,7 @@ export function AdminPanelModal({
     );
   }
 
-  const isMasterAdmin = authenticatedRole === "admin";
+  const isMasterAdmin = authenticatedRole === "owner";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
@@ -422,10 +507,15 @@ export function AdminPanelModal({
               <span className="text-[10px] uppercase tracking-[0.24em] text-gold font-mono font-semibold">
                 {clientConfig.brand.name.toUpperCase()} · PANEL DE CONTROL
               </span>
-              {isMasterAdmin ? (
+              {authenticatedRole === "owner" ? (
                 <span className="px-2 py-0.5 rounded-full bg-gold/20 text-gold border border-gold/40 text-[9px] font-bold uppercase tracking-wider flex items-center gap-1">
                   <ShieldCheck className="h-3 w-3" />
                   Dueño Master
+                </span>
+              ) : authenticatedRole === "admin" ? (
+                <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/40 text-[9px] font-bold uppercase tracking-wider flex items-center gap-1">
+                  <ShieldCheck className="h-3 w-3" />
+                  Administrador
                 </span>
               ) : (
                 <span className="px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/40 text-[9px] font-bold uppercase tracking-wider flex items-center gap-1">
@@ -490,7 +580,7 @@ export function AdminPanelModal({
           >
             <Sliders className="h-3.5 w-3.5" />
             <span>{t("Premios & Probabilidades", "Prizes & Probabilities")}</span>
-            {!isMasterAdmin && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
+            {!canAccessTab("prizes") && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
           </button>
 
           <button
@@ -504,7 +594,7 @@ export function AdminPanelModal({
           >
             <Award className="h-3.5 w-3.5" />
             <span>{t("Campaña & Reglas", "Campaign & Rules")}</span>
-            {!isMasterAdmin && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
+            {!canAccessTab("campaign") && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
           </button>
 
           <button
@@ -518,6 +608,7 @@ export function AdminPanelModal({
           >
             <MessageSquare className="h-3.5 w-3.5" />
             <span>{t("Mensajes WhatsApp", "WhatsApp Messages")}</span>
+            {!canAccessTab("messages") && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
           </button>
 
           <button
@@ -531,7 +622,7 @@ export function AdminPanelModal({
           >
             <Bell className="h-3.5 w-3.5" />
             <span>{t("Composio & Web Push", "Composio & Web Push")}</span>
-            {!isMasterAdmin && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
+            {!canAccessTab("composio") && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
           </button>
 
           <button
@@ -545,7 +636,7 @@ export function AdminPanelModal({
           >
             <Database className="h-3.5 w-3.5" />
             <span>{t("Google Sheets & Supabase", "Google Sheets & Supabase")}</span>
-            {!isMasterAdmin && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
+            {!canAccessTab("databases") && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
           </button>
 
           <button
@@ -559,14 +650,14 @@ export function AdminPanelModal({
           >
             <Palette className="h-3.5 w-3.5" />
             <span>{t("Marca & Composio", "Brand & Composio")}</span>
-            {!isMasterAdmin && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
+            {!canAccessTab("branding") && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
           </button>
         </div>
 
         {/* Contenido scrolleable */}
         <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6">
-          {/* BLOQUEO PARA ROLES SIN PERMISO: CAJERO INTENTANDO VER CONFIGURACIONES SENSIBLES */}
-          {!isMasterAdmin && activeTab !== "stats" && activeTab !== "messages" ? (
+          {/* BLOQUEO PARA ROLES SIN PERMISO: ACCESO DENEGADO POR SEGURIDAD RBAC */}
+          {!canAccessTab(activeTab) ? (
             <div className="p-8 rounded-3xl bg-neutral-900 border-2 border-amber-500/40 text-center space-y-4 max-w-lg mx-auto my-12 animate-fade-in shadow-xl">
               <div className="h-16 w-16 rounded-2xl bg-amber-500/15 text-amber-400 border border-amber-500/40 flex items-center justify-center mx-auto">
                 <ShieldAlert className="h-8 w-8" />
@@ -576,11 +667,11 @@ export function AdminPanelModal({
                   Seguridad por Roles & Permisos
                 </span>
                 <h3 className="font-display text-xl font-bold text-white">
-                  Sección Restringida para Cajero
+                  Sección Restringida para {authenticatedRole === "admin" ? "Administrador" : "Cajero"}
                 </h3>
               </div>
               <p className="text-xs text-neutral-300 leading-relaxed">
-                Esta sección contiene parámetros críticos de administración (probabilidades de premios, marca blanca, bases de datos o llaves de API) y solo puede ser gestionada por el <strong>Dueño / Administrador General</strong>.
+                Esta sección requiere permisos específicos asignados por el <strong>Dueño Master</strong>. Puedes solicitar la activación del permiso o ingresar con el PIN Maestro.
               </p>
               <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
                 <button
@@ -1471,18 +1562,57 @@ Presenta este código al momento de pagar:
                   </span>
                 </div>
 
-                {/* Botones de Guardar y Probar */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      saveComposioConfig(composioConfig);
-                      alert("¡Configuración de Composio y automatizaciones guardada con éxito!");
-                    }}
-                    className="px-5 py-2.5 bg-gold hover:bg-gold/90 text-white rounded-xl font-semibold uppercase tracking-wider text-xs shadow-sm transition"
-                  >
-                    💾 Guardar Configuración
-                  </button>
+                {/* Botones de Conectar, Guardar y Probar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const next = { ...composioConfig, enabled: true };
+                        setComposioConfig(next);
+                        saveComposioConfig(next);
+                        try {
+                          await fetch("http://localhost:3001/api/config", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              composio: {
+                                enabled: true,
+                                apiKey: next.apiKey,
+                                integrations: next.integrations,
+                              },
+                            }),
+                          });
+                        } catch {}
+                        alert("⚡ ¡Conexión con Composio.dev activada exitosamente!");
+                      }}
+                      className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-gold hover:from-amber-600 hover:to-gold/90 text-white rounded-xl font-bold uppercase tracking-wider text-xs shadow-md transition-all flex items-center gap-2"
+                    >
+                      <span>⚡ Conectar con Composio.dev</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        saveComposioConfig(composioConfig);
+                        fetch("http://localhost:3001/api/config", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            composio: {
+                              enabled: composioConfig.enabled,
+                              apiKey: composioConfig.apiKey,
+                              integrations: composioConfig.integrations,
+                            },
+                          }),
+                        }).catch(() => {});
+                        alert("¡Configuración de Composio y automatizaciones guardada con éxito!");
+                      }}
+                      className="px-4 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-white rounded-xl font-semibold uppercase tracking-wider text-xs shadow-xs transition"
+                    >
+                      💾 Guardar
+                    </button>
+                  </div>
 
                   <button
                     type="button"
@@ -1997,16 +2127,16 @@ Presenta este código al momento de pagar:
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Tarjeta 1: PIN Maestro de Dueño */}
                   <div className="p-4 bg-background rounded-2xl border-2 border-gold/40 space-y-3 shadow-2xs">
                     <div className="flex items-center justify-between border-b border-border/60 pb-2">
                       <span className="text-[10px] uppercase font-bold text-gold tracking-wider flex items-center gap-1.5">
                         <ShieldCheck className="h-3.5 w-3.5 text-gold" />
-                        1. PIN Maestro de Dueño (Acceso Total):
+                        1. Dueño Master:
                       </span>
                       <span className="px-2 py-0.5 rounded-full bg-gold/20 text-gold text-[9px] font-mono font-bold">
-                        Master
+                        Master (Total)
                       </span>
                     </div>
 
@@ -2014,41 +2144,95 @@ Presenta este código al momento de pagar:
                       <span className="font-mono text-2xl font-bold text-foreground px-3 py-1 bg-muted/60 border border-border rounded-xl">
                         {masterPin}
                       </span>
-                      <div className="space-y-1">
+                      <div className="space-y-0.5">
                         <p className="text-xs font-semibold text-foreground">Acceso de Propietario</p>
-                        <p className="text-[10px] text-muted-foreground">Desbloquea todas las 7 secciones del sistema.</p>
+                        <p className="text-[10px] text-muted-foreground">Control total sobre roles y datos.</p>
                       </div>
                     </div>
 
-                    <div className="pt-2 border-t border-border/50 flex items-center gap-2">
-                      <input
-                        type="text"
-                        maxLength={4}
-                        value={newMasterPinInput}
-                        onChange={(e) => setNewMasterPinInput(e.target.value.replace(/\D/g, ""))}
-                        placeholder="Nuevo PIN 4 dígitos"
-                        className="w-36 p-1.5 rounded-lg border border-border bg-card font-mono text-xs text-center font-bold text-foreground"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleSaveMasterPin}
-                        disabled={newMasterPinInput.length !== 4}
-                        className="btn-solid py-1.5 px-3 text-[11px] uppercase font-bold disabled:opacity-40"
-                      >
-                        Cambiar PIN Dueño
-                      </button>
-                    </div>
+                    {authenticatedRole === "owner" ? (
+                      <div className="pt-2 border-t border-border/50 flex items-center gap-2">
+                        <input
+                          type="text"
+                          maxLength={4}
+                          value={newMasterPinInput}
+                          onChange={(e) => setNewMasterPinInput(e.target.value.replace(/\D/g, ""))}
+                          placeholder="Nuevo PIN Dueño"
+                          className="w-full p-1.5 rounded-lg border border-border bg-card font-mono text-xs text-center font-bold text-foreground"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleSaveMasterPin}
+                          disabled={newMasterPinInput.length !== 4}
+                          className="btn-solid py-1.5 px-3 text-[10px] uppercase font-bold disabled:opacity-40 whitespace-nowrap"
+                        >
+                          Guardar
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-[10px] text-muted-foreground pt-1 border-t border-border/40">
+                        🔒 Solo editable por el Dueño.
+                      </p>
+                    )}
                   </div>
 
-                  {/* Tarjeta 2: PIN de Caja / Supervisor */}
+                  {/* Tarjeta 2: PIN de Administrador / Gerente */}
+                  <div className="p-4 bg-background rounded-2xl border-2 border-indigo-500/40 space-y-3 shadow-2xs">
+                    <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                      <span className="text-[10px] uppercase font-bold text-indigo-400 tracking-wider flex items-center gap-1.5">
+                        <ShieldCheck className="h-3.5 w-3.5 text-indigo-400" />
+                        2. Administrador:
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 text-[9px] font-mono font-bold">
+                        Gerente
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-2xl font-bold text-indigo-400 px-3 py-1 bg-indigo-500/10 border border-indigo-500/30 rounded-xl">
+                        {managerPin}
+                      </span>
+                      <div className="space-y-0.5">
+                        <p className="text-xs font-semibold text-foreground">Encargado General</p>
+                        <p className="text-[10px] text-muted-foreground">Permisos asignados por Dueño.</p>
+                      </div>
+                    </div>
+
+                    {authenticatedRole === "owner" ? (
+                      <div className="pt-2 border-t border-border/50 flex items-center gap-2">
+                        <input
+                          type="text"
+                          maxLength={4}
+                          value={newManagerPinInput}
+                          onChange={(e) => setNewManagerPinInput(e.target.value.replace(/\D/g, ""))}
+                          placeholder="Nuevo PIN Admin"
+                          className="w-full p-1.5 rounded-lg border border-border bg-card font-mono text-xs text-center font-bold text-foreground"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleSaveManagerPin}
+                          disabled={newManagerPinInput.length !== 4}
+                          className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] uppercase font-bold disabled:opacity-40 whitespace-nowrap transition-colors"
+                        >
+                          Guardar
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-[10px] text-muted-foreground pt-1 border-t border-border/40">
+                        🔒 Configurado por el Dueño Master.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Tarjeta 3: PIN de Cajero / Meseros */}
                   <div className="p-4 bg-background rounded-2xl border-2 border-sky-400/40 space-y-3 shadow-2xs">
                     <div className="flex items-center justify-between border-b border-border/60 pb-2">
                       <span className="text-[10px] uppercase font-bold text-sky-400 tracking-wider flex items-center gap-1.5">
                         <Lock className="h-3.5 w-3.5 text-sky-400" />
-                        2. PIN de Cajero / Meseros (Operativo):
+                        3. Cajero / Turno:
                       </span>
                       <span className="px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-400 text-[9px] font-mono font-bold">
-                        Turno
+                        Operativo
                       </span>
                     </div>
 
@@ -2064,10 +2248,10 @@ Presenta este código al momento de pagar:
                           setPinChangeFeedback(`¡Nuevo PIN de turno generado: ${newPin}!`);
                           setTimeout(() => setPinChangeFeedback(null), 3500);
                         }}
-                        className="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors shadow-xs"
+                        className="px-2.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1 transition-colors shadow-xs"
                       >
                         <RefreshCw className="h-3 w-3" />
-                        <span>Generar Aleatorio</span>
+                        <span>Rotar</span>
                       </button>
                     </div>
 
@@ -2077,75 +2261,91 @@ Presenta este código al momento de pagar:
                         maxLength={4}
                         value={newCashierPinInput}
                         onChange={(e) => setNewCashierPinInput(e.target.value.replace(/\D/g, ""))}
-                        placeholder="PIN Manual 4 dígitos"
-                        className="w-36 p-1.5 rounded-lg border border-border bg-card font-mono text-xs text-center font-bold text-foreground"
+                        placeholder="PIN Manual Cajero"
+                        className="w-full p-1.5 rounded-lg border border-border bg-card font-mono text-xs text-center font-bold text-foreground"
                       />
                       <button
                         type="button"
                         onClick={handleSaveCashierPinManually}
                         disabled={newCashierPinInput.length !== 4}
-                        className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] uppercase font-bold disabled:opacity-40 transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[10px] uppercase font-bold disabled:opacity-40 whitespace-nowrap transition-colors"
                       >
-                        Guardar PIN Cajero
+                        Guardar
                       </button>
                     </div>
                   </div>
 
-                  {/* Tarjeta 3: Matriz de Permisos por Rol */}
-                  <div className="sm:col-span-2 p-4 bg-background rounded-2xl border border-border space-y-3">
-                    <span className="text-[10px] uppercase font-bold text-foreground tracking-wider block">
-                      Matriz de Permisos Asignados por Rol
-                    </span>
+                  {/* Matriz de Permisos Editable por el Dueño */}
+                  <div className="md:col-span-3 p-5 bg-background rounded-2xl border border-border space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-[11px] uppercase font-bold text-foreground tracking-wider block">
+                          Matriz de Permisos por Rol (Configurada por el Dueño)
+                        </span>
+                        <p className="text-[10px] text-muted-foreground">
+                          {authenticatedRole === "owner" 
+                            ? "Como Dueño Master, puedes activar o desactivar permisos para el Administrador y el Cajero haciendo clic en cada casilla."
+                            : "Solo el Dueño Master tiene autorización para modificar los permisos de los roles."}
+                        </p>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full bg-gold/15 text-gold text-[10px] font-bold font-mono">
+                        {authenticatedRole === "owner" ? "Modo Edición Activo" : "Solo Lectura"}
+                      </span>
+                    </div>
+
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-xs">
                         <thead className="bg-muted/60 text-[10px] uppercase text-muted-foreground">
                           <tr>
-                            <th className="py-2 px-3">Funcionalidad del Sistema</th>
-                            <th className="py-2 px-3 text-center">👑 Rol Dueño (Master)</th>
-                            <th className="py-2 px-3 text-center">💼 Rol Cajero / Turno</th>
+                            <th className="py-2.5 px-3">Funcionalidad del Sistema</th>
+                            <th className="py-2.5 px-3 text-center">👑 Dueño Master</th>
+                            <th className="py-2.5 px-3 text-center">👔 Administrador</th>
+                            <th className="py-2.5 px-3 text-center">💼 Cajero / Turno</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border/60 text-xs">
-                          <tr>
-                            <td className="py-2 px-3 font-medium">Métricas en Vivo e Historial de Mesa</td>
-                            <td className="py-2 px-3 text-center text-emerald-600 font-bold">✓ Acceso Total</td>
-                            <td className="py-2 px-3 text-center text-emerald-600 font-bold">✓ Acceso Total</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 px-3 font-medium">Validación de Sellos en Mesa (PIN)</td>
-                            <td className="py-2 px-3 text-center text-emerald-600 font-bold">✓ Permitido</td>
-                            <td className="py-2 px-3 text-center text-emerald-600 font-bold">✓ Permitido</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 px-3 font-medium">Mensajes WhatsApp y Comprobantes</td>
-                            <td className="py-2 px-3 text-center text-emerald-600 font-bold">✓ Permitido</td>
-                            <td className="py-2 px-3 text-center text-emerald-600 font-bold">✓ Permitido</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 px-3 font-medium">Configuración de Ruleta & Probabilidades (%)</td>
-                            <td className="py-2 px-3 text-center text-emerald-600 font-bold">✓ Permitido</td>
-                            <td className="py-2 px-3 text-center text-amber-600 font-semibold">🔒 Bloqueado</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 px-3 font-medium">Editar Catálogo de 15 Premios de Sellos</td>
-                            <td className="py-2 px-3 text-center text-emerald-600 font-bold">✓ Permitido</td>
-                            <td className="py-2 px-3 text-center text-amber-600 font-semibold">🔒 Bloqueado</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 px-3 font-medium">Cambiar Marca Blanca, Logo y Colores</td>
-                            <td className="py-2 px-3 text-center text-emerald-600 font-bold">✓ Permitido</td>
-                            <td className="py-2 px-3 text-center text-amber-600 font-semibold">🔒 Bloqueado</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 px-3 font-medium">Google Sheets, Supabase & Composio Keys</td>
-                            <td className="py-2 px-3 text-center text-emerald-600 font-bold">✓ Permitido</td>
-                            <td className="py-2 px-3 text-center text-amber-600 font-semibold">🔒 Bloqueado</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 px-3 font-medium">Gestión de PINs y Roles</td>
-                            <td className="py-2 px-3 text-center text-emerald-600 font-bold">✓ Permitido</td>
-                            <td className="py-2 px-3 text-center text-amber-600 font-semibold">🔒 Bloqueado</td>
-                          </tr>
+                          {[
+                            { id: "viewMetrics", label: "Métricas en Vivo e Historial de Mesa", desc: "Ver KPIs, ventas y panel de control" },
+                            { id: "redeemPrizes", label: "Validación de Premios & Sellos en Mesa", desc: "Quemar códigos de clientes y asignar sellos" },
+                            { id: "manageChannels", label: "Canales (WhatsApp & Redes Sociales)", desc: "Editar números y mensaje de foto" },
+                            { id: "manageRoulette", label: "Configuración de Ruleta & Probabilidades (%)", desc: "Ajustar premios y chances matemáticas" },
+                            { id: "manageStamps", label: "Editar Catálogo de Sellos & Premios", desc: "Modificar hitos de 5, 10 y 15 sellos" },
+                            { id: "manageBrand", label: "Motor de Marca Blanca, Logo y Colores", desc: "Personalización visual completa" },
+                            { id: "manageDatabases", label: "Google Sheets & Supabase Sync", desc: "Configurar tablas y claves de base de datos" },
+                            { id: "manageComposio", label: "Integración Composio.dev & Automatizaciones", desc: "Conector de IA y sincronizaciones externas" },
+                          ].map((perm) => (
+                            <tr key={perm.id} className="hover:bg-muted/30 transition-colors">
+                              <td className="py-2.5 px-3">
+                                <span className="font-semibold text-foreground block">{perm.label}</span>
+                                <span className="text-[10px] text-muted-foreground">{perm.desc}</span>
+                              </td>
+                              <td className="py-2.5 px-3 text-center font-bold text-gold">
+                                ✓ Acceso Total
+                              </td>
+                              <td className="py-2.5 px-3 text-center">
+                                <label className="inline-flex items-center justify-center cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    disabled={authenticatedRole !== "owner"}
+                                    checked={rolePermissions.admin[perm.id as keyof RolePermissions["admin"]]}
+                                    onChange={() => handleTogglePermission("admin", perm.id as keyof RolePermissions["admin"])}
+                                    className="h-4 w-4 rounded border-border text-indigo-600 focus:ring-indigo-500 disabled:opacity-60 cursor-pointer"
+                                  />
+                                </label>
+                              </td>
+                              <td className="py-2.5 px-3 text-center">
+                                <label className="inline-flex items-center justify-center cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    disabled={authenticatedRole !== "owner"}
+                                    checked={rolePermissions.cashier[perm.id as keyof RolePermissions["cashier"]]}
+                                    onChange={() => handleTogglePermission("cashier", perm.id as keyof RolePermissions["cashier"])}
+                                    className="h-4 w-4 rounded border-border text-sky-600 focus:ring-sky-500 disabled:opacity-60 cursor-pointer"
+                                  />
+                                </label>
+                              </td>
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
                     </div>

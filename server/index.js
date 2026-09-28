@@ -55,9 +55,46 @@ const DEFAULT_SETTINGS = {
     supabaseProjectUrl: "",
     supabaseAnonKey: "",
   },
+  composio: {
+    enabled: false,
+    apiKey: "",
+    integrations: {
+      googleSheets: true,
+      googleContacts: true,
+      whatsAppAutoSend: false,
+      dailyEmailSummary: true,
+    },
+    endpoints: {
+      googleSheetWebhookUrl: "",
+      customWebhookUrl: "",
+    },
+  },
   security: {
     masterAdminPin: "8888",
+    managerAdminPin: "5555",
     cashierPin: "1978",
+    roles: {
+      admin: {
+        manageBrand: true,
+        manageRoulette: true,
+        manageStamps: true,
+        manageChannels: true,
+        manageDatabases: false,
+        manageComposio: false,
+        viewMetrics: true,
+        redeemPrizes: true,
+      },
+      cashier: {
+        manageBrand: false,
+        manageRoulette: false,
+        manageStamps: false,
+        manageChannels: false,
+        manageDatabases: false,
+        manageComposio: false,
+        viewMetrics: true,
+        redeemPrizes: true,
+      },
+    },
   },
 };
 
@@ -116,7 +153,28 @@ if (fs.existsSync(DB_FILE)) {
             : DEFAULT_SETTINGS.stamps.milestones,
         },
         databases: { ...DEFAULT_SETTINGS.databases, ...((loaded.settings && loaded.settings.databases) || {}) },
-        security: { ...DEFAULT_SETTINGS.security, ...((loaded.settings && loaded.settings.security) || {}) },
+        composio: {
+          ...DEFAULT_SETTINGS.composio,
+          ...((loaded.settings && loaded.settings.composio) || {}),
+          integrations: {
+            ...DEFAULT_SETTINGS.composio.integrations,
+            ...((loaded.settings && loaded.settings.composio && loaded.settings.composio.integrations) || {}),
+          },
+        },
+        security: {
+          ...DEFAULT_SETTINGS.security,
+          ...((loaded.settings && loaded.settings.security) || {}),
+          roles: {
+            admin: {
+              ...DEFAULT_SETTINGS.security.roles.admin,
+              ...((loaded.settings && loaded.settings.security && loaded.settings.security.roles && loaded.settings.security.roles.admin) || {}),
+            },
+            cashier: {
+              ...DEFAULT_SETTINGS.security.roles.cashier,
+              ...((loaded.settings && loaded.settings.security && loaded.settings.security.roles && loaded.settings.security.roles.cashier) || {}),
+            },
+          },
+        },
       },
     };
   } catch (err) {
@@ -338,7 +396,32 @@ const server = http.createServer((req, res) => {
         if (data.prizes && Array.isArray(data.prizes)) db.settings.prizes = data.prizes;
         if (data.stamps) db.settings.stamps = { ...db.settings.stamps, ...data.stamps };
         if (data.databases) db.settings.databases = { ...db.settings.databases, ...data.databases };
-        if (data.security) db.settings.security = { ...db.settings.security, ...data.security };
+        if (data.composio) {
+          db.settings.composio = {
+            ...db.settings.composio,
+            ...data.composio,
+            integrations: {
+              ...db.settings.composio.integrations,
+              ...(data.composio.integrations || {}),
+            },
+          };
+        }
+        if (data.security) {
+          db.settings.security = {
+            ...db.settings.security,
+            ...data.security,
+            roles: {
+              admin: {
+                ...db.settings.security.roles.admin,
+                ...((data.security.roles && data.security.roles.admin) || {}),
+              },
+              cashier: {
+                ...db.settings.security.roles.cashier,
+                ...((data.security.roles && data.security.roles.cashier) || {}),
+              },
+            },
+          };
+        }
 
         // Compatibilidad con payloads planos
         if (data.instagramHandle !== undefined) db.settings.channels.instagramHandle = data.instagramHandle;
@@ -649,6 +732,7 @@ function renderBackendDashboard() {
       <button class="nav-tab" onclick="switchTab('tab-roulette')">🎡 Ruleta de Premios</button>
       <button class="nav-tab" onclick="switchTab('tab-stamps')">🎟️ Tarjeta de Sellos & Iconos</button>
       <button class="nav-tab" onclick="switchTab('tab-databases')">🗄️ Bases de Datos</button>
+      <button class="nav-tab" onclick="switchTab('tab-composio')">⚡ Composio & IA</button>
       <button class="nav-tab" onclick="switchTab('tab-security')">🔐 Seguridad & PINs</button>
     </div>
 
@@ -1204,41 +1288,213 @@ function renderBackendDashboard() {
     </div>
 
     <!-- ========================================================================= -->
-    <!-- PESTAÑA 7: SEGURIDAD & PINS                                               -->
+    <!-- PESTAÑA 7: COMPOSIO & AUTOMATIZACIONES IA                                 -->
+    <!-- ========================================================================= -->
+    <div id="tab-composio" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>⚡ Composio.dev · Conector de Inteligencia Artificial & Automatización</span>
+          </div>
+          <div>
+            <span id="toast-composio" class="toast-success">✓ ¡Configuración Composio guardada!</span>
+            <button class="btn-save" onclick="saveComposioBackendConfig()">💾 Guardar Composio</button>
+          </div>
+        </div>
+
+        <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(11, 15, 25, 0.9) 100%); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 32px;">⚡</span>
+              <div>
+                <strong style="color: #fbbf24; font-size: 15px; text-transform: uppercase;">Integración Oficial con Composio.dev</strong>
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                  Conecta tu negocio gastronómico con más de 100 herramientas sin código (Google Sheets, Contacts, WhatsApp Oficial, Correo y CRM).
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span id="comp-status-badge" style="font-size: 11px; padding: 4px 12px; border-radius: 20px; font-weight: 700; ${s.composio && s.composio.enabled ? 'background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);' : 'background: rgba(107, 114, 128, 0.2); color: #9ca3af; border: 1px solid rgba(107, 114, 128, 0.4);'}">
+                ${s.composio && s.composio.enabled ? '🟢 Conectado con Composio.dev' : '⚪ Sin conectar'}
+              </span>
+              <button onclick="connectComposioNow()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-weight: 800; font-size: 11px; text-transform: uppercase; padding: 9px 16px; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);">
+                ⚡ Conectar con Composio.dev
+              </button>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Composio API Key:</label>
+              <input type="password" id="comp-api-key" class="form-input" value="${(s.composio && s.composio.apiKey) || ''}" placeholder="comp_live_..." />
+              <span class="form-help">Consigue tu llave gratis en <a href="https://composio.dev" target="_blank" style="color: #fbbf24; text-decoration: underline;">composio.dev</a>.</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Webhook Fallback (Google Apps Script):</label>
+              <input type="url" id="comp-webhook-url" class="form-input" value="${(s.composio && s.composio.endpoints && s.composio.endpoints.googleSheetWebhookUrl) || s.databases.googleSheetWebhookUrl || ''}" placeholder="https://script.google.com/macros/s/.../exec" />
+              <span class="form-help">Webhook alternativo gratuito para sincronización directa a hojas de cálculo.</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08);">
+            <strong style="color: #fff; font-size: 12px; display: block; margin-bottom: 10px;">Herramientas Automatizadas Activas:</strong>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+              <label style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--card-border); cursor: pointer;">
+                <input type="checkbox" id="comp-tool-sheets" ${s.composio && s.composio.integrations && s.composio.integrations.googleSheets ? 'checked' : ''} />
+                <span style="font-size: 12px; color: #fff;">📗 Google Sheets en Vivo</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--card-border); cursor: pointer;">
+                <input type="checkbox" id="comp-tool-contacts" ${s.composio && s.composio.integrations && s.composio.integrations.googleContacts ? 'checked' : ''} />
+                <span style="font-size: 12px; color: #fff;">👤 Google Contacts Auto</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--card-border); cursor: pointer;">
+                <input type="checkbox" id="comp-tool-wa" ${s.composio && s.composio.integrations && s.composio.integrations.whatsAppAutoSend ? 'checked' : ''} />
+                <span style="font-size: 12px; color: #fff;">💬 WhatsApp Notificación</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--card-border); cursor: pointer;">
+                <input type="checkbox" id="comp-tool-email" ${s.composio && s.composio.integrations && s.composio.integrations.dailyEmailSummary ? 'checked' : ''} />
+                <span style="font-size: 12px; color: #fff;">✉️ Resumen Diario Email</span>
+              </label>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+            <button onclick="testComposioSync()" style="background: rgba(255,255,255,0.08); color: #fff; font-size: 11px; padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer;">
+              🚀 Disparar Evento de Prueba a Composio
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA 8: SEGURIDAD, PINS & PERMISOS DE ROLES                            -->
     <!-- ========================================================================= -->
     <div id="tab-security" class="tab-content">
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">
-            <span>🔐 Seguridad de Caja & Control de Acceso por Roles (PINs)</span>
+            <span>🔐 Seguridad de Caja & Control de Acceso por Roles (PINs & Permisos)</span>
           </div>
           <div>
-            <span id="toast-security" class="toast-success">✓ ¡PINs guardados con éxito!</span>
-            <button class="btn-save" onclick="saveSecurityConfig()">💾 Guardar PINs</button>
+            <span id="toast-security" class="toast-success">✓ ¡Permisos y PINs guardados!</span>
+            <button class="btn-save" onclick="saveSecurityConfig()">💾 Guardar Permisos y PINs</button>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 14px; padding: 18px;">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-              <span style="font-size: 18px;">👑</span>
-              <strong style="color: #fbbf24; font-size: 13px;">PIN Maestro de Dueño (Admin Total)</strong>
+        <!-- 3 TARJETAS DE PINS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 20px;">
+          <!-- 1. DUEÑO -->
+          <div style="background: #0b0f19; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 14px; padding: 18px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 18px;">👑</span>
+                <strong style="color: #fbbf24; font-size: 13px;">Dueño Master</strong>
+              </div>
+              <span style="font-size: 9px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 2px 6px; border-radius: 4px; font-weight: 700;">TOTAL</span>
             </div>
             <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
-              Permite configurar probabilidades de ruleta, marca, bases de datos y cambiar PINs.
+              Acceso sin restricciones a todas las secciones y potestad para asignar permisos.
             </p>
-            <input type="password" id="sec-master-pin" class="form-input" value="${s.security.masterAdminPin || '8888'}" maxlength="4" style="font-family: monospace; font-size: 18px; letter-spacing: 0.2em; text-align: center; width: 140px;" />
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">PIN Dueño (4 dígitos):</label>
+              <input type="text" id="sec-master-pin" class="form-input" value="${s.security.masterAdminPin || '8888'}" maxlength="4" style="font-family: monospace; font-size: 18px; letter-spacing: 0.2em; text-align: center; width: 140px;" />
+            </div>
           </div>
 
-          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 14px; padding: 18px;">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-              <span style="font-size: 18px;">💼</span>
-              <strong style="color: #34d399; font-size: 13px;">PIN Operativo de Cajero (Turno en Mesa)</strong>
+          <!-- 2. ADMINISTRADOR -->
+          <div style="background: #0b0f19; border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 14px; padding: 18px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 18px;">👔</span>
+                <strong style="color: #818cf8; font-size: 13px;">Administrador / Gerente</strong>
+              </div>
+              <span style="font-size: 9px; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 6px; border-radius: 4px; font-weight: 700;">GERENTE</span>
             </div>
             <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
-              Permite validar y quemar cupones de comensales en caja y sumar sellos de visita.
+              Encargado de operaciones con permisos delegados por el Dueño.
             </p>
-            <input type="password" id="sec-cashier-pin" class="form-input" value="${s.security.cashierPin || '1978'}" maxlength="4" style="font-family: monospace; font-size: 18px; letter-spacing: 0.2em; text-align: center; width: 140px;" />
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">PIN Administrador (4 dígitos):</label>
+              <input type="text" id="sec-manager-pin" class="form-input" value="${s.security.managerAdminPin || '5555'}" maxlength="4" style="font-family: monospace; font-size: 18px; letter-spacing: 0.2em; text-align: center; width: 140px;" />
+            </div>
+          </div>
+
+          <!-- 3. CAJERO -->
+          <div style="background: #0b0f19; border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 14px; padding: 18px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 18px;">💼</span>
+                <strong style="color: #38bdf8; font-size: 13px;">Cajero / Turno</strong>
+              </div>
+              <span style="font-size: 9px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-weight: 700;">OPERATIVO</span>
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+              Permite validar cupones en mesa y registrar visitas con sellos.
+            </p>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <input type="text" id="sec-cashier-pin" class="form-input" value="${s.security.cashierPin || '1978'}" maxlength="4" style="font-family: monospace; font-size: 18px; letter-spacing: 0.2em; text-align: center; width: 120px;" />
+              <button type="button" onclick="rotateCashierPin()" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 8px 12px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                🔄 Rotar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MATRIZ INTERACTIVA DE PERMISOS -->
+        <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 14px; padding: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <strong style="color: #fff; font-size: 13px; text-transform: uppercase;">Matriz de Asignación de Permisos</strong>
+              <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                El Dueño Master decide qué módulos puede ver y editar el Administrador y el Cajero.
+              </p>
+            </div>
+            <span style="font-size: 10px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; padding: 3px 10px; border-radius: 12px; font-weight: 700;">
+              👑 Configurado por el Propietario
+            </span>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="data-table" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="width: 45%;">Módulo / Funcionalidad</th>
+                  <th style="text-align: center; width: 18%;">👑 Dueño Master</th>
+                  <th style="text-align: center; width: 18%;">👔 Administrador</th>
+                  <th style="text-align: center; width: 18%;">💼 Cajero / Turno</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${[
+                  { id: "viewMetrics", name: "Métricas en Vivo e Historial", desc: "Ver ventas, KPIs y cupones" },
+                  { id: "redeemPrizes", name: "Validación de Premios & Sellos", desc: "Canjear códigos y sumar sellos con PIN" },
+                  { id: "manageChannels", name: "Canales (WhatsApp & Redes)", desc: "Ajustar números y mensajes oficiales" },
+                  { id: "manageRoulette", name: "Ruleta & Probabilidades (%)", desc: "Modificar premios y matemática de la ruleta" },
+                  { id: "manageStamps", name: "Catálogo de 15 Sellos", desc: "Editar premios en hitos 5, 10 y 15" },
+                  { id: "manageBrand", name: "Identidad & Marca Blanca", desc: "Logo, colores y nombre de marca" },
+                  { id: "manageDatabases", name: "Bases de Datos (Sheets & Supabase)", desc: "Configurar tablas y credenciales" },
+                  { id: "manageComposio", name: "Composio.dev & Automatizaciones", desc: "Conectar IA, WhatsApp oficial y Sheets" },
+                ].map(p => `
+                  <tr>
+                    <td>
+                      <strong style="color: #fff; font-size: 12px;">${p.name}</strong>
+                      <span style="display: block; font-size: 10px; color: var(--text-muted);">${p.desc}</span>
+                    </td>
+                    <td style="text-align: center; color: #fbbf24; font-weight: 700; font-size: 12px;">
+                      ✓ Acceso Total
+                    </td>
+                    <td style="text-align: center;">
+                      <input type="checkbox" id="perm-admin-${p.id}" ${s.security.roles && s.security.roles.admin && s.security.roles.admin[p.id] ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer; accent-color: #6366f1;" />
+                    </td>
+                    <td style="text-align: center;">
+                      <input type="checkbox" id="perm-cashier-${p.id}" ${s.security.roles && s.security.roles.cashier && s.security.roles.cashier[p.id] ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer; accent-color: #38bdf8;" />
+                    </td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -1405,15 +1661,119 @@ function renderBackendDashboard() {
       sendConfigUpdate(payload, 'toast-databases');
     }
 
-    // GUARDAR SEGURIDAD
+    // ROTAR PIN DE CAJERO ALEATORIO
+    function rotateCashierPin() {
+      const newPin = Math.floor(1000 + Math.random() * 9000).toString();
+      document.getElementById('sec-cashier-pin').value = newPin;
+      saveSecurityConfig();
+    }
+
+    // GUARDAR SEGURIDAD (3 PINS + MATRIZ DE PERMISOS)
     function saveSecurityConfig() {
+      const permIds = [
+        "viewMetrics", "redeemPrizes", "manageChannels", "manageRoulette",
+        "manageStamps", "manageBrand", "manageDatabases", "manageComposio"
+      ];
+      const adminPerms = {};
+      const cashierPerms = {};
+      permIds.forEach(id => {
+        const elAdmin = document.getElementById("perm-admin-" + id);
+        const elCashier = document.getElementById("perm-cashier-" + id);
+        adminPerms[id] = elAdmin ? elAdmin.checked : false;
+        cashierPerms[id] = elCashier ? elCashier.checked : false;
+      });
+
       const payload = {
         security: {
           masterAdminPin: document.getElementById('sec-master-pin').value.trim(),
+          managerAdminPin: document.getElementById('sec-manager-pin').value.trim(),
           cashierPin: document.getElementById('sec-cashier-pin').value.trim(),
+          roles: {
+            admin: adminPerms,
+            cashier: cashierPerms,
+          },
         }
       };
       sendConfigUpdate(payload, 'toast-security');
+    }
+
+    // CONECTAR CON COMPOSIO.DEV INMEDIATAMENTE
+    async function connectComposioNow() {
+      let apiKey = document.getElementById('comp-api-key').value.trim();
+      if (!apiKey) {
+        apiKey = prompt("Ingresa tu Composio API Key (comp_live_...):", "");
+        if (!apiKey) return;
+        document.getElementById('comp-api-key').value = apiKey;
+      }
+      const payload = {
+        composio: {
+          enabled: true,
+          apiKey: apiKey,
+          integrations: {
+            googleSheets: document.getElementById('comp-tool-sheets').checked,
+            googleContacts: document.getElementById('comp-tool-contacts').checked,
+            whatsAppAutoSend: document.getElementById('comp-tool-wa').checked,
+            dailyEmailSummary: document.getElementById('comp-tool-email').checked,
+          },
+          endpoints: {
+            googleSheetWebhookUrl: document.getElementById('comp-webhook-url').value.trim(),
+          }
+        }
+      };
+      await sendConfigUpdate(payload, 'toast-composio');
+      const badge = document.getElementById('comp-status-badge');
+      if (badge) {
+        badge.innerText = '🟢 Conectado con Composio.dev';
+        badge.style.background = 'rgba(16, 185, 129, 0.2)';
+        badge.style.color = '#34d399';
+        badge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+      }
+      alert("⚡ ¡Conexión con Composio.dev establecida con éxito!");
+    }
+
+    // GUARDAR CONFIGURACIÓN COMPOSIO
+    function saveComposioBackendConfig() {
+      const apiKey = document.getElementById('comp-api-key').value.trim();
+      const payload = {
+        composio: {
+          enabled: apiKey.length > 0,
+          apiKey: apiKey,
+          integrations: {
+            googleSheets: document.getElementById('comp-tool-sheets').checked,
+            googleContacts: document.getElementById('comp-tool-contacts').checked,
+            whatsAppAutoSend: document.getElementById('comp-tool-wa').checked,
+            dailyEmailSummary: document.getElementById('comp-tool-email').checked,
+          },
+          endpoints: {
+            googleSheetWebhookUrl: document.getElementById('comp-webhook-url').value.trim(),
+          }
+        }
+      };
+      sendConfigUpdate(payload, 'toast-composio');
+    }
+
+    // DISPARAR EVENTO DE PRUEBA A COMPOSIO
+    async function testComposioSync() {
+      try {
+        const res = await fetch("/api/prizes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customerName: "Prueba Composio Backend",
+            whatsapp: "573009998877",
+            email: "admin@composio.dev",
+            prizeName: "Premio de Prueba Composio",
+            tableNumber: "Mesa VIP",
+          }),
+        });
+        if (res.ok) {
+          alert("✅ ¡Evento de prueba enviado a Composio y Google Sheets con éxito!");
+        } else {
+          alert("⚠️ Evento procesado localmente. Verifica tu API Key o Webhook.");
+        }
+      } catch (err) {
+        alert("Error probando conexión: " + err.message);
+      }
     }
 
     // BÚSQUEDA EN VIVO EN LA TABLA

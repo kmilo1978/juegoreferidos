@@ -1,0 +1,171 @@
+{
+  "prizes": [
+    {
+      "uniqueCode": "REST-8492",
+      "customerName": "Carlos Andrés",
+      "whatsapp": "573009876543",
+      "email": "carlos@gmail.com",
+      "birthDate": "14/11",
+      "prizeName": "Postre Artesanal de Cortesía",
+      "tableNumber": "Mesa 3",
+      "stamps": 3,
+      "wonAt": "3:53:25 p. m.",
+      "expiresAt": "5/10/2026",
+      "status": "DISPONIBLE",
+      "usedAt": null
+    }
+  ],
+  "customers": {
+    "573009876543": {
+      "fullName": "Carlos Andrés",
+      "whatsapp": "573009876543",
+      "email": "carlos@gmail.com",
+      "birthDate": "14/11",
+      "stamps": 3,
+      "lastVisit": "2026-09-28T20:53:25.619Z"
+    }
+  },
+  "logs": [],
+  "settings": {
+    "brand": {
+      "name": "Bliss Soul Bakery & Café",
+      "tagline": "Sabores inolvidables, momentos que alegran el día.",
+      "taglineEn": "Unforgettable flavors, moments that brighten your day.",
+      "logoUrl": "/src/assets/logo-header.png",
+      "emblemUrl": "/src/assets/emblema-dorado.png",
+      "currency": "COP",
+      "primaryColor": "#a27e2c",
+      "backgroundColor": "#fcfaf7"
+    },
+    "channels": {
+      "instagramHandle": "@blisssoulbakery",
+      "enableWhatsAppPhoto": true,
+      "whatsappNumber": "573022777295",
+      "whatsappPhotoMessage": "¡Hola! 📸 Aquí les comparto la foto de mi pedido en la mesa {tableNumber} (Cliente: {participantName}) para validar mi visita y jugar en la Ruleta de Premios.",
+      "googleMapsReviewUrl": "https://maps.google.com"
+    },
+    "prizes": [
+      {
+        "id": "p1",
+        "name": "10% de Descuento",
+        "value": "10%",
+        "probability": 30,
+        "color": "#a27e2c",
+        "active": true
+      },
+      {
+        "id": "p2",
+        "name": "15% de Descuento",
+        "value": "15%",
+        "probability": 20,
+        "color": "#fcfaf7",
+        "active": true
+      },
+      {
+        "id": "p3",
+        "name": "Café de Especialidad Gratis",
+        "value": "Café",
+        "probability": 20,
+        "color": "#d1b374",
+        "active": true
+      },
+      {
+        "id": "p4",
+        "name": "Postre Artesanal Gratis",
+        "value": "Postre",
+        "probability": 15,
+        "color": "#24201d",
+        "active": true
+      },
+      {
+        "id": "p5",
+        "name": "Bono Dulce Sorpresa",
+        "value": "Sorpresa",
+        "probability": 10,
+        "color": "#8c6b22",
+        "active": true
+      },
+      {
+        "id": "p6",
+        "name": "Cena Especial para 2",
+        "value": "Cena 2P",
+        "probability": 5,
+        "color": "#594314",
+        "active": true
+      }
+    ],
+    "stamps": {
+      "visitIcon": "☕",
+      "milestones": [
+        {
+          "stamp": 5,
+          "title": "🎁 Premio Sello 5: Porción de Torta Artesanal",
+          "description": "Cualquier porción de la vitrina pastelera de la casa por tus 5 visitas.",
+          "icon": "🍰",
+          "category": "postre"
+        },
+        {
+          "stamp": 10,
+          "title": "👑 Premio Sello 10: Brunch Completo de Autor",
+          "description": "Plato de brunch o especialidad a elección con bebida de autor por tus 10 visitas.",
+          "icon": "👑",
+          "category": "vip"
+        },
+        {
+          "stamp": 15,
+          "title": "🌟 Gran Premio Sello 15: Menú Degustación para 2",
+          "description": "Experiencia gastronómica VIP de autor para 2 personas con atención de la casa.",
+          "icon": "🌟",
+          "category": "vip"
+        }
+      ]
+    },
+    "databases": {
+      "googleSheetWebhookUrl": "",
+      "supabaseEnabled": false,
+      "supabaseProjectUrl": "",
+      "supabaseAnonKey": ""
+    },
+    "composio": {
+      "enabled": true,
+      "apiKey": "comp_live_demo123",
+      "integrations": {
+        "googleSheets": true,
+        "googleContacts": true,
+        "whatsAppAutoSend": false,
+        "dailyEmailSummary": true
+      },
+      "endpoints": {
+        "googleSheetWebhookUrl": "",
+        "customWebhookUrl": ""
+      }
+    },
+    "security": {
+      "masterAdminPin": "8888",
+      "managerAdminPin": "5555",
+      "cashierPin": "1978",
+      "roles": {
+        "admin": {
+          "manageBrand": true,
+          "manageRoulette": true,
+          "manageStamps": true,
+          "manageChannels": true,
+          "manageDatabases": false,
+          "manageComposio": false,
+          "viewMetrics": true,
+          "redeemPrizes": true
+        },
+        "cashier": {
+          "manageBrand": false,
+          "manageRoulette": false,
+          "manageStamps": false,
+          "manageChannels": false,
+          "manageDatabases": false,
+          "manageComposio": false,
+          "viewMetrics": true,
+          "redeemPrizes": true
+        }
+      }
+    }
+  }
+}
