@@ -18,6 +18,7 @@ import { StepPrizeClaim } from "./components/qr-game/StepPrizeClaim";
 import { AdminPanelModal } from "./components/qr-game/AdminPanelModal";
 import { PinAuthModal } from "./components/qr-game/PinAuthModal";
 import { TableStandModal } from "./components/qr-game/TableStandModal";
+import { recordPageView, getStoredHistory, saveStoredHistory } from "./lib/analyticsService";
 import { MessageCircle } from "lucide-react";
 import { site } from "./data/site";
 
@@ -59,8 +60,15 @@ function JuegoQrPage() {
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isTableStandOpen, setIsTableStandOpen] = useState<boolean>(false);
 
-  // Cargar premio guardado en sessionStorage para evitar pérdida en recargas
+  // Registrar visita y cargar historial persistente
   useEffect(() => {
+    recordPageView();
+
+    const stored = getStoredHistory();
+    if (stored && stored.length > 0) {
+      setHistory(stored);
+    }
+
     try {
       const savedPrize = sessionStorage.getItem("bliss_won_prize");
       if (savedPrize) {
@@ -123,11 +131,16 @@ function JuegoQrPage() {
       participantName: participant?.fullName || "Cliente de la Casa",
       participantWhatsapp: participant?.whatsapp || "573000000000",
       wonAt: dateStr,
+      createdAt: Date.now(),
       status: "DISPONIBLE",
     };
 
     setWonPrize(newWon);
-    setHistory((prev) => [newWon, ...prev]);
+    setHistory((prev) => {
+      const updated = [newWon, ...prev];
+      saveStoredHistory(updated);
+      return updated;
+    });
     setCurrentStep(4);
     window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -181,7 +194,11 @@ function JuegoQrPage() {
     };
 
     setWonPrize(updated);
-    setHistory((prev) => prev.map((h) => (h.uniqueCode === wonPrize.uniqueCode ? updated : h)));
+    setHistory((prev) => {
+      const next = prev.map((h) => (h.uniqueCode === wonPrize.uniqueCode ? updated : h));
+      saveStoredHistory(next);
+      return next;
+    });
 
     try {
       sessionStorage.setItem("bliss_won_prize", JSON.stringify(updated));

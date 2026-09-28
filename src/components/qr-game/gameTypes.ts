@@ -49,6 +49,7 @@ export interface WonPrize {
   participantName: string;
   participantWhatsapp: string;
   wonAt: string;
+  createdAt?: number;
   status: "DISPONIBLE" | "UTILIZADO";
   usedAt?: string;
 }

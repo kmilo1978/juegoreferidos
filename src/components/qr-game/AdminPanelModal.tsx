@@ -8,7 +8,14 @@ import {
   MessageSquare,
   Award,
   RotateCcw,
+  Eye,
+  Calendar,
+  Trophy,
+  TrendingUp,
+  CheckCircle2,
+  Users,
 } from "lucide-react";
+import { calculateAnalytics } from "../../lib/analyticsService";
 
 interface AdminPanelModalProps {
   isOpen: boolean;
@@ -64,6 +71,8 @@ export function AdminPanelModal({
     onUpdatePrizes(localPrizes);
     alert("¡Configuración de premios guardada con éxito!");
   };
+
+  const analytics = calculateAnalytics(history);
 
   if (!isOpen) return null;
 
@@ -152,52 +161,160 @@ export function AdminPanelModal({
           {/* TAB 1: Estadísticas y Métricas */}
           {activeTab === "stats" && (
             <div className="space-y-6">
-              {/* Tarjetas resumen */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="rounded-2xl border border-border/80 bg-background p-4 text-center">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    {t("Participaciones", "Participants")}
+              {/* BANNER 1: KPI ESTRATÉGICOS (MEJOR DÍA + TRANSACCIONES DEL MES) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Tarjeta: Mejor Día */}
+                <div className="relative overflow-hidden rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-gold/10 via-background to-amber-500/5 p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] uppercase tracking-wider font-semibold text-gold flex items-center gap-1.5">
+                      <Trophy className="h-4 w-4 text-gold" />
+                      {t("Mejor Día de la Semana", "Best Day of the Week")}
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-gold/20 text-gold text-[10px] font-bold uppercase tracking-wider">
+                      Mayor Afluencia
+                    </span>
+                  </div>
+                  <div className="mt-3 flex items-baseline gap-2">
+                    <span className="text-3xl font-display font-bold text-foreground">
+                      {analytics.timing.bestDay}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      ({analytics.timing.bestDayCount} interacciones registradas)
+                    </span>
+                  </div>
+                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+                    {t(
+                      "Es el día con mayor interacción en mesa. Ideal para reforzar meseros o lanzar ofertas especiales.",
+                      "Top engagement day. Perfect for staffing up or running special promos."
+                    )}
                   </p>
-                  <p className="font-display text-2xl sm:text-3xl text-foreground font-semibold mt-1">
-                    {totalParticipants}
+                </div>
+
+                {/* Tarjeta: Transacciones & Canjes este mes */}
+                <div className="relative overflow-hidden rounded-2xl border border-emerald-300/80 bg-gradient-to-br from-emerald-50/80 via-background to-teal-500/5 p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] uppercase tracking-wider font-semibold text-emerald-700 flex items-center gap-1.5">
+                      <TrendingUp className="h-4 w-4 text-emerald-600" />
+                      {t("Transacciones de este Mes", "This Month's Transactions")}
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                      {analytics.transactions.conversionRate}% Conversión
+                    </span>
+                  </div>
+                  <div className="mt-3 flex items-baseline gap-3">
+                    <span className="text-3xl font-display font-bold text-emerald-700">
+                      {analytics.transactions.redeemedThisMonth}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      canjes validados en caja de {analytics.transactions.totalThisMonth} jugadas
+                    </span>
+                  </div>
+                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+                    {t(
+                      "Clientes que no solo jugaron, sino que consumieron y presentaron su código en caja para pagar.",
+                      "Customers who played, ordered food, and redeemed their code at checkout."
+                    )}
                   </p>
-                  <span className="text-[10px] text-emerald-600 font-medium">
-                    100% con feedback
+                </div>
+              </div>
+
+              {/* BLOQUE 2: CONTEO DE VISTAS (SWITCHY / QR EN MESA) */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-1.5">
+                    <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                    {t("Conteo de Vistas del QR / Enlace", "QR & Link Pageviews")}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground font-light">
+                    Tráfico medido en tiempo real
                   </span>
                 </div>
 
-                <div className="rounded-2xl border border-border/80 bg-background p-4 text-center">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    {t("Premios Entregados", "Prizes Won")}
-                  </p>
-                  <p className="font-display text-2xl sm:text-3xl text-gold font-semibold mt-1">
-                    {totalParticipants}
-                  </p>
-                  <span className="text-[10px] text-gold font-medium">Código único emitido</span>
-                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="rounded-xl border border-border/80 bg-background p-3.5 text-center">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      {t("Vistas Hoy", "Views Today")}
+                    </p>
+                    <p className="font-display text-2xl text-foreground font-semibold mt-0.5">
+                      {analytics.views.today}
+                    </p>
+                    <span className="text-[9px] text-emerald-600 font-medium">En vivo</span>
+                  </div>
 
-                <div className="rounded-2xl border border-border/80 bg-background p-4 text-center">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    {t("Canjeados en Caja", "Redeemed at Till")}
-                  </p>
-                  <p className="font-display text-2xl sm:text-3xl text-foreground font-semibold mt-1">
-                    {prizesUsed}
-                  </p>
-                  <span className="text-[10px] text-muted-foreground">
-                    {prizesAvailable} disponibles
+                  <div className="rounded-xl border border-border/80 bg-background p-3.5 text-center">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      {t("Esta Semana", "This Week")}
+                    </p>
+                    <p className="font-display text-2xl text-foreground font-semibold mt-0.5">
+                      {analytics.views.thisWeek}
+                    </p>
+                    <span className="text-[9px] text-muted-foreground">Últimos 7 días</span>
+                  </div>
+
+                  <div className="rounded-xl border border-border/80 bg-background p-3.5 text-center">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      {t("Este Mes", "This Month")}
+                    </p>
+                    <p className="font-display text-2xl text-gold font-semibold mt-0.5">
+                      {analytics.views.thisMonth}
+                    </p>
+                    <span className="text-[9px] text-gold font-medium">Últimos 30 días</span>
+                  </div>
+
+                  <div className="rounded-xl border border-border/80 bg-background p-3.5 text-center">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      {t("Total Acumulado", "Total Lifetime")}
+                    </p>
+                    <p className="font-display text-2xl text-foreground font-semibold mt-0.5">
+                      {analytics.views.total}
+                    </p>
+                    <span className="text-[9px] text-muted-foreground">Vistas históricas</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* BLOQUE 3: DISTRIBUCIÓN DE AFLUENCIA SEMANAL */}
+              <div className="rounded-2xl border border-border/80 bg-background p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-wider font-semibold text-foreground flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-gold" />
+                    {t("Distribución de Actividad por Día de la Semana", "Weekly Activity Breakdown")}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    Mayor actividad = mayor potencial de ventas
                   </span>
                 </div>
 
-                <div className="rounded-2xl border border-border/80 bg-background p-4 text-center">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    {t("Base Marketing", "Marketing Leads")}
-                  </p>
-                  <p className="font-display text-2xl sm:text-3xl text-emerald-600 font-semibold mt-1">
-                    {totalParticipants}
-                  </p>
-                  <span className="text-[10px] text-emerald-600 font-medium">
-                    WhatsApp verificado
-                  </span>
+                <div className="grid grid-cols-7 gap-2 pt-2">
+                  {analytics.timing.dayDistribution.map((day) => {
+                    const isBest = day.dayName === analytics.timing.bestDay && day.count > 0;
+                    return (
+                      <div
+                        key={day.dayName}
+                        className={`rounded-xl p-2.5 text-center transition-all ${
+                          isBest
+                            ? "bg-gold/15 border-2 border-gold shadow-xs"
+                            : "bg-muted/30 border border-border/60 hover:bg-muted/60"
+                        }`}
+                      >
+                        <p className={`text-[10px] uppercase font-bold tracking-wider ${isBest ? "text-gold" : "text-muted-foreground"}`}>
+                          {day.dayShort}
+                        </p>
+                        <p className={`text-base sm:text-lg font-display font-bold mt-1 ${isBest ? "text-gold" : "text-foreground"}`}>
+                          {day.count}
+                        </p>
+                        <div className="w-full bg-border/50 h-1.5 rounded-full overflow-hidden mt-1.5">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${isBest ? "bg-gold" : "bg-muted-foreground/60"}`}
+                            style={{ width: `${Math.max(day.percentage, day.count > 0 ? 15 : 0)}%` }}
+                          />
+                        </div>
+                        <span className="text-[9px] text-muted-foreground block mt-1">
+                          {day.percentage}%
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
