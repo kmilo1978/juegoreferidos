@@ -21,6 +21,7 @@ import {
 import logoHeader from "@/assets/logo-header.png";
 import heroImg from "@/assets/hero-pistacho-cafe.jpg";
 import { clientConfig } from "@/config/clientConfig";
+import { getBrandConfig } from "@/lib/brandService";
 import { waLink } from "@/data/site";
 
 interface StepInstagramStoryProps {
@@ -154,9 +155,24 @@ export function StepInstagramStory({
     setUploadError(null);
   };
 
+  const brand = getBrandConfig();
+  const enableWhatsApp = brand.enableWhatsAppPhotoSubmission ?? true;
+
   const handleSharePhotoWhatsApp = () => {
-    const msg = `¡Hola ${clientConfig.brand.name}! 📸\nAquí les comparto la foto de mi pedido en la mesa ${tableNumber} (Cliente: ${participantName}) para validar mi visita y jugar en la Ruleta de Premios.`;
-    window.open(waLink(msg), "_blank", "noopener,noreferrer");
+    const phone = (brand.whatsappNumber || clientConfig.channels.whatsappNumber || "").replace(/\D/g, "");
+    const template =
+      brand.whatsappPhotoMessage ||
+      "¡Hola {brandName}! 📸\nAquí les comparto la foto de mi pedido en la mesa {tableNumber} (Cliente: {participantName}) para validar mi visita y jugar en la Ruleta de Premios.";
+    const msg = template
+      .replace(/\{brandName\}/g, brand.name || clientConfig.brand.name)
+      .replace(/\{tableNumber\}/g, tableNumber)
+      .replace(/\{participantName\}/g, participantName);
+
+    if (phone) {
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+    } else {
+      window.open(waLink(msg), "_blank", "noopener,noreferrer");
+    }
     setHasSharedWhatsApp(true);
   };
 
@@ -170,7 +186,7 @@ export function StepInstagramStory({
   };
 
   const handleNext = () => {
-    if (activeChannel === "whatsapp") {
+    if (enableWhatsApp && activeChannel === "whatsapp") {
       handleNextWhatsApp();
       return;
     }
@@ -212,49 +228,56 @@ export function StepInstagramStory({
           </h2>
 
           <p className="mt-2.5 text-sm text-muted-foreground font-light leading-relaxed max-w-lg mx-auto">
-            {t(
-              `Publica una foto de tu mesa o pedido en Instagram Stories mencionando a ${clientConfig.channels.instagramHandle}, o si prefieres la sencillez de WhatsApp, envíala directamente a nuestro chat oficial.`,
-              `Post a photo of your table or order on Instagram Stories tagging ${clientConfig.channels.instagramHandle}, or if you prefer WhatsApp, send it directly to our official chat.`
-            )}
+            {enableWhatsApp
+              ? t(
+                  `Publica una foto de tu mesa o pedido en Instagram Stories mencionando a ${brand.instagramHandle || clientConfig.channels.instagramHandle}, o si prefieres la sencillez de WhatsApp, envíala directamente a nuestro chat oficial.`,
+                  `Post a photo of your table or order on Instagram Stories tagging ${brand.instagramHandle || clientConfig.channels.instagramHandle}, or if you prefer WhatsApp, send it directly to our official chat.`
+                )
+              : t(
+                  `Publica una foto de tu mesa o pedido en Instagram Stories mencionando a ${brand.instagramHandle || clientConfig.channels.instagramHandle} para validar tu visita y girar la Ruleta de Premios.`,
+                  `Post a photo of your table or order on Instagram Stories tagging ${brand.instagramHandle || clientConfig.channels.instagramHandle} to validate your visit and spin the Prize Roulette.`
+                )}
           </p>
 
-          {/* SELECTOR DUAL: Instagram (Principal) vs WhatsApp (Alternativa para adultos) */}
-          <div className="flex justify-center mt-5">
-            <div className="inline-flex p-1 rounded-2xl bg-muted/80 border border-border">
-              <button
-                type="button"
-                onClick={() => setActiveChannel("instagram")}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  activeChannel === "instagram"
-                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Instagram className="h-4 w-4" />
-                <span>{t("📸 Instagram Story (Principal)", "📸 Instagram Story (Primary)")}</span>
-              </button>
+          {/* SELECTOR DUAL: Si WhatsApp está activo en el backend, permite alternar manteniendo Instagram como principal */}
+          {enableWhatsApp && (
+            <div className="flex justify-center mt-5">
+              <div className="inline-flex p-1 rounded-2xl bg-muted/80 border border-border">
+                <button
+                  type="button"
+                  onClick={() => setActiveChannel("instagram")}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    activeChannel === "instagram"
+                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Instagram className="h-4 w-4" />
+                  <span>{t("📸 Instagram Story (Principal)", "📸 Instagram Story (Primary)")}</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => setActiveChannel("whatsapp")}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  activeChannel === "whatsapp"
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span>{t("💬 Enviar Foto por WhatsApp", "💬 Send Photo via WhatsApp")}</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveChannel("whatsapp")}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    activeChannel === "whatsapp"
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  <span>{t("💬 Enviar Foto por WhatsApp", "💬 Send Photo via WhatsApp")}</span>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </Reveal>
 
       {/* ========================================================================= */}
       {/* CANAL 2: WHATSAPP (ALTERNATIVA PARA ADULTOS QUE NO TIENEN O NO USAN IG)   */}
       {/* ========================================================================= */}
-      {activeChannel === "whatsapp" && (
+      {enableWhatsApp && activeChannel === "whatsapp" && (
         <Reveal delay={100}>
           <div className="mt-6 rounded-2xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs space-y-5 animate-fade-in">
             <div className="flex flex-col sm:flex-row items-center gap-3.5 p-4 rounded-xl bg-emerald-50/80 border border-emerald-300 text-emerald-950 text-center sm:text-left">

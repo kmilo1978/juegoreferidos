@@ -34,6 +34,8 @@ export interface ClientConfig {
     whatsappNumber: string;         // Con código de país (ej: "573022777295")
     googleMapsReviewUrl: string;    // Enlace directo a reseñas de Google Business
     supportEmail?: string;
+    enableWhatsAppPhotoSubmission: boolean; // Si está activo, permite al cliente enviar foto por WhatsApp además de Instagram
+    whatsappPhotoMessage?: string;          // Plantilla de mensaje predeterminado para WhatsApp
   };
 
   // 4. Seguridad en Caja y Operaciones
@@ -116,6 +118,8 @@ export const clientConfig: ClientConfig = {
     whatsappNumber: storedBrand?.whatsappNumber || "573000000000",
     googleMapsReviewUrl: storedBrand?.googleMapsReviewUrl || "https://maps.google.com",
     supportEmail: storedBrand?.supportEmail || "contacto@turestaurante.com",
+    enableWhatsAppPhotoSubmission: storedBrand?.enableWhatsAppPhotoSubmission !== undefined ? storedBrand.enableWhatsAppPhotoSubmission : true,
+    whatsappPhotoMessage: storedBrand?.whatsappPhotoMessage || "¡Hola! 📸 Aquí les comparto la foto de mi pedido en la mesa {tableNumber} (Cliente: {participantName}) para validar mi visita y jugar en la Ruleta de Premios.",
   },
   security: {
     cashierPin: "1978",

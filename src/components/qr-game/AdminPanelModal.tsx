@@ -213,9 +213,9 @@ export function AdminPanelModal({
   };
 
   // Manejadores de Marca Blanca & Composio
-  const handleBrandChange = (field: keyof BrandIdentityConfig, value: string) => {
+  const handleBrandChange = (field: keyof BrandIdentityConfig, value: any) => {
     setBrandConfig((prev) => ({ ...prev, [field]: value }));
-    if (field === "primaryColor") {
+    if (field === "primaryColor" && typeof value === "string") {
       applyBrandColors(value);
     }
   };
@@ -2307,18 +2307,63 @@ Presenta este código al momento de pagar:
                   </div>
 
                   {/* Tarjeta 4: Canales de Contacto & Redes */}
-                  <div className="p-4 sm:p-5 rounded-2xl bg-background border border-border/80 space-y-3.5 shadow-2xs">
+                  <div className="p-4 sm:p-5 rounded-2xl bg-background border border-border/80 space-y-4 shadow-2xs">
                     <div className="flex items-center gap-2 border-b border-border/60 pb-2">
                       <Smartphone className="h-4 w-4 text-gold" />
                       <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
-                        4. Canales de Contacto & Reputación Google
+                        4. Canales de Validación en Mesa & Contacto
                       </h4>
+                    </div>
+
+                    {/* Explicación de arquitectura de canales */}
+                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-foreground text-[11px] leading-relaxed">
+                      <strong>Canal Inicial y Principal:</strong> El juego funciona inicialmente a través de <strong>Instagram Stories</strong> para amplificar la marca en redes. Opcionalmente, puedes activar <strong>WhatsApp</strong> para brindar una alternativa sencilla a personas mayores o comensales sin redes sociales.
+                    </div>
+
+                    {/* SWITCH PARA HABILITAR WHATSAPP EN EL JUEGO */}
+                    <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 flex items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                          <span className="font-bold text-xs text-foreground">
+                            Habilitar Opción de WhatsApp en Mesa
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          Permite a los comensales enviar la foto de su pedido a WhatsApp además de Instagram.
+                        </p>
+                      </div>
+
+                      <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                        <input
+                          type="checkbox"
+                          checked={brandConfig.enableWhatsAppPhotoSubmission ?? true}
+                          onChange={(e) =>
+                            handleBrandChange("enableWhatsAppPhotoSubmission", e.target.checked)
+                          }
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                      </label>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
-                          WhatsApp Oficial (con código país):
+                          Usuario de Instagram Oficial (Principal):
+                        </label>
+                        <input
+                          type="text"
+                          value={brandConfig.instagramHandle}
+                          onChange={(e) => handleBrandChange("instagramHandle", e.target.value)}
+                          placeholder="@tu_restaurante"
+                          className="w-full p-2.5 rounded-xl border border-border bg-card text-foreground text-xs focus:border-gold outline-hidden"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+                          WhatsApp Oficial de Atención (con código país):
                         </label>
                         <input
                           type="text"
@@ -2329,18 +2374,26 @@ Presenta este código al momento de pagar:
                         />
                       </div>
 
-                      <div>
-                        <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
-                          Usuario de Instagram:
-                        </label>
-                        <input
-                          type="text"
-                          value={brandConfig.instagramHandle}
-                          onChange={(e) => handleBrandChange("instagramHandle", e.target.value)}
-                          placeholder="@tu_restaurante"
-                          className="w-full p-2.5 rounded-xl border border-border bg-card text-foreground text-xs focus:border-gold outline-hidden"
-                        />
-                      </div>
+                      {(brandConfig.enableWhatsAppPhotoSubmission ?? true) && (
+                        <div className="sm:col-span-2">
+                          <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+                            Plantilla del Mensaje de WhatsApp (al recibir foto del comensal):
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={
+                              brandConfig.whatsappPhotoMessage ||
+                              "¡Hola {brandName}! 📸\nAquí les comparto la foto de mi pedido en la mesa {tableNumber} (Cliente: {participantName}) para validar mi visita y jugar en la Ruleta de Premios."
+                            }
+                            onChange={(e) => handleBrandChange("whatsappPhotoMessage", e.target.value)}
+                            placeholder="Variables disponibles: {brandName}, {tableNumber}, {participantName}"
+                            className="w-full p-2.5 rounded-xl border border-border bg-card text-foreground text-xs focus:border-gold outline-hidden font-sans"
+                          />
+                          <span className="text-[9px] text-muted-foreground block mt-0.5">
+                            Variables automáticas: <code className="bg-muted px-1 rounded">{"{brandName}"}</code>, <code className="bg-muted px-1 rounded">{"{tableNumber}"}</code>, <code className="bg-muted px-1 rounded">{"{participantName}"}</code>
+                          </span>
+                        </div>
+                      )}
 
                       <div className="sm:col-span-2">
                         <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">

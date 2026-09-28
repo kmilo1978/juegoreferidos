@@ -18,6 +18,8 @@ export interface BrandIdentityConfig {
   instagramProfileUrl: string;
   googleMapsReviewUrl: string;
   supportEmail: string;
+  enableWhatsAppPhotoSubmission?: boolean;
+  whatsappPhotoMessage?: string;
 }
 
 const BRAND_STORAGE_KEY = "juegoreferidos_brand_identity";
@@ -44,6 +46,8 @@ export function getBrandConfig(): BrandIdentityConfig {
     instagramProfileUrl: clientConfig.channels.instagramProfileUrl,
     googleMapsReviewUrl: clientConfig.channels.googleMapsReviewUrl,
     supportEmail: clientConfig.channels.supportEmail || "",
+    enableWhatsAppPhotoSubmission: clientConfig.channels.enableWhatsAppPhotoSubmission ?? true,
+    whatsappPhotoMessage: clientConfig.channels.whatsappPhotoMessage || "¡Hola! 📸 Aquí les comparto la foto de mi pedido en la mesa {tableNumber} (Cliente: {participantName}) para validar mi visita y jugar en la Ruleta de Premios.",
   };
 
   if (typeof window === "undefined") {
@@ -54,7 +58,14 @@ export function getBrandConfig(): BrandIdentityConfig {
     const raw = localStorage.getItem(BRAND_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { ...fallback, ...parsed };
+      return {
+        ...fallback,
+        ...parsed,
+        enableWhatsAppPhotoSubmission:
+          typeof parsed.enableWhatsAppPhotoSubmission === "boolean"
+            ? parsed.enableWhatsAppPhotoSubmission
+            : fallback.enableWhatsAppPhotoSubmission,
+      };
     }
   } catch {
     // ignore
@@ -114,6 +125,30 @@ export function saveBrandConfig(newConfig: BrandIdentityConfig): void {
     clientConfig.channels.instagramProfileUrl = newConfig.instagramProfileUrl;
     clientConfig.channels.googleMapsReviewUrl = newConfig.googleMapsReviewUrl;
     clientConfig.channels.supportEmail = newConfig.supportEmail;
+    clientConfig.channels.enableWhatsAppPhotoSubmission =
+      newConfig.enableWhatsAppPhotoSubmission !== undefined ? newConfig.enableWhatsAppPhotoSubmission : true;
+    if (newConfig.whatsappPhotoMessage) {
+      clientConfig.channels.whatsappPhotoMessage = newConfig.whatsappPhotoMessage;
+    }
+
+    // Sincronizar en segundo plano con el servidor backend REST (si está disponible)
+    try {
+      fetch("http://localhost:3001/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          enableWhatsAppPhoto: newConfig.enableWhatsAppPhotoSubmission,
+          whatsappNumber: newConfig.whatsappNumber,
+          whatsappPhotoMessage: newConfig.whatsappPhotoMessage,
+          instagramHandle: newConfig.instagramHandle,
+          brandName: newConfig.name,
+        }),
+      }).catch(() => {
+        // Silencioso si el servidor backend local está apagado
+      });
+    } catch {
+      // ignore
+    }
   } catch (err) {
     console.error("Error al guardar brand config:", err);
   }

@@ -43,6 +43,13 @@ let db = {
     },
   },
   logs: [],
+  settings: {
+    brandName: "Bliss Soul Bakery & Café",
+    instagramHandle: "@blisssoulbakery",
+    enableWhatsAppPhoto: true,
+    whatsappNumber: "573022777295",
+    whatsappPhotoMessage: "¡Hola! 📸 Aquí les comparto la foto de mi pedido en la mesa {tableNumber} (Cliente: {participantName}) para validar mi visita y jugar en la Ruleta de Premios.",
+  },
 };
 
 // Cargar datos previos si existen
@@ -53,6 +60,16 @@ if (fs.existsSync(DB_FILE)) {
   } catch (err) {
     console.error("Error leyendo db.json:", err.message);
   }
+}
+
+if (!db.settings) {
+  db.settings = {
+    brandName: "Bliss Soul Bakery & Café",
+    instagramHandle: "@blisssoulbakery",
+    enableWhatsAppPhoto: true,
+    whatsappNumber: "573022777295",
+    whatsappPhotoMessage: "¡Hola! 📸 Aquí les comparto la foto de mi pedido en la mesa {tableNumber} (Cliente: {participantName}) para validar mi visita y jugar en la Ruleta de Premios.",
+  };
 }
 
 function saveDb() {
@@ -244,6 +261,35 @@ const server = http.createServer((req, res) => {
         logs: db.logs,
       })
     );
+    return;
+  }
+
+  // 6. API: OBTENER Y ACTUALIZAR CONFIGURACIÓN DE CANALES (GET & POST /api/config)
+  if (req.method === "GET" && pathname === "/api/config") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ success: true, settings: db.settings }));
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/config") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const data = JSON.parse(body || "{}");
+        db.settings = { ...db.settings, ...data };
+        saveDb();
+        const waStatus = db.settings.enableWhatsAppPhoto ? "WhatsApp HABILITADO" : "WhatsApp DESHABILITADO";
+        logRequest("POST", "/api/config", 200, `Configuración guardada en backend (${waStatus} | IG: ${db.settings.instagramHandle})`);
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true, settings: db.settings }));
+      } catch (err) {
+        logRequest("POST", "/api/config", 400, err.message);
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
     return;
   }
 
@@ -631,6 +677,56 @@ function renderBackendDashboard() {
       </div>
     </div>
 
+    <!-- CONFIGURACIÓN DE CANALES EN EL BACKEND (INSTAGRAM & WHATSAPP) -->
+    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div>
+          <h3 style="font-size: 15px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+            <span>⚙️ Configuración de Canales de Validación en Mesa (Instagram & WhatsApp)</span>
+          </h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+            El comensal juega inicialmente por <strong>Instagram Stories</strong> como canal principal. Aquí puedes activar o desactivar la opción adicional de <strong>WhatsApp</strong> para adultos mayores o comensales sin redes sociales.
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span style="padding: 4px 10px; border-radius: 8px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); color: #c084fc; font-size: 11px; font-weight: 700;">
+            📸 Instagram Stories: Canal Principal
+          </span>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; background: #0b0f19; padding: 18px; border-radius: 12px; border: 1px solid var(--card-border);">
+        <div>
+          <label style="font-size: 11px; font-weight: 700; color: #9ca3af; display: block; margin-bottom: 6px;">
+            📸 CANAL PRINCIPAL: USUARIO DE INSTAGRAM
+          </label>
+          <input type="text" id="cfg-ig" value="${db.settings?.instagramHandle || '@blisssoulbakery'}" style="width: 100%; background: #111827; border: 1px solid var(--card-border); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 12px;" placeholder="@tu_cuenta" />
+          <span style="font-size: 10px; color: #6b7280; display: block; margin-top: 4px;">Mención sugerida a los comensales en sus Stories de Instagram.</span>
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="font-size: 11px; font-weight: 700; color: #9ca3af;">
+              💬 CANAL SECUNDARIO: WHATSAPP
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; background: rgba(16, 185, 129, 0.12); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.25);">
+              <input type="checkbox" id="cfg-wa-enabled" ${db.settings?.enableWhatsAppPhoto !== false ? 'checked' : ''} style="cursor: pointer;" />
+              <span style="color: #34d399; font-weight: 700; font-size: 11px;">Habilitar en mesa</span>
+            </label>
+          </div>
+          <input type="text" id="cfg-wa-phone" value="${db.settings?.whatsappNumber || '573022777295'}" style="width: 100%; background: #111827; border: 1px solid var(--card-border); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-family: monospace;" placeholder="573000000000" />
+          <span style="font-size: 10px; color: #6b7280; display: block; margin-top: 4px;">Número oficial que recibirá la foto de la mesa para validar el juego.</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 14px; display: flex; justify-content: flex-end; gap: 12px; align-items: center;">
+        <span id="cfg-status" style="font-size: 11px; color: #34d399; display: none; font-weight: 700;">✓ ¡Configuración de canales guardada en backend!</span>
+        <button onclick="saveBackendConfig()" style="background: #d97706; hover: background: #b45309; color: #fff; font-weight: 700; font-size: 12px; padding: 9px 20px; border-radius: 8px; border: none; cursor: pointer; transition: background 0.2s;">
+          💾 Guardar Configuración de Canales
+        </button>
+      </div>
+    </div>
+
     <!-- PANELES DIVIDIDOS -->
     <div class="panels-grid">
       
@@ -814,6 +910,34 @@ function renderBackendDashboard() {
         }
       } catch (e) {
         console.error("Error auto-refrescando backend:", e);
+      }
+    }
+
+    // Guardar configuración de canales en el backend
+    async function saveBackendConfig() {
+      const ig = document.getElementById("cfg-ig").value.trim();
+      const waPhone = document.getElementById("cfg-wa-phone").value.trim();
+      const waEnabled = document.getElementById("cfg-wa-enabled").checked;
+
+      try {
+        const res = await fetch("/api/config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            instagramHandle: ig,
+            whatsappNumber: waPhone,
+            enableWhatsAppPhoto: waEnabled,
+          }),
+        });
+        if (res.ok) {
+          const st = document.getElementById("cfg-status");
+          st.style.display = "inline";
+          setTimeout(() => {
+            st.style.display = "none";
+          }, 3500);
+        }
+      } catch (err) {
+        alert("Error guardando configuración: " + err.message);
       }
     }
 
