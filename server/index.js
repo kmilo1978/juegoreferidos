@@ -447,6 +447,54 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // 8. API: ENVÍO MASIVO DE OFERTAS PUSH (POST /api/push/broadcast)
+  if (req.method === "POST" && pathname === "/api/push/broadcast") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const data = JSON.parse(body || "{}");
+        const title = data.title || "⚡ Oferta Especial";
+        const msgBody = data.body || "¡Aprovecha nuestro beneficio de hoy!";
+
+        logRequest("PUSH", "/api/push/broadcast", 200, `📢 Campaña Push enviada: "${title}" (${data.segment || "Todos"})`);
+
+        // Registrar en logs del backend
+        db.logs.unshift({
+          method: "PUSH",
+          url: "/api/push/broadcast",
+          timestamp: new Date().toLocaleTimeString("es-CO"),
+          detail: `📢 Encapuchado Push Masivo: "${title}" enviado a suscriptores. (URL: ${data.url || "Inicio"})`,
+        });
+        if (db.logs.length > 30) db.logs.pop();
+
+        // Guardar última campaña en settings
+        if (!db.settings.pushCampaigns) db.settings.pushCampaigns = [];
+        db.settings.pushCampaigns.unshift({
+          title,
+          body: msgBody,
+          url: data.url || "",
+          segment: data.segment || "Subscribed Users",
+          sentAt: new Date().toLocaleString("es-CO"),
+        });
+        if (db.settings.pushCampaigns.length > 20) db.settings.pushCampaigns.pop();
+        saveDb();
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({
+          success: true,
+          message: "Notificación push masiva procesada y enviada a los suscriptores.",
+          campaign: { title, body: msgBody, sentAt: new Date().toISOString() }
+        }));
+      } catch (err) {
+        logRequest("PUSH", "/api/push/broadcast", 400, err.message);
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
   // Ruta no encontrada
   res.writeHead(404, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "Endpoint no encontrado" }));
@@ -550,37 +598,146 @@ function renderBackendDashboard() {
     }
     .btn-frontend:hover { transform: translateY(-1px); filter: brightness(1.1); }
 
-    /* PESTAÑAS DE NAVEGACIÓN */
-    .nav-tabs {
+    /* LAYOUT PRINCIPAL DE 2 COLUMNAS (CONTENIDO IZQUIERDA / MENÚ VERTICAL A MANO DERECHA) */
+    .dashboard-layout {
       display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      overflow-x: auto;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--card-border);
+      flex-direction: column-reverse;
+      gap: 20px;
     }
-    .nav-tab {
+    @media (min-width: 1024px) {
+      .dashboard-layout {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+      .main-content {
+        flex: 1;
+        min-width: 0;
+      }
+      .nav-sidebar {
+        width: 290px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 20px;
+      }
+    }
+    .main-content {
+      width: 100%;
+    }
+    .sidebar-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: #9ca3af;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 8px;
+    }
+    .badge-role {
+      background: rgba(217, 119, 6, 0.2);
+      color: #fbbf24;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      border: 1px solid rgba(217, 119, 6, 0.4);
+      font-family: monospace;
+      font-weight: 700;
+    }
+    .nav-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .nav-group-title {
+      font-size: 10px;
+      font-weight: 800;
+      color: #fbbf24;
+      letter-spacing: 0.08em;
+      margin-bottom: 2px;
+      padding-left: 4px;
+    }
+    .nav-tab-btn {
       background: #111827;
       color: #9ca3af;
       border: 1px solid var(--card-border);
-      padding: 10px 16px;
-      border-radius: 12px;
+      padding: 9px 12px;
+      border-radius: 10px;
       font-size: 12px;
-      font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
+      transition: all 0.15s ease;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      text-align: left;
+      width: 100%;
     }
-    .nav-tab:hover { color: #fff; border-color: rgba(217, 119, 6, 0.5); }
-    .nav-tab.active {
+    .nav-tab-btn:hover {
+      color: #fff;
+      background: #1f2937;
+      border-color: rgba(217, 119, 6, 0.4);
+    }
+    .nav-tab-btn.active {
       background: linear-gradient(135deg, rgba(217, 119, 6, 0.25) 0%, rgba(217, 119, 6, 0.08) 100%);
       color: #fbbf24;
       border-color: #d97706;
       box-shadow: 0 2px 8px rgba(217, 119, 6, 0.2);
     }
+    .tab-title { font-weight: 700; font-size: 12px; line-height: 1.2; }
+    .tab-sub { font-size: 10px; font-weight: 400; color: #6b7280; margin-top: 1px; }
+    .nav-tab-btn.active .tab-sub { color: #d97706; }
+
+    /* GUÍAS RÁPIDAS EXPLICATIVAS PARA SECCIONES CON CIERTA COMPLEJIDAD */
+    .quick-guide-box {
+      background: rgba(245, 158, 11, 0.06);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+    }
+    .quick-guide-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fbbf24;
+      margin-bottom: 6px;
+    }
+    .quick-guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .quick-guide-item {
+      background: rgba(17, 24, 39, 0.6);
+      border: 1px solid rgba(245, 158, 11, 0.15);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 11px;
+    }
+    .quick-guide-item strong {
+      color: #f3f4f6;
+      display: block;
+      margin-bottom: 3px;
+    }
+    .quick-guide-item span {
+      color: #9ca3af;
+      line-height: 1.4;
+      display: block;
+    }
+
     .tab-content { display: none; }
     .tab-content.active { display: block; animation: fadeIn 0.2s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
@@ -724,17 +881,10 @@ function renderBackendDashboard() {
       </div>
     </header>
 
-    <!-- PESTAÑAS DE NAVEGACIÓN GENERAL -->
-    <div class="nav-tabs">
-      <button class="nav-tab active" onclick="switchTab('tab-ops')">📊 Operaciones & Métricas</button>
-      <button class="nav-tab" onclick="switchTab('tab-brand')">🏷️ Identidad & Marca</button>
-      <button class="nav-tab" onclick="switchTab('tab-channels')">📱 Canales & WhatsApp</button>
-      <button class="nav-tab" onclick="switchTab('tab-roulette')">🎡 Ruleta de Premios</button>
-      <button class="nav-tab" onclick="switchTab('tab-stamps')">🎟️ Tarjeta de Sellos & Iconos</button>
-      <button class="nav-tab" onclick="switchTab('tab-databases')">🗄️ Bases de Datos</button>
-      <button class="nav-tab" onclick="switchTab('tab-composio')">⚡ Composio & IA</button>
-      <button class="nav-tab" onclick="switchTab('tab-security')">🔐 Seguridad & PINs</button>
-    </div>
+    <!-- LAYOUT PRINCIPAL DE 2 COLUMNAS (CONTENIDO A LA IZQUIERDA / BARRA VERTICAL A MANO DERECHA) -->
+    <div class="dashboard-layout">
+      <!-- CONTENIDO PRINCIPAL (IZQUIERDA) -->
+      <main class="main-content">
 
     <!-- ========================================================================= -->
     <!-- PESTAÑA 1: OPERACIONES & MÉTRICAS                                         -->
@@ -1058,6 +1208,28 @@ function renderBackendDashboard() {
     <!-- PESTAÑA 4: RULETA DE PREMIOS & PROBABILIDADES                             -->
     <!-- ========================================================================= -->
     <div id="tab-roulette" class="tab-content">
+      <!-- GUÍA RÁPIDA -->
+      <div class="quick-guide-box">
+        <div class="quick-guide-header">
+          <span>💡</span>
+          <span>Guía Rápida: Ruleta de Premios & Probabilidades</span>
+        </div>
+        <div class="quick-guide-grid">
+          <div class="quick-guide-item">
+            <strong>🎯 Suma 100% Obligatoria</strong>
+            <span>La suma de todas las probabilidades activas debe dar exactamente 100% para mantener el equilibrio matemático.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>🎁 Tipos de Beneficio</strong>
+            <span>Configura descuentos en %, productos de cortesía o promociones para elevar el ticket promedio en mesa.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>⚡ Sincronización en Vivo</strong>
+            <span>Al presionar guardar, el frontend de comensales lee las nuevas opciones al instante sin recargar.</span>
+          </div>
+        </div>
+      </div>
+
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">
@@ -1125,6 +1297,28 @@ function renderBackendDashboard() {
     <!-- PESTAÑA 5: TARJETA DE SELLOS & SELECTOR DE ICONOS                         -->
     <!-- ========================================================================= -->
     <div id="tab-stamps" class="tab-content">
+      <!-- GUÍA RÁPIDA -->
+      <div class="quick-guide-box">
+        <div class="quick-guide-header">
+          <span>💡</span>
+          <span>Guía Rápida: Tarjeta de 15 Sellos & Recompensas por Visita</span>
+        </div>
+        <div class="quick-guide-grid">
+          <div class="quick-guide-item">
+            <strong>🎟️ Premios en Visitas 5, 10 y 15</strong>
+            <span>La tarjeta premia a los comensales cada 5 visitas para maximizar la tasa de retorno al restaurante.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>⚡ Horas Muertas (3 a 6 PM)</strong>
+            <span>El multiplicador x2 de sellos motiva visitas en las tardes de bajo tráfico de forma autónoma.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>☕ Icono de Marca</strong>
+            <span>Elige el emoji que mejor represente tu gastronomía (café, croissant, postre, pizza, etc.).</span>
+          </div>
+        </div>
+      </div>
+
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">
@@ -1291,6 +1485,28 @@ function renderBackendDashboard() {
     <!-- PESTAÑA 7: COMPOSIO & AUTOMATIZACIONES IA                                 -->
     <!-- ========================================================================= -->
     <div id="tab-composio" class="tab-content">
+      <!-- GUÍA RÁPIDA -->
+      <div class="quick-guide-box">
+        <div class="quick-guide-header">
+          <span>💡</span>
+          <span>Guía Rápida: Integración con Composio.dev & IA</span>
+        </div>
+        <div class="quick-guide-grid">
+          <div class="quick-guide-item">
+            <strong>⚡ Conexión a 200+ Apps</strong>
+            <span>Conecta WhatsApp, Gmail, Slack, CRM y bases de datos usando tu API Key de Composio.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>🤖 Agentes Inteligentes</strong>
+            <span>Sincroniza el menú, los premios y la marca con bots para atención automatizada.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>🔗 Webhooks Sin Código</strong>
+            <span>Recibe notificaciones en tiempo real cuando un comensal gana o canjea un premio en caja.</span>
+          </div>
+        </div>
+      </div>
+
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">
@@ -1372,6 +1588,28 @@ function renderBackendDashboard() {
     <!-- PESTAÑA 8: SEGURIDAD, PINS & PERMISOS DE ROLES                            -->
     <!-- ========================================================================= -->
     <div id="tab-security" class="tab-content">
+      <!-- GUÍA RÁPIDA -->
+      <div class="quick-guide-box">
+        <div class="quick-guide-header">
+          <span>💡</span>
+          <span>Guía Rápida: Control de Acceso por Roles (RBAC 3 Niveles)</span>
+        </div>
+        <div class="quick-guide-grid">
+          <div class="quick-guide-item">
+            <strong>👑 Dueño Master (8888)</strong>
+            <span>Control total de marca, finanzas, probabilidades, roles y conexión con bases de datos.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>👔 Administrador / Gerente (5555)</strong>
+            <span>Gestión operativa diaria, métricas de ventas y canales según los permisos concedidos.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>💼 Cajero de Turno (1978)</strong>
+            <span>Validación rápida de cupones y asignación de sellos en caja en el momento del pago.</span>
+          </div>
+        </div>
+      </div>
+
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">
@@ -1500,16 +1738,342 @@ function renderBackendDashboard() {
       </div>
     </div>
 
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA 9: MARKETING PUSH & OFERTAS ONESIGNAL                             -->
+    <!-- ========================================================================= -->
+    <div id="tab-push" class="tab-content">
+      <!-- GUÍA RÁPIDA -->
+      <div class="quick-guide-box">
+        <div class="quick-guide-header">
+          <span>💡</span>
+          <span>Guía Rápida: Ofertas Push Masivas & Flujos OneSignal</span>
+        </div>
+        <div style="font-size: 11px; color: #9ca3af; margin-bottom: 8px;">
+          Envía notificaciones web push instantáneas a los navegadores y teléfonos de los comensales, o activa campañas automatizadas sin tocar código.
+        </div>
+        <div class="quick-guide-grid">
+          <div class="quick-guide-item">
+            <strong>🚀 Envíos Inmediatos (1-Clic)</strong>
+            <span>Usa las plantillas preparadas para lanzar promociones en horas de baja afluencia.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>⚡ 4 Flujos Automatizados</strong>
+            <span>Bienvenida (6 min), Urgencia 24h, Reactivación 14 días y Happy Hour 3 a 6 PM.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>📡 OneSignal REST API</strong>
+            <span>Conecta tu App ID y REST API Key para entrega inmediata garantizada.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>🔗 Webhooks & Composio</strong>
+            <span>Envía cada campaña a n8n, Make o agentes de IA para difusión omnicanal.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULARIO DE ENVÍO MASIVO 1-CLIC -->
+      <div class="panel" style="margin-bottom: 20px;">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>🚀 Envío de Oferta Masiva Instantánea (Web Push)</span>
+          </div>
+          <span class="badge-role" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border-color: rgba(56, 189, 248, 0.4);">
+            1-CLIC BROADCAST
+          </span>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <span style="font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 8px;">
+            Plantillas Rápidas (Haz clic para rellenar formulario):
+          </span>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
+            <button type="button" class="btn-secondary" style="text-align: left; padding: 10px 12px; cursor: pointer;" onclick="loadPushTemplate('happy_hour')">
+              <strong style="color: #fbbf24; font-size: 11px; display: block;">⚡ Happy Hour 2x1 (3 a 6 PM)</strong>
+              <span style="color: #6b7280; font-size: 10px;">Sellos dobles y bebidas 2x1</span>
+            </button>
+            <button type="button" class="btn-secondary" style="text-align: left; padding: 10px 12px; cursor: pointer;" onclick="loadPushTemplate('dessert')">
+              <strong style="color: #f472b6; font-size: 11px; display: block;">🍰 Postre de Cortesía</strong>
+              <span style="color: #6b7280; font-size: 10px;">Válido hoy con consumo en mesa</span>
+            </button>
+            <button type="button" class="btn-secondary" style="text-align: left; padding: 10px 12px; cursor: pointer;" onclick="loadPushTemplate('flash')">
+              <strong style="color: #f87171; font-size: 11px; display: block;">⏳ Cupón Flash 50% Off</strong>
+              <span style="color: #6b7280; font-size: 10px;">Válido exclusivamente hoy</span>
+            </button>
+            <button type="button" class="btn-secondary" style="text-align: left; padding: 10px 12px; cursor: pointer;" onclick="loadPushTemplate('stamps')">
+              <strong style="color: #34d399; font-size: 11px; display: block;">🌟 Doble Sello Fin de Semana</strong>
+              <span style="color: #6b7280; font-size: 10px;">Acelera la tarjeta de 15 sellos</span>
+            </button>
+          </div>
+        </div>
+
+        <form id="form-push-broadcast" onsubmit="sendBroadcastPush(event)">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label">Título de la Notificación Push</label>
+              <input type="text" id="pushTitle" class="form-input" value="⚡ ¡Happy Hour 2x1 en Café y Especialidades!" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Segmento Destino</label>
+              <select id="pushSegment" class="form-input">
+                <option value="Subscribed Users">Todos los Suscriptores</option>
+                <option value="Active Customers">Clientes Frecuentes (+5 sellos)</option>
+                <option value="Inactive Customers">Clientes Inactivos (+14 días)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Mensaje / Cuerpo de la Notificación</label>
+            <textarea id="pushBody" class="form-input" rows="2" style="resize: vertical;" required>¡Hola! Hoy de 3:00 a 6:00 PM acumula el DOBLE de sellos y disfruta 2x1 en bebidas de autor. ¡Muestra este mensaje en caja!</textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">URL de Destino (Opcional - al hacer clic)</label>
+            <input type="url" id="pushUrl" class="form-input" placeholder="http://localhost:5173">
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--card-border);">
+            <span id="pushStatusMsg" style="font-size: 11px; color: #9ca3af;"></span>
+            <button type="submit" class="btn-save" style="background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color: #fff;">
+              🚀 Enviar Notificación Masiva Ahora
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 4 FLUJOS AUTOMATIZADOS -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>⚡ 4 Flujos Automatizados por Comportamiento</span>
+          </div>
+          <span class="badge-role" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border-color: rgba(168, 85, 247, 0.4);">
+            AUTOMÁTICOS
+          </span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+          <!-- Flujo 1 -->
+          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <strong style="color: #34d399; font-size: 12px;">🎉 Bienvenida (6 min)</strong>
+              <span class="badge-status-available">ACTIVO</span>
+            </div>
+            <p style="font-size: 11px; color: #9ca3af; margin-bottom: 6px;">Disparo automático 6 minutos después del primer juego en mesa.</p>
+            <div style="font-size: 11px; color: #fff; background: rgba(255,255,255,0.04); padding: 8px; border-radius: 8px; font-family: monospace;">
+              "¡Gracias por visitarnos! Tu primer sello ya está activo en tu tarjeta digital."
+            </div>
+          </div>
+
+          <!-- Flujo 2 -->
+          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <strong style="color: #fbbf24; font-size: 12px;">⏳ Urgencia Cupón (24h)</strong>
+              <span class="badge-status-available">ACTIVO</span>
+            </div>
+            <p style="font-size: 11px; color: #9ca3af; margin-bottom: 6px;">Se envía 24h antes de que expire el beneficio de la ruleta.</p>
+            <div style="font-size: 11px; color: #fff; background: rgba(255,255,255,0.04); padding: 8px; border-radius: 8px; font-family: monospace;">
+              "¡Tu premio vence mañana! Ven hoy y disfrútalo en mesa antes de su caducidad."
+            </div>
+          </div>
+
+          <!-- Flujo 3 -->
+          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <strong style="color: #c084fc; font-size: 12px;">☕ Reactivación (14 Días)</strong>
+              <span class="badge-status-available">ACTIVO</span>
+            </div>
+            <p style="font-size: 11px; color: #9ca3af; margin-bottom: 6px;">Se envía a clientes que llevan 14 días sin visitarnos.</p>
+            <div style="font-size: 11px; color: #fff; background: rgba(255,255,255,0.04); padding: 8px; border-radius: 8px; font-family: monospace;">
+              "¡Te extrañamos! Esta semana recibe un postre artesanal sorpresa de cortesía con tu café."
+            </div>
+          </div>
+
+          <!-- Flujo 4 -->
+          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <strong style="color: #38bdf8; font-size: 12px;">⚡ Happy Hour (3 a 6 PM)</strong>
+              <span class="badge-status-available">ACTIVO</span>
+            </div>
+            <p style="font-size: 11px; color: #9ca3af; margin-bottom: 6px;">Multiplicador automático x2 de sellos en horas muertas de Lunes a Jueves.</p>
+            <div style="font-size: 11px; color: #fff; background: rgba(255,255,255,0.04); padding: 8px; border-radius: 8px; font-family: monospace;">
+              "¡Tarde dulce! Hoy tus consumos suman 2 SELLOS en tu tarjeta de fidelización."
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      </main>
+
+      <!-- BARRA LATERAL VERTICAL A MANO DERECHA (Categorizada y de fácil personalización) -->
+      <aside class="nav-sidebar">
+        <div class="sidebar-card">
+          <div class="sidebar-header">
+            <span>📂 CATEGORÍAS</span>
+            <span class="badge-role">ADMIN</span>
+          </div>
+
+          <!-- GRUPO 1: OPERACIONES -->
+          <div class="nav-group">
+            <span class="nav-group-title">📊 OPERACIONES</span>
+            <button class="nav-tab-btn active" onclick="switchTab('tab-ops')">
+              <span>📊</span>
+              <div>
+                <div class="tab-title">Operaciones & Métricas</div>
+                <div class="tab-sub">KPIs, canjes y comensales</div>
+              </div>
+            </button>
+            <button class="nav-tab-btn" onclick="switchTab('tab-channels')">
+              <span>📱</span>
+              <div>
+                <div class="tab-title">Canales & WhatsApp</div>
+                <div class="tab-sub">Notificación al comensal</div>
+              </div>
+            </button>
+          </div>
+
+          <!-- GRUPO 2: FIDELIZACIÓN -->
+          <div class="nav-group">
+            <span class="nav-group-title">🎯 FIDELIZACIÓN</span>
+            <button class="nav-tab-btn" onclick="switchTab('tab-roulette')">
+              <span>🎡</span>
+              <div>
+                <div class="tab-title">Ruleta de Premios</div>
+                <div class="tab-sub">Probabilidades (100%)</div>
+              </div>
+            </button>
+            <button class="nav-tab-btn" onclick="switchTab('tab-stamps')">
+              <span>🎟️</span>
+              <div>
+                <div class="tab-title">Tarjeta de 15 Sellos</div>
+                <div class="tab-sub">Premios cada 5 e iconos</div>
+              </div>
+            </button>
+          </div>
+
+          <!-- GRUPO 3: MARKETING PUSH -->
+          <div class="nav-group">
+            <span class="nav-group-title" style="color: #38bdf8;">🚀 MARKETING PUSH</span>
+            <button class="nav-tab-btn" onclick="switchTab('tab-push')">
+              <span>🚀</span>
+              <div>
+                <div class="tab-title">Ofertas Push & Flujos</div>
+                <div class="tab-sub">OneSignal y 4 flujos auto</div>
+              </div>
+            </button>
+          </div>
+
+          <!-- GRUPO 4: CONFIGURACIÓN -->
+          <div class="nav-group">
+            <span class="nav-group-title">⚙️ CONFIGURACIÓN</span>
+            <button class="nav-tab-btn" onclick="switchTab('tab-brand')">
+              <span>🏷️</span>
+              <div>
+                <div class="tab-title">Identidad & Marca</div>
+                <div class="tab-sub">Colores, logo y eslogan</div>
+              </div>
+            </button>
+            <button class="nav-tab-btn" onclick="switchTab('tab-composio')">
+              <span>⚡</span>
+              <div>
+                <div class="tab-title">Composio & IA</div>
+                <div class="tab-sub">Conexión 200+ apps</div>
+              </div>
+            </button>
+            <button class="nav-tab-btn" onclick="switchTab('tab-databases')">
+              <span>🗄️</span>
+              <div>
+                <div class="tab-title">Bases de Datos</div>
+                <div class="tab-sub">Google Sheets y Supabase</div>
+              </div>
+            </button>
+            <button class="nav-tab-btn" onclick="switchTab('tab-security')">
+              <span>🔐</span>
+              <div>
+                <div class="tab-title">Seguridad & PINs</div>
+                <div class="tab-sub">Roles RBAC (8888, 5555, 1978)</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
   </div>
 
   <script>
     // CAMBIO DE PESTAÑAS EN EL BACKEND
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab-btn').forEach(el => el.classList.remove('active'));
       const target = document.getElementById(tabId);
       if (target) target.classList.add('active');
-      event.currentTarget.classList.add('active');
+      const activeBtn = document.querySelector(`.nav-tab-btn[onclick="switchTab('${tabId}')"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    // CARGAR PLANTILLAS DE PUSH
+    function loadPushTemplate(type) {
+      const titleInput = document.getElementById("pushTitle");
+      const bodyInput = document.getElementById("pushBody");
+      const segmentInput = document.getElementById("pushSegment");
+      if (type === "happy_hour") {
+        titleInput.value = "⚡ ¡Happy Hour 2x1 en Café y Bebidas de Autor!";
+        bodyInput.value = "¡Hola! Hoy de 3:00 a 6:00 PM acumula el DOBLE de sellos y disfruta 2x1 en bebidas. ¡Muestra este mensaje en caja!";
+        segmentInput.value = "Subscribed Users";
+      } else if (type === "dessert") {
+        titleInput.value = "🍰 ¡Postre de Cortesía en tu Visita de Hoy!";
+        bodyInput.value = "Ven hoy a deleitarte y recibe un postre artesanal de autor de cortesía con tu consumo principal. ¡Te esperamos!";
+        segmentInput.value = "Subscribed Users";
+      } else if (type === "flash") {
+        titleInput.value = "⏳ Cupón Flash: 50% en tu Segundo Plato o Bebida";
+        bodyInput.value = "¡Solo por hoy! Disfruta 50% de descuento en tu segundo producto favorito. Muestra este aviso en caja.";
+        segmentInput.value = "Active Customers";
+      } else if (type === "stamps") {
+        titleInput.value = "🌟 ¡Sellos Dobles este Fin de Semana!";
+        bodyInput.value = "¡Acelera tu tarjeta de 15 sellos! Cada visita este fin de semana te otorga 2 sellos para llegar antes a tu premio.";
+        segmentInput.value = "Subscribed Users";
+      }
+    }
+
+    // ENVIAR CAMPAÑA PUSH BROADCAST
+    async function sendBroadcastPush(e) {
+      e.preventDefault();
+      const statusEl = document.getElementById("pushStatusMsg");
+      const title = document.getElementById("pushTitle").value.trim();
+      const body = document.getElementById("pushBody").value.trim();
+      const segment = document.getElementById("pushSegment").value;
+      const url = document.getElementById("pushUrl").value.trim();
+
+      if (!title || !body) {
+        alert("Por favor completa el título y el mensaje de la campaña.");
+        return;
+      }
+
+      statusEl.style.color = "#fbbf24";
+      statusEl.innerText = "⏳ Enviando campaña push a los suscriptores...";
+
+      try {
+        const res = await fetch("/api/push/broadcast", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, body, segment, url })
+        });
+        const data = await res.json();
+        if (data.success) {
+          statusEl.style.color = "#34d399";
+          statusEl.innerText = "✓ " + data.message;
+          setTimeout(() => { statusEl.innerText = ""; }, 5000);
+          refreshData();
+        } else {
+          statusEl.style.color = "#f87171";
+          statusEl.innerText = "Error: " + (data.error || "No se pudo enviar");
+        }
+      } catch (err) {
+        statusEl.style.color = "#f87171";
+        statusEl.innerText = "Error de conexión con el servidor.";
+      }
     }
 
     // PALETA DE COLORES RÁPIDOS

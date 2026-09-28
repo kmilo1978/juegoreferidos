@@ -34,6 +34,11 @@ import {
   Lock,
   ShieldAlert,
   LogOut,
+  Send,
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
+  Radio,
 } from "lucide-react";
 import { calculateAnalytics } from "../../lib/analyticsService";
 import { clientConfig } from "../../config/clientConfig";
@@ -52,6 +57,9 @@ import {
   resetPushTemplates,
   PushNotificationTemplate,
   formatPushText,
+  AutomatedPushFlow,
+  getAutomatedFlows,
+  saveAutomatedFlows,
 } from "../../lib/oneSignalService";
 import {
   getSupabaseConfig,
@@ -85,6 +93,68 @@ import {
   StampReward,
 } from "../../lib/stampService";
 
+/**
+ * Componente de Guía Rápida colapsable para secciones con cierta complejidad
+ */
+function SectionQuickGuide({
+  title,
+  description,
+  tips,
+}: {
+  title: string;
+  description?: string;
+  tips: { title: string; text: string }[];
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs transition-all">
+      <div
+        className="flex items-center justify-between cursor-pointer select-none"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="h-7 w-7 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold text-sm shrink-0">
+            💡
+          </span>
+          <div>
+            <h4 className="font-semibold text-foreground text-xs uppercase tracking-wider flex items-center gap-2">
+              <span>{title}</span>
+              <span className="text-[10px] font-medium text-amber-600 bg-amber-500/15 px-2 py-0.5 rounded-full font-mono">
+                {isOpen ? "Cerrar guía" : "Ver guía rápida"}
+              </span>
+            </h4>
+            {description && !isOpen && (
+              <p className="text-[11px] text-muted-foreground line-clamp-1">{description}</p>
+            )}
+          </div>
+        </div>
+        <button
+          type="button"
+          className="h-7 w-7 rounded-lg hover:bg-amber-500/10 flex items-center justify-center text-amber-600 transition"
+        >
+          {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </button>
+      </div>
+
+      {isOpen && (
+        <div className="mt-3 pt-3 border-t border-amber-500/20 space-y-2.5 animate-fade-in">
+          {description && <p className="text-muted-foreground leading-relaxed text-[11px]">{description}</p>}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {tips.map((tip, idx) => (
+              <div key={idx} className="p-3 rounded-xl bg-background border border-amber-500/20 space-y-1">
+                <strong className="text-foreground text-[11px] font-semibold flex items-center gap-1.5">
+                  <span className="text-amber-500 font-bold">✓</span> {tip.title}
+                </strong>
+                <p className="text-[10px] text-muted-foreground leading-normal">{tip.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface AdminPanelModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -103,7 +173,9 @@ export function AdminPanelModal({
   onGenerateNewTable,
 }: AdminPanelModalProps) {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<"stats" | "prizes" | "campaign" | "messages" | "composio" | "databases" | "branding">("stats");
+  const [activeTab, setActiveTab] = useState<
+    "stats" | "prizes" | "campaign" | "messages" | "push_campaigns" | "composio" | "databases" | "branding"
+  >("stats");
   const [composioConfig, setComposioConfig] = useState<ComposioRuntimeConfig>(() => getComposioConfig());
   const [pushConfig, setPushConfig] = useState<PushRuntimeConfig>(() => getPushConfig());
   const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfig>(() => getSupabaseConfig());
@@ -111,6 +183,19 @@ export function AdminPanelModal({
   const [supabaseTestStatus, setSupabaseTestStatus] = useState<{ loading: boolean; msg?: string; success?: boolean }>({ loading: false });
   const [pushTemplates, setPushTemplates] = useState<PushNotificationTemplate[]>(() => getCustomPushTemplates());
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState<number>(0);
+  const [automatedFlows, setAutomatedFlows] = useState<AutomatedPushFlow[]>(() => getAutomatedFlows());
+  const [broadcastOffer, setBroadcastOffer] = useState<{
+    title: string;
+    body: string;
+    url: string;
+    segment: string;
+  }>({
+    title: "⚡ ¡Happy Hour 2x1 en Café y Especialidades!",
+    body: "¡Hola! Hoy de 3:00 a 6:00 PM acumula el DOBLE de sellos y disfruta 2x1 en bebidas de autor. ¡Muestra este mensaje en caja!",
+    url: "",
+    segment: "Subscribed Users",
+  });
+  const [broadcastStatus, setBroadcastStatus] = useState<{ loading: boolean; msg?: string; success?: boolean }>({ loading: false });
 
   // Sub-sección para premios: "roulette" (Ruleta) | "stamps" (Tarjeta de Sellos)
   const [prizeSection, setPrizeSection] = useState<"roulette" | "stamps">("roulette");
@@ -131,7 +216,9 @@ export function AdminPanelModal({
   const [rolePermissions, setRolePermissions] = useState<RolePermissions>(() => getRolePermissions());
   const [pinChangeFeedback, setPinChangeFeedback] = useState<string | null>(null);
 
-  const canAccessTab = (tab: "stats" | "prizes" | "campaign" | "messages" | "composio" | "databases" | "branding"): boolean => {
+  const canAccessTab = (
+    tab: "stats" | "prizes" | "campaign" | "messages" | "push_campaigns" | "composio" | "databases" | "branding"
+  ): boolean => {
     if (authenticatedRole === "owner") return true;
     if (!authenticatedRole) return false;
     switch (tab) {
@@ -143,6 +230,8 @@ export function AdminPanelModal({
         return hasPermission(authenticatedRole, "manageChannels");
       case "messages":
         return hasPermission(authenticatedRole, "redeemPrizes") || hasPermission(authenticatedRole, "manageChannels");
+      case "push_campaigns":
+        return hasPermission(authenticatedRole, "manageComposio") || hasPermission(authenticatedRole, "manageChannels");
       case "composio":
         return hasPermission(authenticatedRole, "manageComposio");
       case "databases":
@@ -499,9 +588,9 @@ export function AdminPanelModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="relative w-full max-w-4xl rounded-3xl bg-card border border-gold/40 shadow-2xl overflow-hidden my-8 animate-fade-in flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-6xl rounded-3xl bg-card border border-gold/40 shadow-2xl overflow-hidden my-4 sm:my-8 animate-fade-in flex flex-col h-[92vh]">
         {/* Cabecera del Panel */}
-        <div className="bg-neutral-900 text-white p-5 sm:p-6 flex items-center justify-between border-b border-gold/30">
+        <div className="bg-neutral-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-gold/30 shrink-0">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] uppercase tracking-[0.24em] text-gold font-mono font-semibold">
@@ -554,108 +643,10 @@ export function AdminPanelModal({
           </div>
         </div>
 
-        {/* Pestañas */}
-        <div className="flex border-b border-border bg-muted/40 px-6 gap-2 sm:gap-6 overflow-x-auto text-xs">
-          <button
-            type="button"
-            onClick={() => setActiveTab("stats")}
-            className={`py-3.5 font-medium uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
-              activeTab === "stats"
-                ? "border-gold text-gold font-semibold"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <BarChart3 className="h-3.5 w-3.5" />
-            <span>{t("Métricas en Vivo", "Live Metrics")}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("prizes")}
-            className={`py-3.5 font-medium uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
-              activeTab === "prizes"
-                ? "border-gold text-gold font-semibold"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Sliders className="h-3.5 w-3.5" />
-            <span>{t("Premios & Probabilidades", "Prizes & Probabilities")}</span>
-            {!canAccessTab("prizes") && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("campaign")}
-            className={`py-3.5 font-medium uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
-              activeTab === "campaign"
-                ? "border-gold text-gold font-semibold"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Award className="h-3.5 w-3.5" />
-            <span>{t("Campaña & Reglas", "Campaign & Rules")}</span>
-            {!canAccessTab("campaign") && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("messages")}
-            className={`py-3.5 font-medium uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
-              activeTab === "messages"
-                ? "border-gold text-gold font-semibold"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <MessageSquare className="h-3.5 w-3.5" />
-            <span>{t("Mensajes WhatsApp", "WhatsApp Messages")}</span>
-            {!canAccessTab("messages") && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("composio")}
-            className={`py-3.5 font-medium uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
-              activeTab === "composio"
-                ? "border-gold text-gold font-semibold"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Bell className="h-3.5 w-3.5" />
-            <span>{t("Composio & Web Push", "Composio & Web Push")}</span>
-            {!canAccessTab("composio") && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("databases")}
-            className={`py-3.5 font-medium uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
-              activeTab === "databases"
-                ? "border-gold text-gold font-semibold"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Database className="h-3.5 w-3.5" />
-            <span>{t("Google Sheets & Supabase", "Google Sheets & Supabase")}</span>
-            {!canAccessTab("databases") && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("branding")}
-            className={`py-3.5 font-medium uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
-              activeTab === "branding"
-                ? "border-gold text-gold font-semibold"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Palette className="h-3.5 w-3.5" />
-            <span>{t("Marca & Composio", "Brand & Composio")}</span>
-            {!canAccessTab("branding") && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
-          </button>
-        </div>
-
-        {/* Contenido scrolleable */}
-        <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6">
+        {/* CUERPO PRINCIPAL CON 2 COLUMNAS: Izquierda (Contenido) y Derecha (Navegación vertical a mano derecha) */}
+        <div className="flex flex-col md:flex-row flex-1 overflow-hidden min-h-0">
+          {/* Contenido scrolleable (A la izquierda) */}
+          <div className="flex-1 p-5 sm:p-7 overflow-y-auto space-y-6 order-2 md:order-1 bg-background/50">
           {/* BLOQUEO PARA ROLES SIN PERMISO: ACCESO DENEGADO POR SEGURIDAD RBAC */}
           {!canAccessTab(activeTab) ? (
             <div className="p-8 rounded-3xl bg-neutral-900 border-2 border-amber-500/40 text-center space-y-4 max-w-lg mx-auto my-12 animate-fade-in shadow-xl">
@@ -989,6 +980,30 @@ export function AdminPanelModal({
           {/* TAB 2: Configuración de Premios (Ruleta y Tarjeta de Sellos) */}
           {activeTab === "prizes" && (
             <div className="space-y-6">
+              {/* GUÍA RÁPIDA COLAPSABLE */}
+              <SectionQuickGuide
+                title="Guía Rápida: Ruleta & Tarjeta de 15 Sellos"
+                description="Configura los premios de la ruleta y las recompensas por hitos en la tarjeta de fidelización."
+                tips={[
+                  {
+                    title: "Suma del 100% Obligatoria",
+                    text: "Las probabilidades de todos los premios activos en la ruleta deben sumar exactamente 100%.",
+                  },
+                  {
+                    title: "Premios cada 5 Sellos",
+                    text: "La tarjeta de 15 sellos premia a los comensales en las visitas clave (Sello 5, Sello 10 y Sello 15).",
+                  },
+                  {
+                    title: "Sellos Dobles en Horas Muertas",
+                    text: "De 3:00 a 6:00 PM, los clientes acumulan 2 sellos automáticos por consumo para incentivar las tardes.",
+                  },
+                  {
+                    title: "Icono Personalizado",
+                    text: "Elige el icono gastronómico (☕, 🥐, 🍰, 🍕, 🍔, 🌮) que mejor represente a tu negocio.",
+                  },
+                ]}
+              />
+
               {/* Selector de sub-sección: Ruleta vs Tarjeta de Sellos */}
               <div className="flex flex-wrap items-center justify-between gap-3 p-2 bg-muted/40 rounded-2xl border border-border">
                 <div className="flex items-center gap-1.5 p-1 bg-background rounded-xl border border-border text-xs font-semibold">
@@ -1423,6 +1438,30 @@ Presenta este código al momento de pagar:
           {/* TAB 5: Configuración de Composio & Automatizaciones */}
           {activeTab === "composio" && (
             <div className="space-y-6 text-xs">
+              {/* GUÍA RÁPIDA COLAPSABLE */}
+              <SectionQuickGuide
+                title="Guía Rápida: Integración con Composio.dev & IA"
+                description="Conecta el juego con herramientas externas y agentes de IA sin complicaciones."
+                tips={[
+                  {
+                    title: "Conexión a 200+ Apps",
+                    text: "Composio permite conectar WhatsApp, Google Sheets, Gmail, Slack y CRMs usando tu clave de API.",
+                  },
+                  {
+                    title: "Sincronización de Marca",
+                    text: "Al guardar cambios de marca o premios, Composio actualiza automáticamente el contexto de tus agentes y bots.",
+                  },
+                  {
+                    title: "Webhooks Automáticos",
+                    text: "Cada partida jugada y canje realizado genera un evento webhook para tus flujos de automatización.",
+                  },
+                  {
+                    title: "Sin Código Complejo",
+                    text: "Solo necesitas tu API Key de Composio para activar los conectores corporativos en 1 clic.",
+                  },
+                ]}
+              />
+
               {/* BANNER EXPLICATIVO */}
               <div className="rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-gold/10 via-background to-amber-500/5 p-5 space-y-2">
                 <div className="flex items-center justify-between">
@@ -1924,6 +1963,30 @@ Presenta este código al momento de pagar:
           {/* TAB 6: Bases de Datos (Google Sheets & Supabase) y Seguridad de Mesa */}
           {activeTab === "databases" && (
             <div className="space-y-6">
+              {/* GUÍA RÁPIDA COLAPSABLE */}
+              <SectionQuickGuide
+                title="Guía Rápida: Seguridad por Roles (RBAC) & Bases de Datos"
+                description="Gestiona los 3 niveles de PIN y la sincronización con Google Sheets o Supabase."
+                tips={[
+                  {
+                    title: "3 Niveles de PIN",
+                    text: "👑 Dueño Master (8888), 👔 Administrador (5555) y 💼 Cajero de Turno (1978) con accesos delimitados.",
+                  },
+                  {
+                    title: "Permisos Granulares",
+                    text: "El Dueño Master puede conceder o restringir funciones a administradores y cajeros según sus responsabilidades.",
+                  },
+                  {
+                    title: "Respaldo en Supabase",
+                    text: "Guarda en tiempo real cada cupón y visita en una base de datos PostgreSQL en la nube.",
+                  },
+                  {
+                    title: "Hojas de Google Sheets",
+                    text: "Sincroniza la lista de comensales y premios en una hoja de cálculo visible para gerencia.",
+                  },
+                ]}
+              />
+
               {/* Encabezado de la pestaña */}
               <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-transparent border border-border">
                 <div className="flex items-center gap-2 mb-1">
@@ -2791,20 +2854,671 @@ Presenta este código al momento de pagar:
               </div>
             </div>
           )}
+
+          {/* TAB 8: Ofertas Push & Flujos Automatizados OneSignal */}
+          {activeTab === "push_campaigns" && (
+            <div className="space-y-6">
+              {/* GUÍA RÁPIDA COLAPSABLE */}
+              <SectionQuickGuide
+                title="Guía Rápida: Ofertas Push & Automatizaciones OneSignal"
+                description="Envía promociones inmediatas a todos los clientes suscritos y activa flujos inteligentes que aumentan la frecuencia de visita."
+                tips={[
+                  {
+                    title: "Envío Inmediato (1-Clic)",
+                    text: "Utiliza las plantillas rápidas (2x1, Postre de Cortesía, etc.) para enviar notificaciones masivas instantáneas a teléfonos y computadores.",
+                  },
+                  {
+                    title: "4 Flujos Automatizados",
+                    text: "El sistema dispara automáticamente mensajes en momentos clave: Bienvenida (6 min), Urgencia de vencimiento (24h), Reactivación de clientes inactivos (14 días) y Doble sello en horas muertas.",
+                  },
+                  {
+                    title: "OneSignal REST API & Webhooks",
+                    text: "Conecta tu App ID y REST API Key de OneSignal para envíos automáticos o utiliza el webhook integrado para n8n, Make y Composio.",
+                  },
+                  {
+                    title: "Variables Dinámicas",
+                    text: "Usa etiquetas como {nombre}, {premio} y {restaurante} para que cada notificación se personalice automáticamente para cada cliente.",
+                  },
+                ]}
+              />
+
+              {/* CARD 1: ENVÍO DE OFERTAS PUSH MASIVAS (1-CLIC BROADCAST) */}
+              <div className="rounded-2xl border border-sky-400/40 bg-card p-5 space-y-4 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="h-7 w-7 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-sm">
+                      🚀
+                    </span>
+                    <div>
+                      <h3 className="font-semibold text-sm text-foreground">
+                        Envío de Oferta Masiva Instantánea (1-Clic Broadcast)
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground">
+                        Notifica de inmediato a todos los clientes suscritos con ofertas de alto impacto.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-400/30 text-[10px] font-mono font-bold uppercase tracking-wider">
+                    Web Push & API
+                  </span>
+                </div>
+
+                {/* Plantillas Rápidas con 1 Clic */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+                    Plantillas de Ofertas Rápidas (Haz clic para cargar):
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setBroadcastOffer({
+                          title: "⚡ ¡Happy Hour 2x1 en Bebidas!",
+                          body: "¡Hola! Hoy de 3:00 a 6:00 PM acumula el DOBLE de sellos y disfruta 2x1 en bebidas. ¡Te esperamos!",
+                          url: "",
+                          segment: "Subscribed Users",
+                        })
+                      }
+                      className="p-2.5 rounded-xl border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/15 text-left text-xs transition-all flex flex-col justify-between"
+                    >
+                      <span className="font-bold text-amber-500 text-[11px]">⚡ Happy Hour 2x1</span>
+                      <span className="text-[10px] text-muted-foreground mt-1">Horas muertas (3 a 6 PM)</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setBroadcastOffer({
+                          title: "🍰 ¡Postre de Cortesía Hoy!",
+                          body: "Muestra esta notificación hoy en tu visita y recibe un postre de autor artesanal de cortesía con tu consumo.",
+                          url: "",
+                          segment: "Subscribed Users",
+                        })
+                      }
+                      className="p-2.5 rounded-xl border border-pink-500/30 bg-pink-500/5 hover:bg-pink-500/15 text-left text-xs transition-all flex flex-col justify-between"
+                    >
+                      <span className="font-bold text-pink-400 text-[11px]">🍰 Postre de Cortesía</span>
+                      <span className="text-[10px] text-muted-foreground mt-1">Incentivo dulce en mesa</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setBroadcastOffer({
+                          title: "⏳ Cupón Flash: 50% en tu 2° Plato",
+                          body: "¡Solo por hoy! Disfruta 50% de descuento en tu segundo plato o bebida favorita. ¡No te quedes sin mesa!",
+                          url: "",
+                          segment: "Subscribed Users",
+                        })
+                      }
+                      className="p-2.5 rounded-xl border border-red-500/30 bg-red-500/5 hover:bg-red-500/15 text-left text-xs transition-all flex flex-col justify-between"
+                    >
+                      <span className="font-bold text-red-400 text-[11px]">⏳ Cupón Flash 50%</span>
+                      <span className="text-[10px] text-muted-foreground mt-1">Válido exclusivamente hoy</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setBroadcastOffer({
+                          title: "🌟 ¡Sellos Dobles este Fin de Semana!",
+                          body: "¡Cada visita este fin de semana suma 2 sellos en tu tarjeta digital! Llega más rápido a tu premio.",
+                          url: "",
+                          segment: "Subscribed Users",
+                        })
+                      }
+                      className="p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/15 text-left text-xs transition-all flex flex-col justify-between"
+                    >
+                      <span className="font-bold text-emerald-400 text-[11px]">🌟 Sellos Dobles</span>
+                      <span className="text-[10px] text-muted-foreground mt-1">Acelera la fidelización</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Formulario de Campaña */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="md:col-span-2 space-y-1">
+                    <label className="text-[11px] font-semibold text-foreground">
+                      Título de la Notificación Push
+                    </label>
+                    <input
+                      type="text"
+                      value={broadcastOffer.title}
+                      onChange={(e) => setBroadcastOffer({ ...broadcastOffer, title: e.target.value })}
+                      placeholder="Ej: ⚡ ¡Happy Hour 2x1 en Café de Especialidad!"
+                      className="w-full rounded-xl border border-border p-2.5 text-xs bg-background text-foreground"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-foreground">
+                      Segmento de Destinatarios
+                    </label>
+                    <select
+                      value={broadcastOffer.segment}
+                      onChange={(e) => setBroadcastOffer({ ...broadcastOffer, segment: e.target.value })}
+                      className="w-full rounded-xl border border-border p-2.5 text-xs bg-background text-foreground"
+                    >
+                      <option value="Subscribed Users">Todos los Suscriptores</option>
+                      <option value="Active Customers">Clientes Frecuentes (+5 sellos)</option>
+                      <option value="Inactive Customers">Clientes Inactivos (+14 días)</option>
+                    </select>
+                  </div>
+
+                  <div className="md:col-span-3 space-y-1">
+                    <label className="text-[11px] font-semibold text-foreground">
+                      Mensaje / Cuerpo de la Oferta
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={broadcastOffer.body}
+                      onChange={(e) => setBroadcastOffer({ ...broadcastOffer, body: e.target.value })}
+                      placeholder="Escribe el mensaje persuasivo que verán los clientes en la pantalla de su teléfono o PC..."
+                      className="w-full rounded-xl border border-border p-2.5 text-xs bg-background text-foreground resize-none"
+                    />
+                  </div>
+
+                  <div className="md:col-span-3 space-y-1">
+                    <label className="text-[11px] font-semibold text-foreground">
+                      Enlace de Destino (Opcional - URL al hacer clic)
+                    </label>
+                    <input
+                      type="url"
+                      value={broadcastOffer.url}
+                      onChange={(e) => setBroadcastOffer({ ...broadcastOffer, url: e.target.value })}
+                      placeholder="https://tudominio.com/promo (Déjalo vacío para abrir la app del restaurante)"
+                      className="w-full rounded-xl border border-border p-2 text-xs bg-background text-foreground"
+                    />
+                  </div>
+                </div>
+
+                {/* Feedback de Envío */}
+                {broadcastStatus.msg && (
+                  <div
+                    className={`p-3 rounded-xl text-xs font-semibold flex items-center gap-2 animate-fade-in ${
+                      broadcastStatus.success
+                        ? "bg-emerald-500/15 border border-emerald-500/40 text-emerald-400"
+                        : "bg-red-500/15 border border-red-500/40 text-red-300"
+                    }`}
+                  >
+                    <span>{broadcastStatus.success ? "✓" : "⚠"}</span>
+                    <span>{broadcastStatus.msg}</span>
+                  </div>
+                )}
+
+                {/* Botón de Envío Instantáneo */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-border">
+                  <div className="text-[11px] text-muted-foreground">
+                    💡 Dispara una notificación inmediata y genera un registro en el panel de control.
+                  </div>
+                  <button
+                    type="button"
+                    disabled={broadcastStatus.loading || !broadcastOffer.title.trim()}
+                    onClick={async () => {
+                      setBroadcastStatus({ loading: true });
+                      const result = await OneSignalService.sendBroadcastPush(broadcastOffer);
+                      setBroadcastStatus({ loading: false, msg: result.message, success: result.success });
+                      setTimeout(() => setBroadcastStatus({ loading: false }), 4500);
+                    }}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all disabled:opacity-50"
+                  >
+                    <Send className="h-4 w-4" />
+                    <span>{broadcastStatus.loading ? "Enviando Notificaciones..." : "🚀 Enviar Notificación Masiva Ahora"}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* CARD 2: CAMPAÑAS AUTOMATIZADAS POR FLUJOS DE COMPORTAMIENTO */}
+              <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="h-7 w-7 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-sm">
+                      ⚡
+                    </span>
+                    <div>
+                      <h3 className="font-semibold text-sm text-foreground">
+                        4 Flujos Automatizados por Comportamiento
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground">
+                        Estos mensajes se disparan de forma autónoma según las visitas y tiempos del cliente.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      saveAutomatedFlows(automatedFlows);
+                      alert("¡Configuración de los 4 flujos automatizados guardada exitosamente!");
+                    }}
+                    className="px-4 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-1.5"
+                  >
+                    <Save className="h-3.5 w-3.5" />
+                    <span>Guardar Flujos</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {automatedFlows.map((flow, index) => (
+                    <div
+                      key={flow.id}
+                      className={`p-4 rounded-2xl border transition-all space-y-2.5 ${
+                        flow.enabled
+                          ? "bg-muted/20 border-border shadow-xs"
+                          : "bg-muted/10 border-border/50 opacity-60"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`px-2 py-0.5 rounded-md text-[9px] font-mono font-bold uppercase tracking-wider ${
+                              flow.category === "welcome"
+                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                                : flow.category === "expiring_coupon"
+                                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                                : flow.category === "win_back"
+                                ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                                : "bg-sky-500/20 text-sky-400 border border-sky-500/30"
+                            }`}
+                          >
+                            {flow.badge}
+                          </span>
+                          <strong className="text-foreground text-xs">{flow.name}</strong>
+                        </div>
+
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={flow.enabled}
+                            onChange={(e) => {
+                              const updated = [...automatedFlows];
+                              updated[index].enabled = e.target.checked;
+                              setAutomatedFlows(updated);
+                            }}
+                            className="sr-only peer"
+                          />
+                          <div className="w-9 h-5 bg-neutral-700 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                        </label>
+                      </div>
+
+                      <p className="text-[10px] text-muted-foreground font-mono bg-muted/40 p-1.5 rounded-lg">
+                        ⏱️ {flow.triggerDescription}
+                      </p>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                          Título:
+                        </label>
+                        <input
+                          type="text"
+                          value={flow.title}
+                          onChange={(e) => {
+                            const updated = [...automatedFlows];
+                            updated[index].title = e.target.value;
+                            setAutomatedFlows(updated);
+                          }}
+                          className="w-full rounded-lg border border-border p-1.5 text-xs bg-background text-foreground"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase font-bold text-muted-foreground">
+                          Mensaje:
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={flow.body}
+                          onChange={(e) => {
+                            const updated = [...automatedFlows];
+                            updated[index].body = e.target.value;
+                            setAutomatedFlows(updated);
+                          }}
+                          className="w-full rounded-lg border border-border p-1.5 text-xs bg-background text-foreground resize-none"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1">
+                        <span className="text-[9px] text-muted-foreground font-mono">
+                          Etiquetas: {"{nombre}"}, {"{premio}"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const testTitle = flow.title
+                              .replace("{nombre}", "Carlos")
+                              .replace("{restaurante}", clientConfig.brand.name);
+                            const testBody = flow.body
+                              .replace("{nombre}", "Carlos")
+                              .replace("{premio}", "Postre de Autor")
+                              .replace("{codigo}", "CAFE-88")
+                              .replace("{restaurante}", clientConfig.brand.name);
+                            OneSignalService.showLocalTestNotification(testTitle, testBody);
+                          }}
+                          className="text-[10px] font-semibold text-purple-400 hover:text-purple-300 transition flex items-center gap-1"
+                        >
+                          <span>🧪 Probar Notificación</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* CARD 3: CONEXIÓN ONESIGNAL REST API & WEBHOOKS */}
+              <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="h-7 w-7 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-sm">
+                      ⚙️
+                    </span>
+                    <div>
+                      <h3 className="font-semibold text-sm text-foreground">
+                        Credenciales OneSignal REST API & Webhooks
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground">
+                        Permite que el panel envíe notificaciones directamente vía REST API o notifique a tu webhook.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-foreground">OneSignal App ID</label>
+                    <input
+                      type="text"
+                      value={pushConfig.appId}
+                      onChange={(e) => setPushConfig({ ...pushConfig, appId: e.target.value })}
+                      placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                      className="w-full rounded-xl border border-border p-2 text-xs bg-background text-foreground font-mono"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-foreground">
+                      OneSignal REST API Key (Opcional)
+                    </label>
+                    <input
+                      type="password"
+                      value={pushConfig.restApiKey || ""}
+                      onChange={(e) => setPushConfig({ ...pushConfig, restApiKey: e.target.value })}
+                      placeholder="Os_v2_app_xxxxxxxxxxxx..."
+                      className="w-full rounded-xl border border-border p-2 text-xs bg-background text-foreground font-mono"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-foreground">Webhook URL Masivo</label>
+                    <input
+                      type="url"
+                      value={pushConfig.webhookUrl || ""}
+                      onChange={(e) => setPushConfig({ ...pushConfig, webhookUrl: e.target.value })}
+                      placeholder="https://tu-servidor.com/api/push/broadcast"
+                      className="w-full rounded-xl border border-border p-2 text-xs bg-background text-foreground font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      savePushConfig(pushConfig);
+                      alert("¡Configuración de API y Webhooks de OneSignal guardada!");
+                    }}
+                    className="px-4 py-2 rounded-xl bg-foreground text-background text-xs font-semibold hover:bg-foreground/90 transition"
+                  >
+                    Guardar Configuración de Conexión
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
             </>
           )}
         </div>
 
-        {/* Pie del modal */}
-        <div className="bg-muted/40 p-4 px-6 border-t border-border flex justify-end">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-5 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl bg-foreground text-background hover:bg-foreground/90 transition-colors"
-          >
-            Cerrar Panel
-          </button>
+        {/* MENÚ DE NAVEGACIÓN VERTICAL A MANO DERECHA (Categorizado y fácil de personalizar) */}
+        <div className="w-full md:w-72 border-t md:border-t-0 md:border-l border-border bg-neutral-950/90 p-3.5 sm:p-4 order-1 md:order-2 shrink-0 overflow-y-auto flex flex-col gap-4">
+          <div className="px-1 pb-1 border-b border-white/10 flex items-center justify-between">
+            <span className="text-[11px] font-bold text-white uppercase tracking-wider font-mono">
+              Categorías
+            </span>
+            <span className="text-[10px] font-mono text-gold bg-gold/10 px-2 py-0.5 rounded-full border border-gold/30">
+              {authenticatedRole === "owner" ? "Dueño" : authenticatedRole === "admin" ? "Admin" : "Cajero"}
+            </span>
+          </div>
+
+          {/* Grupo 1: OPERACIONES */}
+          <div className="space-y-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-gold/80 font-bold px-2 block">
+              📊 Operaciones
+            </span>
+            <div className="space-y-1">
+              <button
+                type="button"
+                onClick={() => setActiveTab("stats")}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                  activeTab === "stats"
+                    ? "bg-gold text-neutral-950 shadow-md font-bold"
+                    : "text-neutral-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <BarChart3 className={`h-4 w-4 ${activeTab === "stats" ? "text-neutral-950" : "text-gold"}`} />
+                  <div>
+                    <div className="leading-tight">{t("Métricas en Vivo", "Live Metrics")}</div>
+                    <div className={`text-[10px] font-normal ${activeTab === "stats" ? "text-neutral-900" : "text-neutral-400"}`}>
+                      KPIs, canjes y ventas
+                    </div>
+                  </div>
+                </div>
+                {!canAccessTab("stats") && <Lock className="h-3 w-3 text-amber-500" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("messages")}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                  activeTab === "messages"
+                    ? "bg-gold text-neutral-950 shadow-md font-bold"
+                    : "text-neutral-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <MessageSquare className={`h-4 w-4 ${activeTab === "messages" ? "text-neutral-950" : "text-emerald-400"}`} />
+                  <div>
+                    <div className="leading-tight">{t("WhatsApp & Mensajes", "WhatsApp Messages")}</div>
+                    <div className={`text-[10px] font-normal ${activeTab === "messages" ? "text-neutral-900" : "text-neutral-400"}`}>
+                      Notificación al cliente
+                    </div>
+                  </div>
+                </div>
+                {!canAccessTab("messages") && <Lock className="h-3 w-3 text-amber-500" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Grupo 2: FIDELIZACIÓN & PREMIOS */}
+          <div className="space-y-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-gold/80 font-bold px-2 block">
+              🎯 Fidelización
+            </span>
+            <div className="space-y-1">
+              <button
+                type="button"
+                onClick={() => setActiveTab("prizes")}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                  activeTab === "prizes"
+                    ? "bg-gold text-neutral-950 shadow-md font-bold"
+                    : "text-neutral-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Sliders className={`h-4 w-4 ${activeTab === "prizes" ? "text-neutral-950" : "text-purple-400"}`} />
+                  <div>
+                    <div className="leading-tight">{t("Ruleta & 15 Sellos", "Prizes & Stamps")}</div>
+                    <div className={`text-[10px] font-normal ${activeTab === "prizes" ? "text-neutral-900" : "text-neutral-400"}`}>
+                      Premios y probabilidades
+                    </div>
+                  </div>
+                </div>
+                {!canAccessTab("prizes") && <Lock className="h-3 w-3 text-amber-500" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("campaign")}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                  activeTab === "campaign"
+                    ? "bg-gold text-neutral-950 shadow-md font-bold"
+                    : "text-neutral-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Award className={`h-4 w-4 ${activeTab === "campaign" ? "text-neutral-950" : "text-amber-400"}`} />
+                  <div>
+                    <div className="leading-tight">{t("Campaña & Reglas", "Campaign & Rules")}</div>
+                    <div className={`text-[10px] font-normal ${activeTab === "campaign" ? "text-neutral-900" : "text-neutral-400"}`}>
+                      Vigencia y términos
+                    </div>
+                  </div>
+                </div>
+                {!canAccessTab("campaign") && <Lock className="h-3 w-3 text-amber-500" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Grupo 3: MARKETING PUSH & OFERTAS */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between px-2">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-sky-400 font-bold">
+                🚀 Marketing Push
+              </span>
+              <span className="text-[9px] bg-sky-500/20 text-sky-300 px-1.5 py-0.5 rounded font-mono font-bold">
+                PRO
+              </span>
+            </div>
+            <div className="space-y-1">
+              <button
+                type="button"
+                onClick={() => setActiveTab("push_campaigns")}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                  activeTab === "push_campaigns"
+                    ? "bg-gradient-to-r from-sky-400 to-blue-500 text-neutral-950 shadow-md font-bold"
+                    : "text-neutral-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Radio className={`h-4 w-4 ${activeTab === "push_campaigns" ? "text-neutral-950" : "text-sky-400"}`} />
+                  <div>
+                    <div className="leading-tight">Ofertas Push & Flujos</div>
+                    <div className={`text-[10px] font-normal ${activeTab === "push_campaigns" ? "text-neutral-900" : "text-neutral-400"}`}>
+                      OneSignal y 4 flujos auto
+                    </div>
+                  </div>
+                </div>
+                {!canAccessTab("push_campaigns") && <Lock className="h-3 w-3 text-amber-500" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Grupo 4: CONFIGURACIÓN & INTEGRACIONES */}
+          <div className="space-y-1.5">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold px-2 block">
+              ⚙️ Configuración
+            </span>
+            <div className="space-y-1">
+              <button
+                type="button"
+                onClick={() => setActiveTab("branding")}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                  activeTab === "branding"
+                    ? "bg-gold text-neutral-950 shadow-md font-bold"
+                    : "text-neutral-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Palette className={`h-4 w-4 ${activeTab === "branding" ? "text-neutral-950" : "text-pink-400"}`} />
+                  <div>
+                    <div className="leading-tight">{t("Marca & Identidad", "Brand Identity")}</div>
+                    <div className={`text-[10px] font-normal ${activeTab === "branding" ? "text-neutral-900" : "text-neutral-400"}`}>
+                      Logo, colores, eslogan
+                    </div>
+                  </div>
+                </div>
+                {!canAccessTab("branding") && <Lock className="h-3 w-3 text-amber-500" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("composio")}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                  activeTab === "composio"
+                    ? "bg-gold text-neutral-950 shadow-md font-bold"
+                    : "text-neutral-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Bell className={`h-4 w-4 ${activeTab === "composio" ? "text-neutral-950" : "text-indigo-400"}`} />
+                  <div>
+                    <div className="leading-tight">{t("Composio.dev & AI", "Composio.dev & AI")}</div>
+                    <div className={`text-[10px] font-normal ${activeTab === "composio" ? "text-neutral-900" : "text-neutral-400"}`}>
+                      Conexión con 200+ apps
+                    </div>
+                  </div>
+                </div>
+                {!canAccessTab("composio") && <Lock className="h-3 w-3 text-amber-500" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("databases")}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                  activeTab === "databases"
+                    ? "bg-gold text-neutral-950 shadow-md font-bold"
+                    : "text-neutral-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Database className={`h-4 w-4 ${activeTab === "databases" ? "text-neutral-950" : "text-cyan-400"}`} />
+                  <div>
+                    <div className="leading-tight">{t("Seguridad & Bases Datos", "Security & DB")}</div>
+                    <div className={`text-[10px] font-normal ${activeTab === "databases" ? "text-neutral-900" : "text-neutral-400"}`}>
+                      PINs RBAC y Supabase
+                    </div>
+                  </div>
+                </div>
+                {!canAccessTab("databases") && <Lock className="h-3 w-3 text-amber-500" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-auto pt-3 border-t border-white/10 text-[10px] text-neutral-400 space-y-1">
+            <div className="flex items-center justify-between text-neutral-300 font-mono">
+              <span>Modo Activo:</span>
+              <span className="text-gold font-bold">15 Sellos</span>
+            </div>
+            <p className="text-[9px] text-neutral-400">
+              Navegación vertical en mano derecha optimizada para personalizar el sistema con fluidez.
+            </p>
+          </div>
         </div>
+      </div>
+
+      {/* Pie del modal */}
+      <div className="bg-neutral-900/90 p-3.5 px-6 border-t border-border flex justify-between items-center shrink-0">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Sistema de Fidelización Activo</span>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-5 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl bg-foreground text-background hover:bg-foreground/90 transition-colors"
+        >
+          Cerrar Panel
+        </button>
+      </div>
       </div>
     </div>
   );

@@ -25,7 +25,22 @@
       "lastVisit": "2026-09-28T20:53:25.619Z"
     }
   },
-  "logs": [],
+  "logs": [
+    {
+      "method": "PUSH",
+      "url": "/api/push/broadcast",
+      "timestamp": "4:07:17 p. m.",
+      "detail": "📢 Encapuchado Push Masivo: \"? Prueba Happy Hour\" enviado a suscriptores. (URL: Inicio)"
+    },
+    {
+      "id": "mulqnj6k2pn",
+      "timestamp": "4:07:17 p. m.",
+      "method": "PUSH",
+      "url": "/api/push/broadcast",
+      "status": 200,
+      "detail": "📢 Campaña Push enviada: \"? Prueba Happy Hour\" (Subscribed Users)"
+    }
+  ],
   "settings": {
     "brand": {
       "name": "Bliss Soul Bakery & Café",
@@ -166,6 +181,15 @@
           "redeemPrizes": true
         }
       }
-    }
+    },
+    "pushCampaigns": [
+      {
+        "title": "? Prueba Happy Hour",
+        "body": "�Sellos dobles de 3 a 6 PM!",
+        "url": "",
+        "segment": "Subscribed Users",
+        "sentAt": "28/9/2026, 4:07:17 p. m."
+      }
+    ]
   }
 }
