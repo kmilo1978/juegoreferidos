@@ -35,6 +35,11 @@ import {
   savePushConfig,
   PushRuntimeConfig,
   OneSignalService,
+  getCustomPushTemplates,
+  saveCustomPushTemplates,
+  resetPushTemplates,
+  PushNotificationTemplate,
+  formatPushText,
 } from "../../lib/oneSignalService";
 import {
   getSupabaseConfig,
@@ -72,6 +77,8 @@ export function AdminPanelModal({
   const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfig>(() => getSupabaseConfig());
   const [activePin, setActivePin] = useState(() => getActiveCashierPin());
   const [supabaseTestStatus, setSupabaseTestStatus] = useState<{ loading: boolean; msg?: string; success?: boolean }>({ loading: false });
+  const [pushTemplates, setPushTemplates] = useState<PushNotificationTemplate[]>(() => getCustomPushTemplates());
+  const [selectedTemplateIndex, setSelectedTemplateIndex] = useState<number>(0);
 
   // Estados editables de premios
   const [localPrizes, setLocalPrizes] = useState<GamePrize[]>(prizes);
@@ -935,118 +942,206 @@ Presenta este código al momento de pagar:
                 </div>
               </div>
 
-              {/* SECCIÓN 3: AUTOMATIZACIONES DE VENTA PARA DÍAS LENTOS Y RESCATE DE CLIENTES */}
-              <div className="rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-background to-orange-500/5 p-5 space-y-5">
-                <div className="flex items-center justify-between pb-3 border-b border-border">
-                  <div className="flex items-center gap-2">
-                    <span className="h-6 w-6 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-600 font-bold">
-                      🎯
+              {/* SECCIÓN 3: PERSONALIZADOR DE MENSAJES PUSH Y AUTOMATIZACIONES */}
+              <div className="rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-background to-orange-500/5 p-5 sm:p-6 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border">
+                  <div className="flex items-center gap-2.5">
+                    <span className="h-8 w-8 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-600 text-lg">
+                      ✍️
                     </span>
                     <div>
                       <h4 className="font-semibold text-foreground text-sm uppercase tracking-wider">
-                        Automatizaciones de Venta para Días Lentos
+                        Personalizador de Mensajes Push (OneSignal & Web)
                       </h4>
-                      <p className="text-[11px] text-muted-foreground">Palancas activas de OneSignal para llenar mesas y rescatar cupones.</p>
+                      <p className="text-xs text-muted-foreground">
+                        Personaliza los títulos y textos de tus alertas automáticas. Puedes usar etiquetas dinámicas.
+                      </p>
                     </div>
                   </div>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-700">
-                    OneSignal Engine
-                  </span>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        saveCustomPushTemplates(pushTemplates);
+                        alert("¡Plantillas de mensajes push guardadas con éxito!");
+                      }}
+                      className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs"
+                    >
+                      💾 Guardar Mensajes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const reset = resetPushTemplates();
+                        setPushTemplates([...reset]);
+                        alert("Textos restablecidos a los valores sugeridos.");
+                      }}
+                      className="px-3 py-1.5 bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground rounded-xl text-xs font-medium transition-colors border border-border"
+                    >
+                      🔄 Restablecer
+                    </button>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Vacío 1: Happy Hour / Horas Extra */}
-                  <div className="rounded-xl border border-border bg-card p-4 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-foreground text-xs flex items-center gap-1.5">
-                        🍹 1. Horas Felices
-                      </span>
-                      <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded">
-                        Activo
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      Atrae clientes en horas muertas. Envía aviso Push a las 2:30 PM.
-                    </p>
-                    <div className="bg-muted/40 p-2 rounded-lg text-[10px] font-mono text-foreground space-y-1">
-                      <div><strong>Días:</strong> Mar, Mié, Jue</div>
-                      <div><strong>Horario:</strong> 3:00 PM - 6:00 PM</div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        OneSignalService.showLocalTestNotification(
-                          "🍹 ¡Hora Feliz en Tu Restaurante!",
-                          "De 3:00 PM a 6:00 PM tu ruleta da premios dobles. ¡Visítanos hoy en tu mesa!"
-                        );
-                      }}
-                      className="w-full py-1.5 text-[11px] font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg transition"
-                    >
-                      ⚡ Disparar Alerta Happy Hour
-                    </button>
+                {/* ETIQUETAS DINÁMICAS DISPONIBLES */}
+                <div className="p-3.5 rounded-xl bg-background border border-border space-y-1.5">
+                  <span className="text-[10px] uppercase font-bold text-gold tracking-wider block">
+                    ✨ Variables Dinámicas Disponibles (Haz clic o escríbelas en tu texto):
+                  </span>
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 font-mono text-amber-800 font-semibold cursor-pointer">
+                      {"{nombre}"} → Nombre del comensal
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 font-mono text-amber-800 font-semibold cursor-pointer">
+                      {"{premio}"} → Beneficio ganado
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 font-mono text-amber-800 font-semibold cursor-pointer">
+                      {"{codigo}"} → Código del cupón
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 font-mono text-amber-800 font-semibold cursor-pointer">
+                      {"{mesa}"} → Mesa asignada
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 font-mono text-amber-800 font-semibold cursor-pointer">
+                      {"{restaurante}"} → {clientConfig.brand.name}
+                    </span>
+                  </div>
+                </div>
+
+                {/* SELECTOR DE PLANTILLAS Y ÁREA DE EDICIÓN */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                  
+                  {/* COLUMNA IZQUIERDA: SELECTOR DE CAMPAÑAS (5 cols) */}
+                  <div className="lg:col-span-5 space-y-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-1">
+                      Selecciona la Campaña a Editar:
+                    </span>
+                    {pushTemplates.map((tmpl, idx) => {
+                      const isSelected = selectedTemplateIndex === idx;
+                      return (
+                        <button
+                          key={tmpl.id}
+                          type="button"
+                          onClick={() => setSelectedTemplateIndex(idx)}
+                          className={`w-full p-3 rounded-xl border text-left transition-all ${
+                            isSelected
+                              ? "bg-amber-500/15 border-gold shadow-xs"
+                              : "bg-background border-border/80 hover:bg-muted/40"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <strong className={`text-xs ${isSelected ? "text-gold" : "text-foreground"}`}>
+                              {tmpl.name}
+                            </strong>
+                            <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground uppercase font-mono">
+                              {tmpl.badge}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground truncate mt-1">
+                            {tmpl.title}
+                          </p>
+                        </button>
+                      );
+                    })}
                   </div>
 
-                  {/* Vacío 2: Rescate de Cupones Abandonados */}
-                  <div className="rounded-xl border border-border bg-card p-4 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-foreground text-xs flex items-center gap-1.5">
-                        ⏳ 2. Rescate de Cupones
-                      </span>
-                      <span className="text-[10px] text-sky-600 font-semibold bg-sky-50 px-2 py-0.5 rounded">
-                        Automático
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      Avisa a quienes ganaron en mesa pero no validaron el PIN en caja.
-                    </p>
-                    <div className="bg-muted/40 p-2 rounded-lg text-[10px] font-mono text-foreground space-y-1">
-                      <div><strong>Frecuencia:</strong> A las 48 horas</div>
-                      <div><strong>Estado filtro:</strong> NO canjeado</div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        OneSignalService.showLocalTestNotification(
-                          "🎁 ¡Carlos, tu postre te espera!",
-                          "Aún tienes activo tu beneficio de la ruleta. Ven hoy y redímelo en tu cuenta."
-                        );
-                      }}
-                      className="w-full py-1.5 text-[11px] font-semibold bg-sky-600 hover:bg-sky-500 text-white rounded-lg transition"
-                    >
-                      🚀 Disparar Rescate de Cupones
-                    </button>
+                  {/* COLUMNA DERECHA: EDITOR DEL MENSAJE SELECCIONADO Y VISTA PREVIA (7 cols) */}
+                  <div className="lg:col-span-7 space-y-4 bg-background p-4 sm:p-5 rounded-2xl border border-border">
+                    {(() => {
+                      const currentTmpl = pushTemplates[selectedTemplateIndex] || pushTemplates[0];
+                      const handleTitleChange = (val: string) => {
+                        const updated = [...pushTemplates];
+                        updated[selectedTemplateIndex] = { ...currentTmpl, title: val };
+                        setPushTemplates(updated);
+                      };
+                      const handleBodyChange = (val: string) => {
+                        const updated = [...pushTemplates];
+                        updated[selectedTemplateIndex] = { ...currentTmpl, body: val };
+                        setPushTemplates(updated);
+                      };
+
+                      return (
+                        <div className="space-y-4">
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-gold tracking-wider">
+                              Disparador Automático:
+                            </span>
+                            <p className="text-xs text-muted-foreground font-medium">
+                              {currentTmpl.tagDescription}
+                            </p>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-foreground block">
+                              Título de la Notificación:
+                            </label>
+                            <input
+                              type="text"
+                              value={currentTmpl.title}
+                              onChange={(e) => handleTitleChange(e.target.value)}
+                              className="w-full text-xs bg-muted/30 border border-border rounded-xl p-2.5 text-foreground focus:ring-1 focus:ring-gold focus:outline-none font-medium"
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-foreground block">
+                              Cuerpo del Mensaje (Texto que leerá el cliente):
+                            </label>
+                            <textarea
+                              rows={3}
+                              value={currentTmpl.body}
+                              onChange={(e) => handleBodyChange(e.target.value)}
+                              className="w-full text-xs bg-muted/30 border border-border rounded-xl p-2.5 text-foreground focus:ring-1 focus:ring-gold focus:outline-none resize-none leading-relaxed"
+                            />
+                          </div>
+
+                          {/* VISTA PREVIA EN PANTALLA DE CELULAR */}
+                          <div className="pt-2 border-t border-border">
+                            <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground block mb-2">
+                              📱 Vista Previa en Pantalla de Bloqueo del Celular:
+                            </span>
+                            <div className="rounded-xl border border-neutral-700 bg-neutral-900/90 text-white p-3.5 shadow-xl flex items-start gap-3">
+                              <img
+                                src={clientConfig.brand.logoUrl}
+                                alt="Logo"
+                                className="h-8 w-8 rounded-lg object-contain bg-white/10 p-1 shrink-0 mt-0.5"
+                              />
+                              <div className="flex-1 overflow-hidden space-y-0.5">
+                                <div className="flex items-center justify-between text-[11px] text-white/50">
+                                  <span className="font-semibold text-white/70 uppercase text-[9px] tracking-wider">
+                                    {clientConfig.brand.name}
+                                  </span>
+                                  <span className="text-[9px]">AHORA</span>
+                                </div>
+                                <h5 className="font-bold text-xs text-white">
+                                  {formatPushText(currentTmpl.title)}
+                                </h5>
+                                <p className="text-[11px] text-white/80 leading-snug">
+                                  {formatPushText(currentTmpl.body)}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* BOTONES DE DISPARO DE PRUEBA */}
+                          <div className="pt-2 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const renderedTitle = formatPushText(currentTmpl.title);
+                                const renderedBody = formatPushText(currentTmpl.body);
+                                OneSignalService.showLocalTestNotification(renderedTitle, renderedBody);
+                              }}
+                              className="w-full py-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow-md transition-all uppercase tracking-wider inline-flex items-center justify-center gap-2"
+                            >
+                              <span>🔔 Probar Este Mensaje en Mi Pantalla</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
 
-                  {/* Vacío 3: Caducidad y Urgencia */}
-                  <div className="rounded-xl border border-border bg-card p-4 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-foreground text-xs flex items-center gap-1.5">
-                        ⚠️ 3. Urgencia de Caducidad
-                      </span>
-                      <span className="text-[10px] text-orange-600 font-semibold bg-orange-50 px-2 py-0.5 rounded">
-                        7 Días
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      Genera prisa psicológica. Envía alerta 24 horas antes de vencer.
-                    </p>
-                    <div className="bg-muted/40 p-2 rounded-lg text-[10px] font-mono text-foreground space-y-1">
-                      <div><strong>Vigencia:</strong> 7 días calendario</div>
-                      <div><strong>Alerta:</strong> Últimas 24 horas</div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        OneSignalService.showLocalTestNotification(
-                          "⚠️ ¡Últimas 24 horas para canjear!",
-                          "Tu cupón de cortesía vence mañana a las 10:00 PM. No dejes perder tu premio."
-                        );
-                      }}
-                      className="w-full py-1.5 text-[11px] font-semibold bg-orange-600 hover:bg-orange-500 text-white rounded-lg transition"
-                    >
-                      ⚠️ Disparar Alerta de Urgencia
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
