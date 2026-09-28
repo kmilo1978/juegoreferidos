@@ -14,9 +14,15 @@ import {
   TrendingUp,
   CheckCircle2,
   Users,
+  Zap,
 } from "lucide-react";
 import { calculateAnalytics } from "../../lib/analyticsService";
 import { clientConfig } from "../../config/clientConfig";
+import {
+  getComposioConfig,
+  saveComposioConfig,
+  ComposioRuntimeConfig,
+} from "../../lib/composioService";
 
 interface AdminPanelModalProps {
   isOpen: boolean;
@@ -36,7 +42,8 @@ export function AdminPanelModal({
   onGenerateNewTable,
 }: AdminPanelModalProps) {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<"stats" | "prizes" | "campaign" | "messages">("stats");
+  const [activeTab, setActiveTab] = useState<"stats" | "prizes" | "campaign" | "messages" | "composio">("stats");
+  const [composioConfig, setComposioConfig] = useState<ComposioRuntimeConfig>(() => getComposioConfig());
 
   // Estados editables de premios
   const [localPrizes, setLocalPrizes] = useState<GamePrize[]>(prizes);
@@ -154,6 +161,19 @@ export function AdminPanelModal({
           >
             <MessageSquare className="h-3.5 w-3.5" />
             <span>{t("Mensajes WhatsApp", "WhatsApp Messages")}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("composio")}
+            className={`py-3.5 font-medium uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
+              activeTab === "composio"
+                ? "border-gold text-gold font-semibold"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Zap className="h-3.5 w-3.5" />
+            <span>{t("Composio & APIs", "Composio & APIs")}</span>
           </button>
         </div>
 
@@ -555,6 +575,188 @@ Presenta este código al momento de pagar:
 ¡Gracias por visitarnos en {{restaurante}}! ❤️`}
                     className="w-full rounded-xl border border-border p-3 font-mono text-xs bg-muted/30 leading-relaxed"
                   />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: Configuración de Composio & Automatizaciones */}
+          {activeTab === "composio" && (
+            <div className="space-y-6 text-xs">
+              {/* BANNER EXPLICATIVO */}
+              <div className="rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-gold/10 via-background to-amber-500/5 p-5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="h-6 w-6 rounded-lg bg-gold/20 flex items-center justify-center text-gold font-bold">
+                      ⚡
+                    </span>
+                    <h3 className="font-semibold text-foreground text-sm uppercase tracking-wider">
+                      Composio.dev · Conector de IA & Automatización
+                    </h3>
+                  </div>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                    composioConfig.enabled 
+                      ? "bg-emerald-500/20 text-emerald-700 border border-emerald-500/40" 
+                      : "bg-muted text-muted-foreground border border-border"
+                  }`}>
+                    {composioConfig.enabled ? "● Activo" : "○ Inactivo"}
+                  </span>
+                </div>
+                <p className="text-muted-foreground text-xs leading-relaxed">
+                  <strong>Composio</strong> conecta tu sistema de fidelización con más de 100 herramientas externas (Google Sheets, Google Contacts, WhatsApp, CRM y Correo) en tiempo real para que ningún comensal se quede sin registrar.
+                </p>
+              </div>
+
+              {/* FORMULARIO DE COMPOSIO */}
+              <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-border">
+                  <div>
+                    <h4 className="font-semibold text-foreground">Habilitar Integración con Composio</h4>
+                    <p className="text-[11px] text-muted-foreground">Sincroniza eventos de premios y canjes con la API de Composio.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = { ...composioConfig, enabled: !composioConfig.enabled };
+                      setComposioConfig(next);
+                    }}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      composioConfig.enabled ? "bg-emerald-600" : "bg-muted"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        composioConfig.enabled ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* API Key */}
+                <div>
+                  <label className="block font-semibold text-foreground mb-1">
+                    Composio API Key (opcional):
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="comp_live_..."
+                    value={composioConfig.apiKey}
+                    onChange={(e) => setComposioConfig({ ...composioConfig, apiKey: e.target.value })}
+                    className="w-full bg-muted/30 border border-border rounded-xl px-3.5 py-2.5 font-mono text-xs text-foreground focus:ring-1 focus:ring-gold focus:outline-none"
+                  />
+                  <span className="text-[10px] text-muted-foreground mt-1 block">
+                    Obtenla gratis en tu panel de <a href="https://composio.dev" target="_blank" rel="noopener noreferrer" className="text-gold underline">composio.dev</a>.
+                  </span>
+                </div>
+
+                {/* Checkboxes de integraciones */}
+                <div className="space-y-2 pt-2">
+                  <span className="font-semibold text-foreground block mb-2">Herramientas Automatizadas:</span>
+                  
+                  <label className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-muted/20 cursor-pointer hover:bg-muted/40 transition">
+                    <input
+                      type="checkbox"
+                      checked={composioConfig.integrations.googleSheets}
+                      onChange={(e) => setComposioConfig({
+                        ...composioConfig,
+                        integrations: { ...composioConfig.integrations, googleSheets: e.target.checked }
+                      })}
+                      className="rounded border-border text-gold focus:ring-gold"
+                    />
+                    <div>
+                      <span className="font-medium text-foreground block">📗 Google Sheets</span>
+                      <span className="text-[10px] text-muted-foreground">Agrega una fila por cada ganador y actualiza la columna de canje en caja.</span>
+                    </div>
+                  </label>
+
+                  <label className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-muted/20 cursor-pointer hover:bg-muted/40 transition">
+                    <input
+                      type="checkbox"
+                      checked={composioConfig.integrations.googleContacts}
+                      onChange={(e) => setComposioConfig({
+                        ...composioConfig,
+                        integrations: { ...composioConfig.integrations, googleContacts: e.target.checked }
+                      })}
+                      className="rounded border-border text-gold focus:ring-gold"
+                    />
+                    <div>
+                      <span className="font-medium text-foreground block">👤 Google Contacts</span>
+                      <span className="text-[10px] text-muted-foreground">Crea el contacto en la libreta del restaurante con nombre, teléfono y etiqueta 'Cliente Frecuente'.</span>
+                    </div>
+                  </label>
+
+                  <label className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-muted/20 cursor-pointer hover:bg-muted/40 transition">
+                    <input
+                      type="checkbox"
+                      checked={composioConfig.integrations.dailyEmailSummary}
+                      onChange={(e) => setComposioConfig({
+                        ...composioConfig,
+                        integrations: { ...composioConfig.integrations, dailyEmailSummary: e.target.checked }
+                      })}
+                      className="rounded border-border text-gold focus:ring-gold"
+                    />
+                    <div>
+                      <span className="font-medium text-foreground block">✉️ Resumen Diario por Email</span>
+                      <span className="text-[10px] text-muted-foreground">Envía un reporte nocturno al dueño con las ventas y cupones canjeados del día.</span>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Webhook Fallback */}
+                <div className="pt-2 border-t border-border">
+                  <label className="block font-semibold text-foreground mb-1">
+                    URL de Webhook Directo (Google Apps Script):
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    value={composioConfig.endpoints.googleSheetWebhookUrl}
+                    onChange={(e) => setComposioConfig({
+                      ...composioConfig,
+                      endpoints: { ...composioConfig.endpoints, googleSheetWebhookUrl: e.target.value }
+                    })}
+                    className="w-full bg-muted/30 border border-border rounded-xl px-3.5 py-2.5 font-mono text-xs text-foreground focus:ring-1 focus:ring-gold focus:outline-none"
+                  />
+                  <span className="text-[10px] text-muted-foreground mt-1 block">
+                    Si no usas la API de Composio, puedes pegar aquí tu Webhook 100% gratuito de Google Apps Script.
+                  </span>
+                </div>
+
+                {/* Botones de Guardar y Probar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      saveComposioConfig(composioConfig);
+                      alert("¡Configuración de Composio y automatizaciones guardada con éxito!");
+                    }}
+                    className="px-5 py-2.5 bg-gold hover:bg-gold/90 text-white rounded-xl font-semibold uppercase tracking-wider text-xs shadow-sm transition"
+                  >
+                    💾 Guardar Configuración
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const success = await ComposioService.recordWonPrize({
+                        fullName: "Prueba Composio",
+                        whatsapp: "573001234567",
+                        email: "prueba@composio.dev",
+                        instagramHandle: "@cliente_prueba",
+                        prizeName: "Premio de Prueba",
+                        uniqueCode: "TEST-0001",
+                        wonAt: new Date().toLocaleTimeString(),
+                      });
+                      if (success) {
+                        alert("✅ ¡Prueba enviada con éxito! Revisa tu Google Sheets o Composio.");
+                      } else {
+                        alert("⚠️ Prueba ejecutada. Si no ves la fila, verifica que la URL de Webhook o API Key esté bien configurada.");
+                      }
+                    }}
+                    className="px-4 py-2 border border-border bg-background hover:bg-muted text-foreground rounded-xl font-medium text-xs transition"
+                  >
+                    🚀 Probar Envío de Prueba
+                  </button>
                 </div>
               </div>
             </div>

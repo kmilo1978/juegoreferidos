@@ -19,6 +19,7 @@ import { AdminPanelModal } from "./components/qr-game/AdminPanelModal";
 import { PinAuthModal } from "./components/qr-game/PinAuthModal";
 import { TableStandModal } from "./components/qr-game/TableStandModal";
 import { recordPageView, getStoredHistory, saveStoredHistory } from "./lib/analyticsService";
+import { ComposioService } from "./lib/composioService";
 import { MessageCircle } from "lucide-react";
 import { site } from "./data/site";
 import { clientConfig } from "./config/clientConfig";
@@ -197,27 +198,16 @@ function JuegoQrPage() {
       // ignore
     }
 
-    // Enviar a Google Sheets silenciosamente si el webhook está configurado
-    if (site.googleSheetWebhookUrl) {
-      try {
-        fetch(site.googleSheetWebhookUrl, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "CREATE_PRIZE",
-            fullName: newWon.participantName,
-            whatsapp: newWon.participantWhatsapp,
-            email: participant?.email || "N/A",
-            instagram: instagramEvidence?.instagramHandle || "N/A",
-            prizeName: newWon.prizeName,
-            uniqueCode: newWon.uniqueCode,
-          }),
-        }).catch(() => {});
-      } catch {
-        // Cero fallos visuales si no hay red
-      }
-    }
+    // Sincronizar premio ganado a través de Composio & Google Sheets
+    ComposioService.recordWonPrize({
+      fullName: newWon.participantName,
+      whatsapp: newWon.participantWhatsapp,
+      email: participant?.email || "N/A",
+      instagramHandle: instagramEvidence?.instagramHandle || "N/A",
+      prizeName: newWon.prizeName,
+      uniqueCode: newWon.uniqueCode,
+      wonAt: newWon.wonAt,
+    }).catch(() => {});
   };
 
   // Abrir modal de PIN al pulsar "Validar en caja"
@@ -252,23 +242,8 @@ function JuegoQrPage() {
       // ignore
     }
 
-    // Actualizar estado en Google Sheets
-    if (site.googleSheetWebhookUrl) {
-      try {
-        fetch(site.googleSheetWebhookUrl, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "VALIDATE_PIN",
-            uniqueCode: wonPrize.uniqueCode,
-            pin: "1978",
-          }),
-        }).catch(() => {});
-      } catch {
-        // ignore
-      }
-    }
+    // Actualizar estado 'SÍ' en Google Sheets y Composio
+    ComposioService.validateCashierPin(wonPrize.uniqueCode, "1978").catch(() => {});
   };
 
   return (
