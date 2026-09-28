@@ -22,6 +22,7 @@ import { recordPageView, getStoredHistory, saveStoredHistory } from "./lib/analy
 import { ComposioService } from "./lib/composioService";
 import { OneSignalService } from "./lib/oneSignalService";
 import { SupabaseService } from "./lib/supabaseService";
+import { TableManagerService } from "./lib/tableManagerService";
 import { MessageCircle } from "lucide-react";
 import { site } from "./data/site";
 import { clientConfig } from "./config/clientConfig";
@@ -102,8 +103,17 @@ function JuegoQrPage() {
     }
   }, []);
 
+  // Helper para identificar número de mesa (1 a 10)
+  const getTableNum = (tableStr: string): number => {
+    const match = tableStr.match(/\d+/);
+    const n = match ? parseInt(match[0], 10) : 1;
+    return n >= 1 && n <= 10 ? n : 1;
+  };
+
   // Generar nueva sesión para simular otra mesa o nuevo comensal
   const handleResetSession = () => {
+    const tNum = getTableNum(session.tableNumber);
+    TableManagerService.resetTable(tNum);
     setSession(createInitialSession());
     setCurrentStep(1);
     setFeedback(undefined);
@@ -153,6 +163,15 @@ function JuegoQrPage() {
     setParticipant(data);
     setCurrentStep(2);
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // Actualizar variable de la mesa en tiempo real
+    const tNum = getTableNum(session.tableNumber);
+    TableManagerService.updateTableStatus(tNum, "JUGANDO", {
+      currentCustomer: data.fullName,
+      currentWhatsapp: cleanWhatsapp,
+      activeSessionId: session.id,
+      startedAt: "Ahora",
+    });
   };
 
   // PASO 2 -> PASO 3 (Instagram -> Ruleta)
@@ -198,6 +217,16 @@ function JuegoQrPage() {
     });
     setCurrentStep(4);
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // Actualizar variable de la mesa a PREMIO PENDIENTE
+    const tNum = getTableNum(session.tableNumber);
+    TableManagerService.updateTableStatus(tNum, "PREMIO_PENDIENTE", {
+      currentCustomer: newWon.participantName,
+      currentWhatsapp: newWon.participantWhatsapp,
+      prizeWon: newWon.prizeName,
+      uniqueCode: newWon.uniqueCode,
+      activeSessionId: session.id,
+    });
 
     // Guardar en sessionStorage para protegerlo de F5
     try {
@@ -245,6 +274,12 @@ function JuegoQrPage() {
       const next = prev.map((h) => (h.uniqueCode === wonPrize.uniqueCode ? updated : h));
       saveStoredHistory(next);
       return next;
+    });
+
+    // Actualizar variable de la mesa a CANJEADO
+    const tNum = getTableNum(session.tableNumber);
+    TableManagerService.updateTableStatus(tNum, "CANJEADO", {
+      status: "CANJEADO",
     });
 
     try {

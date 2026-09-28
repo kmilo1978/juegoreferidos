@@ -50,6 +50,7 @@ import {
 } from "lucide-react";
 import { calculateAnalytics } from "../../lib/analyticsService";
 import { clientConfig } from "../../config/clientConfig";
+import { TableManagerService, RestaurantTable } from "../../lib/tableManagerService";
 import {
   OneSignalService,
   getCustomPushTemplates,
@@ -172,8 +173,37 @@ export function AdminPanelModal({
 }: AdminPanelModalProps) {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<
-    "stats" | "prizes" | "campaign" | "messages" | "push_campaigns" | "branding" | "security"
+    "stats" | "tables" | "prizes" | "campaign" | "messages" | "push_campaigns" | "branding" | "security"
   >("stats");
+  
+  // Estados para las 10 mesas en tiempo real
+  const [tablesList, setTablesList] = useState<RestaurantTable[]>(() => TableManagerService.getTables());
+  const [selectedTableToEdit, setSelectedTableToEdit] = useState<number>(1);
+  const [tableEditName, setTableEditName] = useState<string>("Mesa 1");
+  const [tableEditZone, setTableEditZone] = useState<string>("Salón Principal");
+  const [tableEditCapacity, setTableEditCapacity] = useState<number>(4);
+  const [tableFeedback, setTableFeedback] = useState<string | null>(null);
+
+  const handleResetTableInModal = (num: number) => {
+    if (confirm(`¿Deseas liberar la Mesa ${num} para recibir a un nuevo comensal?`)) {
+      const updated = TableManagerService.resetTable(num);
+      setTablesList(updated);
+      setTableFeedback(`¡Mesa ${num} liberada y lista para recibir clientes!`);
+      setTimeout(() => setTableFeedback(null), 3500);
+    }
+  };
+
+  const handleSaveTableConfigInModal = () => {
+    const updated = TableManagerService.configureTable(selectedTableToEdit, {
+      name: tableEditName.trim() || `Mesa ${selectedTableToEdit}`,
+      zone: tableEditZone,
+      capacity: tableEditCapacity,
+    });
+    setTablesList(updated);
+    setTableFeedback(`¡Configuración de Mesa ${selectedTableToEdit} guardada con éxito!`);
+    setTimeout(() => setTableFeedback(null), 3500);
+  };
+
   const [activePin, setActivePin] = useState(() => getActiveCashierPin());
   const [pushTemplates, setPushTemplates] = useState<PushNotificationTemplate[]>(() => getCustomPushTemplates());
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState<number>(0);
@@ -235,6 +265,8 @@ export function AdminPanelModal({
     switch (tab) {
       case "stats":
         return hasPermission(authenticatedRole, "viewMetrics");
+      case "tables":
+        return true;
       case "prizes":
         return hasPermission(authenticatedRole, "manageRoulette") || hasPermission(authenticatedRole, "manageStamps");
       case "campaign":
@@ -1306,6 +1338,285 @@ export function AdminPanelModal({
                     </tbody>
                   </table>
                 </div>
+              </div>
+            </div>
+          )}
+
+          
+          {/* TAB: MONITOREO Y CONFIGURACIÓN DE 10 MESAS EN TIEMPO REAL */}
+          {activeTab === "tables" && (
+            <div className="space-y-6">
+              {/* GUÍA RÁPIDA DE LAS 10 MESAS */}
+              <SectionQuickGuide
+                title="Guía Rápida: Monitoreo y Control de 10 Mesas Conectadas en Vivo"
+                description="Cada mesa del establecimiento está conectada a su propia variable de estado en tiempo real para rastrear la experiencia del comensal."
+                tips={[
+                  {
+                    title: "🟢 Mesa Disponible",
+                    text: "La mesa está libre esperando a comensales. Al escanear su QR, se conecta automáticamente.",
+                  },
+                  {
+                    title: "🔵 Comensal Jugando",
+                    text: "El cliente en mesa ingresó sus datos y está jugando la ruleta de premios en este instante.",
+                  },
+                  {
+                    title: "🟡 Premio Pendiente",
+                    text: "¡El comensal sacó un premio! Muestra el código en caja para validar con el PIN del cajero.",
+                  },
+                  {
+                    title: "🔄 Liberar Mesa en 1-Clic",
+                    text: "Cuando el cliente pague su cuenta, pulsa 'Liberar Mesa' para prepararla para el siguiente comensal.",
+                  },
+                ]}
+              />
+
+              {tableFeedback && (
+                <div className="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-xs font-semibold flex items-center gap-2 animate-fade-in">
+                  <Check className="h-4 w-4 text-emerald-400 shrink-0" />
+                  <span>{tableFeedback}</span>
+                </div>
+              )}
+
+              {/* BARRA DE ESTADO GENERAL DE MESAS */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="p-4 rounded-2xl bg-card border border-border text-center space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground block">Total Mesas</span>
+                  <span className="text-2xl font-bold font-mono text-foreground">10</span>
+                  <span className="text-[10px] text-muted-foreground block">Red de salón</span>
+                </div>
+                <div className="p-4 rounded-2xl bg-card border border-border text-center space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-sky-400 block">Jugando Ahora</span>
+                  <span className="text-2xl font-bold font-mono text-sky-400">
+                    {tablesList.filter((t) => t.status === "JUGANDO").length}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground block">Comensales activos</span>
+                </div>
+                <div className="p-4 rounded-2xl bg-card border border-border text-center space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-amber-400 block">Premios Pendientes</span>
+                  <span className="text-2xl font-bold font-mono text-amber-400">
+                    {tablesList.filter((t) => t.status === "PREMIO_PENDIENTE").length}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground block">Listos para caja</span>
+                </div>
+                <div className="p-4 rounded-2xl bg-card border border-border text-center space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-emerald-400 block">Disponibles</span>
+                  <span className="text-2xl font-bold font-mono text-emerald-400">
+                    {tablesList.filter((t) => t.status === "DISPONIBLE").length}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground block">Mesas libres</span>
+                </div>
+              </div>
+
+              {/* PANEL DE CONFIGURACIÓN RÁPIDA DE MESA */}
+              <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-border/60">
+                  <div className="flex items-center gap-2">
+                    <span className="h-7 w-7 rounded-xl bg-gold/20 text-gold flex items-center justify-center font-bold text-sm">
+                      ⚙️
+                    </span>
+                    <div>
+                      <h4 className="font-semibold text-xs sm:text-sm text-foreground">
+                        Personalizar Nombre, Zona y Capacidad de Mesa
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground">
+                        Edita las mesas para que coincidan con la distribución física de tu local.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground font-bold">
+                      Mesa
+                    </label>
+                    <select
+                      value={selectedTableToEdit}
+                      onChange={(e) => {
+                        const num = parseInt(e.target.value, 10);
+                        setSelectedTableToEdit(num);
+                        const found = tablesList.find((t) => t.number === num);
+                        if (found) {
+                          setTableEditName(found.name);
+                          setTableEditZone(found.zone);
+                          setTableEditCapacity(found.capacity);
+                        }
+                      }}
+                      className="w-full p-2 rounded-xl border border-border bg-background text-xs text-foreground"
+                    >
+                      {tablesList.map((t) => (
+                        <option key={t.number} value={t.number}>
+                          Mesa {t.number} - {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground font-bold">
+                      Nombre Comercial
+                    </label>
+                    <input
+                      type="text"
+                      value={tableEditName}
+                      onChange={(e) => setTableEditName(e.target.value)}
+                      placeholder="Ej: Mesa 1 - Ventana"
+                      className="w-full p-2 rounded-xl border border-border bg-background text-xs text-foreground"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground font-bold">
+                      Zona del Local
+                    </label>
+                    <select
+                      value={tableEditZone}
+                      onChange={(e) => setTableEditZone(e.target.value)}
+                      className="w-full p-2 rounded-xl border border-border bg-background text-xs text-foreground"
+                    >
+                      <option value="Salón Principal">Salón Principal</option>
+                      <option value="Terraza Jardín">Terraza Jardín</option>
+                      <option value="Barra / Café">Barra / Café</option>
+                      <option value="Zona VIP">Zona VIP</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground font-bold">
+                      Capacidad
+                    </label>
+                    <select
+                      value={tableEditCapacity}
+                      onChange={(e) => setTableEditCapacity(parseInt(e.target.value, 10))}
+                      className="w-full p-2 rounded-xl border border-border bg-background text-xs text-foreground"
+                    >
+                      <option value="2">2 Personas</option>
+                      <option value="4">4 Personas</option>
+                      <option value="6">6 Personas</option>
+                      <option value="8">8 Personas</option>
+                    </select>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSaveTableConfigInModal}
+                    className="w-full py-2.5 px-4 rounded-xl bg-gold hover:bg-gold/90 text-neutral-950 font-bold text-xs uppercase tracking-wider transition"
+                  >
+                    Guardar Mesa
+                  </button>
+                </div>
+              </div>
+
+              {/* CUADRÍCULA DE LAS 10 MESAS EN TIEMPO REAL */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+                {tablesList.map((table) => {
+                  const isPending = table.status === "PREMIO_PENDIENTE";
+                  const isPlaying = table.status === "JUGANDO";
+                  const isRedeemed = table.status === "CANJEADO";
+                  const isAvailable = table.status === "DISPONIBLE";
+
+                  return (
+                    <div
+                      key={table.number}
+                      className={`p-4 rounded-2xl border transition-all flex flex-col justify-between space-y-3 ${
+                        isPending
+                          ? "border-amber-500/60 bg-amber-500/5 shadow-xs"
+                          : isPlaying
+                          ? "border-sky-500/60 bg-sky-500/5 shadow-xs"
+                          : isRedeemed
+                          ? "border-emerald-500/50 bg-emerald-500/5"
+                          : "border-border/80 bg-card hover:border-gold/40"
+                      }`}
+                    >
+                      <div>
+                        {/* Cabecera de la Tarjeta */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <span className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                              <span>🪑</span>
+                              <span>{table.name}</span>
+                            </span>
+                            <span className="text-[10px] text-muted-foreground font-mono">
+                              {table.zone} · {table.capacity} pers
+                            </span>
+                          </div>
+                          <span
+                            className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full border ${
+                              isPending
+                                ? "bg-amber-500/20 text-amber-500 border-amber-500/40 animate-pulse"
+                                : isPlaying
+                                ? "bg-sky-500/20 text-sky-400 border-sky-500/40"
+                                : isRedeemed
+                                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"
+                                : "bg-muted text-muted-foreground border-border"
+                            }`}
+                          >
+                            {isPending
+                              ? "🟡 PREMIO LISTO"
+                              : isPlaying
+                              ? "🔵 JUGANDO"
+                              : isRedeemed
+                              ? "✓ CANJEADO"
+                              : "🟢 DISPONIBLE"}
+                          </span>
+                        </div>
+
+                        {/* Datos del Comensal y Variable en Tiempo Real */}
+                        <div className="mt-3 p-2.5 rounded-xl bg-background/80 border border-border/60 text-xs space-y-1.5">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-muted-foreground">Comensal:</span>
+                            <strong className="text-foreground">{table.currentCustomer || "Mesa Libre"}</strong>
+                          </div>
+                          {table.currentWhatsapp && (
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="text-muted-foreground">WhatsApp:</span>
+                              <span className="text-emerald-500 font-mono font-medium">+{table.currentWhatsapp}</span>
+                            </div>
+                          )}
+                          {table.prizeWon && (
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="text-muted-foreground">Premio:</span>
+                              <span className="text-gold font-bold text-right truncate max-w-[150px]">{table.prizeWon}</span>
+                            </div>
+                          )}
+                          {table.uniqueCode && (
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="text-muted-foreground">Código:</span>
+                              <span className="font-mono font-bold text-foreground bg-muted px-1.5 py-0.5 rounded text-[10px]">
+                                {table.uniqueCode}
+                              </span>
+                            </div>
+                          )}
+                          <div className="pt-1.5 border-t border-border/50 flex items-center justify-between text-[10px] text-muted-foreground font-mono">
+                            <span>Var: mesa.{table.number}</span>
+                            <span className="text-sky-400">{table.activeSessionId || "ID: Libre"}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Botones de Acción de Mesa */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <a
+                          href={table.qrUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex-1 py-1.5 px-2 rounded-xl bg-muted/60 hover:bg-muted text-foreground text-xs font-semibold flex items-center justify-center gap-1 transition"
+                          title="Abrir juego de esta mesa"
+                        >
+                          <span>🔗 Abrir</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleResetTableInModal(table.number)}
+                          className="py-1.5 px-2.5 rounded-xl bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground text-xs font-semibold transition"
+                          title="Liberar mesa para siguiente comensal"
+                        >
+                          <span>🔄 Liberar</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -3094,6 +3405,26 @@ Presenta este código al momento de pagar:
                   </div>
                 </div>
                 {!canAccessTab("stats") && <Lock className="h-3 w-3 text-amber-500" />}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("tables")}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
+                  activeTab === "tables"
+                    ? "bg-gold text-neutral-950 shadow-md font-bold"
+                    : "text-neutral-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Layers className={`h-4 w-4 ${activeTab === "tables" ? "text-neutral-950" : "text-amber-400"}`} />
+                  <div>
+                    <div className="leading-tight">10 Mesas en Vivo</div>
+                    <div className={`text-[10px] font-normal ${activeTab === "tables" ? "text-neutral-900" : "text-neutral-400"}`}>
+                      Monitoreo & variables en tiempo real
+                    </div>
+                  </div>
+                </div>
+                {!canAccessTab("tables") && <Lock className="h-3 w-3 text-amber-500" />}
               </button>
 
               <button

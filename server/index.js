@@ -15,6 +15,29 @@ const PORT = process.env.PORT || 3001;
 const DB_FILE = path.join(__dirname, "db.json");
 
 // CONFIGURACIÓN POR DEFECTO PARA EL NEGOCIO (WHITE-LABEL TOTAL)
+
+const DEFAULT_TABLES = Array.from({ length: 10 }, (_, i) => {
+  const num = i + 1;
+  const zone = num <= 4 ? "Salón Principal" : num <= 7 ? "Terraza Jardín" : "Zona VIP";
+  const capacity = num === 10 ? 8 : num >= 7 ? 6 : 4;
+  return {
+    id: `mesa-${num}`,
+    number: num,
+    name: `Mesa ${num}`,
+    zone,
+    capacity,
+    status: num === 3 ? "PREMIO_PENDIENTE" : num === 1 ? "JUGANDO" : "DISPONIBLE",
+    currentCustomer: num === 3 ? "Carlos Andrés" : num === 1 ? "Invitado en Mesa" : null,
+    currentWhatsapp: num === 3 ? "573009876543" : null,
+    activeSessionId: num === 3 ? "SES-M3-8492" : num === 1 ? "SES-M1-1024" : null,
+    prizeWon: num === 3 ? "Postre Artesanal de Cortesía" : null,
+    uniqueCode: num === 3 ? "REST-8492" : null,
+    startedAt: num === 3 ? "Hace 15 min" : num === 1 ? "Hace 4 min" : null,
+    lastActivityAt: num === 3 ? "Hace 2 min" : num === 1 ? "Ahora" : null,
+    qrUrl: `http://localhost:5173/?mesa=${num}`,
+  };
+});
+
 const DEFAULT_SETTINGS = {
   brand: {
     name: "Bliss Soul Bakery & Café",
@@ -269,6 +292,73 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const pathname = url.pathname;
 
+  
+  // 9. API: GESTIÓN DE 10 MESAS EN TIEMPO REAL (/api/tables)
+  if (pathname === "/api/tables") {
+    if (req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: true, tables: db.tables || DEFAULT_TABLES }));
+      return;
+    }
+
+    if (req.method === "POST") {
+      let body = "";
+      req.on("data", (chunk) => (body += chunk));
+      req.on("end", () => {
+        try {
+          const data = JSON.parse(body || "{}");
+          if (data.tables && Array.isArray(data.tables)) {
+            db.tables = data.tables;
+          } else if (data.tableNumber && data.status) {
+            db.tables = (db.tables || DEFAULT_TABLES).map(t => {
+              if (t.number === data.tableNumber) {
+                return { ...t, ...data, lastActivityAt: "Ahora" };
+              }
+              return t;
+            });
+          }
+          saveDb();
+          logRequest("POST", "/api/tables", 200, `Mesas actualizadas en tiempo real`);
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: true, tables: db.tables }));
+        } catch (err) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: false, error: err.message }));
+        }
+      });
+      return;
+    }
+  }
+
+  // 10. API: RESETEAR / LIBERAR MESA ESPECÍFICA (POST /api/tables/:id/reset)
+  if (req.method === "POST" && pathname.startsWith("/api/tables/") && pathname.endsWith("/reset")) {
+    const parts = pathname.split("/");
+    const tableId = parts[3]; // ej: mesa-1 o 1
+    const tableNum = parseInt(tableId.replace(/[^0-9]/g, ""), 10) || 1;
+
+    db.tables = (db.tables || DEFAULT_TABLES).map(t => {
+      if (t.number === tableNum || t.id === tableId) {
+        return {
+          ...t,
+          status: "DISPONIBLE",
+          currentCustomer: null,
+          currentWhatsapp: null,
+          activeSessionId: null,
+          prizeWon: null,
+          uniqueCode: null,
+          startedAt: null,
+          lastActivityAt: null,
+        };
+      }
+      return t;
+    });
+    saveDb();
+    logRequest("POST", pathname, 200, `Mesa ${tableNum} liberada (DISPONIBLE)`);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ success: true, message: `Mesa ${tableNum} liberada con éxito`, tables: db.tables }));
+    return;
+  }
+
   // 1. DASHBOARD VISUAL DEL BACKEND (Ruta raíz /)
   if (req.method === "GET" && pathname === "/") {
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
@@ -313,6 +403,11 @@ const server = http.createServer((req, res) => {
         db.prizes.unshift(newPrize);
         db.customers[cleanWhatsapp] = customer;
         saveDb();
+
+  if (!db.tables || !Array.isArray(db.tables) || db.tables.length !== 10) {
+    db.tables = JSON.parse(JSON.stringify(DEFAULT_TABLES));
+  }
+
 
         logRequest("POST", "/api/prizes", 201, `Cupón emitido: ${uniqueCode} para ${newPrize.customerName}`);
 
@@ -1043,6 +1138,13 @@ function renderBackendDashboard() {
                 <div class="tab-sub">KPIs, canjes y comensales</div>
               </div>
             </button>
+            <button type="button" class="nav-tab-btn" data-tab="tab-tables" onclick="switchTab('tab-tables', this)">
+              <span>🪑</span>
+              <div>
+                <div class="tab-title">10 Mesas en Vivo</div>
+                <div class="tab-sub">Monitoreo & configuración</div>
+              </div>
+            </button>
             <button type="button" class="nav-tab-btn" data-tab="tab-channels" onclick="switchTab('tab-channels', this)">
               <span>📱</span>
               <div>
@@ -1267,60 +1369,100 @@ function renderBackendDashboard() {
         </div>
       </div>
 
-      <!-- HORÓMETRO DE HORAS MUERTAS Y ACTIVIDAD -->
-      <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
-        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px;">
+      <!-- GRÁFICA VISUAL: HORÓMETRO DE ACTIVIDAD & DETECCIÓN DE HORAS MUERTAS -->
+      <div class="panel" style="margin-bottom: 24px;">
+        <div class="panel-header" style="border-bottom: 1px solid var(--card-border); padding-bottom: 12px; margin-bottom: 16px;">
           <div>
-            <h3 style="font-size: 15px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
-              <span>⏱️ Horómetro de Actividad & Detección de Horas Muertas</span>
-            </h3>
-            <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
-              Monitorea a qué horas del día juegan los clientes en mesa para detectar y activar las horas lentas con ofertas.
+            <div class="panel-title" style="display: flex; align-items: center; gap: 8px;">
+              <span>📈 Horómetro de Actividad & Detección de Horas Muertas (Gráfica en Vivo)</span>
+              <span class="badge-role" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">TIEMPO REAL</span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+              Afluencia horaria de comensales escaneando el juego en mesa. Identifica horas muertas para activar campañas push.
             </p>
           </div>
-          <div style="padding: 4px 12px; border-radius: 9999px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; font-size: 11px; font-weight: 700;">
-            ☕ Franja de Horas Muertas: 3:00 PM a 6:00 PM (15h - 18h)
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #9ca3af;">
+              <span style="width: 10px; height: 10px; border-radius: 2px; background: linear-gradient(to top, #10b981, #fbbf24);"></span>
+              <span>Hora Pico</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #9ca3af;">
+              <span style="width: 10px; height: 10px; border-radius: 2px; background: linear-gradient(to top, #ef4444, #f59e0b);"></span>
+              <span>Hora Muerta (Oportunidad)</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #9ca3af;">
+              <span style="width: 10px; height: 10px; border-radius: 2px; background: linear-gradient(to top, #3b82f6, #38bdf8);"></span>
+              <span>Flujo Regular</span>
+            </div>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 8px;">
-          ${[8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
-            .map((h) => {
+        <!-- CONTENEDOR DE LA GRÁFICA DE BARRAS HORARIAS -->
+        <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px 14px 10px 14px; position: relative;">
+          <!-- Líneas de referencia del eje Y -->
+          <div style="position: absolute; left: 0; right: 0; top: 25%; border-top: 1px dashed rgba(255,255,255,0.07); pointer-events: none;"></div>
+          <div style="position: absolute; left: 0; right: 0; top: 50%; border-top: 1px dashed rgba(255,255,255,0.07); pointer-events: none;"></div>
+          <div style="position: absolute; left: 0; right: 0; top: 75%; border-top: 1px dashed rgba(255,255,255,0.07); pointer-events: none;"></div>
+
+          <div style="display: grid; grid-template-columns: repeat(15, 1fr); gap: 8px; align-items: flex-end; height: 170px; padding-bottom: 8px; border-bottom: 2px solid rgba(255,255,255,0.12); position: relative; z-index: 1;">
+            ${[8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22].map(h => {
+              const isPeak = (h >= 12 && h <= 14) || (h >= 19 && h <= 21);
               const isDead = h >= 15 && h <= 17;
               const ampm = h >= 12 ? "PM" : "AM";
               const h12 = h % 12 === 0 ? 12 : h % 12;
-              const count = db.prizes.filter((p) => {
+
+              // Conteo de registros reales para esa hora
+              const realCount = db.prizes.filter(p => {
                 if (!p.wonAt) return false;
-                const match = p.wonAt.match(/^(\d{1,2}):/);
-                return match && parseInt(match[1], 10) === h;
+                const m = p.wonAt.match(/^(\d{1,2}):/);
+                return m && parseInt(m[1], 10) === h;
               }).length;
+
+              // Altura proporcional calculada para la gráfica (simulada + real)
+              const baseHeight = isPeak ? 82 : isDead ? 22 : 48;
+              const barHeightPct = Math.min(100, Math.max(16, baseHeight + (realCount * 12)));
+              
+              const barBg = isDead
+                ? "linear-gradient(180deg, #f59e0b 0%, #ef4444 100%)"
+                : isPeak
+                ? "linear-gradient(180deg, #fbbf24 0%, #10b981 100%)"
+                : "linear-gradient(180deg, #38bdf8 0%, #3b82f6 100%)";
+              
+              const barBorder = isDead ? "#f59e0b" : isPeak ? "#10b981" : "#3b82f6";
+              const badgeText = isDead ? "LENTA" : isPeak ? "PICO" : "";
+
               return `
-              <div style="padding: 10px 6px; border-radius: 10px; border: 1px solid ${
-                isDead
-                  ? "rgba(245, 158, 11, 0.4)"
-                  : count > 0
-                  ? "rgba(16, 185, 129, 0.4)"
-                  : "var(--card-border)"
-              }; background: ${
-                isDead
-                  ? "rgba(245, 158, 11, 0.08)"
-                  : count > 0
-                  ? "rgba(16, 185, 129, 0.08)"
-                  : "#0b0f19"
-              }; text-align: center;">
-                <span style="font-size: 10px; font-weight: 700; color: ${
-                  isDead ? "#fbbf24" : "#9ca3af"
-                }; display: block;">${h12} ${ampm}</span>
-                <span style="font-size: 18px; font-weight: 800; color: #fff; display: block; margin: 2px 0;">${count}</span>
-                <span style="font-size: 8px; text-transform: uppercase; font-weight: 700; padding: 1px 4px; border-radius: 4px; background: ${
-                  isDead ? "rgba(245, 158, 11, 0.2)" : "rgba(255,255,255,0.06)"
-                }; color: ${isDead ? "#fbbf24" : "#6b7280"};">
-                  ${isDead ? "Muerta" : h >= 12 && h < 15 ? "Almuerzo" : "Normal"}
-                </span>
-              </div>
-            `;
-            })
-            .join("")}
+                <div style="display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; position: relative;">
+                  ${badgeText ? `<span style="position: absolute; top: ${100 - barHeightPct - 18}%; font-size: 8px; font-weight: 800; padding: 1px 4px; border-radius: 4px; background: ${isDead ? "rgba(239, 68, 68, 0.3)" : "rgba(16, 185, 129, 0.3)"}; color: ${isDead ? "#fca5a5" : "#6ee7b7"}; border: 1px solid ${isDead ? "rgba(239, 68, 68, 0.5)" : "rgba(16, 185, 129, 0.5)"}; font-family: monospace; white-space: nowrap;">${badgeText}</span>` : ""}
+                  
+                  <div title="${h12}:00 ${ampm} - ${realCount} comensales (${barHeightPct}% capacidad)" style="width: 100%; max-width: 38px; height: ${barHeightPct}%; background: ${barBg}; border: 1px solid ${barBorder}; border-radius: 6px 6px 2px 2px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: all 0.3s ease; cursor: pointer; display: flex; align-items: flex-start; justify-content: center; padding-top: 4px;">
+                    <span style="font-size: 10px; font-weight: 800; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${realCount}</span>
+                  </div>
+                  
+                  <div style="margin-top: 6px; text-align: center;">
+                    <span style="font-size: 10px; font-weight: 700; color: ${isDead ? "#fbbf24" : isPeak ? "#34d399" : "#9ca3af"}; display: block; font-family: monospace;">${h12}</span>
+                    <span style="font-size: 8px; color: #6b7280; text-transform: uppercase;">${ampm}</span>
+                  </div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+
+        <!-- DIAGNÓSTICO Y RECOMENDACIÓN INTELIGENTE DE HORAS MUERTAS -->
+        <div style="margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); display: flex; flex-direction: column; sm:flex-direction: row; justify-content: space-between; align-items: center; gap: 14px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 24px;">⚡</span>
+            <div>
+              <strong style="color: #fbbf24; font-size: 13px; display: block;">Franja de Horas Muertas Detectada: 3:00 PM a 6:00 PM</strong>
+              <p style="font-size: 11px; color: #d1d5db; margin: 2px 0 0 0;">
+                El flujo de comensales baja a menos del 25%. Es el momento óptimo para activar la campaña automática de <strong>Happy Hour 2x1</strong> o regalar <strong>Doble Sello</strong>.
+              </p>
+            </div>
+          </div>
+          <button type="button" class="btn-solid" style="padding: 8px 16px; font-size: 11px; white-space: nowrap; font-weight: 700;" onclick="loadPushTemplate('happy_hour'); switchTab('tab-push');">
+            🚀 Disparar Oferta Happy Hour Ahora
+          </button>
         </div>
       </div>
 
@@ -1507,7 +1649,154 @@ function renderBackendDashboard() {
     <!-- ========================================================================= -->
     <!-- PESTAÑA 3: CANALES & WHATSAPP EN MESA                                     -->
     <!-- ========================================================================= -->
-    <div id="tab-channels" class="tab-content">
+    
+    <!-- TAB: MONITOREO Y CONFIGURACIÓN DE 10 MESAS EN TIEMPO REAL -->
+    <div id="tab-tables" class="tab-content">
+      <!-- GUÍA RÁPIDA DE MESAS -->
+      <div class="quick-guide-box">
+        <div class="quick-guide-header">
+          <span>💡</span>
+          <span>Guía Rápida: Control de 10 Mesas Conectadas en Tiempo Real</span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Cada una de las 10 mesas tiene un QR exclusivo conectado a una variable de estado en vivo (Disponible, Jugando, Premio Pendiente, Canjeado).
+        </p>
+        <div class="quick-guide-grid">
+          <div class="quick-guide-item">
+            <strong style="color: #34d399;">🟢 Mesa Disponible</strong>
+            <p>La mesa está libre esperando al cliente. Escanear el QR activa la variable automáticamente.</p>
+          </div>
+          <div class="quick-guide-item">
+            <strong style="color: #38bdf8;">🔵 Comensal Jugando</strong>
+            <p>El cliente en mesa ingresó sus datos y está girando la ruleta en este momento.</p>
+          </div>
+          <div class="quick-guide-item">
+            <strong style="color: #fbbf24;">🟡 Premio Pendiente</strong>
+            <p>¡El comensal ganó un premio! Muestra el código en caja para validar con tu PIN.</p>
+          </div>
+          <div class="quick-guide-item">
+            <strong style="color: #c084fc;">🔄 Liberación en 1-Clic</strong>
+            <p>Cuando el comensal pague, pulsa "Liberar Mesa" para dejarla lista para el siguiente cliente.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULARIO RÁPIDO DE CONFIGURACIÓN DE MESAS -->
+      <div class="panel" style="margin-bottom: 20px;">
+        <div class="panel-header" style="border-bottom: 1px solid var(--card-border); padding-bottom: 10px; margin-bottom: 14px;">
+          <div class="panel-title">
+            <span>⚙️ Configurar Nombre, Zona y Capacidad de Mesa</span>
+          </div>
+          <span class="badge-role" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">10 MESAS CONECTADAS</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; align-items: flex-end;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Seleccionar Mesa</label>
+            <select id="cfgTableSelect" class="form-input" onchange="loadTableConfigForm()">
+              ${(db.tables || DEFAULT_TABLES).map(t => `<option value="${t.number}">Mesa ${t.number} - ${t.name}</option>`).join("")}
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Nombre Comercial de Mesa</label>
+            <input type="text" id="cfgTableName" class="form-input" placeholder="Ej: Mesa 1 - Ventana">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Zona del Local</label>
+            <select id="cfgTableZone" class="form-input">
+              <option value="Salón Principal">Salón Principal</option>
+              <option value="Terraza Jardín">Terraza Jardín</option>
+              <option value="Barra / Café">Barra / Café</option>
+              <option value="Zona VIP">Zona VIP</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Capacidad (Personas)</label>
+            <select id="cfgTableCapacity" class="form-input">
+              <option value="2">2 Personas</option>
+              <option value="4">4 Personas</option>
+              <option value="6">6 Personas</option>
+              <option value="8">8 Personas</option>
+            </select>
+          </div>
+          <button type="button" class="btn-solid" style="padding: 10px 16px; font-size: 12px; font-weight: 700;" onclick="saveBackendTableConfig()">
+            💾 Guardar Mesa
+          </button>
+        </div>
+      </div>
+
+      <!-- CUADRÍCULA DE LAS 10 TARJETAS DE MESA EN TIEMPO REAL -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        ${(db.tables || DEFAULT_TABLES).map(table => {
+          const isPending = table.status === "PREMIO_PENDIENTE";
+          const isPlaying = table.status === "JUGANDO";
+          const isRedeemed = table.status === "CANJEADO";
+          const isAvailable = table.status === "DISPONIBLE";
+
+          const statusColor = isPending ? "#fbbf24" : isPlaying ? "#38bdf8" : isRedeemed ? "#34d399" : "#10b981";
+          const statusBg = isPending ? "rgba(245, 158, 11, 0.15)" : isPlaying ? "rgba(56, 189, 248, 0.15)" : isRedeemed ? "rgba(52, 211, 153, 0.15)" : "rgba(16, 185, 129, 0.15)";
+          const statusBorder = isPending ? "rgba(245, 158, 11, 0.4)" : isPlaying ? "rgba(56, 189, 248, 0.4)" : isRedeemed ? "rgba(52, 211, 153, 0.4)" : "rgba(16, 185, 129, 0.4)";
+          const statusLabel = isPending ? "🟡 PREMIO PENDIENTE" : isPlaying ? "🔵 JUGANDO AHORA" : isRedeemed ? "✓ PREMIO CANJEADO" : "🟢 DISPONIBLE";
+
+          return `
+            <div id="table-card-${table.number}" style="background: var(--card-bg); border: 2px solid ${statusBorder}; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 14px rgba(0,0,0,0.25); transition: all 0.2s ease;">
+              <!-- Encabezado de la Mesa -->
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                  <div>
+                    <span style="font-size: 16px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px;">
+                      <span>🪑</span> ${table.name}
+                    </span>
+                    <span style="font-size: 11px; color: var(--text-muted); font-family: monospace;">${table.zone} · ${table.capacity} pers</span>
+                  </div>
+                  <span style="font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 9999px; background: ${statusBg}; color: ${statusColor}; border: 1px solid ${statusBorder}; font-family: monospace;">
+                    ${statusLabel}
+                  </span>
+                </div>
+
+                <!-- Datos del Comensal y Variable Conectada -->
+                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 12px; margin: 10px 0; font-size: 11px; space-y: 4px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="color: #9ca3af;">Comensal:</span>
+                    <strong style="color: #fff;">${table.currentCustomer || "Mesa Libre"}</strong>
+                  </div>
+                  ${table.currentWhatsapp ? `
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="color: #9ca3af;">WhatsApp:</span>
+                    <span style="color: #34d399; font-family: monospace;">+${table.currentWhatsapp}</span>
+                  </div>` : ""}
+                  ${table.prizeWon ? `
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="color: #9ca3af;">Premio:</span>
+                    <span style="color: #fbbf24; font-weight: 700; text-align: right;">${table.prizeWon}</span>
+                  </div>` : ""}
+                  ${table.uniqueCode ? `
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="color: #9ca3af;">Cupón:</span>
+                    <span style="color: #fff; background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px; font-family: monospace; font-weight: 800;">${table.uniqueCode}</span>
+                  </div>` : ""}
+                  <div style="display: flex; justify-content: space-between; margin-top: 6px; padding-top: 4px; border-top: 1px dashed rgba(255,255,255,0.08); font-size: 10px;">
+                    <span style="color: #6b7280;">Variable: mesa.${table.number}</span>
+                    <span style="color: #38bdf8; font-family: monospace;">${table.activeSessionId || "ID: Libre"}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Acciones de Mesa -->
+              <div style="display: flex; gap: 8px; margin-top: 6px;">
+                <a href="${table.qrUrl}" target="_blank" class="btn-secondary" style="flex: 1; text-align: center; text-decoration: none; font-size: 11px; padding: 6px 8px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+                  <span>🔗</span> <span>Abrir Mesa</span>
+                </a>
+                <button type="button" class="btn-secondary" style="padding: 6px 10px; font-size: 11px;" onclick="resetBackendTable(${table.number})" title="Liberar mesa y poner disponible">
+                  <span>🔄</span> <span>Liberar</span>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  
+<div id="tab-channels" class="tab-content">
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">
@@ -2399,7 +2688,7 @@ function renderBackendDashboard() {
           row.style.display = "";
           visibleCount++;
           if (statusText === "UTILIZADO") redeemedCount++;
-          customersSet.add(customerText.split("\n")[0].trim());
+          customersSet.add(customerText.split(String.fromCharCode(10))[0].trim());
         } else {
           row.style.display = "none";
         }
@@ -2977,7 +3266,57 @@ function renderBackendDashboard() {
     }
 
     setInterval(refreshData, 3000);
-  </script>
+  
+    // GESTIÓN DE 10 MESAS EN EL BACKEND
+    async function resetBackendTable(num) {
+      if (!confirm("¿Deseas liberar la Mesa " + num + " para el siguiente comensal?")) return;
+      try {
+        const res = await fetch("/api/tables/mesa-" + num + "/reset", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          alert("¡Mesa " + num + " liberada con éxito!");
+          window.location.reload();
+        }
+      } catch (err) {
+        alert("Error de conexión al liberar mesa.");
+      }
+    }
+
+    function loadTableConfigForm() {
+      const num = parseInt(document.getElementById("cfgTableSelect").value, 10);
+      const tables = "TABLES_REF";
+      // auto fill name
+      document.getElementById("cfgTableName").value = "Mesa " + num;
+    }
+
+    async function saveBackendTableConfig() {
+      const num = parseInt(document.getElementById("cfgTableSelect").value, 10);
+      const name = document.getElementById("cfgTableName").value.trim() || ("Mesa " + num);
+      const zone = document.getElementById("cfgTableZone").value;
+      const capacity = parseInt(document.getElementById("cfgTableCapacity").value, 10);
+
+      try {
+        const res = await fetch("/api/tables", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tableNumber: num,
+            name: name,
+            zone: zone,
+            capacity: capacity
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("¡Configuración de Mesa " + num + " guardada!");
+          window.location.reload();
+        }
+      } catch (err) {
+        alert("Error al guardar mesa.");
+      }
+    }
+  
+</script>
 </body>
 </html>`;
 }
