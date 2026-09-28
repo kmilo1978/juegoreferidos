@@ -256,139 +256,510 @@ const server = http.createServer((req, res) => {
 function renderBackendDashboard() {
   const totalPrizes = db.prizes.length;
   const redeemed = db.prizes.filter((p) => p.status === "UTILIZADO").length;
+  const totalCustomers = Object.keys(db.customers).length;
+  const conversionRate = totalPrizes > 0 ? Math.round((redeemed / totalPrizes) * 100) : 0;
 
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Backend Demo - Consola de Servidor & Base de Datos</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-6 font-mono">
-  <div class="max-w-6xl mx-auto space-y-6">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bliss Soul · Backend & Panel de Control de Operaciones</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f293d;
+      --accent: #d97706;
+      --accent-hover: #b45309;
+      --accent-glow: rgba(217, 119, 6, 0.18);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.15);
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-family);
+      line-height: 1.5;
+      padding: 24px 16px;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 1240px; margin: 0 auto; }
     
-    <!-- ENCABEZADO DEL SERVIDOR -->
-    <header class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
-      <div class="space-y-1">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          SERVIDOR BACKEND ACTIVO · PUERTO ${PORT}
+    /* ENCABEZADO */
+    header {
+      background: linear-gradient(135deg, #131c2e 0%, #0d1322 100%);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 22px 28px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      margin-bottom: 24px;
+    }
+    .header-info { display: flex; flex-direction: column; gap: 6px; }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: var(--success-glow);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      width: fit-content;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 10px var(--success);
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+    h1 { font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; }
+    .header-desc { font-size: 13px; color: var(--text-muted); }
+    .btn-frontend {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0f172a;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 10px 18px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+    .btn-frontend:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45); }
+
+    /* TARJETAS DE MÉTRICAS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.2s ease;
+    }
+    .stat-card:hover { border-color: #374151; }
+    .stat-title { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; }
+    .stat-value { font-size: 28px; font-weight: 800; color: #ffffff; line-height: 1; }
+    .stat-sub { font-size: 11px; color: var(--text-muted); }
+
+    /* PANELES PRINCIPALES */
+    .panels-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 980px) {
+      .panels-grid { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .panel-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-secondary {
+      background: #1f2937;
+      color: #e5e7eb;
+      border: 1px solid #374151;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-secondary:hover { background: #374151; }
+
+    /* TABLA */
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      background: #0b0f19;
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    th {
+      background: #131b2c;
+      color: #9ca3af;
+      padding: 12px 14px;
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: #d1d5db;
+    }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .badge-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 700;
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      display: inline-block;
+    }
+    .badge-status-used {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 3px 9px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-status-available {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 3px 9px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .stars-cell {
+      color: #fbbf24;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    /* CONSOLA DE LOGS */
+    .log-box {
+      background: #060911;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      height: 380px;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+    }
+    .log-item {
+      background: #0f1626;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .log-top { display: flex; align-items: center; justify-content: space-between; }
+    .method-tag {
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+    }
+    .method-post { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .method-get { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+    .log-url { color: #f3f4f6; font-weight: 700; }
+    .log-time { color: #6b7280; font-size: 10px; }
+    .log-detail { color: #9ca3af; word-break: break-all; }
+
+    /* FILTRO DE BÚSQUEDA */
+    .search-input {
+      background: #0b0f19;
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      outline: none;
+      width: 220px;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- ENCABEZADO -->
+    <header>
+      <div class="header-info">
+        <div class="status-badge">
+          <span class="pulse-dot"></span>
+          SERVIDOR BACKEND REST · PUERTO ${PORT} EN VIVO
         </div>
-        <h1 class="text-xl font-bold text-white tracking-tight">Consola de Servidor & Base de Datos REST</h1>
-        <p class="text-xs text-slate-400">Procesa eventos de ruleta, valida el PIN de caja y acumula sellos digitales.</p>
+        <h1>Panel de Operaciones & Base de Datos</h1>
+        <p class="header-desc">
+          Monitoreo en tiempo real de premios otorgados en la ruleta, sellos de fidelización y canjes con PIN en caja.
+        </p>
       </div>
 
-      <div class="flex items-center gap-3">
-        <a href="http://localhost:5173" target="_blank" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs rounded-xl transition">
-          📱 Abrir Demo Frontend (Puerto 5173) ➔
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <a href="http://localhost:5173" target="_blank" class="btn-frontend">
+          📱 Abrir Pantalla del Comensal (Frontend) ➔
         </a>
       </div>
     </header>
 
-    <!-- ESTADÍSTICAS DEL SERVIDOR -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-        <span class="text-[10px] text-slate-400 block uppercase">Cupones Emitidos</span>
-        <span class="text-2xl font-bold text-white">${totalPrizes}</span>
+    <!-- TARJETAS DE MÉTRICAS OPERATIVAS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-title">Cupones Generados</span>
+        <span class="stat-value" id="stat-total">${totalPrizes}</span>
+        <span class="stat-sub">Registrados en db.json</span>
       </div>
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-        <span class="text-[10px] text-slate-400 block uppercase">Canjeados con PIN</span>
-        <span class="text-2xl font-bold text-amber-400">${redeemed}</span>
+
+      <div class="stat-card">
+        <span class="stat-title">Canjeados en Caja</span>
+        <span class="stat-value" id="stat-redeemed" style="color: #34d399;">${redeemed}</span>
+        <span class="stat-sub">Verificados con PIN del cajero</span>
       </div>
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-        <span class="text-[10px] text-slate-400 block uppercase">Clientes Registrados</span>
-        <span class="text-2xl font-bold text-sky-400">${Object.keys(db.customers).length}</span>
+
+      <div class="stat-card">
+        <span class="stat-title">Efectividad de Mesa</span>
+        <span class="stat-value" id="stat-rate" style="color: #fbbf24;">${conversionRate}%</span>
+        <span class="stat-sub">Premios convertidos a consumo</span>
       </div>
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-        <span class="text-[10px] text-slate-400 block uppercase">PIN del Cajero</span>
-        <span class="text-2xl font-bold text-emerald-400 font-mono">1234</span>
+
+      <div class="stat-card">
+        <span class="stat-title">Clientes Únicos</span>
+        <span class="stat-value" id="stat-customers" style="color: #38bdf8;">${totalCustomers}</span>
+        <span class="stat-sub">Con acumulación de sellos</span>
       </div>
     </div>
 
-    <!-- SECCIÓN DIVIDIDA: BASE DE DATOS Y LOGS -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- PANELES DIVIDIDOS -->
+    <div class="panels-grid">
       
-      <!-- TABLA DE LA BASE DE DATOS (8 cols) -->
-      <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <span>💾 Base de Datos de Cupones (db.json)</span>
-        </h3>
+      <!-- PANEL IZQUIERDO: BASE DE DATOS DE CUPONES Y CLIENTES -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>🎟️ Cupones y Tarjetas de Sellos</span>
+            <span style="font-size: 11px; background: #1f2937; padding: 2px 8px; border-radius: 6px; color: #9ca3af;">Base de Datos Local</span>
+          </div>
+          <input type="text" id="searchInput" placeholder="🔍 Buscar código, cliente o tel..." class="search-input" onkeyup="filterTable()">
+        </div>
 
-        <div class="overflow-x-auto border border-slate-800 rounded-xl">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 text-[11px]">
+        <div class="table-container">
+          <table id="prizesTable">
+            <thead>
               <tr>
-                <th class="p-2.5">Código</th>
-                <th class="p-2.5">Cliente</th>
-                <th class="p-2.5">Premio</th>
-                <th class="p-2.5">Sellos</th>
-                <th class="p-2.5">Estado</th>
+                <th>Código Único</th>
+                <th>Cliente & WhatsApp</th>
+                <th>Premio Ganado</th>
+                <th>Sellos Visita</th>
+                <th>Estado en Caja</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-800 text-[11px]">
-              ${db.prizes
-                .map(
-                  (p) => `
-                <tr class="hover:bg-slate-800/40">
-                  <td class="p-2.5 font-bold text-amber-400">${p.uniqueCode}</td>
-                  <td class="p-2.5 text-slate-200">${p.customerName}<br><span class="text-[9px] text-slate-500">${p.whatsapp}</span></td>
-                  <td class="p-2.5 text-slate-300">${p.prizeName}</td>
-                  <td class="p-2.5 text-emerald-400 font-bold">${p.stamps || 1}/5 ⭐</td>
-                  <td class="p-2.5">
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${
-                      p.status === "UTILIZADO"
-                        ? "bg-emerald-500/20 text-emerald-400"
-                        : "bg-amber-500/20 text-amber-400"
-                    }">
-                      ${p.status}
-                    </span>
-                  </td>
-                </tr>
-              `
-                )
-                .join("")}
+            <tbody id="tableBody">
+              ${
+                db.prizes.length === 0
+                  ? '<tr><td colspan="5" style="text-align: center; color: #6b7280; padding: 24px;">No hay cupones registrados aún. ¡Gira la ruleta en el frontend para generar el primero!</td></tr>'
+                  : db.prizes
+                      .map((p) => {
+                        const stamps = p.stamps || 1;
+                        const stars = "★".repeat(Math.min(5, stamps)) + "☆".repeat(Math.max(0, 5 - stamps));
+                        const isUsed = p.status === "UTILIZADO";
+                        return `
+                        <tr>
+                          <td><span class="badge-code">${p.uniqueCode}</span></td>
+                          <td>
+                            <strong style="color: #fff;">${p.customerName || "Cliente"}</strong>
+                            <div style="font-size: 11px; color: #9ca3af;">${p.whatsapp || "Sin número"}</div>
+                          </td>
+                          <td style="color: #e5e7eb;">
+                            ${p.prizeName}
+                            <div style="font-size: 10px; color: #6b7280;">Mesa: ${p.tableNumber || "1"}</div>
+                          </td>
+                          <td>
+                            <span class="stars-cell">${stars}</span>
+                            <div style="font-size: 10px; color: #9ca3af;">${stamps}/5 visitas</div>
+                          </td>
+                          <td>
+                            <span class="${isUsed ? "badge-status-used" : "badge-status-available"}">
+                              ${isUsed ? "✓ CANJEADO" : "⏳ DISPONIBLE"}
+                            </span>
+                            ${isUsed && p.usedAt ? `<div style="font-size: 10px; color: #6b7280; margin-top: 2px;">Hora: ${p.usedAt}</div>` : ""}
+                          </td>
+                        </tr>
+                        `;
+                      })
+                      .join("")
+              }
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- LOGS HTTP EN VIVO (5 cols) -->
-      <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-sm font-bold text-white flex items-center gap-2">
-            <span>⚡ Registro de Peticiones HTTP</span>
-          </h3>
-          <button onclick="location.reload()" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded text-slate-300">
-            ↻ Refrescar
-          </button>
+      <!-- PANEL DERECHO: CONSOLA DE LOGS Y OPERACIONES -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>⚡ Registro de Actividad HTTP</span>
+          </div>
+          <button class="btn-secondary" onclick="refreshData()">↻ Actualizar</button>
         </div>
 
-        <div class="h-80 overflow-y-auto space-y-2 text-[10px] bg-slate-950 p-3 rounded-xl border border-slate-800">
-          ${db.logs.length === 0 ? '<p class="text-slate-500 italic">No hay peticiones recientes...</p>' : ""}
-          ${db.logs
-            .map(
-              (l) => `
-            <div class="p-2 rounded bg-slate-900 border border-slate-800 flex items-start gap-2">
-              <span class="px-1.5 py-0.5 rounded font-bold ${
-                l.method === "POST" ? "bg-emerald-950 text-emerald-400" : "bg-sky-950 text-sky-400"
-              }">${l.method}</span>
-              <div class="flex-1 overflow-hidden">
-                <div class="flex items-center justify-between text-slate-400">
-                  <span class="font-bold text-slate-200">${l.url}</span>
-                  <span>${l.timestamp}</span>
-                </div>
-                <p class="text-slate-400 truncate mt-0.5">${l.detail}</p>
-              </div>
-            </div>
-          `
-            )
-            .join("")}
+        <div class="log-box" id="logBox">
+          ${
+            db.logs.length === 0
+              ? '<p style="color: #6b7280; text-align: center; margin: auto;">Esperando peticiones del frontend...</p>'
+              : db.logs
+                  .map(
+                    (l) => `
+                  <div class="log-item">
+                    <div class="log-top">
+                      <span class="method-tag ${l.method === "POST" ? "method-post" : "method-get"}">${l.method}</span>
+                      <span class="log-url">${l.url}</span>
+                      <span class="log-time">${l.timestamp}</span>
+                    </div>
+                    <div class="log-detail">${l.detail}</div>
+                  </div>
+                `
+                  )
+                  .join("")
+          }
+        </div>
+
+        <div style="margin-top: 14px; padding: 12px; background: #0b0f19; border: 1px solid var(--card-border); border-radius: 10px; font-size: 12px; color: #9ca3af;">
+          <div style="font-weight: 700; color: #e5e7eb; margin-bottom: 4px;">ℹ️ PIN Maestro del Cajero:</div>
+          <div>El cajero valida con el código PIN <strong style="color: #34d399;">1234</strong>. Al validarlo, el cupón pasa automáticamente a CANJEADO y se le suma +1 sello al cliente.</div>
         </div>
       </div>
 
     </div>
 
   </div>
+
+  <script>
+    // Búsqueda en vivo en la tabla
+    function filterTable() {
+      const filter = document.getElementById("searchInput").value.toLowerCase();
+      const rows = document.querySelectorAll("#tableBody tr");
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
+    }
+
+    // Auto-actualización silenciosa cada 3 segundos
+    async function refreshData() {
+      try {
+        const res = await fetch("/api/metrics");
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        // Actualizar métricas
+        document.getElementById("stat-total").innerText = data.totalPrizes;
+        document.getElementById("stat-redeemed").innerText = data.redeemedPrizes;
+        document.getElementById("stat-rate").innerText = data.conversionRate;
+        document.getElementById("stat-customers").innerText = data.totalCustomers;
+
+        // Si no está escribiendo en el buscador, recargar tabla y logs suavemente
+        const searchVal = document.getElementById("searchInput").value.trim();
+        if (!searchVal) {
+          const tbody = document.getElementById("tableBody");
+          if (data.prizes && data.prizes.length > 0) {
+            tbody.innerHTML = data.prizes.map(p => {
+              const stamps = p.stamps || 1;
+              const stars = "★".repeat(Math.min(5, stamps)) + "☆".repeat(Math.max(0, 5 - stamps));
+              const isUsed = p.status === "UTILIZADO";
+              return \`
+                <tr>
+                  <td><span class="badge-code">\${p.uniqueCode}</span></td>
+                  <td>
+                    <strong style="color: #fff;">\${p.customerName || "Cliente"}</strong>
+                    <div style="font-size: 11px; color: #9ca3af;">\${p.whatsapp || "Sin número"}</div>
+                  </td>
+                  <td style="color: #e5e7eb;">
+                    \${p.prizeName}
+                    <div style="font-size: 10px; color: #6b7280;">Mesa: \${p.tableNumber || "1"}</div>
+                  </td>
+                  <td>
+                    <span class="stars-cell">\${stars}</span>
+                    <div style="font-size: 10px; color: #9ca3af;">\${stamps}/5 visitas</div>
+                  </td>
+                  <td>
+                    <span class="\${isUsed ? "badge-status-used" : "badge-status-available"}">
+                      \${isUsed ? "✓ CANJEADO" : "⏳ DISPONIBLE"}
+                    </span>
+                    \${isUsed && p.usedAt ? \`<div style="font-size: 10px; color: #6b7280; margin-top: 2px;">Hora: \${p.usedAt}</div>\` : ""}
+                  </td>
+                </tr>
+              \`;
+            }).join("");
+          }
+
+          // Actualizar logs
+          if (data.logs && data.logs.length > 0) {
+            const logBox = document.getElementById("logBox");
+            logBox.innerHTML = data.logs.map(l => \`
+              <div class="log-item">
+                <div class="log-top">
+                  <span class="method-tag \${l.method === "POST" ? "method-post" : "method-get"}">\${l.method}</span>
+                  <span class="log-url">\${l.url}</span>
+                  <span class="log-time">\${l.timestamp}</span>
+                </div>
+                <div class="log-detail">\${l.detail}</div>
+              </div>
+            \`).join("");
+          }
+        }
+      } catch (e) {
+        console.error("Error auto-refrescando backend:", e);
+      }
+    }
+
+    // Intervalo de auto-refresco en segundo plano
+    setInterval(refreshData, 3000);
+  </script>
 </body>
 </html>`;
 }
