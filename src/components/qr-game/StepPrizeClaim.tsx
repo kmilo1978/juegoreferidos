@@ -42,7 +42,7 @@ Restaurante: ${clientConfig.brand.name}
   const handleReferFriend = () => {
     const brandName = clientConfig.brand.name;
     const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const inviteMessage = `¡Hola! Acabo de ganar un beneficio en *${brandName}* jugando en su ruleta de mesa 🥐✨\n\nTe recomiendo visitarlo o pedir. Puedes probar la ruleta aquí:\n👉 ${origin}?ref=${encodeURIComponent(prize.participantName)}\n\n¡Es una delicia!`;
+    const inviteMessage = `¡Hola! Te recomiendo mucho visitar *${brandName}* 🍽️✨\n\nEl ambiente y la comida son espectaculares. Además, cuando vayas a visitarlos y te sientes en tu mesa, puedes escanear el QR y participar en su Ruleta de Premios:\n👉 ${origin}?ref=${encodeURIComponent(prize.participantName)}\n\n¡Vamos juntos o visítalos hoy, te va a encantar!`;
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(inviteMessage)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   };
@@ -263,43 +263,11 @@ Restaurante: ${clientConfig.brand.name}
         </div>
       </Reveal>
 
-      {/* MOTOR VIRAL DE REFERIDOS (ESTILO PERKZILLA / REFER-A-FRIEND) */}
-      <Reveal delay={150}>
-        <div className="mt-8 rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 via-white to-orange-50/50 p-6 sm:p-8 text-center shadow-sm">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100/90 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-3">
-            <Share2 className="h-3.5 w-3.5 text-amber-800" />
-            <span>{t("Multiplica tus Oportunidades", "Multiply Your Chances")}</span>
-          </div>
-
-          <h3 className="font-display text-xl sm:text-2xl text-foreground font-medium">
-            {t("¿Quieres sumar puntos para el Gran Sorteo Semanal?", "Want more entries for the Weekly Grand Prize?")}
-          </h3>
-
-          <p className="mt-2 text-xs sm:text-sm text-muted-foreground font-light max-w-md mx-auto leading-relaxed">
-            {t(
-              "Comparte esta experiencia con tus amigos en WhatsApp. Por cada amigo que conozca y juegue en la ruleta, sumas una participación adicional a tu nombre para los premios especiales del domingo.",
-              "Share this experience with your friends on WhatsApp. For every friend who plays, you get an extra entry for Sunday's special prizes."
-            )}
-          </p>
-
-          <div className="mt-5">
-            <button
-              type="button"
-              onClick={handleReferFriend}
-              className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm tracking-wider uppercase shadow-md hover:shadow-lg transition-all"
-            >
-              <Share2 className="h-4 w-4" />
-              <span>{t("Invitar Amigos por WhatsApp", "Invite Friends via WhatsApp")}</span>
-            </button>
-          </div>
-        </div>
-      </Reveal>
-
-      {/* SECCIÓN FINAL DE GRATITUD: Feedback con Google Maps (4-5 estrellas) o WhatsApp (1-3 estrellas) */}
-      <div className="mt-14 pt-10 border-t border-gold/30">
+      {/* SECCIÓN DE GRATITUD Y FEEDBACK: Google Maps (4-5 estrellas) o WhatsApp (1-3 estrellas) */}
+      <div className="mt-12 pt-8 border-t border-gold/30">
         <div className="text-center mb-2">
           <p className="text-[11px] uppercase tracking-[0.24em] text-gold font-semibold">
-            {t("Broche de Oro", "Final Touch")}
+            {t("Tu Opinión Nos Importa", "Your Opinion Matters")}
           </p>
           <h3 className="font-display text-xl sm:text-2xl text-foreground mt-1">
             {t(`¿Cómo estuvo tu experiencia en ${clientConfig.brand.name}?`, `How was your ${clientConfig.brand.name} experience?`)}
@@ -314,6 +282,38 @@ Restaurante: ${clientConfig.brand.name}
 
         <StepFeedback customerName={prize.participantName} isStandAlone={false} />
       </div>
+
+      {/* MOTOR VIRAL DE REFERIDOS: INVITAR AMIGOS A VISITAR EL LOCAL */}
+      <Reveal delay={150}>
+        <div className="mt-12 rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 via-white to-orange-50/50 p-6 sm:p-8 text-center shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100/90 text-amber-900 text-xs font-semibold uppercase tracking-wider mb-3">
+            <Share2 className="h-3.5 w-3.5 text-amber-800" />
+            <span>{t("Multiplica tus Oportunidades", "Multiply Your Chances")}</span>
+          </div>
+
+          <h3 className="font-display text-xl sm:text-2xl text-foreground font-medium">
+            {t("¡Invita a tus amigos a visitar el local!", "Invite your friends to visit our place!")}
+          </h3>
+
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground font-light max-w-md mx-auto leading-relaxed">
+            {t(
+              "Comparte esta experiencia con tus amigos para que vengan a visitarnos. Cuando tus amigos vengan al local, se sienten a su mesa y prueben la ruleta con tu invitación, desbloqueas participaciones extra y beneficios exclusivos para tu próxima visita.",
+              "Share this experience so your friends visit us. When they visit our venue, sit at their table and play the roulette, you unlock extra entries and exclusive perks for your next visit."
+            )}
+          </p>
+
+          <div className="mt-5">
+            <button
+              type="button"
+              onClick={handleReferFriend}
+              className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm tracking-wider uppercase shadow-md hover:shadow-lg transition-all"
+            >
+              <Share2 className="h-4 w-4" />
+              <span>{t("Invitar Amigos a Visitar el Local", "Invite Friends to Visit")}</span>
+            </button>
+          </div>
+        </div>
+      </Reveal>
     </div>
   );
 }

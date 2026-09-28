@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { X, Printer, Sparkles, QrCode } from "lucide-react";
 import { clientConfig } from "../../config/clientConfig";
 import { GoldenQRCode } from "./GoldenQRCode";
@@ -8,9 +9,15 @@ interface TableStandModalProps {
 }
 
 export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
+  const [selectedTable, setSelectedTable] = useState<string>("1");
+  const [isCashierOnly, setIsCashierOnly] = useState<boolean>(false);
+
   if (!isOpen) return null;
 
   const currentUrl = typeof window !== "undefined" ? window.location.origin : "https://turestaurante.com";
+  const tableQrUrl = isCashierOnly 
+    ? `${currentUrl}?modo=caja` 
+    : `${currentUrl}?mesa=${selectedTable}`;
 
   const handlePrint = () => {
     window.print();
@@ -36,8 +43,43 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
           </button>
         </div>
 
+        {/* SELECTOR DE MESA O CAJA (Oculto al imprimir) */}
+        <div className="p-4 bg-muted/60 border-b border-border/80 space-y-2 print:hidden">
+          <label className="text-[11px] font-semibold text-foreground block">
+            📍 Selecciona la ubicación para este código QR:
+          </label>
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={isCashierOnly ? "caja" : selectedTable}
+              onChange={(e) => {
+                if (e.target.value === "caja") {
+                  setIsCashierOnly(true);
+                } else {
+                  setIsCashierOnly(false);
+                  setSelectedTable(e.target.value);
+                }
+              }}
+              className="bg-card text-foreground border border-gold/40 text-xs rounded-lg px-3 py-1.5 font-medium focus:outline-none focus:ring-1 focus:ring-gold"
+            >
+              <optgroup label="Mesas del Restaurante">
+                {Array.from({ length: 15 }, (_, i) => i + 1).map((num) => (
+                  <option key={num} value={String(num)}>
+                    Mesa {num}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Puntos de Pago / Caja">
+                <option value="caja">Punto de Pago / Caja Central</option>
+              </optgroup>
+            </select>
+            <span className="text-[10px] text-muted-foreground">
+              {isCashierOnly ? "QR especial para cobro en caja" : `QR único para los comensales de la Mesa ${selectedTable}`}
+            </span>
+          </div>
+        </div>
+
         {/* CONTENIDO DE LA FICHA IMPRESA */}
-        <div className="p-8 text-center bg-[#fcfaf7] space-y-6 print:p-12 print:bg-white">
+        <div className="p-8 text-center bg-[#fcfaf7] space-y-5 print:p-12 print:bg-white">
           {/* Logo y Encabezado */}
           <div className="space-y-2">
             <img
@@ -45,26 +87,33 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
               alt={clientConfig.brand.name}
               className="h-14 w-auto mx-auto object-contain"
             />
-            <p className="text-[11px] uppercase tracking-[0.24em] text-gold font-semibold">
-              EXPERIENCIA EN MESA & CAJA
+            
+            {/* DISTINTIVO DE MESA / CAJA */}
+            <div className="inline-block px-3 py-1 rounded-full bg-gold/15 border border-gold/40 text-gold text-xs font-bold uppercase tracking-widest">
+              {isCashierOnly ? "💳 PUNTO DE PAGO / CAJA" : `🍽️ MESA ${selectedTable}`}
+            </div>
+
+            <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground font-semibold">
+              {isCashierOnly ? "BENEFICIO EXCLUSIVO EN TU FACTURA" : "EXPERIENCIA EXCLUSIVA EN TU MESA"}
             </p>
             <h2 className="font-display text-2xl text-foreground font-normal">
               ¡Gira la Ruleta & Gana!
             </h2>
             <p className="text-xs text-muted-foreground font-light max-w-xs mx-auto leading-relaxed">
-              Acerca tu celular o escanea este código QR antes de pagar para descubrir tu beneficio de hoy.
+              {isCashierOnly 
+                ? "Escanea este código al pagar para descubrir tu beneficio o descuento en tu cuenta."
+                : `Acerca tu celular o escanea este código QR desde tu Mesa ${selectedTable} para descubrir tu beneficio de hoy.`}
             </p>
           </div>
 
           {/* Código QR Dorado Oficial */}
-          <div className="flex flex-col items-center justify-center py-2">
-            <GoldenQRCode value={currentUrl} size={230} />
-            <div className="mt-3 flex items-center justify-center gap-1.5 text-xs text-gold font-semibold uppercase tracking-wider">
+          <div className="flex flex-col items-center justify-center py-1">
+            <GoldenQRCode value={tableQrUrl} size={210} />
+            <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-gold font-semibold uppercase tracking-wider">
               <Sparkles className="h-3.5 w-3.5" />
-              <span>Compatible con NFC y Cámara QR</span>
+              <span>{isCashierOnly ? "Escaneo en Caja" : `Mesa ${selectedTable} · Compatible con NFC y Cámara`}</span>
             </div>
           </div>
-
           {/* Pasos Rápidos para el Comensal */}
           <div className="grid grid-cols-3 gap-2 text-center pt-2 border-t border-gold/30 text-[10px] text-muted-foreground">
             <div>

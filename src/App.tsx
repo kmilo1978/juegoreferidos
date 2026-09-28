@@ -26,6 +26,8 @@ import { clientConfig } from "./config/clientConfig";
 function getInitialTable(): string {
   if (typeof window !== "undefined") {
     const params = new URLSearchParams(window.location.search);
+    const modo = params.get("modo");
+    if (modo === "caja") return "Punto de Pago / Caja";
     const mesa = params.get("mesa");
     if (mesa) return `Mesa ${mesa.replace(/[^0-9a-zA-Z]/g, "")}`;
   }
