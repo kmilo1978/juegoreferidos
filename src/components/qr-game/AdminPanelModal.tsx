@@ -643,10 +643,10 @@ export function AdminPanelModal({
           </div>
         </div>
 
-        {/* CUERPO PRINCIPAL CON 2 COLUMNAS: Izquierda (Contenido) y Derecha (Navegación vertical a mano derecha) */}
+        {/* CUERPO PRINCIPAL CON 2 COLUMNAS: Izquierda (Navegación vertical) y Derecha (Contenido de trabajo) */}
         <div className="flex flex-col md:flex-row flex-1 overflow-hidden min-h-0">
-          {/* Contenido scrolleable (A la izquierda) */}
-          <div className="flex-1 p-5 sm:p-7 overflow-y-auto space-y-6 order-2 md:order-1 bg-background/50">
+          {/* Contenido scrolleable (A la derecha) */}
+          <div className="flex-1 p-5 sm:p-7 overflow-y-auto space-y-6 order-2 md:order-2 bg-background/50">
           {/* BLOQUEO PARA ROLES SIN PERMISO: ACCESO DENEGADO POR SEGURIDAD RBAC */}
           {!canAccessTab(activeTab) ? (
             <div className="p-8 rounded-3xl bg-neutral-900 border-2 border-amber-500/40 text-center space-y-4 max-w-lg mx-auto my-12 animate-fade-in shadow-xl">
@@ -3277,8 +3277,8 @@ Presenta este código al momento de pagar:
           )}
         </div>
 
-        {/* MENÚ DE NAVEGACIÓN VERTICAL A MANO DERECHA (Categorizado y fácil de personalizar) */}
-        <div className="w-full md:w-72 border-t md:border-t-0 md:border-l border-border bg-neutral-950/90 p-3.5 sm:p-4 order-1 md:order-2 shrink-0 overflow-y-auto flex flex-col gap-4">
+        {/* MENÚ DE NAVEGACIÓN VERTICAL A LA IZQUIERDA (Categorizado y fácil de personalizar) */}
+        <div className="w-full md:w-72 border-b md:border-b-0 md:border-r border-border bg-neutral-950/90 p-3.5 sm:p-4 order-1 md:order-1 shrink-0 overflow-y-auto flex flex-col gap-4">
           <div className="px-1 pb-1 border-b border-white/10 flex items-center justify-between">
             <span className="text-[11px] font-bold text-white uppercase tracking-wider font-mono">
               Categorías

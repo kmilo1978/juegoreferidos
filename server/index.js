@@ -598,10 +598,10 @@ function renderBackendDashboard() {
     }
     .btn-frontend:hover { transform: translateY(-1px); filter: brightness(1.1); }
 
-    /* LAYOUT PRINCIPAL DE 2 COLUMNAS (CONTENIDO IZQUIERDA / MENÚ VERTICAL A MANO DERECHA) */
+    /* LAYOUT PRINCIPAL DE 2 COLUMNAS (BARRA VERTICAL A LA IZQUIERDA / CONTENIDO A LA DERECHA) */
     .dashboard-layout {
       display: flex;
-      flex-direction: column-reverse;
+      flex-direction: column;
       gap: 20px;
     }
     @media (min-width: 1024px) {
@@ -609,19 +609,16 @@ function renderBackendDashboard() {
         flex-direction: row;
         align-items: flex-start;
       }
-      .main-content {
-        flex: 1;
-        min-width: 0;
-      }
       .nav-sidebar {
-        width: 290px;
+        width: 280px;
         flex-shrink: 0;
         position: sticky;
         top: 20px;
       }
-    }
-    .main-content {
-      width: 100%;
+      .main-content {
+        flex: 1;
+        min-width: 0;
+      }
     }
     .sidebar-card {
       background: var(--card-bg);
@@ -881,9 +878,102 @@ function renderBackendDashboard() {
       </div>
     </header>
 
-    <!-- LAYOUT PRINCIPAL DE 2 COLUMNAS (CONTENIDO A LA IZQUIERDA / BARRA VERTICAL A MANO DERECHA) -->
+    <!-- LAYOUT PRINCIPAL DE 2 COLUMNAS (BARRA VERTICAL A LA IZQUIERDA / CONTENIDO A LA DERECHA) -->
     <div class="dashboard-layout">
-      <!-- CONTENIDO PRINCIPAL (IZQUIERDA) -->
+      <!-- BARRA LATERAL VERTICAL A LA IZQUIERDA -->
+      <aside class="nav-sidebar">
+        <div class="sidebar-card">
+          <div class="sidebar-header">
+            <span>📂 CATEGORÍAS</span>
+            <span class="badge-role">ADMIN</span>
+          </div>
+
+          <!-- GRUPO 1: OPERACIONES -->
+          <div class="nav-group">
+            <span class="nav-group-title">📊 OPERACIONES</span>
+            <button type="button" class="nav-tab-btn active" data-tab="tab-ops" onclick="switchTab('tab-ops', this)">
+              <span>📊</span>
+              <div>
+                <div class="tab-title">Operaciones & Métricas</div>
+                <div class="tab-sub">KPIs, canjes y comensales</div>
+              </div>
+            </button>
+            <button type="button" class="nav-tab-btn" data-tab="tab-channels" onclick="switchTab('tab-channels', this)">
+              <span>📱</span>
+              <div>
+                <div class="tab-title">Canales & WhatsApp</div>
+                <div class="tab-sub">Notificación al comensal</div>
+              </div>
+            </button>
+          </div>
+
+          <!-- GRUPO 2: FIDELIZACIÓN -->
+          <div class="nav-group">
+            <span class="nav-group-title">🎯 FIDELIZACIÓN</span>
+            <button type="button" class="nav-tab-btn" data-tab="tab-roulette" onclick="switchTab('tab-roulette', this)">
+              <span>🎡</span>
+              <div>
+                <div class="tab-title">Ruleta de Premios</div>
+                <div class="tab-sub">Probabilidades (100%)</div>
+              </div>
+            </button>
+            <button type="button" class="nav-tab-btn" data-tab="tab-stamps" onclick="switchTab('tab-stamps', this)">
+              <span>🎟️</span>
+              <div>
+                <div class="tab-title">Tarjeta de 15 Sellos</div>
+                <div class="tab-sub">Premios cada 5 e iconos</div>
+              </div>
+            </button>
+          </div>
+
+          <!-- GRUPO 3: MARKETING PUSH -->
+          <div class="nav-group">
+            <span class="nav-group-title" style="color: #38bdf8;">🚀 MARKETING PUSH</span>
+            <button type="button" class="nav-tab-btn" data-tab="tab-push" onclick="switchTab('tab-push', this)">
+              <span>🚀</span>
+              <div>
+                <div class="tab-title">Ofertas Push & Flujos</div>
+                <div class="tab-sub">OneSignal y 4 flujos auto</div>
+              </div>
+            </button>
+          </div>
+
+          <!-- GRUPO 4: CONFIGURACIÓN -->
+          <div class="nav-group">
+            <span class="nav-group-title">⚙️ CONFIGURACIÓN</span>
+            <button type="button" class="nav-tab-btn" data-tab="tab-brand" onclick="switchTab('tab-brand', this)">
+              <span>🏷️</span>
+              <div>
+                <div class="tab-title">Identidad & Marca</div>
+                <div class="tab-sub">Colores, logo y eslogan</div>
+              </div>
+            </button>
+            <button type="button" class="nav-tab-btn" data-tab="tab-composio" onclick="switchTab('tab-composio', this)">
+              <span>⚡</span>
+              <div>
+                <div class="tab-title">Composio & IA</div>
+                <div class="tab-sub">Conexión 200+ apps</div>
+              </div>
+            </button>
+            <button type="button" class="nav-tab-btn" data-tab="tab-databases" onclick="switchTab('tab-databases', this)">
+              <span>🗄️</span>
+              <div>
+                <div class="tab-title">Bases de Datos</div>
+                <div class="tab-sub">Google Sheets y Supabase</div>
+              </div>
+            </button>
+            <button type="button" class="nav-tab-btn" data-tab="tab-security" onclick="switchTab('tab-security', this)">
+              <span>🔐</span>
+              <div>
+                <div class="tab-title">Seguridad & PINs</div>
+                <div class="tab-sub">Roles RBAC (8888, 5555, 1978)</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CONTENIDO PRINCIPAL (A LA DERECHA) -->
       <main class="main-content">
 
     <!-- ========================================================================= -->
@@ -1903,113 +1993,19 @@ function renderBackendDashboard() {
         </div>
       </div>
     </div>
-
       </main>
-
-      <!-- BARRA LATERAL VERTICAL A MANO DERECHA (Categorizada y de fácil personalización) -->
-      <aside class="nav-sidebar">
-        <div class="sidebar-card">
-          <div class="sidebar-header">
-            <span>📂 CATEGORÍAS</span>
-            <span class="badge-role">ADMIN</span>
-          </div>
-
-          <!-- GRUPO 1: OPERACIONES -->
-          <div class="nav-group">
-            <span class="nav-group-title">📊 OPERACIONES</span>
-            <button class="nav-tab-btn active" onclick="switchTab('tab-ops')">
-              <span>📊</span>
-              <div>
-                <div class="tab-title">Operaciones & Métricas</div>
-                <div class="tab-sub">KPIs, canjes y comensales</div>
-              </div>
-            </button>
-            <button class="nav-tab-btn" onclick="switchTab('tab-channels')">
-              <span>📱</span>
-              <div>
-                <div class="tab-title">Canales & WhatsApp</div>
-                <div class="tab-sub">Notificación al comensal</div>
-              </div>
-            </button>
-          </div>
-
-          <!-- GRUPO 2: FIDELIZACIÓN -->
-          <div class="nav-group">
-            <span class="nav-group-title">🎯 FIDELIZACIÓN</span>
-            <button class="nav-tab-btn" onclick="switchTab('tab-roulette')">
-              <span>🎡</span>
-              <div>
-                <div class="tab-title">Ruleta de Premios</div>
-                <div class="tab-sub">Probabilidades (100%)</div>
-              </div>
-            </button>
-            <button class="nav-tab-btn" onclick="switchTab('tab-stamps')">
-              <span>🎟️</span>
-              <div>
-                <div class="tab-title">Tarjeta de 15 Sellos</div>
-                <div class="tab-sub">Premios cada 5 e iconos</div>
-              </div>
-            </button>
-          </div>
-
-          <!-- GRUPO 3: MARKETING PUSH -->
-          <div class="nav-group">
-            <span class="nav-group-title" style="color: #38bdf8;">🚀 MARKETING PUSH</span>
-            <button class="nav-tab-btn" onclick="switchTab('tab-push')">
-              <span>🚀</span>
-              <div>
-                <div class="tab-title">Ofertas Push & Flujos</div>
-                <div class="tab-sub">OneSignal y 4 flujos auto</div>
-              </div>
-            </button>
-          </div>
-
-          <!-- GRUPO 4: CONFIGURACIÓN -->
-          <div class="nav-group">
-            <span class="nav-group-title">⚙️ CONFIGURACIÓN</span>
-            <button class="nav-tab-btn" onclick="switchTab('tab-brand')">
-              <span>🏷️</span>
-              <div>
-                <div class="tab-title">Identidad & Marca</div>
-                <div class="tab-sub">Colores, logo y eslogan</div>
-              </div>
-            </button>
-            <button class="nav-tab-btn" onclick="switchTab('tab-composio')">
-              <span>⚡</span>
-              <div>
-                <div class="tab-title">Composio & IA</div>
-                <div class="tab-sub">Conexión 200+ apps</div>
-              </div>
-            </button>
-            <button class="nav-tab-btn" onclick="switchTab('tab-databases')">
-              <span>🗄️</span>
-              <div>
-                <div class="tab-title">Bases de Datos</div>
-                <div class="tab-sub">Google Sheets y Supabase</div>
-              </div>
-            </button>
-            <button class="nav-tab-btn" onclick="switchTab('tab-security')">
-              <span>🔐</span>
-              <div>
-                <div class="tab-title">Seguridad & PINs</div>
-                <div class="tab-sub">Roles RBAC (8888, 5555, 1978)</div>
-              </div>
-            </button>
-          </div>
-        </div>
-      </aside>
     </div>
 
   </div>
 
   <script>
     // CAMBIO DE PESTAÑAS EN EL BACKEND
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-tab-btn').forEach(el => el.classList.remove('active'));
-      const target = document.getElementById(tabId);
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
+      document.querySelectorAll('.nav-tab-btn').forEach(function(el) { el.classList.remove('active'); });
+      var target = document.getElementById(tabId);
       if (target) target.classList.add('active');
-      const activeBtn = document.querySelector('.nav-tab-btn[onclick="switchTab(\'' + tabId + '\')"]');
+      var activeBtn = btn || document.querySelector('.nav-tab-btn[data-tab="' + tabId + '"]');
       if (activeBtn) activeBtn.classList.add('active');
     }
 
