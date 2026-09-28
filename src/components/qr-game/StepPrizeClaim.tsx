@@ -9,6 +9,8 @@ import logoHeader from "@/assets/logo-header.png";
 import { StepFeedback } from "./StepFeedback";
 import { clientConfig } from "@/config/clientConfig";
 import { OneSignalService } from "@/lib/oneSignalService";
+import { DigitalStampCard } from "./DigitalStampCard";
+import { StampService } from "@/lib/stampService";
 
 interface StepPrizeClaimProps {
   prize: WonPrize;
@@ -47,6 +49,17 @@ Restaurante: ${clientConfig.brand.name}
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(inviteMessage)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   };
+
+  const [stampCard, setStampCard] = useState(() =>
+    StampService.getCustomerStampCard(prize.participantWhatsapp)
+  );
+
+  const createdAtMs = prize.createdAt || Date.now();
+  const expiryDate = new Date(createdAtMs + 7 * 24 * 60 * 60 * 1000).toLocaleDateString("es-CO", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 
   const [isPushSubscribed, setIsPushSubscribed] = useState(() => OneSignalService.isSubscribed());
 
@@ -191,6 +204,15 @@ Restaurante: ${clientConfig.brand.name}
                 </span>
                 <span className="font-mono text-foreground">+{prize.participantWhatsapp}</span>
               </div>
+
+              <div className="col-span-2 flex items-center justify-between pt-1 border-t border-border/40">
+                <span className="text-muted-foreground text-[10px] uppercase tracking-wider">
+                  ⏳ {t("Válido hasta:", "Valid until:")}
+                </span>
+                <span className="font-semibold text-amber-700 font-mono text-[11px]">
+                  {expiryDate} (7 días)
+                </span>
+              </div>
             </div>
 
             {/* Acciones principales: WhatsApp y Validación en Caja */}
@@ -251,6 +273,8 @@ Restaurante: ${clientConfig.brand.name}
                           type="button"
                           onClick={() => {
                             onValidateAtCashier();
+                            const updated = StampService.addStamp(prize.participantWhatsapp);
+                            setStampCard(updated);
                             setShowValidationConfirm(false);
                           }}
                           className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold uppercase tracking-wider hover:bg-emerald-700 transition-colors"
@@ -296,6 +320,13 @@ Restaurante: ${clientConfig.brand.name}
               ”
             </p>
           </div>
+        </div>
+      </Reveal>
+
+      {/* JOYA 1: TARJETA DE SELLOS DIGITALES (DIGITAL STAMP CARD) */}
+      <Reveal delay={120}>
+        <div className="mt-8">
+          <DigitalStampCard stampCard={stampCard} customerName={prize.participantName} />
         </div>
       </Reveal>
 

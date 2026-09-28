@@ -179,6 +179,7 @@ function JuegoQrPage() {
       participantName: participant?.fullName || "Cliente de la Casa",
       participantWhatsapp: participant?.whatsapp || "573000000000",
       participantEmail: participant?.email || "",
+      birthDate: participant?.birthDate || "",
       wonAt: dateStr,
       createdAt: Date.now(),
       status: "DISPONIBLE",

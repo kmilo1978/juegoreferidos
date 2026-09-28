@@ -844,6 +844,121 @@ Presenta este código al momento de pagar:
                   </div>
                 </div>
               </div>
+
+              {/* SECCIÓN 3: AUTOMATIZACIONES DE VENTA PARA DÍAS LENTOS Y RESCATE DE CLIENTES */}
+              <div className="rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-background to-orange-500/5 p-5 space-y-5">
+                <div className="flex items-center justify-between pb-3 border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <span className="h-6 w-6 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-600 font-bold">
+                      🎯
+                    </span>
+                    <div>
+                      <h4 className="font-semibold text-foreground text-sm uppercase tracking-wider">
+                        Automatizaciones de Venta para Días Lentos
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground">Palancas activas de OneSignal para llenar mesas y rescatar cupones.</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-700">
+                    OneSignal Engine
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Vacío 1: Happy Hour / Horas Extra */}
+                  <div className="rounded-xl border border-border bg-card p-4 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-foreground text-xs flex items-center gap-1.5">
+                        🍹 1. Horas Felices
+                      </span>
+                      <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded">
+                        Activo
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      Atrae clientes en horas muertas. Envía aviso Push a las 2:30 PM.
+                    </p>
+                    <div className="bg-muted/40 p-2 rounded-lg text-[10px] font-mono text-foreground space-y-1">
+                      <div><strong>Días:</strong> Mar, Mié, Jue</div>
+                      <div><strong>Horario:</strong> 3:00 PM - 6:00 PM</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        OneSignalService.showLocalTestNotification(
+                          "🍹 ¡Hora Feliz en Tu Restaurante!",
+                          "De 3:00 PM a 6:00 PM tu ruleta da premios dobles. ¡Visítanos hoy en tu mesa!"
+                        );
+                      }}
+                      className="w-full py-1.5 text-[11px] font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg transition"
+                    >
+                      ⚡ Disparar Alerta Happy Hour
+                    </button>
+                  </div>
+
+                  {/* Vacío 2: Rescate de Cupones Abandonados */}
+                  <div className="rounded-xl border border-border bg-card p-4 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-foreground text-xs flex items-center gap-1.5">
+                        ⏳ 2. Rescate de Cupones
+                      </span>
+                      <span className="text-[10px] text-sky-600 font-semibold bg-sky-50 px-2 py-0.5 rounded">
+                        Automático
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      Avisa a quienes ganaron en mesa pero no validaron el PIN en caja.
+                    </p>
+                    <div className="bg-muted/40 p-2 rounded-lg text-[10px] font-mono text-foreground space-y-1">
+                      <div><strong>Frecuencia:</strong> A las 48 horas</div>
+                      <div><strong>Estado filtro:</strong> NO canjeado</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        OneSignalService.showLocalTestNotification(
+                          "🎁 ¡Carlos, tu postre te espera!",
+                          "Aún tienes activo tu beneficio de la ruleta. Ven hoy y redímelo en tu cuenta."
+                        );
+                      }}
+                      className="w-full py-1.5 text-[11px] font-semibold bg-sky-600 hover:bg-sky-500 text-white rounded-lg transition"
+                    >
+                      🚀 Disparar Rescate de Cupones
+                    </button>
+                  </div>
+
+                  {/* Vacío 3: Caducidad y Urgencia */}
+                  <div className="rounded-xl border border-border bg-card p-4 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-foreground text-xs flex items-center gap-1.5">
+                        ⚠️ 3. Urgencia de Caducidad
+                      </span>
+                      <span className="text-[10px] text-orange-600 font-semibold bg-orange-50 px-2 py-0.5 rounded">
+                        7 Días
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      Genera prisa psicológica. Envía alerta 24 horas antes de vencer.
+                    </p>
+                    <div className="bg-muted/40 p-2 rounded-lg text-[10px] font-mono text-foreground space-y-1">
+                      <div><strong>Vigencia:</strong> 7 días calendario</div>
+                      <div><strong>Alerta:</strong> Últimas 24 horas</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        OneSignalService.showLocalTestNotification(
+                          "⚠️ ¡Últimas 24 horas para canjear!",
+                          "Tu cupón de cortesía vence mañana a las 10:00 PM. No dejes perder tu premio."
+                        );
+                      }}
+                      className="w-full py-1.5 text-[11px] font-semibold bg-orange-600 hover:bg-orange-500 text-white rounded-lg transition"
+                    >
+                      ⚠️ Disparar Alerta de Urgencia
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>

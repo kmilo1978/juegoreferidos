@@ -24,6 +24,7 @@ export interface ParticipantData {
   fullName: string;
   whatsapp: string;
   email?: string | undefined;
+  birthDate?: string | undefined; // Formato DD/MM para regalos de cumpleaños
   consentData: boolean;
   consentMarketing: boolean;
 }
@@ -49,8 +50,11 @@ export interface WonPrize {
   participantName: string;
   participantWhatsapp: string;
   participantEmail?: string;
+  birthDate?: string;
   wonAt: string;
   createdAt?: number;
+  expiresAtFormatted?: string;
+  stamps?: number;
   status: "DISPONIBLE" | "UTILIZADO";
   usedAt?: string;
 }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ParticipantData } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
-import { ArrowRight, ArrowLeft, User, Phone, Mail, Check } from "lucide-react";
+import { ArrowRight, ArrowLeft, User, Phone, Mail, Check, Calendar } from "lucide-react";
 import { clientConfig } from "@/config/clientConfig";
 
 interface FormErrors {
@@ -24,6 +24,7 @@ export function StepUserData({ initialData, onBack, onComplete }: StepUserDataPr
   const [fullName, setFullName] = useState(initialData?.fullName || "");
   const [whatsapp, setWhatsapp] = useState(initialData?.whatsapp || "");
   const [email, setEmail] = useState(initialData?.email || "");
+  const [birthDate, setBirthDate] = useState(initialData?.birthDate || "");
   const [consentData, setConsentData] = useState(initialData?.consentData || false);
   const [consentMarketing, setConsentMarketing] = useState(initialData?.consentMarketing || false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -73,6 +74,7 @@ export function StepUserData({ initialData, onBack, onComplete }: StepUserDataPr
         fullName: fullName.trim(),
         whatsapp: whatsapp.replace(/\D/g, ""),
         email: email.trim() || undefined,
+        birthDate: birthDate.trim() || undefined,
         consentData,
         consentMarketing,
       });
@@ -191,6 +193,28 @@ export function StepUserData({ initialData, onBack, onComplete }: StepUserDataPr
               />
             </div>
             {errors.email && <p className="mt-1.5 text-xs text-red-500">{errors.email}</p>}
+          </div>
+
+          {/* Fecha de Cumpleaños (Opcional - Para regalos de cortesía) */}
+          <div className="space-y-1.5">
+            <label
+              htmlFor="birthDate"
+              className="block text-xs uppercase tracking-wider font-semibold text-foreground flex items-center gap-1.5"
+            >
+              <Calendar className="h-3.5 w-3.5 text-gold" />
+              <span>{t("¿Cuándo cumples años? (Día y Mes · Opcional)", "When is your birthday? (Day & Month · Optional)")}</span>
+            </label>
+            <input
+              id="birthDate"
+              type="text"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+              placeholder="Ej: 14 de Noviembre (14/11)"
+              className="w-full rounded-xl border border-border/80 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 bg-background focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold transition-all"
+            />
+            <p className="text-[11px] text-muted-foreground font-light">
+              {t("🎂 Te enviaremos un postre o cortesía especial para celebrar con tus amigos en tu semana.", "🎂 We'll send you a complimentary gift to celebrate with friends during your birthday week.")}
+            </p>
           </div>
 
           {/* Consentimientos */}
