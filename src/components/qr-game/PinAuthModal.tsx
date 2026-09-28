@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Lock, Delete } from "lucide-react";
+import { Lock, Delete, RefreshCw, KeyRound } from "lucide-react";
+import { verifyCashierPin, getActiveCashierPin, generateNewCashierPin } from "../../lib/tableSecurityService";
 
 interface PinAuthModalProps {
   isOpen: boolean;
@@ -12,10 +13,11 @@ export function PinAuthModal({
   isOpen,
   onClose,
   onSuccess,
-  correctPin = "1978",
 }: PinAuthModalProps) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
+  const [activeShiftPin, setActiveShiftPin] = useState(() => getActiveCashierPin());
+  const [showPinHint, setShowPinHint] = useState(false);
 
   if (!isOpen) return null;
 
@@ -26,7 +28,7 @@ export function PinAuthModal({
     setError(false);
 
     if (nextPin.length === 4) {
-      if (nextPin === correctPin) {
+      if (verifyCashierPin(nextPin)) {
         onSuccess();
         onClose();
         setPin("");
@@ -35,6 +37,12 @@ export function PinAuthModal({
         setTimeout(() => setPin(""), 600);
       }
     }
+  };
+
+  const handleRotatePin = () => {
+    const newPin = generateNewCashierPin();
+    setActiveShiftPin(newPin);
+    setShowPinHint(true);
   };
 
   const handleDelete = () => setPin((prev) => prev.slice(0, -1));
@@ -109,6 +117,31 @@ export function PinAuthModal({
           >
             <Delete className="h-5 w-5" />
           </button>
+        </div>
+
+        {/* Herramienta de rotación de PIN para el personal */}
+        <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-white/50">
+          <button
+            type="button"
+            onClick={handleRotatePin}
+            className="hover:text-gold flex items-center gap-1 transition-colors"
+          >
+            <RefreshCw className="h-3 w-3" />
+            <span>Rotar PIN de turno</span>
+          </button>
+          {showPinHint ? (
+            <span className="font-mono text-emerald-400 font-bold bg-emerald-500/20 px-2 py-0.5 rounded">
+              Activo: {activeShiftPin}
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowPinHint(true)}
+              className="text-[10px] text-white/40 hover:text-white"
+            >
+              Ver PIN activo
+            </button>
+          )}
         </div>
       </div>
     </div>

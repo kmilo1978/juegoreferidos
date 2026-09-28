@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { X, Printer, Sparkles, QrCode } from "lucide-react";
+import { X, Printer, Sparkles, QrCode, ShieldCheck, RefreshCw } from "lucide-react";
 import { clientConfig } from "../../config/clientConfig";
 import { GoldenQRCode } from "./GoldenQRCode";
+import { getTableSecurityToken, regenerateTableToken } from "../../lib/tableSecurityService";
 
 interface TableStandModalProps {
   isOpen: boolean;
@@ -11,13 +12,24 @@ interface TableStandModalProps {
 export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
   const [selectedTable, setSelectedTable] = useState<string>("1");
   const [isCashierOnly, setIsCashierOnly] = useState<boolean>(false);
+  const [tableToken, setTableToken] = useState<string>(() => getTableSecurityToken("1"));
 
   if (!isOpen) return null;
 
   const currentUrl = typeof window !== "undefined" ? window.location.origin : "https://turestaurante.com";
   const tableQrUrl = isCashierOnly 
     ? `${currentUrl}?modo=caja` 
-    : `${currentUrl}?mesa=${selectedTable}`;
+    : `${currentUrl}?mesa=${selectedTable}&token=${tableToken}`;
+
+  const handleTableChange = (newTable: string) => {
+    setSelectedTable(newTable);
+    setTableToken(getTableSecurityToken(newTable));
+  };
+
+  const handleRegenerateToken = () => {
+    const newToken = regenerateTableToken(selectedTable);
+    setTableToken(newToken);
+  };
 
   const handlePrint = () => {
     window.print();
@@ -48,32 +60,47 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
           <label className="text-[11px] font-semibold text-foreground block">
             📍 Selecciona la ubicación para este código QR:
           </label>
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={isCashierOnly ? "caja" : selectedTable}
-              onChange={(e) => {
-                if (e.target.value === "caja") {
-                  setIsCashierOnly(true);
-                } else {
-                  setIsCashierOnly(false);
-                  setSelectedTable(e.target.value);
-                }
-              }}
-              className="bg-card text-foreground border border-gold/40 text-xs rounded-lg px-3 py-1.5 font-medium focus:outline-none focus:ring-1 focus:ring-gold"
-            >
-              <optgroup label="Mesas del Restaurante">
-                {Array.from({ length: 15 }, (_, i) => i + 1).map((num) => (
-                  <option key={num} value={String(num)}>
-                    Mesa {num}
-                  </option>
-                ))}
-              </optgroup>
-              <optgroup label="Puntos de Pago / Caja">
-                <option value="caja">Punto de Pago / Caja Central</option>
-              </optgroup>
-            </select>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <select
+                value={isCashierOnly ? "caja" : selectedTable}
+                onChange={(e) => {
+                  if (e.target.value === "caja") {
+                    setIsCashierOnly(true);
+                  } else {
+                    setIsCashierOnly(false);
+                    handleTableChange(e.target.value);
+                  }
+                }}
+                className="bg-card text-foreground border border-gold/40 text-xs rounded-lg px-3 py-1.5 font-medium focus:outline-none focus:ring-1 focus:ring-gold"
+              >
+                <optgroup label="Mesas del Restaurante">
+                  {Array.from({ length: 15 }, (_, i) => i + 1).map((num) => (
+                    <option key={num} value={String(num)}>
+                      Mesa {num}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Puntos de Pago / Caja">
+                  <option value="caja">Punto de Pago / Caja Central</option>
+                </optgroup>
+              </select>
+
+              {!isCashierOnly && (
+                <button
+                  type="button"
+                  onClick={handleRegenerateToken}
+                  title="Generar nuevo código aleatorio para invalidar el anterior"
+                  className="px-2.5 py-1.5 bg-background hover:bg-muted border border-border text-[11px] font-medium rounded-lg inline-flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <RefreshCw className="h-3 w-3 text-gold" />
+                  <span>Nuevo Código #{tableToken}</span>
+                </button>
+              )}
+            </div>
+
             <span className="text-[10px] text-muted-foreground">
-              {isCashierOnly ? "QR especial para cobro en caja" : `QR único para los comensales de la Mesa ${selectedTable}`}
+              {isCashierOnly ? "QR especial para cobro en caja" : `QR protegido con token #${tableToken} para Mesa ${selectedTable}`}
             </span>
           </div>
         </div>
@@ -89,8 +116,16 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
             />
             
             {/* DISTINTIVO DE MESA / CAJA */}
-            <div className="inline-block px-3 py-1 rounded-full bg-gold/15 border border-gold/40 text-gold text-xs font-bold uppercase tracking-widest">
-              {isCashierOnly ? "💳 PUNTO DE PAGO / CAJA" : `🍽️ MESA ${selectedTable}`}
+            <div className="flex flex-col items-center gap-1">
+              <div className="inline-block px-3 py-1 rounded-full bg-gold/15 border border-gold/40 text-gold text-xs font-bold uppercase tracking-widest">
+                {isCashierOnly ? "💳 PUNTO DE PAGO / CAJA" : `🍽️ MESA ${selectedTable}`}
+              </div>
+              {!isCashierOnly && (
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100/80 border border-emerald-300 text-emerald-800 text-[10px] font-mono font-bold">
+                  <ShieldCheck className="h-3 w-3 text-emerald-600" />
+                  <span>CÓDIGO DE SEGURIDAD: #{tableToken}</span>
+                </div>
+              )}
             </div>
 
             <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground font-semibold">

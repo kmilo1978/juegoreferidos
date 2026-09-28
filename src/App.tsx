@@ -21,6 +21,7 @@ import { TableStandModal } from "./components/qr-game/TableStandModal";
 import { recordPageView, getStoredHistory, saveStoredHistory } from "./lib/analyticsService";
 import { ComposioService } from "./lib/composioService";
 import { OneSignalService } from "./lib/oneSignalService";
+import { SupabaseService } from "./lib/supabaseService";
 import { MessageCircle } from "lucide-react";
 import { site } from "./data/site";
 import { clientConfig } from "./config/clientConfig";
@@ -31,9 +32,13 @@ function getInitialTable(): string {
     const modo = params.get("modo");
     if (modo === "caja") return "Punto de Pago / Caja";
     const mesa = params.get("mesa");
-    if (mesa) return `Mesa ${mesa.replace(/[^0-9a-zA-Z]/g, "")}`;
+    const token = params.get("token");
+    if (mesa) {
+      const cleanMesa = mesa.replace(/[^0-9a-zA-Z]/g, "");
+      return token ? `Mesa ${cleanMesa} (Seguridad #${token})` : `Mesa ${cleanMesa}`;
+    }
   }
-  return "Consumo en Sala";
+  return "Mesa 1 (QR Presencial)";
 }
 
 function createInitialSession(tableNum = getInitialTable()): TableSession {
@@ -211,6 +216,9 @@ function JuegoQrPage() {
       uniqueCode: newWon.uniqueCode,
       wonAt: newWon.wonAt,
     }).catch(() => {});
+
+    // Sincronizar también con Supabase (Opción 2)
+    SupabaseService.recordWonPrize(newWon, 1).catch(() => {});
   };
 
   // Abrir modal de PIN al pulsar "Validar en caja"
@@ -247,6 +255,9 @@ function JuegoQrPage() {
 
     // Actualizar estado 'SÍ' en Google Sheets y Composio
     ComposioService.validateCashierPin(wonPrize.uniqueCode, "1978").catch(() => {});
+
+    // Actualizar estado en Supabase
+    SupabaseService.validateCashierPin(wonPrize.uniqueCode, (wonPrize.stamps || 1) + 1).catch(() => {});
   };
 
   return (

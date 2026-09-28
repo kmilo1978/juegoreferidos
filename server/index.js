@@ -574,6 +574,63 @@ function renderBackendDashboard() {
       </div>
     </div>
 
+    <!-- HORÓMETRO DE HORAS MUERTAS Y ACTIVIDAD -->
+    <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px;">
+        <div>
+          <h3 style="font-size: 15px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+            <span>⏱️ Horómetro de Actividad & Detección de Horas Muertas</span>
+          </h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+            Monitorea a qué horas del día juegan los clientes en mesa para detectar y activar las horas lentas con ofertas.
+          </p>
+        </div>
+        <div style="padding: 4px 12px; border-radius: 9999px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; font-size: 11px; font-weight: 700;">
+          ☕ Franja de Horas Muertas: 3:00 PM a 6:00 PM (15h - 18h)
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 8px;">
+        ${[8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+          .map((h) => {
+            const isDead = h >= 15 && h <= 17;
+            const ampm = h >= 12 ? "PM" : "AM";
+            const h12 = h % 12 === 0 ? 12 : h % 12;
+            const count = db.prizes.filter((p) => {
+              if (!p.wonAt) return false;
+              const match = p.wonAt.match(/^(\d{1,2}):/);
+              return match && parseInt(match[1], 10) === h;
+            }).length;
+            return `
+            <div style="padding: 10px 6px; border-radius: 10px; border: 1px solid ${
+              isDead
+                ? "rgba(245, 158, 11, 0.4)"
+                : count > 0
+                ? "rgba(16, 185, 129, 0.4)"
+                : "var(--card-border)"
+            }; background: ${
+              isDead
+                ? "rgba(245, 158, 11, 0.08)"
+                : count > 0
+                ? "rgba(16, 185, 129, 0.08)"
+                : "#0b0f19"
+            }; text-align: center;">
+              <span style="font-size: 10px; font-weight: 700; color: ${
+                isDead ? "#fbbf24" : "#9ca3af"
+              }; display: block;">${h12} ${ampm}</span>
+              <span style="font-size: 18px; font-weight: 800; color: #fff; display: block; margin: 2px 0;">${count}</span>
+              <span style="font-size: 8px; text-transform: uppercase; font-weight: 700; padding: 1px 4px; border-radius: 4px; background: ${
+                isDead ? "rgba(245, 158, 11, 0.2)" : "rgba(255,255,255,0.06)"
+              }; color: ${isDead ? "#fbbf24" : "#6b7280"};">
+                ${isDead ? "Muerta" : h >= 12 && h < 15 ? "Almuerzo" : "Normal"}
+              </span>
+            </div>
+          `;
+          })
+          .join("")}
+      </div>
+    </div>
+
     <!-- PANELES DIVIDIDOS -->
     <div class="panels-grid">
       
@@ -592,6 +649,7 @@ function renderBackendDashboard() {
             <thead>
               <tr>
                 <th>Código Único</th>
+                <th>Hora</th>
                 <th>Cliente & WhatsApp</th>
                 <th>Premio Ganado</th>
                 <th>Sellos Visita</th>
@@ -601,7 +659,7 @@ function renderBackendDashboard() {
             <tbody id="tableBody">
               ${
                 db.prizes.length === 0
-                  ? '<tr><td colspan="5" style="text-align: center; color: #6b7280; padding: 24px;">No hay cupones registrados aún. ¡Gira la ruleta en el frontend para generar el primero!</td></tr>'
+                  ? '<tr><td colspan="6" style="text-align: center; color: #6b7280; padding: 24px;">No hay cupones registrados aún. ¡Gira la ruleta en el frontend para generar el primero!</td></tr>'
                   : db.prizes
                       .map((p) => {
                         const stamps = p.stamps || 1;
@@ -610,6 +668,7 @@ function renderBackendDashboard() {
                         return `
                         <tr>
                           <td><span class="badge-code">${p.uniqueCode}</span></td>
+                          <td><span style="color: #fbbf24; font-family: monospace; font-size: 11px;">${p.wonAt || "Hoy"}</span></td>
                           <td>
                             <strong style="color: #fff;">${p.customerName || "Cliente"}</strong>
                             <div style="font-size: 11px; color: #9ca3af;">${p.whatsapp || "Sin número"}</div>
@@ -714,6 +773,7 @@ function renderBackendDashboard() {
               return \`
                 <tr>
                   <td><span class="badge-code">\${p.uniqueCode}</span></td>
+                  <td><span style="color: #fbbf24; font-family: monospace; font-size: 11px;">\${p.wonAt || "Hoy"}</span></td>
                   <td>
                     <strong style="color: #fff;">\${p.customerName || "Cliente"}</strong>
                     <div style="font-size: 11px; color: #9ca3af;">\${p.whatsapp || "Sin número"}</div>

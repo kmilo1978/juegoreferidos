@@ -11,6 +11,8 @@ import { clientConfig } from "@/config/clientConfig";
 import { OneSignalService } from "@/lib/oneSignalService";
 import { DigitalStampCard } from "./DigitalStampCard";
 import { StampService } from "@/lib/stampService";
+import { PinAuthModal } from "./PinAuthModal";
+import { SupabaseService } from "@/lib/supabaseService";
 
 interface StepPrizeClaimProps {
   prize: WonPrize;
@@ -19,7 +21,7 @@ interface StepPrizeClaimProps {
 
 export function StepPrizeClaim({ prize, onValidateAtCashier }: StepPrizeClaimProps) {
   const { lang, t } = useLanguage();
-  const [showValidationConfirm, setShowValidationConfirm] = useState(false);
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
 
   const isUsed = prize.status === "UTILIZADO";
 
@@ -246,51 +248,31 @@ Restaurante: ${clientConfig.brand.name}
               {/* Botón de Validación en Caja */}
               {!isUsed ? (
                 <div>
-                  {!showValidationConfirm ? (
-                    <button
-                      type="button"
-                      onClick={() => setShowValidationConfirm(true)}
-                      className="w-full inline-flex items-center justify-center gap-2 py-3 px-6 rounded-xl border border-gold text-gold hover:bg-gold hover:text-white text-xs uppercase tracking-[0.18em] font-medium transition-all"
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                      <span>
-                        {t(
-                          "Validar en caja (Uso por el personal)",
-                          "Redeem at register (Staff use)",
-                        )}
-                      </span>
-                    </button>
-                  ) : (
-                    <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-center space-y-3">
-                      <p className="text-xs text-amber-900 font-medium">
-                        {t(
-                          "¿Confirmar aplicación del descuento en la cuenta de hoy? Esta acción es irreversible.",
-                          "Confirm applying discount to today's bill? This action is irreversible.",
-                        )}
-                      </p>
-                      <div className="flex items-center justify-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            onValidateAtCashier();
-                            const updated = StampService.addStamp(prize.participantWhatsapp);
-                            setStampCard(updated);
-                            setShowValidationConfirm(false);
-                          }}
-                          className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold uppercase tracking-wider hover:bg-emerald-700 transition-colors"
-                        >
-                          {t("Sí, aplicar descuento", "Yes, apply discount")}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setShowValidationConfirm(false)}
-                          className="px-4 py-2 border border-border bg-white text-muted-foreground rounded-lg text-xs hover:text-foreground transition-colors"
-                        >
-                          {t("Cancelar", "Cancel")}
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => setIsPinModalOpen(true)}
+                    className="w-full inline-flex items-center justify-center gap-2 py-3 px-6 rounded-xl border border-gold text-gold hover:bg-gold hover:text-white text-xs uppercase tracking-[0.18em] font-medium transition-all shadow-sm"
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span>
+                      {t(
+                        "Validar en caja (Uso exclusivo del personal)",
+                        "Redeem at register (Staff use only)",
+                      )}
+                    </span>
+                  </button>
+
+                  <PinAuthModal
+                    isOpen={isPinModalOpen}
+                    onClose={() => setIsPinModalOpen(false)}
+                    onSuccess={() => {
+                      onValidateAtCashier();
+                      const updated = StampService.addStamp(prize.participantWhatsapp);
+                      setStampCard(updated);
+                      // Sincronizar en Supabase
+                      SupabaseService.validateCashierPin(prize.uniqueCode, updated.currentStamps).catch(() => {});
+                    }}
+                  />
                 </div>
               ) : (
                 <div className="p-3.5 rounded-xl bg-muted text-center text-xs text-muted-foreground">

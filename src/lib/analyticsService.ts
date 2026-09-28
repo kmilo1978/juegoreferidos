@@ -21,6 +21,15 @@ export interface DayDistribution {
   percentage: number;
 }
 
+export interface HourSlot {
+  hour: number;
+  label: string;
+  count: number;
+  percentage: number;
+  isDeadHour: boolean;
+  timeSlotName: string;
+}
+
 export interface AnalyticsSummary {
   views: {
     today: number;
@@ -37,6 +46,9 @@ export interface AnalyticsSummary {
     bestDay: string;
     bestDayCount: number;
     dayDistribution: DayDistribution[];
+    hourlyDistribution: HourSlot[];
+    deadHoursSummary: string;
+    peakHoursSummary: string;
   };
 }
 
@@ -177,6 +189,58 @@ export function calculateAnalytics(history: WonPrize[]): AnalyticsSummary {
     ? dayNames[bestDayIndex].name 
     : "Sin datos aún";
 
+  // 4. Distribución por Horas del Día y Detección de Horas Muertas
+  const targetHours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+  const countsByHour: Record<number, number> = {};
+  targetHours.forEach((h) => {
+    countsByHour[h] = 0;
+  });
+
+  history.forEach((prize) => {
+    const ts = prize.createdAt || now;
+    const h = new Date(ts).getHours();
+    if (countsByHour[h] !== undefined) {
+      countsByHour[h] = (countsByHour[h] || 0) + 1;
+    }
+  });
+
+  const totalHourlyPlays = Object.values(countsByHour).reduce((a, b) => a + b, 0);
+
+  const hourlyDistribution: HourSlot[] = targetHours.map((h) => {
+    const count = countsByHour[h] || 0;
+    const percentage = totalHourlyPlays > 0 ? Math.round((count / totalHourlyPlays) * 100) : 0;
+
+    let timeSlotName = "Mañana";
+    if (h >= 12 && h < 15) timeSlotName = "Almuerzo Pico";
+    else if (h >= 15 && h < 18) timeSlotName = "Tarde / Hora Muerta";
+    else if (h >= 18) timeSlotName = "Cena / Noche";
+
+    const isDeadHour = h >= 15 && h <= 17;
+    const ampm = h >= 12 ? "PM" : "AM";
+    const hour12 = h % 12 === 0 ? 12 : h % 12;
+    const label = `${hour12} ${ampm}`;
+
+    return {
+      hour: h,
+      label,
+      count,
+      percentage,
+      isDeadHour,
+      timeSlotName,
+    };
+  });
+
+  const deadHoursPlays = (countsByHour[15] || 0) + (countsByHour[16] || 0) + (countsByHour[17] || 0);
+  const peakLunchPlays = (countsByHour[12] || 0) + (countsByHour[13] || 0) + (countsByHour[14] || 0);
+
+  const deadHoursSummary = deadHoursPlays === 0
+    ? "Franja crítica: 3:00 PM a 6:00 PM sin comensales activos. ¡Ideal para Happy Hour o Sellos Dobles!"
+    : `Franja 3:00 PM a 6:00 PM: ${deadHoursPlays} jugadas (${Math.round((deadHoursPlays / Math.max(totalHourlyPlays, 1)) * 100)}% del total).`;
+
+  const peakHoursSummary = peakLunchPlays > 0
+    ? `Pico Almuerzo (12:00 PM - 3:00 PM): ${peakLunchPlays} jugadas activas.`
+    : "Sin picos registrados aún.";
+
   return {
     views: {
       today: Math.max(viewsToday, 1),
@@ -193,6 +257,9 @@ export function calculateAnalytics(history: WonPrize[]): AnalyticsSummary {
       bestDay: bestDayName,
       bestDayCount: maxCount,
       dayDistribution,
+      hourlyDistribution,
+      deadHoursSummary,
+      peakHoursSummary,
     },
   };
 }

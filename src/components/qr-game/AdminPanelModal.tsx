@@ -16,6 +16,12 @@ import {
   Users,
   Zap,
   Bell,
+  Database,
+  Clock,
+  ShieldCheck,
+  RefreshCw,
+  KeyRound,
+  Copy,
 } from "lucide-react";
 import { calculateAnalytics } from "../../lib/analyticsService";
 import { clientConfig } from "../../config/clientConfig";
@@ -30,6 +36,17 @@ import {
   PushRuntimeConfig,
   OneSignalService,
 } from "../../lib/oneSignalService";
+import {
+  getSupabaseConfig,
+  saveSupabaseConfig,
+  SupabaseConfig,
+  SupabaseService,
+} from "../../lib/supabaseService";
+import {
+  getActiveCashierPin,
+  setActiveCashierPin,
+  generateNewCashierPin,
+} from "../../lib/tableSecurityService";
 
 interface AdminPanelModalProps {
   isOpen: boolean;
@@ -49,9 +66,12 @@ export function AdminPanelModal({
   onGenerateNewTable,
 }: AdminPanelModalProps) {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<"stats" | "prizes" | "campaign" | "messages" | "composio">("stats");
+  const [activeTab, setActiveTab] = useState<"stats" | "prizes" | "campaign" | "messages" | "composio" | "databases">("stats");
   const [composioConfig, setComposioConfig] = useState<ComposioRuntimeConfig>(() => getComposioConfig());
   const [pushConfig, setPushConfig] = useState<PushRuntimeConfig>(() => getPushConfig());
+  const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfig>(() => getSupabaseConfig());
+  const [activePin, setActivePin] = useState(() => getActiveCashierPin());
+  const [supabaseTestStatus, setSupabaseTestStatus] = useState<{ loading: boolean; msg?: string; success?: boolean }>({ loading: false });
 
   // Estados editables de premios
   const [localPrizes, setLocalPrizes] = useState<GamePrize[]>(prizes);
@@ -182,6 +202,19 @@ export function AdminPanelModal({
           >
             <Bell className="h-3.5 w-3.5" />
             <span>{t("Composio & Web Push", "Composio & Web Push")}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("databases")}
+            className={`py-3.5 font-medium uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap flex items-center gap-2 ${
+              activeTab === "databases"
+                ? "border-gold text-gold font-semibold"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Database className="h-3.5 w-3.5" />
+            <span>{t("Google Sheets & Supabase", "Google Sheets & Supabase")}</span>
           </button>
         </div>
 
@@ -347,6 +380,59 @@ export function AdminPanelModal({
                 </div>
               </div>
 
+              {/* BLOQUE 4: HORAS MUERTAS VS HORAS PICO (HORÓMETRO DE ACTIVIDAD) */}
+              <div className="rounded-2xl border border-amber-300/80 bg-gradient-to-br from-amber-50/50 via-background to-orange-50/40 p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <span className="text-[11px] uppercase tracking-wider font-semibold text-amber-700 flex items-center gap-1.5">
+                      <Clock className="h-4 w-4 text-amber-600" />
+                      {t("Horómetro de Actividad & Detección de Horas Muertas", "Hourly Activity & Dead Hours")}
+                    </span>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Identifica a qué horas del día los clientes juegan en mesa para detectar y activar las horas lentas.
+                    </p>
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold">
+                    <span>☕ Franja Muerta Habitual: 3:00 PM a 6:00 PM</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3 rounded-xl bg-background border border-amber-200 text-xs space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-amber-800 block">Diagnóstico de Horas Muertas:</span>
+                    <p className="text-amber-950 font-medium">{analytics.timing.deadHoursSummary}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-background border border-emerald-200 text-xs space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-emerald-800 block">Franja de Mayor Afluencia:</span>
+                    <p className="text-emerald-950 font-medium">{analytics.timing.peakHoursSummary}</p>
+                  </div>
+                </div>
+
+                {/* Tarjetas de horas (8 AM a 10 PM) */}
+                <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-8 gap-2 pt-1">
+                  {analytics.timing.hourlyDistribution.map((slot) => (
+                    <div
+                      key={slot.hour}
+                      className={`p-2.5 rounded-xl border text-center flex flex-col items-center justify-between transition-all ${
+                        slot.isDeadHour
+                          ? "border-amber-300 bg-amber-50/70 text-amber-950"
+                          : slot.count > 0
+                          ? "border-emerald-300 bg-emerald-50/70 text-emerald-950"
+                          : "border-border/60 bg-muted/20 text-muted-foreground"
+                      }`}
+                    >
+                      <span className="text-[10px] font-bold font-mono block">{slot.label}</span>
+                      <span className="text-lg font-black my-0.5">{slot.count}</span>
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-semibold uppercase ${
+                        slot.isDeadHour ? "bg-amber-200 text-amber-800" : "bg-muted text-muted-foreground"
+                      }`}>
+                        {slot.isDeadHour ? "Hora Muerta" : slot.timeSlotName.split("/")[0]}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Registro reciente de premios */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -368,6 +454,7 @@ export function AdminPanelModal({
                     <thead className="bg-muted/50 border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground">
                       <tr>
                         <th className="py-2.5 px-3">Código</th>
+                        <th className="py-2.5 px-3">Hora</th>
                         <th className="py-2.5 px-3">Mesa</th>
                         <th className="py-2.5 px-3">Cliente</th>
                         <th className="py-2.5 px-3">Premio</th>
@@ -377,7 +464,7 @@ export function AdminPanelModal({
                     <tbody className="divide-y divide-border/60">
                       {history.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="py-6 text-center text-muted-foreground italic">
+                          <td colSpan={6} className="py-6 text-center text-muted-foreground italic">
                             No hay participaciones registradas en esta sesión aún.
                           </td>
                         </tr>
@@ -386,6 +473,9 @@ export function AdminPanelModal({
                           <tr key={h.uniqueCode} className="hover:bg-muted/20">
                             <td className="py-2.5 px-3 font-mono font-bold text-gold">
                               {h.uniqueCode}
+                            </td>
+                            <td className="py-2.5 px-3 font-mono text-[11px] text-muted-foreground">
+                              {h.wonAt || "Hoy"}
                             </td>
                             <td className="py-2.5 px-3">{h.tableNumber}</td>
                             <td className="py-2.5 px-3 font-medium text-foreground">
@@ -959,6 +1049,251 @@ Presenta este código al momento de pagar:
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* TAB 6: Bases de Datos (Google Sheets & Supabase) y Seguridad de Mesa */}
+          {activeTab === "databases" && (
+            <div className="space-y-6">
+              {/* Encabezado de la pestaña */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-transparent border border-border">
+                <div className="flex items-center gap-2 mb-1">
+                  <Database className="h-4 w-4 text-gold" />
+                  <h3 className="font-semibold text-sm text-foreground">
+                    Sincronización Dual: Google Sheets & Supabase
+                  </h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  El sistema permite enviar los cupones y los sellos de fidelización a <strong>Google Sheets</strong>, a <strong>Supabase</strong>, o a <strong>ambas plataformas al mismo tiempo</strong> de forma redundante.
+                </p>
+              </div>
+
+              {/* CONTENEDOR DE 2 COLUMNAS: GOOGLE SHEETS A LA IZQUIERDA / SUPABASE A LA DERECHA */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                
+                {/* OPCIÓN 1: GOOGLE SHEETS */}
+                <div className="rounded-2xl border border-emerald-300/80 bg-card p-5 space-y-4 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase font-bold tracking-wider text-emerald-700 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      Opción 1: Google Sheets
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                      Costo $0 · Activo
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Registra cada ruleta jugada y cada canje con PIN en tu hoja de cálculo compartida en Google Drive.
+                  </p>
+
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-semibold text-foreground block">
+                      URL del Webhook de Apps Script:
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://script.google.com/macros/s/.../exec"
+                      value={composioConfig.endpoints.googleSheetWebhookUrl}
+                      onChange={(e) =>
+                        setComposioConfig({
+                          ...composioConfig,
+                          endpoints: {
+                            ...composioConfig.endpoints,
+                            googleSheetWebhookUrl: e.target.value,
+                          },
+                        })
+                      }
+                      className="w-full text-xs font-mono bg-background border border-border rounded-xl p-2.5 text-foreground focus:ring-1 focus:ring-emerald-500 focus:outline-none"
+                    />
+                    <span className="text-[10px] text-muted-foreground block">
+                      Guarda automáticamente: Fecha, Cliente, WhatsApp, Correo, Premio, Código y Canje.
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      saveComposioConfig(composioConfig);
+                      alert("¡Configuración de Google Sheets guardada con éxito!");
+                    }}
+                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs"
+                  >
+                    Guardar Google Sheets
+                  </button>
+                </div>
+
+                {/* OPCIÓN 2: SUPABASE */}
+                <div className="rounded-2xl border border-sky-300/80 bg-card p-5 space-y-4 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase font-bold tracking-wider text-sky-700 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-sky-500"></span>
+                      Opción 2: Supabase (PostgreSQL)
+                    </span>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={supabaseConfig.enabled}
+                        onChange={(e) =>
+                          setSupabaseConfig({ ...supabaseConfig, enabled: e.target.checked })
+                        }
+                        className="rounded text-sky-600 focus:ring-sky-500"
+                      />
+                      <span className="text-xs font-bold text-foreground">Habilitar</span>
+                    </label>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Base de datos profesional en la nube. Conecta sedes múltiples y sincroniza sellos al milisegundo.
+                  </p>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[11px] font-semibold text-foreground block mb-1">
+                        Project URL de Supabase:
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://xyzabcdefg.supabase.co"
+                        value={supabaseConfig.projectUrl}
+                        onChange={(e) =>
+                          setSupabaseConfig({ ...supabaseConfig, projectUrl: e.target.value })
+                        }
+                        className="w-full text-xs font-mono bg-background border border-border rounded-xl p-2.5 text-foreground focus:ring-1 focus:ring-sky-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-foreground block mb-1">
+                        Anon Public Key:
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+                        value={supabaseConfig.anonKey}
+                        onChange={(e) =>
+                          setSupabaseConfig({ ...supabaseConfig, anonKey: e.target.value })
+                        }
+                        className="w-full text-xs font-mono bg-background border border-border rounded-xl p-2.5 text-foreground focus:ring-1 focus:ring-sky-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-foreground block mb-1">
+                        Nombre de la Tabla:
+                      </label>
+                      <input
+                        type="text"
+                        value={supabaseConfig.tableName}
+                        onChange={(e) =>
+                          setSupabaseConfig({ ...supabaseConfig, tableName: e.target.value })
+                        }
+                        className="w-full text-xs font-mono bg-background border border-border rounded-xl p-2.5 text-foreground focus:ring-1 focus:ring-sky-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        saveSupabaseConfig(supabaseConfig);
+                        setSupabaseTestStatus({ loading: true });
+                        const res = await SupabaseService.testConnection();
+                        setSupabaseTestStatus({ loading: false, msg: res.message, success: res.success });
+                      }}
+                      className="flex-1 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs"
+                    >
+                      {supabaseTestStatus.loading ? "Probando..." : "Guardar & Probar Conexión"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(SupabaseService.getSqlCreationScript());
+                        alert("¡Código SQL copiado al portapapeles! Pégalo en el SQL Editor de Supabase y presiona 'Run'.");
+                      }}
+                      className="px-3 py-2 bg-muted hover:bg-muted/80 text-foreground border border-border rounded-xl text-xs font-medium inline-flex items-center justify-center gap-1.5"
+                    >
+                      <Copy className="h-3.5 w-3.5 text-sky-600" />
+                      <span>Copiar SQL</span>
+                    </button>
+                  </div>
+
+                  {supabaseTestStatus.msg && (
+                    <div
+                      className={`p-2.5 rounded-xl text-xs ${
+                        supabaseTestStatus.success
+                          ? "bg-emerald-50 text-emerald-900 border border-emerald-300"
+                          : "bg-red-50 text-red-900 border border-red-300"
+                      }`}
+                    >
+                      {supabaseTestStatus.msg}
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* SECCIÓN 3: CONTROL DE SEGURIDAD ANTIFRAUDE & PIN DINÁMICO */}
+              <div className="rounded-2xl border border-amber-300 bg-amber-50/40 p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="h-5 w-5 text-amber-700" />
+                    <div>
+                      <h4 className="text-xs uppercase font-bold tracking-wider text-amber-900">
+                        Seguridad Antifraude: Códigos Aleatorios de Mesa y PIN de Caja
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground">
+                        Evita que los clientes se aprendan el PIN o jueguen desde sus casas sin consumir.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Tarjeta PIN de Caja */}
+                  <div className="p-4 bg-background rounded-xl border border-border space-y-2">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">
+                      PIN de Validación en Caja (Activo):
+                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-2xl font-bold text-amber-600 px-3 py-1 bg-amber-50 border border-amber-200 rounded-lg">
+                        {activePin}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newPin = generateNewCashierPin();
+                          setActivePin(newPin);
+                          alert(`¡Nuevo PIN de turno generado: ${newPin}! Compártelo solo con tus meseros o cajero.`);
+                        }}
+                        className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors"
+                      >
+                        <RefreshCw className="h-3 w-3" />
+                        <span>Generar Nuevo PIN</span>
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      Si sospechas que un comensal vio el PIN, presiona "Generar Nuevo PIN" para cambiarlo al instante.
+                    </p>
+                  </div>
+
+                  {/* Tarjeta Tokens de Mesa */}
+                  <div className="p-4 bg-background rounded-xl border border-border space-y-2">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground block">
+                      Códigos Aleatorios por Hablador de Mesa:
+                    </span>
+                    <p className="text-xs text-foreground font-medium">
+                      Cada mesa (Mesa 1 a 15) incluye un <strong>Token Aleatorio Único</strong> impreso en su QR.
+                    </p>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                      El cliente debe estar físicamente en la mesa para escanear el QR con su código correspondiente. Puedes regenerar el código de cualquier mesa desde el modal de "Arte para Mesa".
+                    </p>
+                  </div>
+                </div>
+              </div>
+
             </div>
           )}
         </div>
