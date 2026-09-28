@@ -7,10 +7,14 @@ import { waLink, waShareLink } from "@/data/site";
 import emblemaDorado from "@/assets/emblema-dorado.png";
 import { clientConfig } from "@/config/clientConfig";
 
+import { SecondChanceConfig } from "./gameTypes";
+
 interface StepFeedbackProps {
   initialFeedback?: FeedbackData | undefined;
   customerName?: string | undefined;
   isStandAlone?: boolean | undefined;
+  secondChanceConfig?: SecondChanceConfig | undefined;
+  onUnlockSecondChance?: (() => void) | undefined;
   onComplete?: ((data: FeedbackData) => void) | undefined;
   onSwitchToGame?: (() => void) | undefined;
 }
@@ -19,6 +23,8 @@ export function StepFeedback({
   initialFeedback,
   customerName = "",
   isStandAlone = false,
+  secondChanceConfig,
+  onUnlockSecondChance,
   onComplete,
   onSwitchToGame,
 }: StepFeedbackProps) {
@@ -212,6 +218,37 @@ export function StepFeedback({
                 )}
               </div>
             </div>
+
+            {/* DESBLOQUEAR SEGUNDA OPORTUNIDAD TRAS CALIFICAR EN GOOGLE */}
+            {onUnlockSecondChance && secondChanceConfig?.enabled !== false && (
+              <div className="mt-7 pt-6 border-t-2 border-dashed border-amber-500/40 text-center space-y-3 bg-amber-50/50 p-5 rounded-2xl">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-900 text-xs font-bold">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+                  <span>{t("¡Beneficio Extra Desbloqueado!", "Extra Benefit Unlocked!")}</span>
+                </div>
+                <h4 className="text-base sm:text-lg font-serif font-bold text-neutral-900">
+                  {t("¿Quieres una Segunda Oportunidad de Ganar?", "Want a Second Chance to Win?")}
+                </h4>
+                <p className="text-xs text-neutral-600 font-light max-w-md mx-auto leading-relaxed">
+                  {t(
+                    "Comparte tu experiencia en tus Estados de WhatsApp y desbloquea el Reto de Precisión 10s para ganar: ",
+                    "Share your experience on your WhatsApp Statuses and unlock the 10s Precision Challenge to win: "
+                  )}
+                  <strong className="text-amber-800 font-bold block mt-1 text-sm">
+                    {secondChanceConfig?.prizeName || "Postre Artesanal de Autor Gratis"}
+                  </strong>
+                </p>
+                <div className="pt-2 flex flex-col items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={onUnlockSecondChance}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 py-3.5 px-8 rounded-2xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-xs uppercase tracking-wider font-bold shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-[0.98]"
+                  >
+                    <span>{t("🎁 Desbloquear 2ª Oportunidad ➔", "🎁 Unlock 2nd Chance ➔")}</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </Reveal>
       )}

@@ -25,12 +25,22 @@ export function GameHeader({
 }: GameHeaderProps) {
   const { t } = useLanguage();
 
-  const gameSteps = [
+  const isSecondChance = currentStep >= 5;
+
+  const initialSteps = [
     { num: 1, label: t("Tus Datos", "Your Info") },
     { num: 2, label: t("El Desafío", "The Challenge") },
     { num: 3, label: t("Tu Premio", "Your Prize") },
     { num: 4, label: t("Calificación", "Review") },
   ];
+
+  const secondChanceSteps = [
+    { num: 5, label: t("Estados WhatsApp", "WhatsApp Status") },
+    { num: 6, label: t("Enviar Captura", "Send Screenshot") },
+    { num: 7, label: t("Reto Cronómetro", "Timer Challenge") },
+  ];
+
+  const gameSteps = isSecondChance ? secondChanceSteps : initialSteps;
 
   const isDebug = typeof window !== "undefined" && window.location.search.includes("debug=1");
 
@@ -115,6 +125,11 @@ export function GameHeader({
           {/* Stepper horizontal si está en modo Juego */}
           {activeMode === "game" && (
             <div className="flex items-center justify-between sm:justify-end gap-1 sm:gap-2">
+              {isSecondChance && (
+                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-800 border border-emerald-500/25 mr-1">
+                  ⭐ {t("2ª Oportunidad", "2nd Chance")}
+                </span>
+              )}
               {gameSteps.map((s) => {
                 const isCompleted = s.num < currentStep;
                 const isCurrent = s.num === currentStep;

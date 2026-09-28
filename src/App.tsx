@@ -8,6 +8,9 @@ import {
   GamePrize,
   WonPrize,
   DEFAULT_PRIZES,
+  GameConfig,
+  SecondChanceConfig,
+  DEFAULT_SECOND_CHANCE_CONFIG,
 } from "./components/qr-game/gameTypes";
 import { GameHeader } from "./components/qr-game/GameHeader";
 import { StepFeedback } from "./components/qr-game/StepFeedback";
@@ -16,6 +19,9 @@ import { StepInstagramStory } from "./components/qr-game/StepInstagramStory";
 import { StepRouletteWheel } from "./components/qr-game/StepRouletteWheel";
 import { StepPrecisionTimer } from "./components/qr-game/StepPrecisionTimer";
 import { StepPrizeClaim } from "./components/qr-game/StepPrizeClaim";
+import { StepSecondChanceShare } from "./components/qr-game/StepSecondChanceShare";
+import { StepSecondChanceVerify } from "./components/qr-game/StepSecondChanceVerify";
+import { StepSecondChancePrecision } from "./components/qr-game/StepSecondChancePrecision";
 import { AdminPanelModal } from "./components/qr-game/AdminPanelModal";
 import { PinAuthModal } from "./components/qr-game/PinAuthModal";
 import { TableStandModal } from "./components/qr-game/TableStandModal";
@@ -25,7 +31,7 @@ import { OneSignalService } from "./lib/oneSignalService";
 import { SupabaseService } from "./lib/supabaseService";
 import { TableManagerService } from "./lib/tableManagerService";
 import { GameConfigService } from "./lib/gameConfigService";
-import { GameConfig } from "./components/qr-game/gameTypes";
+import { SecondChanceService } from "./lib/secondChanceService";
 import { MessageCircle, Sparkles, Timer, RotateCcw } from "lucide-react";
 import { site } from "./data/site";
 import { clientConfig } from "./config/clientConfig";
@@ -88,6 +94,11 @@ function JuegoQrPage() {
   const [gameConfig, setGameConfig] = useState<GameConfig>(() => GameConfigService.getGameConfig());
   const [chosenGameMode, setChosenGameMode] = useState<"roulette" | "precision" | null>(null);
 
+  // Configuración de Segunda Oportunidad (WhatsApp Status + Cronómetro de Precisión)
+  const [secondChanceConfig, setSecondChanceConfig] = useState<SecondChanceConfig>(() =>
+    SecondChanceService.getSecondChanceConfig()
+  );
+
   // Registrar visita, cargar historial persistente y sincronizar configuración de juego
   useEffect(() => {
     recordPageView();
@@ -98,10 +109,13 @@ function JuegoQrPage() {
       setHistory(stored);
     }
 
-    // Sincronizar configuración en vivo con el backend al inicio y periódicamente
+    // Sincronizar configuraciones en vivo con el backend al inicio y periódicamente
     const syncBackendConfig = () => {
       GameConfigService.syncFromBackend().then((cfg) => {
         if (cfg) setGameConfig(cfg);
+      });
+      SecondChanceService.syncFromBackend().then((sc) => {
+        if (sc) setSecondChanceConfig(sc);
       });
     };
     syncBackendConfig();
@@ -109,8 +123,11 @@ function JuegoQrPage() {
 
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      // Atajos para probar directamente el juego elegido o forzar uno
-      if (params.get("juego") === "precision" || params.get("test") === "precision" || params.get("paso") === "2") {
+      // Atajos para probar directamente cada paso o juego
+      const requestedStep = params.get("paso");
+      if (requestedStep && ["1", "2", "3", "4", "5", "6", "7"].includes(requestedStep)) {
+        setCurrentStep(parseInt(requestedStep, 10));
+      } else if (params.get("juego") === "precision" || params.get("test") === "precision") {
         sessionStorage.removeItem("juego_won_prize");
         setChosenGameMode("precision");
         setCurrentStep(2);
@@ -142,10 +159,18 @@ function JuegoQrPage() {
         setGameConfig(customEvent.detail);
       }
     };
+    const handleSecondChanceChange = (e: Event) => {
+      const customEvent = e as CustomEvent<SecondChanceConfig>;
+      if (customEvent.detail) {
+        setSecondChanceConfig(customEvent.detail);
+      }
+    };
     window.addEventListener("game-config-changed", handleConfigChange);
+    window.addEventListener("second-chance-config-changed", handleSecondChanceChange);
     return () => {
       clearInterval(pollInterval);
       window.removeEventListener("game-config-changed", handleConfigChange);
+      window.removeEventListener("second-chance-config-changed", handleSecondChanceChange);
     };
   }, []);
 
@@ -511,6 +536,11 @@ function JuegoQrPage() {
                   <StepPrizeClaim
                     prize={wonPrize}
                     onValidateAtCashier={handleOpenValidatePin}
+                    secondChanceConfig={secondChanceConfig}
+                    onUnlockSecondChance={() => {
+                      setCurrentStep(5);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
                   />
 
                   {/* Atajo discreto para modo desarrollo si ?debug=1 */}
@@ -554,11 +584,74 @@ function JuegoQrPage() {
               <div>
                 <StepFeedback
                   initialFeedback={feedback}
-                  customerName={participant?.fullName}
+                  customerName={participant?.fullName || wonPrize?.participantName}
                   isStandAlone={false}
+                  secondChanceConfig={secondChanceConfig}
+                  onUnlockSecondChance={() => {
+                    setCurrentStep(5);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
                   onComplete={(fb) => setFeedback(fb)}
                   onSwitchToGame={() => {
                     setCurrentStep(1);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                />
+              </div>
+            )}
+
+            {/* PASO 5: SEGUNDA OPORTUNIDAD - COMPARTIR EN ESTADOS DE WHATSAPP */}
+            {currentStep === 5 && (
+              <div>
+                <StepSecondChanceShare
+                  secondChanceConfig={secondChanceConfig}
+                  participantName={participant?.fullName || wonPrize?.participantName}
+                  tableNumber={session.tableNumber}
+                  onProceedToVerify={() => {
+                    setCurrentStep(6);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  onSkip={() => {
+                    setCurrentStep(3);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                />
+              </div>
+            )}
+
+            {/* PASO 6: SEGUNDA OPORTUNIDAD - ENVIAR CAPTURA AL WHATSAPP DEL RESTAURANTE */}
+            {currentStep === 6 && (
+              <div>
+                <StepSecondChanceVerify
+                  secondChanceConfig={secondChanceConfig}
+                  participantName={participant?.fullName || wonPrize?.participantName}
+                  participantWhatsapp={participant?.whatsapp || wonPrize?.participantWhatsapp}
+                  tableNumber={session.tableNumber}
+                  onProceedToChallenge={() => {
+                    setCurrentStep(7);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  onBack={() => {
+                    setCurrentStep(5);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                />
+              </div>
+            )}
+
+            {/* PASO 7: SEGUNDA OPORTUNIDAD - RETO DEL CRONÓMETRO DE PRECISIÓN 10S */}
+            {currentStep === 7 && (
+              <div>
+                <StepSecondChancePrecision
+                  secondChanceConfig={secondChanceConfig}
+                  participantName={participant?.fullName || wonPrize?.participantName}
+                  tableNumber={session.tableNumber}
+                  participantWhatsapp={participant?.whatsapp || wonPrize?.participantWhatsapp}
+                  onPrizeWon={(prize) => {
+                    handlePrizeWon(prize);
+                  }}
+                  onExit={() => {
+                    setCurrentStep(3);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 />

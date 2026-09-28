@@ -81,6 +81,16 @@ const DEFAULT_SETTINGS = {
     validationChannel: "both", // "both" | "instagram" | "whatsapp"
     reviewTiming: "after_game",
   },
+  secondChance: {
+    enabled: true,
+    prizeName: "Postre Artesanal Gratis",
+    prizeDescription: "Una porción de nuestra Tarta Vasca artesanal del día",
+    prizeImageUrl: "/src/assets/tarta-vasca.jpg",
+    prizeImageSize: "medium", // "small" | "medium" | "large"
+    maxAttempts: 3,
+    shareChannels: ["instagram", "whatsapp"], // canales disponibles para compartir
+    whatsappVerificationMessage: "¡Hola! 📸 Te comparto mi captura de estado para participar en la 2ª oportunidad del Reto de Precisión en {restaurante}. Mesa {tableNumber} - Cliente: {participantName}",
+  },
   databases: {
     googleSheetWebhookUrl: "",
     supabaseEnabled: false,
@@ -260,6 +270,10 @@ if (fs.existsSync(DB_FILE)) {
           ...DEFAULT_SETTINGS.gameConfig,
           ...((loaded.settings && loaded.settings.gameConfig) || {}),
         },
+        secondChance: {
+          ...DEFAULT_SETTINGS.secondChance,
+          ...((loaded.settings && loaded.settings.secondChance) || {}),
+        },
       },
     };
   } catch (err) {
@@ -395,6 +409,38 @@ const server = http.createServer((req, res) => {
           logRequest("POST", "/api/game-config", 200, `Mecánica de juego actualizada: ${db.settings.gameConfig.gameMode}`);
           res.writeHead(200, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ success: true, gameConfig: db.settings.gameConfig }));
+        } catch (err) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: false, error: err.message }));
+        }
+      });
+      return;
+    }
+  }
+
+  // 12. API: CONFIGURACIÓN DE SEGUNDA OPORTUNIDAD (GET & POST /api/second-chance-config)
+  if (pathname === "/api/second-chance-config") {
+    if (req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: true, secondChance: db.settings.secondChance || DEFAULT_SETTINGS.secondChance }));
+      return;
+    }
+
+    if (req.method === "POST") {
+      let body = "";
+      req.on("data", (chunk) => (body += chunk));
+      req.on("end", () => {
+        try {
+          const data = JSON.parse(body || "{}");
+          const incoming = data.secondChance || data;
+          db.settings.secondChance = {
+            ...(db.settings.secondChance || DEFAULT_SETTINGS.secondChance),
+            ...incoming,
+          };
+          saveDb();
+          logRequest("POST", "/api/second-chance-config", 200, `Segunda Oportunidad actualizada: ${db.settings.secondChance.prizeName} (${db.settings.secondChance.maxAttempts} intentos, foto: ${db.settings.secondChance.prizeImageSize})`);
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: true, secondChance: db.settings.secondChance }));
         } catch (err) {
           res.writeHead(400, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ success: false, error: err.message }));
@@ -584,6 +630,8 @@ const server = http.createServer((req, res) => {
         if (data.channels) db.settings.channels = { ...db.settings.channels, ...data.channels };
         if (data.prizes && Array.isArray(data.prizes)) db.settings.prizes = data.prizes;
         if (data.stamps) db.settings.stamps = { ...db.settings.stamps, ...data.stamps };
+        if (data.gameConfig) db.settings.gameConfig = { ...(db.settings.gameConfig || DEFAULT_SETTINGS.gameConfig), ...data.gameConfig };
+        if (data.secondChance) db.settings.secondChance = { ...(db.settings.secondChance || DEFAULT_SETTINGS.secondChance), ...data.secondChance };
         if (data.databases) db.settings.databases = { ...db.settings.databases, ...data.databases };
         if (data.composio) {
           db.settings.composio = {
@@ -771,6 +819,7 @@ const server = http.createServer((req, res) => {
 function renderBackendDashboard() {
   const s = db.settings;
   const gc = s.gameConfig || DEFAULT_SETTINGS.gameConfig;
+  const sc = s.secondChance || DEFAULT_SETTINGS.secondChance;
   const totalPrizes = db.prizes.length;
   const redeemed = db.prizes.filter((p) => p.status === "UTILIZADO").length;
   const totalCustomers = Object.keys(db.customers).length;
@@ -2281,6 +2330,117 @@ function renderBackendDashboard() {
               <button class="btn-save" onclick="saveGameModeConfig()">⚡ Activar Juego Seleccionado</button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- PANEL SEGUNDA OPORTUNIDAD: ESTADOS DE WHATSAPP + RETO DE PRECISIÓN 10S -->
+      <div class="panel" style="margin-top: 24px; border: 2px solid var(--accent); background: linear-gradient(135deg, #FFFBEB 0%, #FFFFFF 100%);">
+        <div class="panel-header" style="border-bottom: 1px solid rgba(162, 126, 44, 0.2); padding-bottom: 12px; margin-bottom: 16px;">
+          <div class="panel-title">
+            <span style="font-size: 18px;">🎁 Segunda Oportunidad: Estados de WhatsApp + Reto de Precisión 10s</span>
+            <span style="font-size: 11px; background: var(--accent-light); color: var(--accent); padding: 3px 8px; border-radius: 9999px; font-weight: 700; border: 1px solid rgba(162,126,44,0.3);">ESTRATEGIA VIRAL</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="toast-second-chance" class="toast-success">✓ ¡Segunda Oportunidad guardada!</span>
+            <button class="btn-save" onclick="saveSecondChanceConfig()">💾 Guardar 2ª Oportunidad</button>
+          </div>
+        </div>
+
+        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 18px; line-height: 1.6;">
+          <strong>Estrategia Viral Separada:</strong> Tras calificar en Google, el comensal desbloquea una <strong>Segunda Oportunidad</strong> si comparte la experiencia en sus <strong>Estados de WhatsApp</strong>. El cliente envía la captura de su estado al WhatsApp del restaurante y juega el Reto de Precisión 10s para ganar un premio especial visible y limpio.
+        </p>
+
+        <!-- Formulario de Configuración de 2ª Oportunidad -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
+          <!-- 1. Switch de Activación -->
+          <div class="form-group">
+            <label class="form-label">Estado de la 2ª Oportunidad</label>
+            <select id="scEnabled" class="form-input">
+              <option value="true" ${sc.enabled !== false ? 'selected' : ''}>✅ ACTIVO — Ofrecer tras calificar en Google</option>
+              <option value="false" ${sc.enabled === false ? 'selected' : ''}>⏸️ PAUSADO — No mostrar 2ª oportunidad</option>
+            </select>
+            <span class="form-help">Si está activo, los comensales verán el botón para desbloquear el reto</span>
+          </div>
+
+          <!-- 2. Nombre del Premio -->
+          <div class="form-group">
+            <label class="form-label">Nombre del Premio a Ganar *</label>
+            <input type="text" id="scPrizeName" class="form-input" value="${sc.prizeName || 'Postre Artesanal de Autor Gratis'}" placeholder="Ej. Postre Artesanal de Autor Gratis" oninput="updateSecondChancePreview()" />
+            <span class="form-help">Título grande y tentador que verá el comensal antes de jugar</span>
+          </div>
+
+          <!-- 3. Descripción del Premio -->
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label">Descripción Gastronómica del Premio</label>
+            <input type="text" id="scPrizeDescription" class="form-input" value="${sc.prizeDescription || 'Una porción de nuestra Tarta Vasca artesanal o Red Velvet del día'}" placeholder="Ej. Porción de Tarta Vasca o Red Velvet" oninput="updateSecondChancePreview()" />
+            <span class="form-help">Detalles que antojen al comensal a esforzarse por ganar</span>
+          </div>
+
+          <!-- 4. Foto del Premio (Catálogo + URL personalizada) -->
+          <div class="form-group">
+            <label class="form-label">Foto del Premio (Catálogo o URL)</label>
+            <select id="scPresetImage" class="form-input" onchange="onSelectSecondChanceImage(this.value)">
+              <option value="/src/assets/tarta-vasca.jpg" ${sc.prizeImageUrl?.includes('tarta-vasca') ? 'selected' : ''}>🍰 Tarta Vasca Artesanal (Catálogo)</option>
+              <option value="/src/assets/torta-red-velvet.jpg" ${sc.prizeImageUrl?.includes('red-velvet') ? 'selected' : ''}>🎂 Torta Red Velvet (Catálogo)</option>
+              <option value="/src/assets/cafe-latte.jpg" ${sc.prizeImageUrl?.includes('cafe-latte') ? 'selected' : ''}>☕ Café Latte Gourmet (Catálogo)</option>
+              <option value="custom" ${!sc.prizeImageUrl?.includes('/src/assets/') ? 'selected' : ''}>🔗 URL Personalizada...</option>
+            </select>
+            <input type="text" id="scPrizeImageUrl" class="form-input" style="margin-top: 6px;" value="${sc.prizeImageUrl || '/src/assets/tarta-vasca.jpg'}" placeholder="URL de la imagen" oninput="updateSecondChancePreview()" />
+          </div>
+
+          <!-- 5. Tamaño de la Foto en Pantalla -->
+          <div class="form-group">
+            <label class="form-label">Tamaño de la Foto en el Cronómetro</label>
+            <select id="scPrizeImageSize" class="form-input" onchange="updateSecondChancePreview()">
+              <option value="small" ${sc.prizeImageSize === 'small' ? 'selected' : ''}>Compacto (Insignia elegante - 120px)</option>
+              <option value="medium" ${sc.prizeImageSize === 'medium' || !sc.prizeImageSize ? 'selected' : ''}>Mediano (Tarjeta gastronómica - 180px - Recomendado)</option>
+              <option value="large" ${sc.prizeImageSize === 'large' ? 'selected' : ''}>Grande (Banner gourmet impactante - 260px)</option>
+            </select>
+            <span class="form-help">Controla cómo se muestra la imagen antes y durante el reto</span>
+          </div>
+
+          <!-- 6. Intentos / Oportunidades en el Cronómetro -->
+          <div class="form-group">
+            <label class="form-label">Número de Oportunidades (Intentos)</label>
+            <select id="scMaxAttempts" class="form-input">
+              <option value="1" ${sc.maxAttempts == 1 ? 'selected' : ''}>1 intento — Máxima emoción</option>
+              <option value="2" ${sc.maxAttempts == 2 ? 'selected' : ''}>2 intentos — Equilibrado</option>
+              <option value="3" ${!sc.maxAttempts || sc.maxAttempts == 3 ? 'selected' : ''}>3 intentos — Recomendado (más divertido)</option>
+              <option value="5" ${sc.maxAttempts == 5 ? 'selected' : ''}>5 intentos — Generoso (alta fidelización)</option>
+            </select>
+            <span class="form-help">Veces que el cliente puede frenar el cronómetro antes de perder</span>
+          </div>
+
+          <!-- 7. Dificultad del Reto -->
+          <div class="form-group">
+            <label class="form-label">Dificultad de la 2ª Oportunidad</label>
+            <select id="scDifficulty" class="form-input">
+              <option value="facil" ${sc.difficulty === 'facil' ? 'selected' : ''}>🟢 Fácil (±80ms: 9.920s a 10.080s) — Más ganadores</option>
+              <option value="medio" ${sc.difficulty === 'medio' || !sc.difficulty ? 'selected' : ''}>🟡 Medio (±40ms: 9.960s a 10.040s) — Justo y equilibrado</option>
+              <option value="dificil" ${sc.difficulty === 'dificil' ? 'selected' : ''}>🔴 Boutique Experto (±15ms: 9.985s a 10.015s) — Exclusivo</option>
+            </select>
+            <span class="form-help">Margen milimétrico en torno a 10.000s</span>
+          </div>
+        </div>
+
+        <!-- Vista Previa en Vivo de la Tarjeta del Premio -->
+        <div style="margin-top: 18px; padding: 16px; background: #FFFFFF; border: 1px solid var(--card-border); border-radius: 12px;">
+          <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
+            👁️ Vista Previa de la Tarjeta que verá el Comensal en el Cronómetro:
+          </div>
+          <div id="scPreviewBox" style="max-width: 360px; margin: 0 auto; border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; background: #FFFFFF; box-shadow: 0 4px 14px rgba(0,0,0,0.06); text-align: center;">
+            <div id="scPreviewImgWrap" style="height: ${sc.prizeImageSize === 'small' ? '120px' : sc.prizeImageSize === 'large' ? '260px' : '180px'}; background: #F1F5F9; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+              <img id="scPreviewImg" src="${sc.prizeImageUrl || '/src/assets/tarta-vasca.jpg'}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/src/assets/tarta-vasca.jpg'" />
+            </div>
+            <div style="padding: 14px 16px;">
+              <span style="font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase;">🏆 Tu Premio Si Ganas</span>
+              <h4 id="scPreviewTitle" style="font-size: 15px; font-weight: 800; color: var(--text); margin: 4px 0 2px;">${sc.prizeName || 'Postre Artesanal de Autor Gratis'}</h4>
+              <p id="scPreviewDesc" style="font-size: 11px; color: var(--text-muted);">${sc.prizeDescription || 'Una porción de nuestra Tarta Vasca artesanal del día'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- ========================================================================= -->
     <!-- PESTAÑA: PREMIOS DE RULETA & PROBABILIDADES MATEMÁTICAS (SUMA = 100%)      -->
@@ -3454,6 +3614,87 @@ function renderBackendDashboard() {
       })
       .catch(function(err) {
         if (btn) { btn.disabled = false; btn.textContent = '⚡ Activar Juego Seleccionado'; }
+        alert('Error conectando con el servidor: ' + err.message);
+      });
+    }
+
+    // SEGUNDA OPORTUNIDAD: CAMBIO DE IMAGEN PRESET
+    function onSelectSecondChanceImage(val) {
+      var urlInput = document.getElementById('scPrizeImageUrl');
+      if (val === 'custom') {
+        if (urlInput) { urlInput.focus(); urlInput.select(); }
+      } else {
+        if (urlInput) urlInput.value = val;
+      }
+      updateSecondChancePreview();
+    }
+
+    // SEGUNDA OPORTUNIDAD: ACTUALIZAR VISTA PREVIA EN VIVO
+    function updateSecondChancePreview() {
+      var name = document.getElementById('scPrizeName') ? document.getElementById('scPrizeName').value : '';
+      var desc = document.getElementById('scPrizeDescription') ? document.getElementById('scPrizeDescription').value : '';
+      var imgUrl = document.getElementById('scPrizeImageUrl') ? document.getElementById('scPrizeImageUrl').value : '';
+      var size = document.getElementById('scPrizeImageSize') ? document.getElementById('scPrizeImageSize').value : 'medium';
+
+      var titleEl = document.getElementById('scPreviewTitle');
+      if (titleEl) titleEl.innerText = name || 'Postre Artesanal de Autor Gratis';
+
+      var descEl = document.getElementById('scPreviewDesc');
+      if (descEl) descEl.innerText = desc || 'Una porción de nuestra Tarta Vasca artesanal del día';
+
+      var imgEl = document.getElementById('scPreviewImg');
+      if (imgEl && imgUrl) imgEl.src = imgUrl;
+
+      var wrapEl = document.getElementById('scPreviewImgWrap');
+      if (wrapEl) {
+        wrapEl.style.height = size === 'small' ? '120px' : size === 'large' ? '260px' : '180px';
+      }
+    }
+
+    // SEGUNDA OPORTUNIDAD: GUARDAR EN BACKEND
+    function saveSecondChanceConfig() {
+      var enabled = document.getElementById('scEnabled') ? document.getElementById('scEnabled').value === 'true' : true;
+      var prizeName = document.getElementById('scPrizeName') ? document.getElementById('scPrizeName').value.trim() : 'Postre Artesanal de Autor Gratis';
+      var prizeDescription = document.getElementById('scPrizeDescription') ? document.getElementById('scPrizeDescription').value.trim() : '';
+      var prizeImageUrl = document.getElementById('scPrizeImageUrl') ? document.getElementById('scPrizeImageUrl').value.trim() : '/src/assets/tarta-vasca.jpg';
+      var prizeImageSize = document.getElementById('scPrizeImageSize') ? document.getElementById('scPrizeImageSize').value : 'medium';
+      var maxAttempts = document.getElementById('scMaxAttempts') ? parseInt(document.getElementById('scMaxAttempts').value, 10) : 3;
+      var difficulty = document.getElementById('scDifficulty') ? document.getElementById('scDifficulty').value : 'medio';
+
+      var toleranceMs = difficulty === 'facil' ? 80 : difficulty === 'dificil' ? 15 : 40;
+
+      var secondChance = {
+        enabled: enabled,
+        prizeName: prizeName,
+        prizeDescription: prizeDescription,
+        prizeImageUrl: prizeImageUrl,
+        prizeImageSize: prizeImageSize,
+        maxAttempts: maxAttempts,
+        difficulty: difficulty,
+        toleranceMs: toleranceMs,
+        whatsappStatusText: "¡Disfrutando de una tarde increíble en Bliss Soul Bakery & Café! ☕🍰 Les recomiendo probar sus postres artesanales. 10/10 ✨",
+        whatsappVerificationMessage: "¡Hola! 📸 Acabo de compartir en mis Estados de WhatsApp la experiencia. Aquí les envío la captura de pantalla de mi estado para reclamar mi 2ª oportunidad en el Reto del Cronómetro."
+      };
+
+      var btn = document.querySelector('[onclick="saveSecondChanceConfig()"]');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Guardando...'; }
+
+      fetch('/api/second-chance-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ secondChance: secondChance })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar 2ª Oportunidad'; }
+        if (data.success) {
+          showToast('toast-second-chance');
+        } else {
+          alert('Error guardando 2ª oportunidad: ' + (data.error || 'Desconocido'));
+        }
+      })
+      .catch(function(err) {
+        if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar 2ª Oportunidad'; }
         alert('Error conectando con el servidor: ' + err.message);
       });
     }

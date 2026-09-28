@@ -230,6 +230,21 @@
       "validationChannel": "both",
       "reviewTiming": "after_game"
     },
+    "secondChance": {
+      "enabled": true,
+      "prizeName": "Postre Artesanal de Autor Gratis",
+      "prizeDescription": "Porci�n de Tarta Vasca artesanal reci�n horneada",
+      "prizeImageUrl": "/src/assets/tarta-vasca.jpg",
+      "prizeImageSize": "medium",
+      "maxAttempts": 3,
+      "shareChannels": [
+        "instagram",
+        "whatsapp"
+      ],
+      "whatsappVerificationMessage": "¡Hola! 📸 Te comparto mi captura de estado para participar en la 2ª oportunidad del Reto de Precisión en {restaurante}. Mesa {tableNumber} - Cliente: {participantName}",
+      "difficulty": "medio",
+      "toleranceMs": 40
+    },
     "databases": {
       "googleSheetWebhookUrl": "",
       "supabaseEnabled": false,

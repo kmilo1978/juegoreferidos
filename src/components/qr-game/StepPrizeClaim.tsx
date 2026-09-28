@@ -14,12 +14,21 @@ import { StampService } from "@/lib/stampService";
 import { PinAuthModal } from "./PinAuthModal";
 import { SupabaseService } from "@/lib/supabaseService";
 
+import { SecondChanceConfig } from "./gameTypes";
+
 interface StepPrizeClaimProps {
   prize: WonPrize;
   onValidateAtCashier: () => void;
+  secondChanceConfig?: SecondChanceConfig | undefined;
+  onUnlockSecondChance?: (() => void) | undefined;
 }
 
-export function StepPrizeClaim({ prize, onValidateAtCashier }: StepPrizeClaimProps) {
+export function StepPrizeClaim({
+  prize,
+  onValidateAtCashier,
+  secondChanceConfig,
+  onUnlockSecondChance,
+}: StepPrizeClaimProps) {
   const { lang, t } = useLanguage();
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
 
@@ -457,7 +466,12 @@ Restaurante: ${clientConfig.brand.name}
           </p>
         </div>
 
-        <StepFeedback customerName={prize.participantName} isStandAlone={false} />
+        <StepFeedback
+          customerName={prize.participantName}
+          isStandAlone={false}
+          secondChanceConfig={secondChanceConfig}
+          onUnlockSecondChance={onUnlockSecondChance}
+        />
       </div>
 
       {/* MOTOR VIRAL DE REFERIDOS: INVITAR AMIGOS A VISITAR EL LOCAL */}

@@ -83,6 +83,32 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
   reviewTiming: "after_game",
 };
 
+export interface SecondChanceConfig {
+  enabled: boolean;
+  prizeName: string;
+  prizeDescription: string;
+  prizeImageUrl: string;
+  prizeImageSize: "small" | "medium" | "large";
+  maxAttempts: number;
+  difficulty: PrecisionDifficulty;
+  toleranceMs: number;
+  whatsappStatusText?: string;
+  whatsappVerificationMessage?: string;
+}
+
+export const DEFAULT_SECOND_CHANCE_CONFIG: SecondChanceConfig = {
+  enabled: true,
+  prizeName: "Postre Artesanal de Autor Gratis",
+  prizeDescription: "Una porción de nuestra Tarta Vasca artesanal del día",
+  prizeImageUrl: "/src/assets/tarta-vasca.jpg",
+  prizeImageSize: "medium",
+  maxAttempts: 3,
+  difficulty: "medio",
+  toleranceMs: 40,
+  whatsappStatusText: "¡Disfrutando de una tarde increíble en Bliss Soul Bakery & Café! ☕🍰 Les recomiendo probar sus postres artesanales. 10/10 ✨",
+  whatsappVerificationMessage: "¡Hola! 📸 Acabo de compartir en mis Estados de WhatsApp la experiencia. Aquí les envío la captura de pantalla de mi estado para reclamar mi 2ª oportunidad en el Reto del Cronómetro.",
+};
+
 export const DEFAULT_PRIZES: GamePrize[] = [
   {
     id: "p1",
