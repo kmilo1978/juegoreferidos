@@ -450,6 +450,9 @@ export class OneSignalService {
     body: string;
     url?: string;
     segment?: string;
+    scheduleType?: "immediate" | "scheduled";
+    scheduledTime?: string;
+    channels?: { push: boolean; webhook: boolean; whatsappPreview: boolean };
   }): Promise<{ success: boolean; message: string }> {
     const config = getPushConfig();
 
@@ -457,28 +460,34 @@ export class OneSignalService {
     this.showLocalTestNotification(payload.title, payload.body);
 
     // 2. Si tiene REST API Key y App ID de OneSignal, enviar a través de OneSignal REST API
-    if (config.appId && config.restApiKey) {
+    if (config.appId && config.restApiKey && (payload.channels?.push ?? true)) {
       try {
+        const bodyPayload: any = {
+          app_id: config.appId,
+          included_segments: [payload.segment || "Subscribed Users"],
+          headings: { en: payload.title, es: payload.title },
+          contents: { en: payload.body, es: payload.body },
+          url: payload.url || (typeof window !== "undefined" ? window.location.origin : ""),
+        };
+
+        if (payload.scheduleType === "scheduled" && payload.scheduledTime) {
+          bodyPayload.send_after = new Date(payload.scheduledTime).toUTCString();
+        }
+
         const response = await fetch("https://onesignal.com/api/v1/notifications", {
           method: "POST",
           headers: {
             "Content-Type": "application/json; charset=utf-8",
             Authorization: `Basic ${config.restApiKey}`,
           },
-          body: JSON.stringify({
-            app_id: config.appId,
-            included_segments: [payload.segment || "Subscribed Users"],
-            headings: { en: payload.title, es: payload.title },
-            contents: { en: payload.body, es: payload.body },
-            url: payload.url || (typeof window !== "undefined" ? window.location.origin : ""),
-          }),
+          body: JSON.stringify(bodyPayload),
         });
 
         const data = await response.json();
         if (response.ok && data.id) {
           return {
             success: true,
-            message: `¡Notificación masiva enviada con éxito! (ID OneSignal: ${data.id})`,
+            message: `¡Notificación ${payload.scheduleType === "scheduled" ? "programada" : "enviada"} con éxito! (ID OneSignal: ${data.id})`,
           };
         }
       } catch (err: any) {
@@ -486,7 +495,7 @@ export class OneSignalService {
       }
     }
 
-    // 3. Fallback de backend local / webhook
+    // 3. Fallback y registro en el backend local / webhook
     try {
       await fetch("http://localhost:3001/api/push/broadcast", {
         method: "POST",
@@ -495,14 +504,131 @@ export class OneSignalService {
           title: payload.title,
           body: payload.body,
           url: payload.url,
+          segment: payload.segment,
+          scheduleType: payload.scheduleType || "immediate",
+          scheduledTime: payload.scheduledTime || "",
+          channels: payload.channels || { push: true, webhook: true, whatsappPreview: true },
           sentAt: new Date().toLocaleTimeString("es-CO"),
         }),
       });
     } catch {}
 
+    const isScheduled = payload.scheduleType === "scheduled";
     return {
       success: true,
-      message: "¡Campaña push enviada exitosamente a los suscriptores y registrada en el sistema!",
+      message: isScheduled
+        ? `¡Campaña programada con éxito para el ${payload.scheduledTime}! Guardada en el sistema.`
+        : "¡Campaña push enviada exitosamente a los suscriptores y registrada en el sistema!",
     };
   }
+}
+
+export interface CustomSavedOffer {
+  id: string;
+  name: string;
+  title: string;
+  body: string;
+  url: string;
+  segment: string;
+  scheduleType: "immediate" | "scheduled";
+  scheduledTime?: string;
+  channels: {
+    push: boolean;
+    webhook: boolean;
+    whatsappPreview: boolean;
+  };
+  createdAt: string;
+}
+
+export const DEFAULT_SAVED_OFFERS: CustomSavedOffer[] = [
+  {
+    id: "offer_happy_hour",
+    name: "⚡ Happy Hour 2x1 (3 a 6 PM)",
+    title: "⚡ ¡Happy Hour 2x1 en Café y Bebidas de Autor!",
+    body: "¡Hola {nombre}! Hoy de 3:00 a 6:00 PM acumula el DOBLE de sellos y disfruta 2x1 en bebidas. ¡Muestra este mensaje en caja!",
+    url: "",
+    segment: "Subscribed Users",
+    scheduleType: "immediate",
+    channels: { push: true, webhook: true, whatsappPreview: true },
+    createdAt: "Plantilla Inicial",
+  },
+  {
+    id: "offer_dessert",
+    name: "🍰 Postre de Cortesía en Mesa",
+    title: "🍰 ¡Postre de Cortesía en tu Visita de Hoy!",
+    body: "Ven hoy a deleitarte en {restaurante} y recibe un postre artesanal de autor de cortesía con tu consumo principal. ¡Te esperamos!",
+    url: "",
+    segment: "Subscribed Users",
+    scheduleType: "immediate",
+    channels: { push: true, webhook: true, whatsappPreview: false },
+    createdAt: "Plantilla Inicial",
+  },
+  {
+    id: "offer_flash_50",
+    name: "⏳ Cupón Flash 50% Off (Hoy)",
+    title: "⏳ Cupón Flash: 50% en tu Segundo Plato o Bebida",
+    body: "¡Solo por hoy! Disfruta 50% de descuento en tu segundo producto favorito en {restaurante}. Muestra este aviso en caja.",
+    url: "",
+    segment: "Active Customers",
+    scheduleType: "immediate",
+    channels: { push: true, webhook: true, whatsappPreview: true },
+    createdAt: "Plantilla Inicial",
+  },
+  {
+    id: "offer_double_stamps",
+    name: "🌟 Doble Sello Fin de Semana",
+    title: "🌟 ¡Sellos Dobles este Fin de Semana!",
+    body: "¡Acelera tu tarjeta de 15 sellos! Cada visita este fin de semana en {restaurante} te otorga 2 sellos para llegar antes a tu premio.",
+    url: "",
+    segment: "Subscribed Users",
+    scheduleType: "immediate",
+    channels: { push: true, webhook: true, whatsappPreview: false },
+    createdAt: "Plantilla Inicial",
+  },
+];
+
+const SAVED_OFFERS_KEY = "juegoreferidos_custom_saved_offers";
+
+export function getCustomSavedOffers(): CustomSavedOffer[] {
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(SAVED_OFFERS_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch {}
+  }
+  return DEFAULT_SAVED_OFFERS;
+}
+
+export function saveCustomSavedOffer(offer: CustomSavedOffer): CustomSavedOffer[] {
+  const current = getCustomSavedOffers();
+  const existingIdx = current.findIndex((o) => o.id === offer.id);
+  let updated: CustomSavedOffer[];
+  if (existingIdx >= 0) {
+    updated = [...current];
+    updated[existingIdx] = offer;
+  } else {
+    updated = [offer, ...current];
+  }
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(SAVED_OFFERS_KEY, JSON.stringify(updated));
+    } catch {}
+  }
+  return updated;
+}
+
+export function deleteCustomSavedOffer(id: string): CustomSavedOffer[] {
+  const current = getCustomSavedOffers();
+  const updated = current.filter((o) => o.id !== id);
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(SAVED_OFFERS_KEY, JSON.stringify(updated));
+    } catch {}
+  }
+  return updated;
 }

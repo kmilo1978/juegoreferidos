@@ -29,6 +29,36 @@
     {
       "method": "PUSH",
       "url": "/api/push/broadcast",
+      "timestamp": "4:32:54 p. m.",
+      "detail": "📢 Programada (2026-10-01T15:00): \"? �Oferta Programada Fin de Semana!\" (Canales: Push=true, Webhook=true)"
+    },
+    {
+      "id": "mulrkh2u5yj",
+      "timestamp": "4:32:54 p. m.",
+      "method": "PUSH",
+      "url": "/api/push/broadcast",
+      "status": 200,
+      "detail": "📢 Campaña Push programada: \"? �Oferta Programada Fin de Semana!\" (Todos)"
+    },
+    {
+      "id": "mulrkcnvrdu",
+      "timestamp": "4:32:49 p. m.",
+      "method": "DELETE",
+      "url": "/api/push/drafts",
+      "status": 200,
+      "detail": "🗑️ Plantilla push eliminada (ID: draft_1790631157879)"
+    },
+    {
+      "id": "mulrk41mvbt",
+      "timestamp": "4:32:37 p. m.",
+      "method": "POST",
+      "url": "/api/push/drafts",
+      "status": 200,
+      "detail": "💾 Plantilla push guardada: \"Test Promo\""
+    },
+    {
+      "method": "PUSH",
+      "url": "/api/push/broadcast",
       "timestamp": "4:07:17 p. m.",
       "detail": "📢 Encapuchado Push Masivo: \"? Prueba Happy Hour\" enviado a suscriptores. (URL: Inicio)"
     },
@@ -182,7 +212,83 @@
         }
       }
     },
+    "savedPushDrafts": [
+      {
+        "id": "offer_happy_hour",
+        "name": "⚡ Happy Hour 2x1 (3 a 6 PM)",
+        "title": "⚡ ¡Happy Hour 2x1 en Café y Bebidas de Autor!",
+        "body": "¡Hola {nombre}! Hoy de 3:00 a 6:00 PM acumula el DOBLE de sellos y disfruta 2x1 en bebidas. ¡Muestra este mensaje en caja!",
+        "url": "",
+        "segment": "Subscribed Users",
+        "scheduleType": "immediate",
+        "channels": {
+          "push": true,
+          "webhook": true,
+          "whatsappPreview": true
+        },
+        "createdAt": "Plantilla Inicial"
+      },
+      {
+        "id": "offer_dessert",
+        "name": "🍰 Postre de Cortesía en Mesa",
+        "title": "🍰 ¡Postre de Cortesía en tu Visita de Hoy!",
+        "body": "Ven hoy a deleitarte en {restaurante} y recibe un postre artesanal de autor de cortesía con tu consumo principal. ¡Te esperamos!",
+        "url": "",
+        "segment": "Subscribed Users",
+        "scheduleType": "immediate",
+        "channels": {
+          "push": true,
+          "webhook": true,
+          "whatsappPreview": false
+        },
+        "createdAt": "Plantilla Inicial"
+      },
+      {
+        "id": "offer_flash_50",
+        "name": "⏳ Cupón Flash 50% Off (Hoy)",
+        "title": "⏳ Cupón Flash: 50% en tu Segundo Plato o Bebida",
+        "body": "¡Solo por hoy! Disfruta 50% de descuento en tu segundo producto favorito en {restaurante}. Muestra este aviso en caja.",
+        "url": "",
+        "segment": "Active Customers",
+        "scheduleType": "immediate",
+        "channels": {
+          "push": true,
+          "webhook": true,
+          "whatsappPreview": true
+        },
+        "createdAt": "Plantilla Inicial"
+      },
+      {
+        "id": "offer_double_stamps",
+        "name": "🌟 Doble Sello Fin de Semana",
+        "title": "🌟 ¡Sellos Dobles este Fin de Semana!",
+        "body": "¡Acelera tu tarjeta de 15 sellos! Cada visita este fin de semana en {restaurante} te otorga 2 sellos para llegar antes a tu premio.",
+        "url": "",
+        "segment": "Subscribed Users",
+        "scheduleType": "immediate",
+        "channels": {
+          "push": true,
+          "webhook": true,
+          "whatsappPreview": false
+        },
+        "createdAt": "Plantilla Inicial"
+      }
+    ],
     "pushCampaigns": [
+      {
+        "title": "? �Oferta Programada Fin de Semana!",
+        "body": "Hola {nombre}, ven a {restaurante} y reclama tu beneficio.",
+        "url": "",
+        "segment": "Subscribed Users",
+        "scheduleType": "scheduled",
+        "scheduledTime": "2026-10-01T15:00",
+        "channels": {
+          "webhook": true,
+          "push": true,
+          "whatsappPreview": true
+        },
+        "sentAt": "28/9/2026, 4:32:54 p. m."
+      },
       {
         "title": "? Prueba Happy Hour",
         "body": "�Sellos dobles de 3 a 6 PM!",

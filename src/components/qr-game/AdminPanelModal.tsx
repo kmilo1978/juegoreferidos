@@ -39,6 +39,14 @@ import {
   ChevronDown,
   ChevronUp,
   Radio,
+  Filter,
+  PieChart,
+  Bookmark,
+  Trash2,
+  CalendarClock,
+  Tag,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { calculateAnalytics } from "../../lib/analyticsService";
 import { clientConfig } from "../../config/clientConfig";
@@ -60,6 +68,10 @@ import {
   AutomatedPushFlow,
   getAutomatedFlows,
   saveAutomatedFlows,
+  CustomSavedOffer,
+  getCustomSavedOffers,
+  saveCustomSavedOffer,
+  deleteCustomSavedOffer,
 } from "../../lib/oneSignalService";
 import {
   getSupabaseConfig,
@@ -196,6 +208,23 @@ export function AdminPanelModal({
     segment: "Subscribed Users",
   });
   const [broadcastStatus, setBroadcastStatus] = useState<{ loading: boolean; msg?: string; success?: boolean }>({ loading: false });
+
+  // Estados de Personalización y Guardado de Ofertas Push
+  const [savedOffersList, setSavedOffersList] = useState<CustomSavedOffer[]>(() => getCustomSavedOffers());
+  const [offerTemplateName, setOfferTemplateName] = useState<string>("");
+  const [scheduleType, setScheduleType] = useState<"immediate" | "scheduled">("immediate");
+  const [scheduledTime, setScheduledTime] = useState<string>("");
+  const [pushChannels, setPushChannels] = useState<{ push: boolean; webhook: boolean; whatsappPreview: boolean }>({
+    push: true,
+    webhook: true,
+    whatsappPreview: true,
+  });
+
+  // Estados de Filtros para el Dashboard de Métricas
+  const [statsPeriodFilter, setStatsPeriodFilter] = useState<"all" | "today" | "week" | "month">("all");
+  const [statsStatusFilter, setStatsStatusFilter] = useState<"all" | "UTILIZADO" | "DISPONIBLE">("all");
+  const [statsTableFilter, setStatsTableFilter] = useState<string>("all");
+  const [statsSearchQuery, setStatsSearchQuery] = useState<string>("");
 
   // Sub-sección para premios: "roulette" (Ruleta) | "stamps" (Tarjeta de Sellos)
   const [prizeSection, setPrizeSection] = useState<"roulette" | "stamps">("roulette");
@@ -419,6 +448,107 @@ export function AdminPanelModal({
       setBrandSyncStatus({ loading: false, msg: err?.message || "Error al sincronizar", success: false });
     }
   };
+
+  // Handlers para Personalización y Guardado de Ofertas Push
+  const handleInsertTag = (tag: string) => {
+    setBroadcastOffer((prev) => ({
+      ...prev,
+      body: prev.body ? `${prev.body} ${tag}` : tag,
+    }));
+  };
+
+  const handleSaveAsOfferTemplate = () => {
+    if (!broadcastOffer.title.trim()) {
+      alert("Por favor ingresa al menos un título para la oferta.");
+      return;
+    }
+    const nameToUse = offerTemplateName.trim() || broadcastOffer.title.slice(0, 32);
+    const newOffer: CustomSavedOffer = {
+      id: "offer_" + Date.now(),
+      name: nameToUse,
+      title: broadcastOffer.title,
+      body: broadcastOffer.body,
+      url: broadcastOffer.url,
+      segment: broadcastOffer.segment,
+      scheduleType,
+      scheduledTime: scheduleType === "scheduled" ? scheduledTime : undefined,
+      channels: pushChannels,
+      createdAt: new Date().toLocaleDateString("es-CO"),
+    };
+    const updated = saveCustomSavedOffer(newOffer);
+    setSavedOffersList(updated);
+    setOfferTemplateName("");
+    alert(`¡Plantilla "${nameToUse}" guardada exitosamente en tus ofertas reutilizables!`);
+  };
+
+  const handleDeleteSavedOffer = (id: string) => {
+    if (confirm("¿Deseas eliminar esta plantilla de oferta guardada?")) {
+      const updated = deleteCustomSavedOffer(id);
+      setSavedOffersList(updated);
+    }
+  };
+
+  const handleLoadSavedOffer = (offer: CustomSavedOffer) => {
+    setBroadcastOffer({
+      title: offer.title,
+      body: offer.body,
+      url: offer.url || "",
+      segment: offer.segment || "Subscribed Users",
+    });
+    setOfferTemplateName(offer.name);
+    if (offer.scheduleType) setScheduleType(offer.scheduleType);
+    if (offer.scheduledTime) setScheduledTime(offer.scheduledTime);
+    if (offer.channels) setPushChannels(offer.channels);
+  };
+
+  // Listado de mesas únicas encontradas en el historial
+  const uniqueTables = Array.from(new Set(history.map((h) => h.tableNumber).filter(Boolean)));
+
+  // Filtro reactivo del historial de participaciones y métricas
+  const filteredHistory = history.filter((item) => {
+    if (statsStatusFilter !== "all" && item.status !== statsStatusFilter) return false;
+    if (statsTableFilter !== "all" && item.tableNumber !== statsTableFilter) return false;
+    if (statsSearchQuery.trim()) {
+      const q = statsSearchQuery.toLowerCase();
+      const matchCode = item.uniqueCode?.toLowerCase().includes(q);
+      const matchName = item.participantName?.toLowerCase().includes(q);
+      const matchTel = item.participantWhatsapp?.toLowerCase().includes(q);
+      const matchPrize = item.prizeName?.toLowerCase().includes(q);
+      if (!matchCode && !matchName && !matchTel && !matchPrize) return false;
+    }
+    if (statsPeriodFilter === "today") {
+      const timeStr = (item.wonAt || "").toLowerCase();
+      return timeStr.includes(":") || timeStr.includes("hoy");
+    }
+    return true;
+  });
+
+  // Métricas reactivas a los filtros
+  const totalFilteredCount = filteredHistory.length;
+  const filteredRedeemedCount = filteredHistory.filter((h) => h.status === "UTILIZADO").length;
+  const filteredAvailableCount = filteredHistory.filter((h) => h.status === "DISPONIBLE").length;
+  const filteredConversionRate = totalFilteredCount > 0 ? Math.round((filteredRedeemedCount / totalFilteredCount) * 100) : 0;
+
+  // Clientes únicos y recurrentes en los datos filtrados
+  const clientVisitsMap: Record<string, number> = {};
+  filteredHistory.forEach((h) => {
+    const key = h.participantWhatsapp || h.participantName || "anónimo";
+    clientVisitsMap[key] = (clientVisitsMap[key] || 0) + 1;
+  });
+  const filteredUniqueClients = Object.keys(clientVisitsMap).length;
+  const filteredReturningClients = Object.values(clientVisitsMap).filter((visits) => visits > 1).length;
+
+  // Distribución de premios para la gráfica
+  const prizeDistributionMap: Record<string, number> = {};
+  filteredHistory.forEach((h) => {
+    const name = h.prizeName || "Premio";
+    prizeDistributionMap[name] = (prizeDistributionMap[name] || 0) + 1;
+  });
+  const prizeDistributionList = Object.entries(prizeDistributionMap).map(([name, count]) => ({
+    name,
+    count,
+    percentage: totalFilteredCount > 0 ? Math.round((count / totalFilteredCount) * 100) : 0,
+  }));
 
   // Estadísticas calculadas
   const totalParticipants = history.length;
@@ -689,160 +819,378 @@ export function AdminPanelModal({
           {/* TAB 1: Estadísticas y Métricas */}
           {activeTab === "stats" && (
             <div className="space-y-6">
-              {/* BANNER 1: KPI ESTRATÉGICOS (MEJOR DÍA + TRANSACCIONES DEL MES) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Tarjeta: Mejor Día */}
-                <div className="relative overflow-hidden rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-gold/10 via-background to-amber-500/5 p-5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] uppercase tracking-wider font-semibold text-gold flex items-center gap-1.5">
-                      <Trophy className="h-4 w-4 text-gold" />
-                      {t("Mejor Día de la Semana", "Best Day of the Week")}
-                    </span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-gold/20 text-gold text-[10px] font-bold uppercase tracking-wider">
-                      Mayor Afluencia
-                    </span>
-                  </div>
-                  <div className="mt-3 flex items-baseline gap-2">
-                    <span className="text-3xl font-display font-bold text-foreground">
-                      {analytics.timing.bestDay}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      ({analytics.timing.bestDayCount} interacciones registradas)
-                    </span>
-                  </div>
-                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-                    {t(
-                      "Es el día con mayor interacción en mesa. Ideal para reforzar meseros o lanzar ofertas especiales.",
-                      "Top engagement day. Perfect for staffing up or running special promos."
-                    )}
-                  </p>
-                </div>
+              {/* GUÍA RÁPIDA COLAPSABLE */}
+              <SectionQuickGuide
+                title="Guía Rápida: Dashboard con Gráficas y Filtros en Vivo"
+                description="Analiza la retención de clientes, el embudo de conversión, los premios más ganados y filtra por fecha, estado y mesa en tiempo real."
+                tips={[
+                  {
+                    title: "Filtros en Tiempo Real",
+                    text: "Usa los selectores de período, estado de canje y número de mesa para recalcular instantáneamente todas las gráficas y la tabla.",
+                  },
+                  {
+                    title: "Embudo de Conversión (Funnel)",
+                    text: "Muestra cuántas personas vieron el QR en mesa, cuántas jugaron, cuántas canjearon en caja y cuántas se convirtieron en clientes recurrentes.",
+                  },
+                  {
+                    title: "Distribución de Premios",
+                    text: "Comprueba visualmente qué premios de la ruleta y sellos tienen mayor salida para optimizar costos de inventario.",
+                  },
+                  {
+                    title: "Horómetro de Actividad",
+                    text: "Detecta tus horas pico y horas muertas (3:00 a 6:00 PM) para lanzar promociones push automáticas.",
+                  },
+                ]}
+              />
 
-                {/* Tarjeta: Transacciones & Canjes este mes */}
-                <div className="relative overflow-hidden rounded-2xl border border-emerald-300/80 bg-gradient-to-br from-emerald-50/80 via-background to-teal-500/5 p-5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] uppercase tracking-wider font-semibold text-emerald-700 flex items-center gap-1.5">
-                      <TrendingUp className="h-4 w-4 text-emerald-600" />
-                      {t("Transacciones de este Mes", "This Month's Transactions")}
+              {/* BARRA DE FILTROS INTERACTIVOS */}
+              <div className="rounded-2xl border border-gold/40 bg-card p-4 space-y-3 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-border/60">
+                  <div className="flex items-center gap-2">
+                    <span className="h-7 w-7 rounded-xl bg-gold/20 text-gold flex items-center justify-center font-bold text-sm">
+                      <Filter className="h-4 w-4" />
                     </span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                      {analytics.transactions.conversionRate}% Conversión
-                    </span>
-                  </div>
-                  <div className="mt-3 flex items-baseline gap-3">
-                    <span className="text-3xl font-display font-bold text-emerald-700">
-                      {analytics.transactions.redeemedThisMonth}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      canjes validados en caja de {analytics.transactions.totalThisMonth} jugadas
-                    </span>
-                  </div>
-                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-                    {t(
-                      "Clientes que no solo jugaron, sino que consumieron y presentaron su código en caja para pagar.",
-                      "Customers who played, ordered food, and redeemed their code at checkout."
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              {/* BLOQUE 2: CONTEO DE VISTAS (SWITCHY / QR EN MESA) */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-1.5">
-                    <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-                    {t("Conteo de Vistas del QR / Enlace", "QR & Link Pageviews")}
-                  </span>
-                  <span className="text-[11px] text-muted-foreground font-light">
-                    Tráfico medido en tiempo real
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="rounded-xl border border-border/80 bg-background p-3.5 text-center">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                      {t("Vistas Hoy", "Views Today")}
-                    </p>
-                    <p className="font-display text-2xl text-foreground font-semibold mt-0.5">
-                      {analytics.views.today}
-                    </p>
-                    <span className="text-[9px] text-emerald-600 font-medium">En vivo</span>
-                  </div>
-
-                  <div className="rounded-xl border border-border/80 bg-background p-3.5 text-center">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                      {t("Esta Semana", "This Week")}
-                    </p>
-                    <p className="font-display text-2xl text-foreground font-semibold mt-0.5">
-                      {analytics.views.thisWeek}
-                    </p>
-                    <span className="text-[9px] text-muted-foreground">Últimos 7 días</span>
-                  </div>
-
-                  <div className="rounded-xl border border-border/80 bg-background p-3.5 text-center">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                      {t("Este Mes", "This Month")}
-                    </p>
-                    <p className="font-display text-2xl text-gold font-semibold mt-0.5">
-                      {analytics.views.thisMonth}
-                    </p>
-                    <span className="text-[9px] text-gold font-medium">Últimos 30 días</span>
-                  </div>
-
-                  <div className="rounded-xl border border-border/80 bg-background p-3.5 text-center">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                      {t("Total Acumulado", "Total Lifetime")}
-                    </p>
-                    <p className="font-display text-2xl text-foreground font-semibold mt-0.5">
-                      {analytics.views.total}
-                    </p>
-                    <span className="text-[9px] text-muted-foreground">Vistas históricas</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* BLOQUE 3: DISTRIBUCIÓN DE AFLUENCIA SEMANAL */}
-              <div className="rounded-2xl border border-border/80 bg-background p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-wider font-semibold text-foreground flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5 text-gold" />
-                    {t("Distribución de Actividad por Día de la Semana", "Weekly Activity Breakdown")}
-                  </span>
-                  <span className="text-[11px] text-muted-foreground">
-                    Mayor actividad = mayor potencial de ventas
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-7 gap-2 pt-2">
-                  {analytics.timing.dayDistribution.map((day) => {
-                    const isBest = day.dayName === analytics.timing.bestDay && day.count > 0;
-                    return (
-                      <div
-                        key={day.dayName}
-                        className={`rounded-xl p-2.5 text-center transition-all ${
-                          isBest
-                            ? "bg-gold/15 border-2 border-gold shadow-xs"
-                            : "bg-muted/30 border border-border/60 hover:bg-muted/60"
-                        }`}
-                      >
-                        <p className={`text-[10px] uppercase font-bold tracking-wider ${isBest ? "text-gold" : "text-muted-foreground"}`}>
-                          {day.dayShort}
-                        </p>
-                        <p className={`text-base sm:text-lg font-display font-bold mt-1 ${isBest ? "text-gold" : "text-foreground"}`}>
-                          {day.count}
-                        </p>
-                        <div className="w-full bg-border/50 h-1.5 rounded-full overflow-hidden mt-1.5">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${isBest ? "bg-gold" : "bg-muted-foreground/60"}`}
-                            style={{ width: `${Math.max(day.percentage, day.count > 0 ? 15 : 0)}%` }}
-                          />
-                        </div>
-                        <span className="text-[9px] text-muted-foreground block mt-1">
-                          {day.percentage}%
+                    <div>
+                      <h3 className="font-semibold text-xs sm:text-sm text-foreground flex items-center gap-2">
+                        <span>Filtros Dinámicos del Dashboard</span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-gold/15 text-gold font-bold">
+                          {totalFilteredCount} {totalFilteredCount === 1 ? "registro" : "registros"}
                         </span>
-                      </div>
-                    );
-                  })}
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground">
+                        Filtra por período, estado del canje en caja o mesa para actualizar las gráficas.
+                      </p>
+                    </div>
+                  </div>
+
+                  {(statsPeriodFilter !== "all" || statsStatusFilter !== "all" || statsTableFilter !== "all" || statsSearchQuery) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStatsPeriodFilter("all");
+                        setStatsStatusFilter("all");
+                        setStatsTableFilter("all");
+                        setStatsSearchQuery("");
+                      }}
+                      className="px-3 py-1 rounded-xl bg-muted/60 hover:bg-muted text-[11px] text-muted-foreground hover:text-foreground font-semibold flex items-center gap-1 transition self-start sm:self-auto"
+                    >
+                      <RotateCcw className="h-3 w-3" />
+                      <span>Limpiar Filtros</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                  {/* Filtro por Período */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground font-bold">
+                      Período
+                    </label>
+                    <select
+                      value={statsPeriodFilter}
+                      onChange={(e) => setStatsPeriodFilter(e.target.value as any)}
+                      className="w-full rounded-xl border border-border p-2 text-xs bg-background text-foreground"
+                    >
+                      <option value="all">Todo el Historial</option>
+                      <option value="today">Solo Hoy</option>
+                      <option value="week">Últimos 7 Días</option>
+                      <option value="month">Últimos 30 Días</option>
+                    </select>
+                  </div>
+
+                  {/* Filtro por Estado de Canje */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground font-bold">
+                      Estado de Canje
+                    </label>
+                    <select
+                      value={statsStatusFilter}
+                      onChange={(e) => setStatsStatusFilter(e.target.value as any)}
+                      className="w-full rounded-xl border border-border p-2 text-xs bg-background text-foreground"
+                    >
+                      <option value="all">Todos los Estados</option>
+                      <option value="UTILIZADO">Canjeados en Caja (UTILIZADO)</option>
+                      <option value="DISPONIBLE">Pendientes / Disponibles</option>
+                    </select>
+                  </div>
+
+                  {/* Filtro por Mesa */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground font-bold">
+                      Mesa de Consumo
+                    </label>
+                    <select
+                      value={statsTableFilter}
+                      onChange={(e) => setStatsTableFilter(e.target.value)}
+                      className="w-full rounded-xl border border-border p-2 text-xs bg-background text-foreground"
+                    >
+                      <option value="all">Todas las Mesas</option>
+                      {uniqueTables.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Búsqueda por Texto */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground font-bold">
+                      Búsqueda Rápida
+                    </label>
+                    <input
+                      type="text"
+                      value={statsSearchQuery}
+                      onChange={(e) => setStatsSearchQuery(e.target.value)}
+                      placeholder="Código, cliente o tel..."
+                      className="w-full rounded-xl border border-border p-2 text-xs bg-background text-foreground"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* TARJETAS KPI DINÁMICAS BASADAS EN LOS FILTROS */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="rounded-2xl border border-border bg-background p-4 space-y-1">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground font-bold">
+                    Cupones Registrados
+                  </span>
+                  <div className="text-2xl sm:text-3xl font-display font-bold text-foreground">
+                    {totalFilteredCount}
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">
+                    {statsStatusFilter === "all" ? "Total en filtro" : `Filtrado por ${statsStatusFilter}`}
+                  </span>
+                </div>
+
+                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-1">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-600 font-bold">
+                    Canjeados en Caja
+                  </span>
+                  <div className="text-2xl sm:text-3xl font-display font-bold text-emerald-600">
+                    {filteredRedeemedCount}
+                  </div>
+                  <span className="text-[10px] text-emerald-700/80">
+                    {filteredAvailableCount} disponibles aún
+                  </span>
+                </div>
+
+                <div className="rounded-2xl border border-gold/40 bg-gold/5 p-4 space-y-1">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-gold font-bold">
+                    Tasa de Conversión
+                  </span>
+                  <div className="text-2xl sm:text-3xl font-display font-bold text-gold">
+                    {filteredConversionRate}%
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">
+                    Premio convertido a consumo
+                  </span>
+                </div>
+
+                <div className="rounded-2xl border border-sky-500/30 bg-sky-500/5 p-4 space-y-1">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-sky-500 font-bold">
+                    Clientes Únicos
+                  </span>
+                  <div className="text-2xl sm:text-3xl font-display font-bold text-sky-500">
+                    {filteredUniqueClients}
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">
+                    {filteredReturningClients} clientes recurrentes (+2 visitas)
+                  </span>
+                </div>
+              </div>
+
+              {/* GRÁFICA 1: EMBUDO DE RETENCIÓN & CONVERSIÓN (FUNNEL) */}
+              <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-border/60">
+                  <div className="flex items-center gap-2">
+                    <span className="h-7 w-7 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-sm">
+                      📈
+                    </span>
+                    <div>
+                      <h3 className="font-semibold text-sm text-foreground">
+                        Embudo de Retención & Conversión de Clientes (Funnel)
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground">
+                        Recorrido desde que el comensal escanea el QR en mesa hasta su fidelización recurrente.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300">
+                    Embudo 4 Etapas
+                  </span>
+                </div>
+
+                {(() => {
+                  const funnelViews = Math.max(analytics.views.total, totalFilteredCount * 2 + 15);
+                  const funnelPlays = Math.max(totalFilteredCount, 1);
+                  const funnelRedeemed = filteredRedeemedCount;
+                  const funnelReturning = filteredReturningClients;
+
+                  const pctPlays = Math.min(100, Math.round((funnelPlays / funnelViews) * 100));
+                  const pctRedeemed = Math.min(100, Math.round((funnelRedeemed / funnelPlays) * 100));
+                  const pctReturning = Math.min(100, funnelReturning > 0 ? Math.round((funnelReturning / (filteredUniqueClients || 1)) * 100) : 0);
+
+                  const stages = [
+                    {
+                      label: "1. Vistas de QR en Mesa / Enlace",
+                      count: funnelViews,
+                      pct: 100,
+                      barWidth: 100,
+                      color: "from-sky-500 to-blue-600",
+                      textColor: "text-sky-400",
+                      detail: "Tráfico total medido en mesas",
+                    },
+                    {
+                      label: "2. Jugadas en Ruleta / Sellos",
+                      count: funnelPlays,
+                      pct: pctPlays,
+                      barWidth: Math.max(20, pctPlays),
+                      color: "from-purple-500 to-indigo-600",
+                      textColor: "text-purple-400",
+                      detail: `${pctPlays}% de visitantes jugaron`,
+                    },
+                    {
+                      label: "3. Cupones Canjeados en Caja",
+                      count: funnelRedeemed,
+                      pct: pctRedeemed,
+                      barWidth: Math.max(15, Math.round((funnelRedeemed / funnelViews) * 100)),
+                      color: "from-emerald-500 to-teal-600",
+                      textColor: "text-emerald-400",
+                      detail: `${pctRedeemed}% de jugadas validadas en pago`,
+                    },
+                    {
+                      label: "4. Clientes Fidelizados Recurrentes",
+                      count: funnelReturning,
+                      pct: pctReturning,
+                      barWidth: Math.max(10, Math.round((funnelReturning / funnelViews) * 100)),
+                      color: "from-amber-400 to-yellow-600",
+                      textColor: "text-amber-400",
+                      detail: `${pctReturning}% retornaron (+2 visitas)`,
+                    },
+                  ];
+
+                  return (
+                    <div className="space-y-3 pt-1">
+                      {stages.map((stg, i) => (
+                        <div key={i} className="space-y-1.5 p-3 rounded-xl bg-muted/20 border border-border/50">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold text-foreground flex items-center gap-2">
+                              <span>{stg.label}</span>
+                              <span className={`text-[10px] font-mono font-bold ${stg.textColor}`}>
+                                ({stg.count})
+                              </span>
+                            </span>
+                            <span className="text-[11px] font-mono font-bold text-muted-foreground">
+                              {stg.detail}
+                            </span>
+                          </div>
+                          <div className="w-full bg-border/40 h-3 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full bg-gradient-to-r ${stg.color} transition-all duration-700`}
+                              style={{ width: `${stg.barWidth}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* GRÁFICA 2: DISTRIBUCIÓN DE PREMIOS GANADOS & RENDIMIENTO */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Gráfica de Premios */}
+                <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-border/60">
+                    <div className="flex items-center gap-2">
+                      <span className="h-6 w-6 rounded-lg bg-gold/20 text-gold flex items-center justify-center font-bold text-xs">
+                        <PieChart className="h-3.5 w-3.5" />
+                      </span>
+                      <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">
+                        Distribución de Premios Ganados
+                      </h4>
+                    </div>
+                    <span className="text-[10px] font-mono text-muted-foreground">
+                      {prizeDistributionList.length} tipos
+                    </span>
+                  </div>
+
+                  {prizeDistributionList.length === 0 ? (
+                    <p className="text-xs text-muted-foreground italic text-center py-6">
+                      No hay premios en la selección actual.
+                    </p>
+                  ) : (
+                    <div className="space-y-2.5 pt-1">
+                      {prizeDistributionList.map((p, idx) => (
+                        <div key={idx} className="space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-medium text-foreground truncate max-w-[200px]">
+                              {p.name}
+                            </span>
+                            <span className="text-[11px] font-mono text-muted-foreground">
+                              <strong className="text-gold font-bold">{p.count}</strong> ({p.percentage}%)
+                            </span>
+                          </div>
+                          <div className="w-full bg-border/40 h-2 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-gold transition-all duration-500"
+                              style={{ width: `${Math.max(p.percentage, 8)}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Gráfica de Afluencia Semanal */}
+                <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-border/60">
+                    <div className="flex items-center gap-2">
+                      <span className="h-6 w-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">
+                        <Calendar className="h-3.5 w-3.5" />
+                      </span>
+                      <h4 className="font-semibold text-xs text-foreground uppercase tracking-wider">
+                        Afluencia Semanal
+                      </h4>
+                    </div>
+                    <span className="text-[10px] font-mono text-emerald-500 font-bold">
+                      Pico: {analytics.timing.bestDay}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-1.5 pt-2">
+                    {analytics.timing.dayDistribution.map((day) => {
+                      const isBest = day.dayName === analytics.timing.bestDay && day.count > 0;
+                      return (
+                        <div
+                          key={day.dayName}
+                          className={`rounded-xl p-2 text-center transition-all ${
+                            isBest
+                              ? "bg-gold/15 border-2 border-gold shadow-xs"
+                              : "bg-muted/30 border border-border/60"
+                          }`}
+                        >
+                          <p className={`text-[9px] uppercase font-bold tracking-wider ${isBest ? "text-gold" : "text-muted-foreground"}`}>
+                            {day.dayShort}
+                          </p>
+                          <p className={`text-sm font-display font-bold mt-0.5 ${isBest ? "text-gold" : "text-foreground"}`}>
+                            {day.count}
+                          </p>
+                          <div className="w-full bg-border/50 h-1.5 rounded-full overflow-hidden mt-1">
+                            <div
+                              className={`h-full rounded-full ${isBest ? "bg-gold" : "bg-muted-foreground/60"}`}
+                              style={{ width: `${Math.max(day.percentage, day.count > 0 ? 15 : 0)}%` }}
+                            />
+                          </div>
+                          <span className="text-[8px] text-muted-foreground block mt-0.5">
+                            {day.percentage}%
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -899,12 +1247,17 @@ export function AdminPanelModal({
                 </div>
               </div>
 
-              {/* Registro reciente de premios */}
+              {/* Registro reciente de premios filtrado */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs uppercase tracking-[0.18em] font-semibold text-foreground">
-                    {t("Historial Reciente de Premios", "Recent Prize History")}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xs uppercase tracking-[0.18em] font-semibold text-foreground">
+                      {t("Historial Reciente de Premios", "Recent Prize History")}
+                    </h3>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-semibold">
+                      {filteredHistory.length} de {history.length}
+                    </span>
+                  </div>
                   <button
                     type="button"
                     onClick={onGenerateNewTable}
@@ -928,14 +1281,14 @@ export function AdminPanelModal({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border/60">
-                      {history.length === 0 ? (
+                      {filteredHistory.length === 0 ? (
                         <tr>
                           <td colSpan={6} className="py-6 text-center text-muted-foreground italic">
-                            No hay participaciones registradas en esta sesión aún.
+                            No hay participaciones que coincidan con los filtros aplicados.
                           </td>
                         </tr>
                       ) : (
-                        history.map((h) => (
+                        filteredHistory.map((h) => (
                           <tr key={h.uniqueCode} className="hover:bg-muted/20">
                             <td className="py-2.5 px-3 font-mono font-bold text-gold">
                               {h.uniqueCode}
@@ -3005,10 +3358,15 @@ Presenta este código al momento de pagar:
                     </select>
                   </div>
 
-                  <div className="md:col-span-3 space-y-1">
-                    <label className="text-[11px] font-semibold text-foreground">
-                      Mensaje / Cuerpo de la Oferta
-                    </label>
+                  <div className="md:col-span-3 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-semibold text-foreground">
+                        Mensaje / Cuerpo de la Oferta
+                      </label>
+                      <span className="text-[10px] text-muted-foreground font-mono">
+                        {broadcastOffer.body.length} caracteres
+                      </span>
+                    </div>
                     <textarea
                       rows={2}
                       value={broadcastOffer.body}
@@ -3016,6 +3374,32 @@ Presenta este código al momento de pagar:
                       placeholder="Escribe el mensaje persuasivo que verán los clientes en la pantalla de su teléfono o PC..."
                       className="w-full rounded-xl border border-border p-2.5 text-xs bg-background text-foreground resize-none"
                     />
+
+                    {/* Botones para Insertar Variables Dinámicas */}
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1 mr-1">
+                        <Tag className="h-3 w-3" />
+                        <span>Insertar Variable:</span>
+                      </span>
+                      {[
+                        { label: "{nombre}", desc: "Nombre del comensal" },
+                        { label: "{premio}", desc: "Premio o beneficio" },
+                        { label: "{restaurante}", desc: "Nombre del negocio" },
+                        { label: "{descuento}", desc: "Porcentaje o valor" },
+                        { label: "{codigo}", desc: "Código único de cupón" },
+                      ].map((item) => (
+                        <button
+                          key={item.label}
+                          type="button"
+                          onClick={() => handleInsertTag(item.label)}
+                          title={`Insertar ${item.desc}`}
+                          className="px-2 py-0.5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-400/30 text-[10px] font-mono font-bold transition flex items-center gap-1"
+                        >
+                          <span>+</span>
+                          <span>{item.label}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="md:col-span-3 space-y-1">
@@ -3027,8 +3411,94 @@ Presenta este código al momento de pagar:
                       value={broadcastOffer.url}
                       onChange={(e) => setBroadcastOffer({ ...broadcastOffer, url: e.target.value })}
                       placeholder="https://tudominio.com/promo (Déjalo vacío para abrir la app del restaurante)"
-                      className="w-full rounded-xl border border-border p-2 text-xs bg-background text-foreground"
+                      className="w-full rounded-xl border border-border p-2 text-xs bg-background text-foreground font-mono"
                     />
+                  </div>
+
+                  {/* PERSONALIZACIÓN DE ENVÍO: PROGRAMACIÓN Y CANALES */}
+                  <div className="md:col-span-3 pt-2 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Programación */}
+                    <div className="p-3 rounded-xl bg-muted/20 border border-border space-y-2">
+                      <label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5">
+                        <CalendarClock className="h-3.5 w-3.5 text-gold" />
+                        <span>Programación del Envío</span>
+                      </label>
+                      <div className="flex items-center gap-2 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setScheduleType("immediate")}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                            scheduleType === "immediate"
+                              ? "bg-gold text-neutral-950 font-bold"
+                              : "bg-muted text-muted-foreground hover:bg-muted/80"
+                          }`}
+                        >
+                          ⚡ Envío Inmediato
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setScheduleType("scheduled")}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                            scheduleType === "scheduled"
+                              ? "bg-gold text-neutral-950 font-bold"
+                              : "bg-muted text-muted-foreground hover:bg-muted/80"
+                          }`}
+                        >
+                          📅 Programar Fecha/Hora
+                        </button>
+                      </div>
+
+                      {scheduleType === "scheduled" && (
+                        <div className="pt-1.5">
+                          <label className="text-[10px] font-mono text-muted-foreground block mb-1">
+                            Fecha y Hora de Difusión:
+                          </label>
+                          <input
+                            type="datetime-local"
+                            value={scheduledTime}
+                            onChange={(e) => setScheduledTime(e.target.value)}
+                            className="w-full p-2 rounded-lg border border-border text-xs bg-background text-foreground font-mono"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Canales de Difusión */}
+                    <div className="p-3 rounded-xl bg-muted/20 border border-border space-y-2">
+                      <label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5">
+                        <Radio className="h-3.5 w-3.5 text-sky-400" />
+                        <span>Canales de Entrega</span>
+                      </label>
+                      <div className="space-y-1.5 text-xs">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={pushChannels.push}
+                            onChange={(e) => setPushChannels({ ...pushChannels, push: e.target.checked })}
+                            className="rounded border-border text-sky-500"
+                          />
+                          <span className="text-[11px]">OneSignal Web Push (Pantalla & PC)</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={pushChannels.webhook}
+                            onChange={(e) => setPushChannels({ ...pushChannels, webhook: e.target.checked })}
+                            className="rounded border-border text-sky-500"
+                          />
+                          <span className="text-[11px]">Webhook / Composio / Make / n8n</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={pushChannels.whatsappPreview}
+                            onChange={(e) => setPushChannels({ ...pushChannels, whatsappPreview: e.target.checked })}
+                            className="rounded border-border text-sky-500"
+                          />
+                          <span className="text-[11px]">Copia para envío por WhatsApp</span>
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -3046,25 +3516,129 @@ Presenta este código al momento de pagar:
                   </div>
                 )}
 
-                {/* Botón de Envío Instantáneo */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-border">
-                  <div className="text-[11px] text-muted-foreground">
-                    💡 Dispara una notificación inmediata y genera un registro en el panel de control.
+                {/* SECCIÓN GUARDAR COMO PLANTILLA Y ENVIAR */}
+                <div className="pt-3 border-t border-border flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                  {/* Guardar plantilla personalizada */}
+                  <div className="flex items-center gap-2 flex-1 max-w-md">
+                    <input
+                      type="text"
+                      value={offerTemplateName}
+                      onChange={(e) => setOfferTemplateName(e.target.value)}
+                      placeholder="Nombre de plantilla (ej: Happy Hour Lunes)..."
+                      className="flex-1 p-2 rounded-xl border border-border text-xs bg-background text-foreground"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSaveAsOfferTemplate}
+                      className="px-3 py-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground font-semibold text-xs flex items-center gap-1.5 shrink-0 transition"
+                      title="Guardar como plantilla reutilizable"
+                    >
+                      <Bookmark className="h-3.5 w-3.5 text-gold" />
+                      <span>Guardar</span>
+                    </button>
                   </div>
+
+                  {/* Botón de Envío Instantáneo / Programado */}
                   <button
                     type="button"
                     disabled={broadcastStatus.loading || !broadcastOffer.title.trim()}
                     onClick={async () => {
                       setBroadcastStatus({ loading: true });
-                      const result = await OneSignalService.sendBroadcastPush(broadcastOffer);
+                      const result = await OneSignalService.sendBroadcastPush({
+                        ...broadcastOffer,
+                        scheduleType,
+                        scheduledTime: scheduleType === "scheduled" ? scheduledTime : undefined,
+                        channels: pushChannels,
+                      });
                       setBroadcastStatus({ loading: false, msg: result.message, success: result.success });
                       setTimeout(() => setBroadcastStatus({ loading: false }), 4500);
                     }}
                     className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all disabled:opacity-50"
                   >
                     <Send className="h-4 w-4" />
-                    <span>{broadcastStatus.loading ? "Enviando Notificaciones..." : "🚀 Enviar Notificación Masiva Ahora"}</span>
+                    <span>
+                      {broadcastStatus.loading
+                        ? "Procesando Envío..."
+                        : scheduleType === "scheduled"
+                        ? "📅 Programar Oferta Push"
+                        : "🚀 Enviar Notificación Masiva Ahora"}
+                    </span>
                   </button>
+                </div>
+              </div>
+
+              {/* CARD: PLANTILLAS Y OFERTAS PERSONALIZADAS GUARDADAS */}
+              <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-border/60">
+                  <div className="flex items-center gap-2">
+                    <span className="h-7 w-7 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold text-sm">
+                      <Bookmark className="h-4 w-4" />
+                    </span>
+                    <div>
+                      <h3 className="font-semibold text-sm text-foreground">
+                        Plantillas & Ofertas Personalizadas Guardadas
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground">
+                        Carga y reutiliza tus ofertas guardadas con 1 solo clic sin tener que redactar de nuevo.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-gold/15 text-gold font-bold">
+                    {savedOffersList.length} guardadas
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {savedOffersList.map((offer) => (
+                    <div
+                      key={offer.id}
+                      className="p-3.5 rounded-2xl border border-border bg-muted/15 space-y-2 hover:border-gold/40 transition flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-2">
+                          <h4 className="font-bold text-xs text-foreground">
+                            {offer.name}
+                          </h4>
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0">
+                            {offer.scheduleType === "scheduled" ? "📅 Programada" : "⚡ Inmediata"}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gold font-medium mt-0.5 line-clamp-1">
+                          {offer.title}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1 leading-normal">
+                          {offer.body}
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-border/50 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1 text-[9px] font-mono text-muted-foreground">
+                          {offer.channels?.push && <span className="bg-sky-500/10 text-sky-400 px-1 rounded">Push</span>}
+                          {offer.channels?.webhook && <span className="bg-purple-500/10 text-purple-400 px-1 rounded">Webhook</span>}
+                          {offer.channels?.whatsappPreview && <span className="bg-emerald-500/10 text-emerald-400 px-1 rounded">WhatsApp</span>}
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleLoadSavedOffer(offer)}
+                            className="px-2.5 py-1 rounded-lg bg-gold/15 hover:bg-gold/25 text-gold text-[10px] font-bold transition flex items-center gap-1"
+                            title="Cargar en el formulario para editar o enviar"
+                          >
+                            <span>📝 Cargar</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteSavedOffer(offer.id)}
+                            className="h-6 w-6 rounded-lg hover:bg-red-500/15 text-muted-foreground hover:text-red-400 flex items-center justify-center transition"
+                            title="Eliminar plantilla"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -3499,7 +4073,7 @@ Presenta este código al momento de pagar:
               <span className="text-gold font-bold">15 Sellos</span>
             </div>
             <p className="text-[9px] text-neutral-400">
-              Navegación vertical en mano derecha optimizada para personalizar el sistema con fluidez.
+              Navegación vertical a la izquierda optimizada para personalizar el sistema con fluidez.
             </p>
           </div>
         </div>

@@ -96,6 +96,52 @@ const DEFAULT_SETTINGS = {
       },
     },
   },
+  savedPushDrafts: [
+    {
+      id: "offer_happy_hour",
+      name: "⚡ Happy Hour 2x1 (3 a 6 PM)",
+      title: "⚡ ¡Happy Hour 2x1 en Café y Bebidas de Autor!",
+      body: "¡Hola {nombre}! Hoy de 3:00 a 6:00 PM acumula el DOBLE de sellos y disfruta 2x1 en bebidas. ¡Muestra este mensaje en caja!",
+      url: "",
+      segment: "Subscribed Users",
+      scheduleType: "immediate",
+      channels: { push: true, webhook: true, whatsappPreview: true },
+      createdAt: "Plantilla Inicial",
+    },
+    {
+      id: "offer_dessert",
+      name: "🍰 Postre de Cortesía en Mesa",
+      title: "🍰 ¡Postre de Cortesía en tu Visita de Hoy!",
+      body: "Ven hoy a deleitarte en {restaurante} y recibe un postre artesanal de autor de cortesía con tu consumo principal. ¡Te esperamos!",
+      url: "",
+      segment: "Subscribed Users",
+      scheduleType: "immediate",
+      channels: { push: true, webhook: true, whatsappPreview: false },
+      createdAt: "Plantilla Inicial",
+    },
+    {
+      id: "offer_flash_50",
+      name: "⏳ Cupón Flash 50% Off (Hoy)",
+      title: "⏳ Cupón Flash: 50% en tu Segundo Plato o Bebida",
+      body: "¡Solo por hoy! Disfruta 50% de descuento en tu segundo producto favorito en {restaurante}. Muestra este aviso en caja.",
+      url: "",
+      segment: "Active Customers",
+      scheduleType: "immediate",
+      channels: { push: true, webhook: true, whatsappPreview: true },
+      createdAt: "Plantilla Inicial",
+    },
+    {
+      id: "offer_double_stamps",
+      name: "🌟 Doble Sello Fin de Semana",
+      title: "🌟 ¡Sellos Dobles este Fin de Semana!",
+      body: "¡Acelera tu tarjeta de 15 sellos! Cada visita este fin de semana en {restaurante} te otorga 2 sellos para llegar antes a tu premio.",
+      url: "",
+      segment: "Subscribed Users",
+      scheduleType: "immediate",
+      channels: { push: true, webhook: true, whatsappPreview: false },
+      createdAt: "Plantilla Inicial",
+    },
+  ],
 };
 
 // BASE DE DATOS EN MEMORIA CON PERSISTENCIA EN ARCHIVO
@@ -175,6 +221,9 @@ if (fs.existsSync(DB_FILE)) {
             },
           },
         },
+        savedPushDrafts: (loaded.settings && loaded.settings.savedPushDrafts && loaded.settings.savedPushDrafts.length > 0)
+          ? loaded.settings.savedPushDrafts
+          : DEFAULT_SETTINGS.savedPushDrafts,
       },
     };
   } catch (err) {
@@ -456,15 +505,16 @@ const server = http.createServer((req, res) => {
         const data = JSON.parse(body || "{}");
         const title = data.title || "⚡ Oferta Especial";
         const msgBody = data.body || "¡Aprovecha nuestro beneficio de hoy!";
+        const isScheduled = data.scheduleType === "scheduled";
 
-        logRequest("PUSH", "/api/push/broadcast", 200, `📢 Campaña Push enviada: "${title}" (${data.segment || "Todos"})`);
+        logRequest("PUSH", "/api/push/broadcast", 200, `📢 Campaña Push ${isScheduled ? "programada" : "enviada"}: "${title}" (${data.segment || "Todos"})`);
 
         // Registrar en logs del backend
         db.logs.unshift({
           method: "PUSH",
           url: "/api/push/broadcast",
           timestamp: new Date().toLocaleTimeString("es-CO"),
-          detail: `📢 Encapuchado Push Masivo: "${title}" enviado a suscriptores. (URL: ${data.url || "Inicio"})`,
+          detail: `📢 ${isScheduled ? "Programada (" + (data.scheduledTime || "") + ")" : "Envío Inmediato"}: "${title}" (Canales: Push=${data.channels?.push !== false}, Webhook=${data.channels?.webhook !== false})`,
         });
         if (db.logs.length > 30) db.logs.pop();
 
@@ -475,6 +525,9 @@ const server = http.createServer((req, res) => {
           body: msgBody,
           url: data.url || "",
           segment: data.segment || "Subscribed Users",
+          scheduleType: data.scheduleType || "immediate",
+          scheduledTime: data.scheduledTime || "",
+          channels: data.channels || { push: true, webhook: true, whatsappPreview: true },
           sentAt: new Date().toLocaleString("es-CO"),
         });
         if (db.settings.pushCampaigns.length > 20) db.settings.pushCampaigns.pop();
@@ -483,7 +536,9 @@ const server = http.createServer((req, res) => {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({
           success: true,
-          message: "Notificación push masiva procesada y enviada a los suscriptores.",
+          message: isScheduled
+            ? `¡Campaña programada exitosamente para ${data.scheduledTime}!`
+            : "Notificación push masiva procesada y enviada a los suscriptores.",
           campaign: { title, body: msgBody, sentAt: new Date().toISOString() }
         }));
       } catch (err) {
@@ -493,6 +548,78 @@ const server = http.createServer((req, res) => {
       }
     });
     return;
+  }
+
+  // 9. API: GESTIÓN DE PLANTILLAS Y BORRADORES PUSH (/api/push/drafts)
+  if (pathname === "/api/push/drafts") {
+    if (req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: true, drafts: db.settings.savedPushDrafts || [] }));
+      return;
+    }
+
+    if (req.method === "POST") {
+      let body = "";
+      req.on("data", (chunk) => (body += chunk));
+      req.on("end", () => {
+        try {
+          const draft = JSON.parse(body || "{}");
+          if (!draft.title) throw new Error("Título de oferta requerido");
+          if (!db.settings.savedPushDrafts) db.settings.savedPushDrafts = [];
+
+          const existingIdx = db.settings.savedPushDrafts.findIndex((d) => d.id === draft.id);
+          const itemToSave = {
+            id: draft.id || ("draft_" + Date.now()),
+            name: draft.name || draft.title.slice(0, 30),
+            title: draft.title,
+            body: draft.body || "",
+            url: draft.url || "",
+            segment: draft.segment || "Subscribed Users",
+            scheduleType: draft.scheduleType || "immediate",
+            scheduledTime: draft.scheduledTime || "",
+            channels: draft.channels || { push: true, webhook: true, whatsappPreview: true },
+            createdAt: new Date().toLocaleDateString("es-CO"),
+          };
+
+          if (existingIdx >= 0) {
+            db.settings.savedPushDrafts[existingIdx] = itemToSave;
+          } else {
+            db.settings.savedPushDrafts.unshift(itemToSave);
+          }
+          saveDb();
+
+          logRequest("POST", "/api/push/drafts", 200, `💾 Plantilla push guardada: "${itemToSave.name}"`);
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: true, draft: itemToSave, drafts: db.settings.savedPushDrafts }));
+        } catch (err) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: false, error: err.message }));
+        }
+      });
+      return;
+    }
+
+    if (req.method === "DELETE") {
+      let body = "";
+      req.on("data", (chunk) => (body += chunk));
+      req.on("end", () => {
+        try {
+          const { id } = JSON.parse(body || "{}");
+          if (!id) throw new Error("ID requerido");
+          if (!db.settings.savedPushDrafts) db.settings.savedPushDrafts = [];
+          db.settings.savedPushDrafts = db.settings.savedPushDrafts.filter((d) => d.id !== id);
+          saveDb();
+
+          logRequest("DELETE", "/api/push/drafts", 200, `🗑️ Plantilla push eliminada (ID: ${id})`);
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: true, drafts: db.settings.savedPushDrafts }));
+        } catch (err) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: false, error: err.message }));
+        }
+      });
+      return;
+    }
   }
 
   // Ruta no encontrada
@@ -507,6 +634,24 @@ function renderBackendDashboard() {
   const redeemed = db.prizes.filter((p) => p.status === "UTILIZADO").length;
   const totalCustomers = Object.keys(db.customers).length;
   const conversionRate = totalPrizes > 0 ? Math.round((redeemed / totalPrizes) * 100) : 0;
+  const returningCount = Object.values(db.customers).filter((c) => (c.visits || 0) > 1 || (c.history && c.history.length > 1)).length;
+  const uniqueTables = Array.from(new Set(db.prizes.map((p) => p.tableNumber).filter(Boolean)));
+
+  const prizeCounts = {};
+  db.prizes.forEach((p) => {
+    const name = p.prizeName || "Premio";
+    prizeCounts[name] = (prizeCounts[name] || 0) + 1;
+  });
+  const prizeDistribution = Object.entries(prizeCounts).map(([name, count]) => ({
+    name,
+    count,
+    percentage: totalPrizes > 0 ? Math.round((count / totalPrizes) * 100) : 0,
+  }));
+
+  const funnelViews = Math.max(totalPrizes * 3, 30);
+  const funnelPlays = totalPrizes;
+  const funnelRedeemed = redeemed;
+  const funnelReturning = returningCount;
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -980,6 +1125,47 @@ function renderBackendDashboard() {
     <!-- PESTAÑA 1: OPERACIONES & MÉTRICAS                                         -->
     <!-- ========================================================================= -->
     <div id="tab-ops" class="tab-content active">
+      <!-- BARRA DE FILTROS INTERACTIVOS DEL BACKEND -->
+      <div class="panel" style="margin-bottom: 20px;">
+        <div class="panel-header" style="padding-bottom: 10px; margin-bottom: 12px; border-bottom: 1px solid var(--card-border);">
+          <div class="panel-title">
+            <span>🔍 Filtros de Visualización del Dashboard</span>
+            <span id="filterCountBadge" style="font-size: 11px; background: rgba(217, 119, 6, 0.2); color: #fbbf24; border: 1px solid rgba(217, 119, 6, 0.4); padding: 2px 8px; border-radius: 9999px; font-weight: 700;">${totalPrizes} registros</span>
+          </div>
+          <button type="button" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="resetOpsFilters()">🔄 Limpiar Filtros</button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Período</label>
+            <select id="filterPeriod" class="form-input" onchange="applyOpsFilters()">
+              <option value="all">Todo el Historial</option>
+              <option value="today">Solo Hoy</option>
+              <option value="week">Últimos 7 Días</option>
+              <option value="month">Últimos 30 Días</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Estado de Canje</label>
+            <select id="filterStatus" class="form-input" onchange="applyOpsFilters()">
+              <option value="all">Todos los Estados</option>
+              <option value="UTILIZADO">Canjeados en Caja (UTILIZADO)</option>
+              <option value="DISPONIBLE">Pendientes (DISPONIBLE)</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Mesa</label>
+            <select id="filterTable" class="form-input" onchange="applyOpsFilters()">
+              <option value="all">Todas las Mesas</option>
+              ${uniqueTables.map(t => `<option value="${t}">${t}</option>`).join("")}
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Búsqueda Rápida</label>
+            <input type="text" id="filterSearch" class="form-input" placeholder="Código, cliente, tel..." onkeyup="applyOpsFilters()">
+          </div>
+        </div>
+      </div>
+
       <!-- TARJETAS DE MÉTRICAS OPERATIVAS -->
       <div class="stats-grid">
         <div class="stat-card">
@@ -1001,6 +1187,83 @@ function renderBackendDashboard() {
           <span class="stat-title">Clientes Únicos</span>
           <span class="stat-value" id="stat-customers" style="color: #38bdf8;">${totalCustomers}</span>
           <span class="stat-sub">Con acumulación de sellos</span>
+        </div>
+      </div>
+
+      <!-- GRÁFICAS VISUALES: EMBUDO & DISTRIBUCIÓN DE PREMIOS -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <!-- Embudo -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span>📈 Embudo de Retención y Conversión (Funnel)</span>
+            </div>
+            <span class="badge-role" style="background: rgba(168, 85, 247, 0.2); color: #c084fc;">4 ETAPAS</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+            <div style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                <span style="color: #fff; font-weight: 600;">1. Vistas de QR en Mesa / Enlace</span>
+                <span style="color: #38bdf8; font-weight: 700;">${funnelViews} (100%)</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 9999px; overflow: hidden;">
+                <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #0284c7, #38bdf8);"></div>
+              </div>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                <span style="color: #fff; font-weight: 600;">2. Jugadas en Ruleta / Sellos</span>
+                <span style="color: #a855f7; font-weight: 700;">${funnelPlays} (${Math.round((funnelPlays / funnelViews) * 100)}%)</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 9999px; overflow: hidden;">
+                <div style="width: ${Math.max(15, Math.round((funnelPlays / funnelViews) * 100))}%; height: 100%; background: linear-gradient(90deg, #7c3aed, #a855f7);"></div>
+              </div>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                <span style="color: #fff; font-weight: 600;">3. Canjes en Caja (Consumo Real)</span>
+                <span style="color: #34d399; font-weight: 700;">${funnelRedeemed} (${conversionRate}%)</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 9999px; overflow: hidden;">
+                <div style="width: ${Math.max(10, conversionRate)}%; height: 100%; background: linear-gradient(90deg, #059669, #34d399);"></div>
+              </div>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                <span style="color: #fff; font-weight: 600;">4. Clientes Recurrentes (+2 visitas)</span>
+                <span style="color: #fbbf24; font-weight: 700;">${funnelReturning} (${totalCustomers > 0 ? Math.round((funnelReturning / totalCustomers) * 100) : 0}%)</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.08); border-radius: 9999px; overflow: hidden;">
+                <div style="width: ${Math.max(8, totalCustomers > 0 ? Math.round((funnelReturning / totalCustomers) * 100) : 0)}%; height: 100%; background: linear-gradient(90deg, #d97706, #fbbf24);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distribución de Premios -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span>🎁 Distribución de Premios Ganados</span>
+            </div>
+            <span class="badge-role" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">${prizeDistribution.length} TIPOS</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+            ${prizeDistribution.length === 0
+              ? '<div style="color: #6b7280; font-size: 12px; text-align: center; padding: 20px;">No hay premios registrados aún.</div>'
+              : prizeDistribution.map(p => `
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                    <span style="color: #e5e7eb; font-weight: 500;">${p.name}</span>
+                    <span style="color: #fbbf24; font-weight: 700;">${p.count} (${p.percentage}%)</span>
+                  </div>
+                  <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 9999px; overflow: hidden;">
+                    <div style="width: ${Math.max(p.percentage, 8)}%; height: 100%; background: #fbbf24; border-radius: 9999px;"></div>
+                  </div>
+                </div>
+              `).join("")
+            }
+          </div>
         </div>
       </div>
 
@@ -1915,6 +2178,15 @@ function renderBackendDashboard() {
           <div class="form-group">
             <label class="form-label">Mensaje / Cuerpo de la Notificación</label>
             <textarea id="pushBody" class="form-input" rows="2" style="resize: vertical;" required>¡Hola! Hoy de 3:00 a 6:00 PM acumula el DOBLE de sellos y disfruta 2x1 en bebidas de autor. ¡Muestra este mensaje en caja!</textarea>
+            <!-- BOTONES DE VARIABLES DINÁMICAS -->
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;">
+              <span style="font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase;">Variables:</span>
+              <button type="button" class="btn-secondary" style="padding: 2px 8px; font-size: 10px; font-family: monospace;" onclick="insertPushTag('{nombre}')">+ {nombre}</button>
+              <button type="button" class="btn-secondary" style="padding: 2px 8px; font-size: 10px; font-family: monospace;" onclick="insertPushTag('{premio}')">+ {premio}</button>
+              <button type="button" class="btn-secondary" style="padding: 2px 8px; font-size: 10px; font-family: monospace;" onclick="insertPushTag('{restaurante}')">+ {restaurante}</button>
+              <button type="button" class="btn-secondary" style="padding: 2px 8px; font-size: 10px; font-family: monospace;" onclick="insertPushTag('{descuento}')">+ {descuento}</button>
+              <button type="button" class="btn-secondary" style="padding: 2px 8px; font-size: 10px; font-family: monospace;" onclick="insertPushTag('{codigo}')">+ {codigo}</button>
+            </div>
           </div>
 
           <div class="form-group">
@@ -1922,13 +2194,82 @@ function renderBackendDashboard() {
             <input type="url" id="pushUrl" class="form-input" placeholder="http://localhost:5173">
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--card-border);">
-            <span id="pushStatusMsg" style="font-size: 11px; color: #9ca3af;"></span>
-            <button type="submit" class="btn-save" style="background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color: #fff;">
-              🚀 Enviar Notificación Masiva Ahora
-            </button>
+          <!-- PERSONALIZACIÓN DE ENVÍO: PROGRAMACIÓN Y CANALES -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--card-border);">
+            <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+              <label class="form-label" style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                <span>📅 Programación de Envío</span>
+              </label>
+              <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                <button type="button" id="btnSchedImmediate" class="btn-secondary" style="flex: 1; padding: 6px; font-size: 11px; background: rgba(245, 158, 11, 0.2); border-color: #fbbf24; color: #fbbf24;" onclick="setPushScheduleMode('immediate')">⚡ Inmediato</button>
+                <button type="button" id="btnSchedLater" class="btn-secondary" style="flex: 1; padding: 6px; font-size: 11px;" onclick="setPushScheduleMode('scheduled')">📅 Programar</button>
+              </div>
+              <input type="datetime-local" id="pushScheduledTime" class="form-input" style="display: none; font-size: 11px;">
+            </div>
+
+            <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+              <label class="form-label" style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                <span>📡 Canales de Entrega</span>
+              </label>
+              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; color: #d1d5db;">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="checkbox" id="chanPush" checked> OneSignal Web Push (Pantalla & PC)
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="checkbox" id="chanWebhook" checked> Webhook / Composio / Make / n8n
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="checkbox" id="chanWhatsApp" checked> Previsualización WhatsApp
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTONES GUARDAR PLANTILLA Y ENVIAR -->
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--card-border);">
+            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 250px;">
+              <input type="text" id="draftName" class="form-input" placeholder="Nombre plantilla (ej: Happy Hour)..." style="font-size: 11px; padding: 6px 10px;">
+              <button type="button" class="btn-secondary" style="padding: 6px 12px; font-size: 11px; white-space: nowrap;" onclick="saveCurrentPushDraft()">💾 Guardar Plantilla</button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span id="pushStatusMsg" style="font-size: 11px; color: #9ca3af;"></span>
+              <button type="submit" class="btn-save" style="background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color: #fff;">
+                🚀 Enviar Notificación Masiva Ahora
+              </button>
+            </div>
           </div>
         </form>
+      </div>
+
+      <!-- PLANTILLAS Y OFERTAS GUARDADAS EN EL SISTEMA -->
+      <div class="panel" style="margin-bottom: 20px;">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>📋 Plantillas y Ofertas Guardadas en el Sistema</span>
+          </div>
+          <span class="badge-role" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">${(s.savedPushDrafts || []).length} GUARDADAS</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+          ${(s.savedPushDrafts || []).map(d => `
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                  <strong style="color: #fff; font-size: 12px;">${d.name}</strong>
+                  <span style="font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.08); color: #9ca3af;">${d.scheduleType === "scheduled" ? "📅 Programada" : "⚡ Inmediata"}</span>
+                </div>
+                <p style="color: #fbbf24; font-size: 11px; font-weight: 600; margin: 2px 0;">${d.title}</p>
+                <p style="color: #9ca3af; font-size: 11px; line-height: 1.4; margin: 4px 0 8px 0;">${d.body}</p>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+                <span style="font-size: 9px; color: #6b7280;">${d.createdAt || "Plantilla"}</span>
+                <div style="display: flex; gap: 6px;">
+                  <button type="button" class="btn-secondary" style="padding: 3px 8px; font-size: 10px; color: #fbbf24;" onclick='loadCustomDraft(${JSON.stringify(d.id)})'>📝 Cargar</button>
+                  <button type="button" class="btn-secondary" style="padding: 3px 8px; font-size: 10px; color: #f87171;" onclick='deleteCustomDraft(${JSON.stringify(d.id)})'>🗑️</button>
+                </div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
       </div>
 
       <!-- 4 FLUJOS AUTOMATIZADOS -->
@@ -1999,6 +2340,9 @@ function renderBackendDashboard() {
   </div>
 
   <script>
+    // DATOS DE PLANTILLAS GUARDADAS EN EL BACKEND
+    window.SAVED_DRAFTS = ${JSON.stringify(s.savedPushDrafts || [])};
+
     // CAMBIO DE PESTAÑAS EN EL BACKEND
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
@@ -2009,31 +2353,232 @@ function renderBackendDashboard() {
       if (activeBtn) activeBtn.classList.add('active');
     }
 
-    // CARGAR PLANTILLAS DE PUSH
+    // FILTROS EN TIEMPO REAL DEL DASHBOARD DE OPERACIONES
+    function applyOpsFilters() {
+      const period = document.getElementById("filterPeriod") ? document.getElementById("filterPeriod").value : "all";
+      const status = document.getElementById("filterStatus") ? document.getElementById("filterStatus").value : "all";
+      const table = document.getElementById("filterTable") ? document.getElementById("filterTable").value : "all";
+      const search = document.getElementById("filterSearch") ? document.getElementById("filterSearch").value.toLowerCase().trim() : "";
+
+      const rows = document.querySelectorAll("#prizesTable tbody tr");
+      let visibleCount = 0;
+      let redeemedCount = 0;
+      const customersSet = new Set();
+
+      rows.forEach(function(row) {
+        if (!row.cells || row.cells.length < 5) return;
+        const codeText = row.cells[0].innerText.toLowerCase();
+        const timeText = row.cells[1].innerText.toLowerCase();
+        const customerText = row.cells[2].innerText.toLowerCase();
+        const prizeText = row.cells[3].innerText.toLowerCase();
+        const statusText = row.cells[5] ? row.cells[5].innerText.trim() : "";
+        const tableText = row.cells[2].innerText;
+
+        let match = true;
+
+        if (status !== "all" && statusText !== status) {
+          match = false;
+        }
+
+        if (table !== "all" && !tableText.includes(table)) {
+          match = false;
+        }
+
+        if (period === "today" && !timeText.includes(":") && !timeText.includes("hoy")) {
+          match = false;
+        }
+
+        if (search) {
+          const combined = (codeText + " " + customerText + " " + prizeText + " " + timeText).toLowerCase();
+          if (!combined.includes(search)) {
+            match = false;
+          }
+        }
+
+        if (match) {
+          row.style.display = "";
+          visibleCount++;
+          if (statusText === "UTILIZADO") redeemedCount++;
+          customersSet.add(customerText.split("\n")[0].trim());
+        } else {
+          row.style.display = "none";
+        }
+      });
+
+      // Actualizar contadores KPI
+      const statTotalEl = document.getElementById("stat-total");
+      const statRedeemedEl = document.getElementById("stat-redeemed");
+      const statRateEl = document.getElementById("stat-rate");
+      const statCustomersEl = document.getElementById("stat-customers");
+      const countBadge = document.getElementById("filterCountBadge");
+
+      if (statTotalEl) statTotalEl.innerText = visibleCount;
+      if (statRedeemedEl) statRedeemedEl.innerText = redeemedCount;
+      if (statRateEl) {
+        const rate = visibleCount > 0 ? Math.round((redeemedCount / visibleCount) * 100) : 0;
+        statRateEl.innerText = rate + "%";
+      }
+      if (statCustomersEl) statCustomersEl.innerText = customersSet.size;
+      if (countBadge) countBadge.innerText = visibleCount + " registros";
+    }
+
+    function resetOpsFilters() {
+      if (document.getElementById("filterPeriod")) document.getElementById("filterPeriod").value = "all";
+      if (document.getElementById("filterStatus")) document.getElementById("filterStatus").value = "all";
+      if (document.getElementById("filterTable")) document.getElementById("filterTable").value = "all";
+      if (document.getElementById("filterSearch")) document.getElementById("filterSearch").value = "";
+      applyOpsFilters();
+    }
+
+    // CONTROL DE PROGRAMACIÓN DE PUSH
+    let pushScheduleMode = "immediate";
+    function setPushScheduleMode(mode) {
+      pushScheduleMode = mode;
+      const btnImm = document.getElementById("btnSchedImmediate");
+      const btnLater = document.getElementById("btnSchedLater");
+      const timeInp = document.getElementById("pushScheduledTime");
+
+      if (mode === "immediate") {
+        btnImm.style.background = "rgba(245, 158, 11, 0.2)";
+        btnImm.style.borderColor = "#fbbf24";
+        btnImm.style.color = "#fbbf24";
+        btnLater.style.background = "";
+        btnLater.style.borderColor = "";
+        btnLater.style.color = "";
+        timeInp.style.display = "none";
+      } else {
+        btnLater.style.background = "rgba(245, 158, 11, 0.2)";
+        btnLater.style.borderColor = "#fbbf24";
+        btnLater.style.color = "#fbbf24";
+        btnImm.style.background = "";
+        btnImm.style.borderColor = "";
+        btnImm.style.color = "";
+        timeInp.style.display = "block";
+      }
+    }
+
+    // INSERTAR VARIABLES DINÁMICAS EN EL MENSAJE PUSH
+    function insertPushTag(tag) {
+      const bodyInput = document.getElementById("pushBody");
+      if (bodyInput) {
+        bodyInput.value = bodyInput.value ? (bodyInput.value + " " + tag) : tag;
+        bodyInput.focus();
+      }
+    }
+
+    // CARGAR PLANTILLAS PREDEFINIDAS
     function loadPushTemplate(type) {
       const titleInput = document.getElementById("pushTitle");
       const bodyInput = document.getElementById("pushBody");
       const segmentInput = document.getElementById("pushSegment");
       if (type === "happy_hour") {
         titleInput.value = "⚡ ¡Happy Hour 2x1 en Café y Bebidas de Autor!";
-        bodyInput.value = "¡Hola! Hoy de 3:00 a 6:00 PM acumula el DOBLE de sellos y disfruta 2x1 en bebidas. ¡Muestra este mensaje en caja!";
+        bodyInput.value = "¡Hola {nombre}! Hoy de 3:00 a 6:00 PM acumula el DOBLE de sellos y disfruta 2x1 en bebidas. ¡Muestra este mensaje en caja!";
         segmentInput.value = "Subscribed Users";
       } else if (type === "dessert") {
         titleInput.value = "🍰 ¡Postre de Cortesía en tu Visita de Hoy!";
-        bodyInput.value = "Ven hoy a deleitarte y recibe un postre artesanal de autor de cortesía con tu consumo principal. ¡Te esperamos!";
+        bodyInput.value = "Ven hoy a deleitarte en {restaurante} y recibe un postre artesanal de autor de cortesía con tu consumo principal. ¡Te esperamos!";
         segmentInput.value = "Subscribed Users";
       } else if (type === "flash") {
         titleInput.value = "⏳ Cupón Flash: 50% en tu Segundo Plato o Bebida";
-        bodyInput.value = "¡Solo por hoy! Disfruta 50% de descuento en tu segundo producto favorito. Muestra este aviso en caja.";
+        bodyInput.value = "¡Solo por hoy! Disfruta 50% de descuento en tu segundo producto favorito en {restaurante}. Muestra este aviso en caja.";
         segmentInput.value = "Active Customers";
       } else if (type === "stamps") {
         titleInput.value = "🌟 ¡Sellos Dobles este Fin de Semana!";
-        bodyInput.value = "¡Acelera tu tarjeta de 15 sellos! Cada visita este fin de semana te otorga 2 sellos para llegar antes a tu premio.";
+        bodyInput.value = "¡Acelera tu tarjeta de 15 sellos! Cada visita este fin de semana en {restaurante} te otorga 2 sellos para llegar antes a tu premio.";
         segmentInput.value = "Subscribed Users";
       }
     }
 
-    // ENVIAR CAMPAÑA PUSH BROADCAST
+    // CARGAR PLANTILLA GUARDADA EN EL FORMULARIO
+    function loadCustomDraft(id) {
+      const draft = (window.SAVED_DRAFTS || []).find(function(d) { return d.id === id; });
+      if (!draft) return;
+      document.getElementById("pushTitle").value = draft.title || "";
+      document.getElementById("pushBody").value = draft.body || "";
+      document.getElementById("pushSegment").value = draft.segment || "Subscribed Users";
+      document.getElementById("pushUrl").value = draft.url || "";
+      if (document.getElementById("draftName")) document.getElementById("draftName").value = draft.name || "";
+      if (draft.scheduleType) setPushScheduleMode(draft.scheduleType);
+      if (draft.scheduledTime && document.getElementById("pushScheduledTime")) {
+        document.getElementById("pushScheduledTime").value = draft.scheduledTime;
+      }
+      if (draft.channels) {
+        if (document.getElementById("chanPush")) document.getElementById("chanPush").checked = draft.channels.push !== false;
+        if (document.getElementById("chanWebhook")) document.getElementById("chanWebhook").checked = draft.channels.webhook !== false;
+        if (document.getElementById("chanWhatsApp")) document.getElementById("chanWhatsApp").checked = draft.channels.whatsappPreview !== false;
+      }
+      alert('Plantilla "' + (draft.name || draft.title) + '" cargada en el formulario.');
+    }
+
+    // GUARDAR PLANTILLA REUTILIZABLE
+    async function saveCurrentPushDraft() {
+      const title = document.getElementById("pushTitle").value.trim();
+      const body = document.getElementById("pushBody").value.trim();
+      const segment = document.getElementById("pushSegment").value;
+      const url = document.getElementById("pushUrl").value.trim();
+      const draftName = (document.getElementById("draftName").value.trim()) || title.slice(0, 30);
+      const scheduledTime = document.getElementById("pushScheduledTime").value;
+
+      if (!title || !body) {
+        alert("Por favor completa al menos el título y mensaje de la oferta antes de guardarla.");
+        return;
+      }
+
+      const payload = {
+        name: draftName,
+        title: title,
+        body: body,
+        segment: segment,
+        url: url,
+        scheduleType: pushScheduleMode,
+        scheduledTime: pushScheduleMode === "scheduled" ? scheduledTime : "",
+        channels: {
+          push: document.getElementById("chanPush").checked,
+          webhook: document.getElementById("chanWebhook").checked,
+          whatsappPreview: document.getElementById("chanWhatsApp").checked,
+        },
+      };
+
+      try {
+        const res = await fetch("/api/push/drafts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('¡Plantilla "' + draftName + '" guardada con éxito!');
+          window.location.reload();
+        } else {
+          alert("Error al guardar: " + (data.error || ""));
+        }
+      } catch (err) {
+        alert("Error de conexión al guardar plantilla.");
+      }
+    }
+
+    // ELIMINAR PLANTILLA GUARDADA
+    async function deleteCustomDraft(id) {
+      if (!confirm("¿Deseas eliminar esta plantilla guardada?")) return;
+      try {
+        const res = await fetch("/api/push/drafts", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: id })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.reload();
+        } else {
+          alert("Error: " + (data.error || ""));
+        }
+      } catch (err) {
+        alert("Error de conexión.");
+      }
+    }
+
+    // ENVIAR CAMPAÑA PUSH BROADCAST CON PROGRAMACIÓN Y CANALES
     async function sendBroadcastPush(e) {
       e.preventDefault();
       const statusEl = document.getElementById("pushStatusMsg");
@@ -2041,6 +2586,7 @@ function renderBackendDashboard() {
       const body = document.getElementById("pushBody").value.trim();
       const segment = document.getElementById("pushSegment").value;
       const url = document.getElementById("pushUrl").value.trim();
+      const scheduledTime = document.getElementById("pushScheduledTime").value;
 
       if (!title || !body) {
         alert("Por favor completa el título y el mensaje de la campaña.");
@@ -2048,20 +2594,32 @@ function renderBackendDashboard() {
       }
 
       statusEl.style.color = "#fbbf24";
-      statusEl.innerText = "⏳ Enviando campaña push a los suscriptores...";
+      statusEl.innerText = "⏳ Procesando envío de campaña...";
 
       try {
         const res = await fetch("/api/push/broadcast", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, body, segment, url })
+          body: JSON.stringify({
+            title: title,
+            body: body,
+            segment: segment,
+            url: url,
+            scheduleType: pushScheduleMode,
+            scheduledTime: pushScheduleMode === "scheduled" ? scheduledTime : "",
+            channels: {
+              push: document.getElementById("chanPush").checked,
+              webhook: document.getElementById("chanWebhook").checked,
+              whatsappPreview: document.getElementById("chanWhatsApp").checked,
+            },
+          })
         });
         const data = await res.json();
         if (data.success) {
           statusEl.style.color = "#34d399";
           statusEl.innerText = "✓ " + data.message;
-          setTimeout(() => { statusEl.innerText = ""; }, 5000);
-          refreshData();
+          setTimeout(function() { statusEl.innerText = ""; }, 5000);
+          setTimeout(function() { window.location.reload(); }, 2000);
         } else {
           statusEl.style.color = "#f87171";
           statusEl.innerText = "Error: " + (data.error || "No se pudo enviar");
