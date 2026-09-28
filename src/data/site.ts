@@ -1,11 +1,13 @@
+import { clientConfig } from "@/config/clientConfig";
+
 export const site = {
-  name: "Bliss Soul Bakery & Café",
-  tagline: "Sabores que comienzan en los sentidos y permanecen en el alma.",
-  taglineEn: "Flavors that begin in the senses and linger in the soul.",
-  whatsapp: "573022777295",
-  instagram: "https://www.instagram.com/blisssoulbakery/?hl=es-la",
-  mapsReviewUrl: "https://g.page/r/CfPSfNSGX8u1EBM/review",
-  googleSheetWebhookUrl: "", // Pega aquí tu URL de Google Apps Script cuando la despliegues
+  name: clientConfig.brand.name,
+  tagline: clientConfig.brand.tagline,
+  taglineEn: clientConfig.brand.taglineEn,
+  whatsapp: clientConfig.channels.whatsappNumber,
+  instagram: clientConfig.channels.instagramProfileUrl,
+  mapsReviewUrl: clientConfig.channels.googleMapsReviewUrl,
+  googleSheetWebhookUrl: clientConfig.composio.endpoints?.googleSheetWebhookUrl || "",
 };
 
 export function waLink(message: string, phone: string = site.whatsapp) {

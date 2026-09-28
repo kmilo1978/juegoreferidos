@@ -29,7 +29,7 @@ export interface ClientConfig {
 
   // 3. Contacto, Redes y Reputación
   channels: {
-    instagramHandle: string;        // Ej: "@blisssoulbakery"
+    instagramHandle: string;        // Ej: "@turestaurante"
     instagramProfileUrl: string;
     whatsappNumber: string;         // Con código de país (ej: "573022777295")
     googleMapsReviewUrl: string;    // Enlace directo a reseñas de Google Business
@@ -70,27 +70,27 @@ import emblemaDorado from "@/assets/emblema-dorado.png";
 
 export const clientConfig: ClientConfig = {
   brand: {
-    name: "Bliss Soul Bakery & Café",
-    tagline: "Sabores que comienzan en los sentidos y permanecen en el alma.",
-    taglineEn: "Flavors that begin in the senses and linger in the soul.",
+    name: "Tu Restaurante & Café",
+    tagline: "Sabores inolvidables, momentos que alegran el día.",
+    taglineEn: "Unforgettable flavors, moments that brighten your day.",
     logoUrl: logoHeader,
     emblemUrl: emblemaDorado,
     currency: "COP",
   },
   theme: {
-    primaryColor: "#a27e2c",    // Dorado Luxor oficial
+    primaryColor: "#a27e2c",    // Color corporativo principal
     primaryHover: "#8c6b22",
-    backgroundColor: "#fcfaf7", // Crema diurno de alta repostería
+    backgroundColor: "#fcfaf7", // Fondo claro y elegante
     cardColor: "#ffffff",
     textColor: "#1e1b18",       // Carbón de lectura
     mutedColor: "#737373",
   },
   channels: {
-    instagramHandle: "@blisssoulbakery",
-    instagramProfileUrl: "https://www.instagram.com/blisssoulbakery/?hl=es-la",
-    whatsappNumber: "573022777295",
-    googleMapsReviewUrl: "https://g.page/r/CfPSfNSGX8u1EBM/review",
-    supportEmail: "pedidos@blissbarkery.com",
+    instagramHandle: "@turestaurante",
+    instagramProfileUrl: "https://www.instagram.com/",
+    whatsappNumber: "573000000000",
+    googleMapsReviewUrl: "https://maps.google.com",
+    supportEmail: "contacto@turestaurante.com",
   },
   security: {
     cashierPin: "1978",

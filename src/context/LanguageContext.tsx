@@ -21,7 +21,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("bliss_lang") as Language;
+      const saved = localStorage.getItem("juego_lang") as Language;
       if (saved === "es" || saved === "en") {
         setLangState(saved);
         document.documentElement.lang = saved;
@@ -32,7 +32,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const setLang = (l: Language) => {
     setLangState(l);
     if (typeof window !== "undefined") {
-      localStorage.setItem("bliss_lang", l);
+      localStorage.setItem("juego_lang", l);
       document.documentElement.lang = l;
     }
   };

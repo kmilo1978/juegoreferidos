@@ -16,6 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import { calculateAnalytics } from "../../lib/analyticsService";
+import { clientConfig } from "../../config/clientConfig";
 
 interface AdminPanelModalProps {
   isOpen: boolean;
@@ -83,7 +84,7 @@ export function AdminPanelModal({
         <div className="bg-neutral-900 text-white p-5 sm:p-6 flex items-center justify-between border-b border-gold/30">
           <div>
             <span className="text-[10px] uppercase tracking-[0.24em] text-gold font-mono font-semibold">
-              BLISS SOUL BAKERY · PANEL DE CONTROL
+              {clientConfig.brand.name.toUpperCase()} · PANEL DE CONTROL
             </span>
             <h2 className="text-lg sm:text-xl font-display font-medium text-white">
               {t("Administración de Juego QR & Premios", "QR Game & Prizes Management")}
@@ -492,7 +493,7 @@ export function AdminPanelModal({
                     <input
                       type="text"
                       readOnly
-                      value="Juego de Mesa & Gratitud — Bliss Soul 2026"
+                      value={`Juego de Mesa & Fidelización — ${clientConfig.brand.name}`}
                       className="w-full border rounded-lg p-2 bg-muted/40 font-medium"
                     />
                   </div>
@@ -501,7 +502,7 @@ export function AdminPanelModal({
                     <input
                       type="text"
                       readOnly
-                      value="@blisssoulbakery"
+                      value={clientConfig.channels.instagramHandle}
                       className="w-full border rounded-lg p-2 bg-muted/40 font-mono"
                     />
                   </div>

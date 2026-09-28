@@ -5,6 +5,7 @@ import { Reveal } from "@/components/shared/Reveal";
 import { ExternalLink, MessageCircle, CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
 import { waLink } from "@/data/site";
 import emblemaDorado from "@/assets/emblema-dorado.png";
+import { clientConfig } from "@/config/clientConfig";
 
 interface StepFeedbackProps {
   initialFeedback?: FeedbackData | undefined;
@@ -53,7 +54,7 @@ export function StepFeedback({
 
     const stars = "★".repeat(rating || 1);
     const nameLine = name.trim() ? `De: ${name.trim()}\n` : "";
-    const msg = `Hola Bliss Soul Bakery, estuve de visita y califiqué mi experiencia con ${rating}/5 (${stars}).\n${nameLine}Comentario / sugerencia para mejorar:\n"${comment.trim()}"`;
+    const msg = `Hola ${clientConfig.brand.name}, estuve de visita y califiqué mi experiencia con ${rating}/5 (${stars}).\n${nameLine}Comentario / sugerencia para mejorar:\n"${comment.trim()}"`;
 
     window.open(waLink(msg), "_blank", "noopener,noreferrer");
     setHasSentWhatsApp(true);
@@ -84,8 +85,8 @@ export function StepFeedback({
 
           <p className="mt-3 text-sm text-muted-foreground font-light leading-relaxed max-w-lg mx-auto">
             {t(
-              "En Bliss Soul Bakery cada visita busca ser una pausa serena e inolvidable. ¿Cómo fue tu experiencia hoy? Califica con nuestros emblemas:",
-              "At Bliss Soul Bakery, every visit strives to be a serene, unforgettable pause. How was your experience today? Rate with our emblems:",
+              `En ${clientConfig.brand.name} cada visita busca ser una experiencia inolvidable. ¿Cómo fue tu experiencia hoy? Califica con nuestros emblemas:`,
+              `At ${clientConfig.brand.name}, every visit strives to be an unforgettable experience. How was your experience today? Rate with our emblems:`,
             )}
           </p>
         </div>

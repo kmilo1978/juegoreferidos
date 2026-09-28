@@ -21,6 +21,7 @@ import { TableStandModal } from "./components/qr-game/TableStandModal";
 import { recordPageView, getStoredHistory, saveStoredHistory } from "./lib/analyticsService";
 import { MessageCircle } from "lucide-react";
 import { site } from "./data/site";
+import { clientConfig } from "./config/clientConfig";
 
 function getInitialTable(): string {
   if (typeof window !== "undefined") {
@@ -80,7 +81,7 @@ function JuegoQrPage() {
     }
 
     try {
-      const savedPrize = sessionStorage.getItem("bliss_won_prize");
+      const savedPrize = sessionStorage.getItem("juego_won_prize");
       if (savedPrize) {
         const parsed = JSON.parse(savedPrize) as WonPrize;
         setWonPrize(parsed);
@@ -100,7 +101,7 @@ function JuegoQrPage() {
     setInstagramEvidence(undefined);
     setWonPrize(null);
     try {
-      sessionStorage.removeItem("bliss_won_prize");
+      sessionStorage.removeItem("juego_won_prize");
     } catch {
       // ignore
     }
@@ -153,7 +154,8 @@ function JuegoQrPage() {
 
   // PASO 3 -> PASO 4 (Ruleta -> Premio ganado)
   const handlePrizeWon = (prize: GamePrize) => {
-    const randomCode = `BLISS-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+    const brandPrefix = clientConfig.brand.name.replace(/[^a-zA-Z]/g, "").substring(0, 4).toUpperCase() || "PREMIO";
+    const randomCode = `${brandPrefix}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
     const dateStr = new Date().toLocaleDateString("es-CO", {
       day: "2-digit",
       month: "short",
@@ -188,7 +190,7 @@ function JuegoQrPage() {
 
     // Guardar en sessionStorage para protegerlo de F5
     try {
-      sessionStorage.setItem("bliss_won_prize", JSON.stringify(newWon));
+      sessionStorage.setItem("juego_won_prize", JSON.stringify(newWon));
     } catch {
       // ignore
     }
@@ -243,7 +245,7 @@ function JuegoQrPage() {
     });
 
     try {
-      sessionStorage.setItem("bliss_won_prize", JSON.stringify(updated));
+      sessionStorage.setItem("juego_won_prize", JSON.stringify(updated));
     } catch {
       // ignore
     }

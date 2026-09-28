@@ -3,6 +3,7 @@ import { TableSession } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Clock, QrCode, Settings, RotateCcw, Sparkles, MessageCircle } from "lucide-react";
 import logoHeader from "@/assets/logo-header.png";
+import { clientConfig } from "@/config/clientConfig";
 
 interface GameHeaderProps {
   session: TableSession;
@@ -109,8 +110,8 @@ export function GameHeader({
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <img
-                src={logoHeader}
-                alt="Bliss Soul Bakery | Experiencia de repostería fina en Sabaneta"
+                src={clientConfig.brand.logoUrl || logoHeader}
+                alt={clientConfig.brand.name}
                 className="h-9 w-auto object-contain brightness-0 invert-0"
               />
               <div className="border-l border-gold/30 pl-3">

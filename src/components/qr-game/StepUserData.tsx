@@ -3,6 +3,7 @@ import { ParticipantData } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
 import { ArrowRight, ArrowLeft, User, Phone, Mail, Check } from "lucide-react";
+import { clientConfig } from "@/config/clientConfig";
 
 interface FormErrors {
   fullName?: string;
@@ -254,8 +255,8 @@ export function StepUserData({ initialData, onBack, onComplete }: StepUserDataPr
                   {t("Novedades y cortesías (Opcional):", "News and treats (Optional):")}
                 </span>{" "}
                 {t(
-                  "Deseo recibir invitaciones a catas privadas, nuevas creaciones artesanales y promociones exclusivas de Bliss Soul Bakery por WhatsApp o correo.",
-                  "I would like to receive invitations to private tastings, new artisan creations, and exclusive offers by WhatsApp or email.",
+                  `Deseo recibir invitaciones a degustaciones privadas, lanzamientos y promociones exclusivas de ${clientConfig.brand.name} por WhatsApp o correo.`,
+                  `I would like to receive invitations to private tastings, special launches, and exclusive offers by WhatsApp or email.`,
                 )}
               </span>
             </label>

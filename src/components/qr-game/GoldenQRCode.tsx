@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import QRCode from "qrcode";
 import emblemaDorado from "@/assets/emblema-dorado.png";
+import { clientConfig } from "@/config/clientConfig";
 
 interface GoldenQRCodeProps {
   value: string;
@@ -23,7 +24,7 @@ export function GoldenQRCode({ value, size = 240, className = "" }: GoldenQRCode
         width: size,
         margin: 2,
         color: {
-          dark: "#a27e2c", // Dorado Luxor de Bliss Soul
+          dark: clientConfig.theme.primaryColor || "#a27e2c",
           light: "#ffffff",
         },
         errorCorrectionLevel: "H", // Alta tolerancia a errores para permitir el logo central

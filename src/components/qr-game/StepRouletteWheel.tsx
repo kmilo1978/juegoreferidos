@@ -6,6 +6,7 @@ import confetti from "canvas-confetti";
 import { Sparkles, Trophy, ArrowRight } from "lucide-react";
 import emblemaDorado from "@/assets/emblema-dorado.png";
 import { playRouletteTickSound, playVictoryFanfareSound } from "../../lib/soundEffects";
+import { clientConfig } from "@/config/clientConfig";
 
 interface StepRouletteWheelProps {
   prizes: GamePrize[];
@@ -144,9 +145,9 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
     ctx.stroke();
     ctx.restore();
 
-    // 6. Isotipo de Bliss Soul en el centro del medallón
+    // 6. Isotipo o emblema en el centro del medallón
     const img = new Image();
-    img.src = emblemaDorado;
+    img.src = clientConfig.brand.emblemUrl || emblemaDorado;
     img.crossOrigin = "anonymous";
     img.onload = () => {
       const emblemSize = 42;
@@ -262,8 +263,8 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
 
           <p className="mt-2 text-sm text-muted-foreground font-light max-w-md mx-auto">
             {t(
-              `Gira la ruleta exclusiva de Bliss Soul Bakery para descubrir tu premio especial, ${participantName}.`,
-              `Spin the exclusive Bliss Soul Bakery roulette to unveil your special prize, ${participantName}.`
+              `Gira la ruleta exclusiva de ${clientConfig.brand.name} para descubrir tu premio especial, ${participantName}.`,
+              `Spin the exclusive ${clientConfig.brand.name} roulette to unveil your special prize, ${participantName}.`,
             )}
           </p>
         </div>

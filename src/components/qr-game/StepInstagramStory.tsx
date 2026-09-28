@@ -107,11 +107,12 @@ export function StepInstagramStory({
 
         ctx.fillStyle = "#ffffff";
         ctx.font = "bold 38px sans-serif";
-        ctx.fillText("@blisssoulbakery", width / 2, 1610);
+        ctx.fillText(clientConfig.channels.instagramHandle, width / 2, 1610);
 
         const dataUrl = canvas.toDataURL("image/png");
         const link = document.createElement("a");
-        link.download = `Story-Bliss-Soul-${participantName.replace(/\s+/g, "-")}.png`;
+        const safeBrand = clientConfig.brand.name.replace(/[^a-zA-Z0-9]/g, "-");
+        link.download = `Story-${safeBrand}-${participantName.replace(/\s+/g, "-")}.png`;
         link.href = dataUrl;
         link.click();
 
@@ -181,13 +182,13 @@ export function StepInstagramStory({
           </div>
 
           <h2 className="font-display text-2xl sm:text-3xl text-foreground font-normal tracking-tight">
-            {t("Comparte tu Momento Bliss", "Share Your Bliss Moment")}
+            {t("Comparte tu Momento Especial", "Share Your Special Moment")}
           </h2>
 
           <p className="mt-3 text-sm text-muted-foreground font-light leading-relaxed max-w-lg mx-auto">
             {t(
-              "¡La foto es 100% libre! Comparte en tus historias de Instagram una foto de tu pedido, de tu mesa o del local mencionando a @blisssoulbakery, y sube la captura para desbloquear la ruleta.",
-              "The photo is 100% free! Share a story on Instagram showing your food, table, or the space tagging @blisssoulbakery, and upload the screenshot to unlock the roulette.",
+              `¡La foto es 100% libre! Comparte en tus historias de Instagram una foto de tu pedido, de tu mesa o del local mencionando a ${clientConfig.channels.instagramHandle}, y sube la captura para desbloquear la ruleta.`,
+              `The photo is 100% free! Share a story on Instagram showing your food, table, or the space tagging ${clientConfig.channels.instagramHandle}, and upload the screenshot to unlock the roulette.`,
             )}
           </p>
         </div>

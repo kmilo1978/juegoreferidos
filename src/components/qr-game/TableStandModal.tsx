@@ -10,7 +10,7 @@ interface TableStandModalProps {
 export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
   if (!isOpen) return null;
 
-  const currentUrl = typeof window !== "undefined" ? window.location.origin : "https://blissbarkery.andresduquelabs.com";
+  const currentUrl = typeof window !== "undefined" ? window.location.origin : "https://turestaurante.com";
 
   const handlePrint = () => {
     window.print();

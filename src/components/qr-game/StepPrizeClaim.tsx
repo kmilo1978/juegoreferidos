@@ -31,7 +31,7 @@ Presenta este código único al momento de pagar:
 
 Mesa: ${prize.tableNumber}
 Fecha: ${prize.wonAt}
-Restaurante: Bliss Soul Bakery
+Restaurante: ${clientConfig.brand.name}
 
 ¡Gracias por visitarnos y endulzar tu día con nosotros! ❤️`;
 
@@ -81,8 +81,8 @@ Restaurante: Bliss Soul Bakery
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#d1b374_1px,transparent_1px)] [background-size:16px_16px]" />
             <div className="relative z-10 space-y-2">
               <img
-                src={logoHeader}
-                alt="Bliss Soul Bakery | Voucher oficial de beneficio en mesa"
+                src={clientConfig.brand.logoUrl || logoHeader}
+                alt={`${clientConfig.brand.name} | Voucher oficial de beneficio en mesa`}
                 className="h-10 w-auto mx-auto object-contain brightness-0 invert"
               />
               <p className="text-[10px] uppercase tracking-[0.24em] text-gold font-semibold">
@@ -128,7 +128,7 @@ Restaurante: Bliss Soul Bakery
             {/* Código QR Dorado de Alta Tolerancia */}
             <div className="flex flex-col items-center justify-center py-2">
               <GoldenQRCode
-                value={`https://blisssoulbakery.com/juego-qr?val=${prize.uniqueCode}`}
+                value={typeof window !== "undefined" ? `${window.location.origin}?val=${prize.uniqueCode}` : `https://beneficio.com?val=${prize.uniqueCode}`}
                 size={210}
               />
               <div className="mt-3">
@@ -302,7 +302,7 @@ Restaurante: Bliss Soul Bakery
             {t("Broche de Oro", "Final Touch")}
           </p>
           <h3 className="font-display text-xl sm:text-2xl text-foreground mt-1">
-            {t("¿Cómo estuvo tu experiencia en Bliss Soul?", "How was your Bliss Soul experience?")}
+            {t(`¿Cómo estuvo tu experiencia en ${clientConfig.brand.name}?`, `How was your ${clientConfig.brand.name} experience?`)}
           </h3>
           <p className="text-xs text-muted-foreground font-light mt-1">
             {t(
