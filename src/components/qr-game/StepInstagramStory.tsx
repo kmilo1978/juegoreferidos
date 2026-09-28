@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import logoHeader from "@/assets/logo-header.png";
 import heroImg from "@/assets/hero-pistacho-cafe.jpg";
+import { clientConfig } from "@/config/clientConfig";
 
 interface StepInstagramStoryProps {
   participantName: string;
@@ -238,8 +239,8 @@ export function StepInstagramStory({
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.16em] font-semibold text-foreground">
-                  {t("Mención obligatoria:", "Required tag:")}{" "}
-                  <span className="text-gold font-mono">@blisssoulbakery</span>
+                  {t("Mención sugerida:", "Suggested tag:")}{" "}
+                  <span className="text-gold font-mono">{clientConfig.channels.instagramHandle}</span>
                 </p>
                 <p className="text-[11px] text-muted-foreground font-light mt-0.5">
                   {t(
@@ -251,7 +252,7 @@ export function StepInstagramStory({
             </div>
 
             <a
-              href="https://instagram.com/blisssoulbakery"
+              href={clientConfig.channels.instagramProfileUrl}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card border border-gold/50 text-gold text-xs hover:bg-gold hover:text-white transition-colors shrink-0 shadow-2xs font-medium"
@@ -420,16 +421,31 @@ export function StepInstagramStory({
               <span>{t("Volver a tus datos", "Back to your info")}</span>
             </button>
 
-            <button
-              type="submit"
-              onClick={handleNext}
-              disabled={!previewUrl}
-              className="btn-solid w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-8 text-xs uppercase tracking-[0.2em] font-medium disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs"
-            >
-              <Sparkles className="h-4 w-4 text-white" />
-              <span>{t("¡Ir a la Ruleta de Premios!", "Go to Prize Roulette!")}</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() =>
+                  onComplete({
+                    storyGenerated: false,
+                    instagramHandle: handle.trim() || undefined,
+                  })
+                }
+                className="text-xs text-muted-foreground hover:text-gold transition-colors underline underline-offset-4 py-2 order-2 sm:order-1"
+              >
+                {t("Omitir Story y pasar directo a la ruleta ›", "Skip Story & go directly to roulette ›")}
+              </button>
+
+              <button
+                type="submit"
+                onClick={handleNext}
+                disabled={!previewUrl}
+                className="btn-solid w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-8 text-xs uppercase tracking-[0.2em] font-medium disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs order-1 sm:order-2"
+              >
+                <Sparkles className="h-4 w-4 text-white" />
+                <span>{t("¡Ir a la Ruleta de Premios!", "Go to Prize Roulette!")}</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </Reveal>

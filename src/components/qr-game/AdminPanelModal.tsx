@@ -364,6 +364,11 @@ export function AdminPanelModal({
                               <span className="block text-[10px] text-muted-foreground font-mono">
                                 +{h.participantWhatsapp}
                               </span>
+                              {h.participantEmail && (
+                                <span className="block text-[10px] text-muted-foreground truncate max-w-[150px]">
+                                  {h.participantEmail}
+                                </span>
+                              )}
                             </td>
                             <td className="py-2.5 px-3">{h.prizeName}</td>
                             <td className="py-2.5 px-3">

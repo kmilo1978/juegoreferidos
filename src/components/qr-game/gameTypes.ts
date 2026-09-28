@@ -48,6 +48,7 @@ export interface WonPrize {
   tableNumber: string;
   participantName: string;
   participantWhatsapp: string;
+  participantEmail?: string;
   wonAt: string;
   createdAt?: number;
   status: "DISPONIBLE" | "UTILIZADO";

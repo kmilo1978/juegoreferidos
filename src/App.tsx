@@ -171,6 +171,7 @@ function JuegoQrPage() {
       tableNumber: session.tableNumber,
       participantName: participant?.fullName || "Cliente de la Casa",
       participantWhatsapp: participant?.whatsapp || "573000000000",
+      participantEmail: participant?.email || "",
       wonAt: dateStr,
       createdAt: Date.now(),
       status: "DISPONIBLE",
