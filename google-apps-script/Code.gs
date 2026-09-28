@@ -28,6 +28,12 @@ var SECRET_PIN = "1978"; // PIN de 4 dígitos para autorización del cajero o me
 function doPost(e) {
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    
+    // Si la hoja está completamente vacía, configuramos cabeceras automáticamente
+    if (sheet.getLastRow() === 0) {
+      setupAutomatico();
+    }
+
     var data = JSON.parse(e.postData.contents);
     var action = data.action; // 'CREATE_PRIZE' | 'VALIDATE_PIN'
 
@@ -116,4 +122,48 @@ function doGet(e) {
     status: 'online',
     message: 'Servicio Webhook de Fidelización QR activo y respondiendo.'
   })).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Función de configuración automática de 1 solo clic.
+ * Puedes ejecutarla manualmente desde Apps Script o se ejecuta sola al primer registro.
+ */
+function setupAutomatico() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getActiveSheet();
+  sheet.setName("Premios_Y_Clientes");
+
+  // 1. Cabeceras oficiales
+  var headers = [
+    "Fecha y Hora",
+    "Cliente",
+    "WhatsApp (+57)",
+    "Correo Electrónico",
+    "Usuario Instagram",
+    "Premio Ganado",
+    "Código Único",
+    "¿Validado en Caja?",
+    "Hora Canje"
+  ];
+
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+
+  // 2. Estilo visual de lujo (Fila 1 fija, fondo oscuro y texto dorado)
+  var headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setFontWeight("bold");
+  headerRange.setFontColor("#d1b374"); // Dorado Luxor
+  headerRange.setBackground("#1e1b18"); // Carbón
+  headerRange.setHorizontalAlignment("center");
+  sheet.setFrozenRows(1);
+
+  // 3. Ajuste de anchos de columna recomendados
+  sheet.setColumnWidth(1, 160); // Fecha
+  sheet.setColumnWidth(2, 180); // Cliente
+  sheet.setColumnWidth(3, 140); // WhatsApp
+  sheet.setColumnWidth(4, 200); // Email
+  sheet.setColumnWidth(5, 140); // Instagram
+  sheet.setColumnWidth(6, 200); // Premio
+  sheet.setColumnWidth(7, 130); // Código Único
+  sheet.setColumnWidth(8, 140); // ¿Validado?
+  sheet.setColumnWidth(9, 110); // Hora Canje
 }
