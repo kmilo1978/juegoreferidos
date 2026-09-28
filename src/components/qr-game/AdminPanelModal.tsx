@@ -51,14 +51,6 @@ import {
 import { calculateAnalytics } from "../../lib/analyticsService";
 import { clientConfig } from "../../config/clientConfig";
 import {
-  getComposioConfig,
-  saveComposioConfig,
-  ComposioRuntimeConfig,
-} from "../../lib/composioService";
-import {
-  getPushConfig,
-  savePushConfig,
-  PushRuntimeConfig,
   OneSignalService,
   getCustomPushTemplates,
   saveCustomPushTemplates,
@@ -73,12 +65,6 @@ import {
   saveCustomSavedOffer,
   deleteCustomSavedOffer,
 } from "../../lib/oneSignalService";
-import {
-  getSupabaseConfig,
-  saveSupabaseConfig,
-  SupabaseConfig,
-  SupabaseService,
-} from "../../lib/supabaseService";
 import {
   getActiveCashierPin,
   setActiveCashierPin,
@@ -186,13 +172,9 @@ export function AdminPanelModal({
 }: AdminPanelModalProps) {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<
-    "stats" | "prizes" | "campaign" | "messages" | "push_campaigns" | "composio" | "databases" | "branding"
+    "stats" | "prizes" | "campaign" | "messages" | "push_campaigns" | "branding" | "security"
   >("stats");
-  const [composioConfig, setComposioConfig] = useState<ComposioRuntimeConfig>(() => getComposioConfig());
-  const [pushConfig, setPushConfig] = useState<PushRuntimeConfig>(() => getPushConfig());
-  const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfig>(() => getSupabaseConfig());
   const [activePin, setActivePin] = useState(() => getActiveCashierPin());
-  const [supabaseTestStatus, setSupabaseTestStatus] = useState<{ loading: boolean; msg?: string; success?: boolean }>({ loading: false });
   const [pushTemplates, setPushTemplates] = useState<PushNotificationTemplate[]>(() => getCustomPushTemplates());
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState<number>(0);
   const [automatedFlows, setAutomatedFlows] = useState<AutomatedPushFlow[]>(() => getAutomatedFlows());
@@ -246,7 +228,7 @@ export function AdminPanelModal({
   const [pinChangeFeedback, setPinChangeFeedback] = useState<string | null>(null);
 
   const canAccessTab = (
-    tab: "stats" | "prizes" | "campaign" | "messages" | "push_campaigns" | "composio" | "databases" | "branding"
+    tab: "stats" | "prizes" | "campaign" | "messages" | "push_campaigns" | "branding" | "security"
   ): boolean => {
     if (authenticatedRole === "owner") return true;
     if (!authenticatedRole) return false;
@@ -260,13 +242,11 @@ export function AdminPanelModal({
       case "messages":
         return hasPermission(authenticatedRole, "redeemPrizes") || hasPermission(authenticatedRole, "manageChannels");
       case "push_campaigns":
-        return hasPermission(authenticatedRole, "manageComposio") || hasPermission(authenticatedRole, "manageChannels");
-      case "composio":
-        return hasPermission(authenticatedRole, "manageComposio");
-      case "databases":
-        return hasPermission(authenticatedRole, "manageDatabases");
+        return hasPermission(authenticatedRole, "manageChannels");
       case "branding":
         return hasPermission(authenticatedRole, "manageBrand");
+      case "security":
+        return authenticatedRole === "owner";
       default:
         return false;
     }
@@ -1788,737 +1768,32 @@ Presenta este código al momento de pagar:
             </div>
           )}
 
-          {/* TAB 5: Configuración de Composio & Automatizaciones */}
-          {activeTab === "composio" && (
-            <div className="space-y-6 text-xs">
-              {/* GUÍA RÁPIDA COLAPSABLE */}
-              <SectionQuickGuide
-                title="Guía Rápida: Integración con Composio.dev & IA"
-                description="Conecta el juego con herramientas externas y agentes de IA sin complicaciones."
-                tips={[
-                  {
-                    title: "Conexión a 200+ Apps",
-                    text: "Composio permite conectar WhatsApp, Google Sheets, Gmail, Slack y CRMs usando tu clave de API.",
-                  },
-                  {
-                    title: "Sincronización de Marca",
-                    text: "Al guardar cambios de marca o premios, Composio actualiza automáticamente el contexto de tus agentes y bots.",
-                  },
-                  {
-                    title: "Webhooks Automáticos",
-                    text: "Cada partida jugada y canje realizado genera un evento webhook para tus flujos de automatización.",
-                  },
-                  {
-                    title: "Sin Código Complejo",
-                    text: "Solo necesitas tu API Key de Composio para activar los conectores corporativos en 1 clic.",
-                  },
-                ]}
-              />
-
-              {/* BANNER EXPLICATIVO */}
-              <div className="rounded-2xl border-2 border-gold/40 bg-gradient-to-br from-gold/10 via-background to-amber-500/5 p-5 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="h-6 w-6 rounded-lg bg-gold/20 flex items-center justify-center text-gold font-bold">
-                      ⚡
-                    </span>
-                    <h3 className="font-semibold text-foreground text-sm uppercase tracking-wider">
-                      Composio.dev · Conector de IA & Automatización
-                    </h3>
-                  </div>
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                    composioConfig.enabled 
-                      ? "bg-emerald-500/20 text-emerald-700 border border-emerald-500/40" 
-                      : "bg-muted text-muted-foreground border border-border"
-                  }`}>
-                    {composioConfig.enabled ? "● Activo" : "○ Inactivo"}
-                  </span>
-                </div>
-                <p className="text-muted-foreground text-xs leading-relaxed">
-                  <strong>Composio</strong> conecta tu sistema de fidelización con más de 100 herramientas externas (Google Sheets, Google Contacts, WhatsApp, CRM y Correo) en tiempo real para que ningún comensal se quede sin registrar.
-                </p>
-              </div>
-
-              {/* FORMULARIO DE COMPOSIO */}
-              <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-border">
-                  <div>
-                    <h4 className="font-semibold text-foreground">Habilitar Integración con Composio</h4>
-                    <p className="text-[11px] text-muted-foreground">Sincroniza eventos de premios y canjes con la API de Composio.</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const next = { ...composioConfig, enabled: !composioConfig.enabled };
-                      setComposioConfig(next);
-                    }}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      composioConfig.enabled ? "bg-emerald-600" : "bg-muted"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        composioConfig.enabled ? "translate-x-6" : "translate-x-1"
-                      }`}
-                    />
-                  </button>
-                </div>
-
-                {/* API Key */}
-                <div>
-                  <label className="block font-semibold text-foreground mb-1">
-                    Composio API Key (opcional):
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="comp_live_..."
-                    value={composioConfig.apiKey}
-                    onChange={(e) => setComposioConfig({ ...composioConfig, apiKey: e.target.value })}
-                    className="w-full bg-muted/30 border border-border rounded-xl px-3.5 py-2.5 font-mono text-xs text-foreground focus:ring-1 focus:ring-gold focus:outline-none"
-                  />
-                  <span className="text-[10px] text-muted-foreground mt-1 block">
-                    Obtenla gratis en tu panel de <a href="https://composio.dev" target="_blank" rel="noopener noreferrer" className="text-gold underline">composio.dev</a>.
-                  </span>
-                </div>
-
-                {/* Checkboxes de integraciones */}
-                <div className="space-y-2 pt-2">
-                  <span className="font-semibold text-foreground block mb-2">Herramientas Automatizadas:</span>
-                  
-                  <label className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-muted/20 cursor-pointer hover:bg-muted/40 transition">
-                    <input
-                      type="checkbox"
-                      checked={composioConfig.integrations.googleSheets}
-                      onChange={(e) => setComposioConfig({
-                        ...composioConfig,
-                        integrations: { ...composioConfig.integrations, googleSheets: e.target.checked }
-                      })}
-                      className="rounded border-border text-gold focus:ring-gold"
-                    />
-                    <div>
-                      <span className="font-medium text-foreground block">📗 Google Sheets</span>
-                      <span className="text-[10px] text-muted-foreground">Agrega una fila por cada ganador y actualiza la columna de canje en caja.</span>
-                    </div>
-                  </label>
-
-                  <label className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-muted/20 cursor-pointer hover:bg-muted/40 transition">
-                    <input
-                      type="checkbox"
-                      checked={composioConfig.integrations.googleContacts}
-                      onChange={(e) => setComposioConfig({
-                        ...composioConfig,
-                        integrations: { ...composioConfig.integrations, googleContacts: e.target.checked }
-                      })}
-                      className="rounded border-border text-gold focus:ring-gold"
-                    />
-                    <div>
-                      <span className="font-medium text-foreground block">👤 Google Contacts</span>
-                      <span className="text-[10px] text-muted-foreground">Crea el contacto en la libreta del restaurante con nombre, teléfono y etiqueta 'Cliente Frecuente'.</span>
-                    </div>
-                  </label>
-
-                  <label className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-muted/20 cursor-pointer hover:bg-muted/40 transition">
-                    <input
-                      type="checkbox"
-                      checked={composioConfig.integrations.dailyEmailSummary}
-                      onChange={(e) => setComposioConfig({
-                        ...composioConfig,
-                        integrations: { ...composioConfig.integrations, dailyEmailSummary: e.target.checked }
-                      })}
-                      className="rounded border-border text-gold focus:ring-gold"
-                    />
-                    <div>
-                      <span className="font-medium text-foreground block">✉️ Resumen Diario por Email</span>
-                      <span className="text-[10px] text-muted-foreground">Envía un reporte nocturno al dueño con las ventas y cupones canjeados del día.</span>
-                    </div>
-                  </label>
-                </div>
-
-                {/* Webhook Fallback */}
-                <div className="pt-2 border-t border-border">
-                  <label className="block font-semibold text-foreground mb-1">
-                    URL de Webhook Directo (Google Apps Script):
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="https://script.google.com/macros/s/.../exec"
-                    value={composioConfig.endpoints.googleSheetWebhookUrl}
-                    onChange={(e) => setComposioConfig({
-                      ...composioConfig,
-                      endpoints: { ...composioConfig.endpoints, googleSheetWebhookUrl: e.target.value }
-                    })}
-                    className="w-full bg-muted/30 border border-border rounded-xl px-3.5 py-2.5 font-mono text-xs text-foreground focus:ring-1 focus:ring-gold focus:outline-none"
-                  />
-                  <span className="text-[10px] text-muted-foreground mt-1 block">
-                    Si no usas la API de Composio, puedes pegar aquí tu Webhook 100% gratuito de Google Apps Script.
-                  </span>
-                </div>
-
-                {/* Botones de Conectar, Guardar y Probar */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border">
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const next = { ...composioConfig, enabled: true };
-                        setComposioConfig(next);
-                        saveComposioConfig(next);
-                        try {
-                          await fetch("http://localhost:3001/api/config", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              composio: {
-                                enabled: true,
-                                apiKey: next.apiKey,
-                                integrations: next.integrations,
-                              },
-                            }),
-                          });
-                        } catch {}
-                        alert("⚡ ¡Conexión con Composio.dev activada exitosamente!");
-                      }}
-                      className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-gold hover:from-amber-600 hover:to-gold/90 text-white rounded-xl font-bold uppercase tracking-wider text-xs shadow-md transition-all flex items-center gap-2"
-                    >
-                      <span>⚡ Conectar con Composio.dev</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        saveComposioConfig(composioConfig);
-                        fetch("http://localhost:3001/api/config", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({
-                            composio: {
-                              enabled: composioConfig.enabled,
-                              apiKey: composioConfig.apiKey,
-                              integrations: composioConfig.integrations,
-                            },
-                          }),
-                        }).catch(() => {});
-                        alert("¡Configuración de Composio y automatizaciones guardada con éxito!");
-                      }}
-                      className="px-4 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-white rounded-xl font-semibold uppercase tracking-wider text-xs shadow-xs transition"
-                    >
-                      💾 Guardar
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const success = await ComposioService.recordWonPrize({
-                        fullName: "Prueba Composio",
-                        whatsapp: "573001234567",
-                        email: "prueba@composio.dev",
-                        instagramHandle: "@cliente_prueba",
-                        prizeName: "Premio de Prueba",
-                        uniqueCode: "TEST-0001",
-                        wonAt: new Date().toLocaleTimeString(),
-                      });
-                      if (success) {
-                        alert("✅ ¡Prueba enviada con éxito! Revisa tu Google Sheets o Composio.");
-                      } else {
-                        alert("⚠️ Prueba ejecutada. Si no ves la fila, verifica que la URL de Webhook o API Key esté bien configurada.");
-                      }
-                    }}
-                    className="px-4 py-2 border border-border bg-background hover:bg-muted text-foreground rounded-xl font-medium text-xs transition"
-                  >
-                    🚀 Probar Envío de Prueba
-                  </button>
-                </div>
-              </div>
-
-              {/* SECCIÓN 2: ONESIGNAL WEB PUSH (SIN WHATSAPP API) */}
-              <div className="rounded-2xl border-2 border-sky-400/50 bg-gradient-to-br from-sky-500/10 via-background to-sky-500/5 p-5 space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-border">
-                  <div className="flex items-center gap-2">
-                    <span className="h-6 w-6 rounded-lg bg-sky-500/20 flex items-center justify-center text-sky-600 font-bold">
-                      🔔
-                    </span>
-                    <div>
-                      <h4 className="font-semibold text-foreground text-sm uppercase tracking-wider">
-                        OneSignal · Notificaciones Web Push
-                      </h4>
-                      <p className="text-[11px] text-muted-foreground">Envía alertas a los celulares sin costo de Meta ni WhatsApp API.</p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const next = { ...pushConfig, enabled: !pushConfig.enabled };
-                      setPushConfig(next);
-                    }}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      pushConfig.enabled ? "bg-sky-600" : "bg-muted"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        pushConfig.enabled ? "translate-x-6" : "translate-x-1"
-                      }`}
-                    />
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  <div>
-                    <label className="block font-semibold text-foreground mb-1">
-                      OneSignal App ID:
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                      value={pushConfig.appId}
-                      onChange={(e) => setPushConfig({ ...pushConfig, appId: e.target.value })}
-                      className="w-full bg-muted/30 border border-border rounded-xl px-3.5 py-2.5 font-mono text-xs text-foreground focus:ring-1 focus:ring-sky-500 focus:outline-none"
-                    />
-                    <span className="text-[10px] text-muted-foreground mt-1 block">
-                      Obtén tu App ID gratis en tu cuenta de <a href="https://onesignal.com" target="_blank" rel="noopener noreferrer" className="text-sky-600 underline font-medium">onesignal.com</a> (hasta 10.000 suscriptores gratis).
-                    </span>
-                  </div>
-
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        savePushConfig(pushConfig);
-                        alert("¡Configuración de OneSignal Web Push guardada con éxito!");
-                      }}
-                      className="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-semibold uppercase tracking-wider text-xs shadow-sm transition"
-                    >
-                      💾 Guardar Configuración Push
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        OneSignalService.showLocalTestNotification(
-                          "¡Prueba de Notificación Push! 🎁",
-                          "Así recibirán tus clientes los avisos de promociones y cupones en su pantalla."
-                        );
-                      }}
-                      className="px-4 py-2 border border-sky-300 bg-sky-50/80 hover:bg-sky-100 text-sky-900 rounded-xl font-medium text-xs transition"
-                    >
-                      🔔 Probar Notificación en Pantalla
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECCIÓN 3: PERSONALIZADOR DE MENSAJES PUSH Y AUTOMATIZACIONES */}
-              <div className="rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-background to-orange-500/5 p-5 sm:p-6 space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border">
-                  <div className="flex items-center gap-2.5">
-                    <span className="h-8 w-8 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-600 text-lg">
-                      ✍️
-                    </span>
-                    <div>
-                      <h4 className="font-semibold text-foreground text-sm uppercase tracking-wider">
-                        Personalizador de Mensajes Push (OneSignal & Web)
-                      </h4>
-                      <p className="text-xs text-muted-foreground">
-                        Personaliza los títulos y textos de tus alertas automáticas. Puedes usar etiquetas dinámicas.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        saveCustomPushTemplates(pushTemplates);
-                        alert("¡Plantillas de mensajes push guardadas con éxito!");
-                      }}
-                      className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs"
-                    >
-                      💾 Guardar Mensajes
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const reset = resetPushTemplates();
-                        setPushTemplates([...reset]);
-                        alert("Textos restablecidos a los valores sugeridos.");
-                      }}
-                      className="px-3 py-1.5 bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground rounded-xl text-xs font-medium transition-colors border border-border"
-                    >
-                      🔄 Restablecer
-                    </button>
-                  </div>
-                </div>
-
-                {/* ETIQUETAS DINÁMICAS DISPONIBLES */}
-                <div className="p-3.5 rounded-xl bg-background border border-border space-y-1.5">
-                  <span className="text-[10px] uppercase font-bold text-gold tracking-wider block">
-                    ✨ Variables Dinámicas Disponibles (Haz clic o escríbelas en tu texto):
-                  </span>
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    <span className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 font-mono text-amber-800 font-semibold cursor-pointer">
-                      {"{nombre}"} → Nombre del comensal
-                    </span>
-                    <span className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 font-mono text-amber-800 font-semibold cursor-pointer">
-                      {"{premio}"} → Beneficio ganado
-                    </span>
-                    <span className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 font-mono text-amber-800 font-semibold cursor-pointer">
-                      {"{codigo}"} → Código del cupón
-                    </span>
-                    <span className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 font-mono text-amber-800 font-semibold cursor-pointer">
-                      {"{mesa}"} → Mesa asignada
-                    </span>
-                    <span className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 font-mono text-amber-800 font-semibold cursor-pointer">
-                      {"{restaurante}"} → {clientConfig.brand.name}
-                    </span>
-                  </div>
-                </div>
-
-                {/* SELECTOR DE PLANTILLAS Y ÁREA DE EDICIÓN */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-                  
-                  {/* COLUMNA IZQUIERDA: SELECTOR DE CAMPAÑAS (5 cols) */}
-                  <div className="lg:col-span-5 space-y-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-1">
-                      Selecciona la Campaña a Editar:
-                    </span>
-                    {pushTemplates.map((tmpl, idx) => {
-                      const isSelected = selectedTemplateIndex === idx;
-                      return (
-                        <button
-                          key={tmpl.id}
-                          type="button"
-                          onClick={() => setSelectedTemplateIndex(idx)}
-                          className={`w-full p-3 rounded-xl border text-left transition-all ${
-                            isSelected
-                              ? "bg-amber-500/15 border-gold shadow-xs"
-                              : "bg-background border-border/80 hover:bg-muted/40"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <strong className={`text-xs ${isSelected ? "text-gold" : "text-foreground"}`}>
-                              {tmpl.name}
-                            </strong>
-                            <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground uppercase font-mono">
-                              {tmpl.badge}
-                            </span>
-                          </div>
-                          <p className="text-[10px] text-muted-foreground truncate mt-1">
-                            {tmpl.title}
-                          </p>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* COLUMNA DERECHA: EDITOR DEL MENSAJE SELECCIONADO Y VISTA PREVIA (7 cols) */}
-                  <div className="lg:col-span-7 space-y-4 bg-background p-4 sm:p-5 rounded-2xl border border-border">
-                    {(() => {
-                      const currentTmpl = pushTemplates[selectedTemplateIndex] || pushTemplates[0];
-                      const handleTitleChange = (val: string) => {
-                        const updated = [...pushTemplates];
-                        updated[selectedTemplateIndex] = { ...currentTmpl, title: val };
-                        setPushTemplates(updated);
-                      };
-                      const handleBodyChange = (val: string) => {
-                        const updated = [...pushTemplates];
-                        updated[selectedTemplateIndex] = { ...currentTmpl, body: val };
-                        setPushTemplates(updated);
-                      };
-
-                      return (
-                        <div className="space-y-4">
-                          <div>
-                            <span className="text-[10px] uppercase font-bold text-gold tracking-wider">
-                              Disparador Automático:
-                            </span>
-                            <p className="text-xs text-muted-foreground font-medium">
-                              {currentTmpl.tagDescription}
-                            </p>
-                          </div>
-
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-foreground block">
-                              Título de la Notificación:
-                            </label>
-                            <input
-                              type="text"
-                              value={currentTmpl.title}
-                              onChange={(e) => handleTitleChange(e.target.value)}
-                              className="w-full text-xs bg-muted/30 border border-border rounded-xl p-2.5 text-foreground focus:ring-1 focus:ring-gold focus:outline-none font-medium"
-                            />
-                          </div>
-
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-foreground block">
-                              Cuerpo del Mensaje (Texto que leerá el cliente):
-                            </label>
-                            <textarea
-                              rows={3}
-                              value={currentTmpl.body}
-                              onChange={(e) => handleBodyChange(e.target.value)}
-                              className="w-full text-xs bg-muted/30 border border-border rounded-xl p-2.5 text-foreground focus:ring-1 focus:ring-gold focus:outline-none resize-none leading-relaxed"
-                            />
-                          </div>
-
-                          {/* VISTA PREVIA EN PANTALLA DE CELULAR */}
-                          <div className="pt-2 border-t border-border">
-                            <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground block mb-2">
-                              📱 Vista Previa en Pantalla de Bloqueo del Celular:
-                            </span>
-                            <div className="rounded-xl border border-neutral-700 bg-neutral-900/90 text-white p-3.5 shadow-xl flex items-start gap-3">
-                              <img
-                                src={clientConfig.brand.logoUrl}
-                                alt="Logo"
-                                className="h-8 w-8 rounded-lg object-contain bg-white/10 p-1 shrink-0 mt-0.5"
-                              />
-                              <div className="flex-1 overflow-hidden space-y-0.5">
-                                <div className="flex items-center justify-between text-[11px] text-white/50">
-                                  <span className="font-semibold text-white/70 uppercase text-[9px] tracking-wider">
-                                    {clientConfig.brand.name}
-                                  </span>
-                                  <span className="text-[9px]">AHORA</span>
-                                </div>
-                                <h5 className="font-bold text-xs text-white">
-                                  {formatPushText(currentTmpl.title)}
-                                </h5>
-                                <p className="text-[11px] text-white/80 leading-snug">
-                                  {formatPushText(currentTmpl.body)}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* BOTONES DE DISPARO DE PRUEBA */}
-                          <div className="pt-2 flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const renderedTitle = formatPushText(currentTmpl.title);
-                                const renderedBody = formatPushText(currentTmpl.body);
-                                OneSignalService.showLocalTestNotification(renderedTitle, renderedBody);
-                              }}
-                              className="w-full py-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow-md transition-all uppercase tracking-wider inline-flex items-center justify-center gap-2"
-                            >
-                              <span>🔔 Probar Este Mensaje en Mi Pantalla</span>
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 6: Bases de Datos (Google Sheets & Supabase) y Seguridad de Mesa */}
-          {activeTab === "databases" && (
+          {/* TAB 5: Seguridad por Roles & PINs de Acceso (Limpio y orientado a negocio) */}
+          {activeTab === "security" && (
             <div className="space-y-6">
               {/* GUÍA RÁPIDA COLAPSABLE */}
               <SectionQuickGuide
-                title="Guía Rápida: Seguridad por Roles (RBAC) & Bases de Datos"
-                description="Gestiona los 3 niveles de PIN y la sincronización con Google Sheets o Supabase."
+                title="Guía Rápida: Control de Acceso, PINs y Permisos de Empleados"
+                description="Configura las claves de acceso de tu equipo de trabajo y delimita qué funciones puede usar cada miembro del personal."
                 tips={[
                   {
-                    title: "3 Niveles de PIN",
-                    text: "👑 Dueño Master (8888), 👔 Administrador (5555) y 💼 Cajero de Turno (1978) con accesos delimitados.",
+                    title: "👑 Dueño Master (PIN 8888)",
+                    text: "Acceso total a finanzas, métricas, edición de premios y control de permisos.",
                   },
                   {
-                    title: "Permisos Granulares",
-                    text: "El Dueño Master puede conceder o restringir funciones a administradores y cajeros según sus responsabilidades.",
+                    title: "👔 Administrador (PIN 5555)",
+                    text: "Ideal para el gerente o encargado de turno. Tiene acceso a métricas y validación de premios autorizadas.",
                   },
                   {
-                    title: "Respaldo en Supabase",
-                    text: "Guarda en tiempo real cada cupón y visita en una base de datos PostgreSQL en la nube.",
+                    title: "💼 Cajero / Turno (PIN 1978)",
+                    text: "Clave operativa para que meseros o cajeros validen cupones y asignen sellos de consumo.",
                   },
                   {
-                    title: "Hojas de Google Sheets",
-                    text: "Sincroniza la lista de comensales y premios en una hoja de cálculo visible para gerencia.",
+                    title: "Rotación de PIN de Turno",
+                    text: "Usa el botón 'Rotar PIN' para renovar la clave de atención de forma inmediata en cada jornada.",
                   },
                 ]}
               />
-
-              {/* Encabezado de la pestaña */}
-              <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-transparent border border-border">
-                <div className="flex items-center gap-2 mb-1">
-                  <Database className="h-4 w-4 text-gold" />
-                  <h3 className="font-semibold text-sm text-foreground">
-                    Sincronización Dual: Google Sheets & Supabase
-                  </h3>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  El sistema permite enviar los cupones y los sellos de fidelización a <strong>Google Sheets</strong>, a <strong>Supabase</strong>, o a <strong>ambas plataformas al mismo tiempo</strong> de forma redundante.
-                </p>
-              </div>
-
-              {/* CONTENEDOR DE 2 COLUMNAS: GOOGLE SHEETS A LA IZQUIERDA / SUPABASE A LA DERECHA */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                
-                {/* OPCIÓN 1: GOOGLE SHEETS */}
-                <div className="rounded-2xl border border-emerald-300/80 bg-card p-5 space-y-4 shadow-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase font-bold tracking-wider text-emerald-700 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                      Opción 1: Google Sheets
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                      Costo $0 · Activo
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Registra cada ruleta jugada y cada canje con PIN en tu hoja de cálculo compartida en Google Drive.
-                  </p>
-
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-semibold text-foreground block">
-                      URL del Webhook de Apps Script:
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://script.google.com/macros/s/.../exec"
-                      value={composioConfig.endpoints.googleSheetWebhookUrl}
-                      onChange={(e) =>
-                        setComposioConfig({
-                          ...composioConfig,
-                          endpoints: {
-                            ...composioConfig.endpoints,
-                            googleSheetWebhookUrl: e.target.value,
-                          },
-                        })
-                      }
-                      className="w-full text-xs font-mono bg-background border border-border rounded-xl p-2.5 text-foreground focus:ring-1 focus:ring-emerald-500 focus:outline-none"
-                    />
-                    <span className="text-[10px] text-muted-foreground block">
-                      Guarda automáticamente: Fecha, Cliente, WhatsApp, Correo, Premio, Código y Canje.
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      saveComposioConfig(composioConfig);
-                      alert("¡Configuración de Google Sheets guardada con éxito!");
-                    }}
-                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs"
-                  >
-                    Guardar Google Sheets
-                  </button>
-                </div>
-
-                {/* OPCIÓN 2: SUPABASE */}
-                <div className="rounded-2xl border border-sky-300/80 bg-card p-5 space-y-4 shadow-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase font-bold tracking-wider text-sky-700 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-sky-500"></span>
-                      Opción 2: Supabase (PostgreSQL)
-                    </span>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={supabaseConfig.enabled}
-                        onChange={(e) =>
-                          setSupabaseConfig({ ...supabaseConfig, enabled: e.target.checked })
-                        }
-                        className="rounded text-sky-600 focus:ring-sky-500"
-                      />
-                      <span className="text-xs font-bold text-foreground">Habilitar</span>
-                    </label>
-                  </div>
-
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Base de datos profesional en la nube. Conecta sedes múltiples y sincroniza sellos al milisegundo.
-                  </p>
-
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-[11px] font-semibold text-foreground block mb-1">
-                        Project URL de Supabase:
-                      </label>
-                      <input
-                        type="url"
-                        placeholder="https://xyzabcdefg.supabase.co"
-                        value={supabaseConfig.projectUrl}
-                        onChange={(e) =>
-                          setSupabaseConfig({ ...supabaseConfig, projectUrl: e.target.value })
-                        }
-                        className="w-full text-xs font-mono bg-background border border-border rounded-xl p-2.5 text-foreground focus:ring-1 focus:ring-sky-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] font-semibold text-foreground block mb-1">
-                        Anon Public Key:
-                      </label>
-                      <input
-                        type="password"
-                        placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..."
-                        value={supabaseConfig.anonKey}
-                        onChange={(e) =>
-                          setSupabaseConfig({ ...supabaseConfig, anonKey: e.target.value })
-                        }
-                        className="w-full text-xs font-mono bg-background border border-border rounded-xl p-2.5 text-foreground focus:ring-1 focus:ring-sky-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] font-semibold text-foreground block mb-1">
-                        Nombre de la Tabla:
-                      </label>
-                      <input
-                        type="text"
-                        value={supabaseConfig.tableName}
-                        onChange={(e) =>
-                          setSupabaseConfig({ ...supabaseConfig, tableName: e.target.value })
-                        }
-                        className="w-full text-xs font-mono bg-background border border-border rounded-xl p-2.5 text-foreground focus:ring-1 focus:ring-sky-500 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-2 pt-1">
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        saveSupabaseConfig(supabaseConfig);
-                        setSupabaseTestStatus({ loading: true });
-                        const res = await SupabaseService.testConnection();
-                        setSupabaseTestStatus({ loading: false, msg: res.message, success: res.success });
-                      }}
-                      className="flex-1 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs"
-                    >
-                      {supabaseTestStatus.loading ? "Probando..." : "Guardar & Probar Conexión"}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(SupabaseService.getSqlCreationScript());
-                        alert("¡Código SQL copiado al portapapeles! Pégalo en el SQL Editor de Supabase y presiona 'Run'.");
-                      }}
-                      className="px-3 py-2 bg-muted hover:bg-muted/80 text-foreground border border-border rounded-xl text-xs font-medium inline-flex items-center justify-center gap-1.5"
-                    >
-                      <Copy className="h-3.5 w-3.5 text-sky-600" />
-                      <span>Copiar SQL</span>
-                    </button>
-                  </div>
-
-                  {supabaseTestStatus.msg && (
-                    <div
-                      className={`p-2.5 rounded-xl text-xs ${
-                        supabaseTestStatus.success
-                          ? "bg-emerald-50 text-emerald-900 border border-emerald-300"
-                          : "bg-red-50 text-red-900 border border-red-300"
-                      }`}
-                    >
-                      {supabaseTestStatus.msg}
-                    </div>
-                  )}
-                </div>
-
-              </div>
 
               {/* SECCIÓN 3: CONTROL DE SEGURIDAD ANTIFRAUDE & PIN DINÁMICO */}
               <div className="rounded-2xl border border-amber-300 bg-amber-50/40 p-5 space-y-4">
@@ -2780,13 +2055,13 @@ Presenta este código al momento de pagar:
                 <div className="space-y-1">
                   <span className="text-[10px] uppercase font-bold text-gold tracking-widest flex items-center gap-1.5">
                     <Palette className="h-4 w-4 text-gold" />
-                    Motor de Marca Blanca & Composio.dev
+                    Motor de Marca & Identidad Visual
                   </span>
                   <h3 className="font-display text-base sm:text-lg font-bold">
                     Personaliza tu Restaurante o Negocio al 100%
                   </h3>
                   <p className="text-muted-foreground text-xs leading-relaxed max-w-xl">
-                    Edita el nombre comercial, eslogan, logotipo, paleta cromática y canales de contacto. Al hacer clic en <strong>"Sincronizar con Composio & Guardar"</strong>, los cambios se aplican de inmediato en toda la aplicación y quedan grabados.
+                    Edita el nombre comercial, eslogan, logotipo, paleta cromática y canales de contacto. Al hacer clic en <strong>"Guardar Cambios de Marca"</strong>, los cambios se aplican de inmediato en toda la aplicación y quedan guardados.
                   </p>
                 </div>
 
@@ -2804,7 +2079,7 @@ Presenta este código al momento de pagar:
                   ) : (
                     <>
                       <Zap className="h-4 w-4" />
-                      <span>Sincronizar con Composio & Guardar</span>
+                      <span>Guardar Cambios de Marca</span>
                     </>
                   )}
                 </button>
@@ -3777,75 +3052,7 @@ Presenta este código al momento de pagar:
                 </div>
               </div>
 
-              {/* CARD 3: CONEXIÓN ONESIGNAL REST API & WEBHOOKS */}
-              <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="h-7 w-7 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-sm">
-                      ⚙️
-                    </span>
-                    <div>
-                      <h3 className="font-semibold text-sm text-foreground">
-                        Credenciales OneSignal REST API & Webhooks
-                      </h3>
-                      <p className="text-[11px] text-muted-foreground">
-                        Permite que el panel envíe notificaciones directamente vía REST API o notifique a tu webhook.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-foreground">OneSignal App ID</label>
-                    <input
-                      type="text"
-                      value={pushConfig.appId}
-                      onChange={(e) => setPushConfig({ ...pushConfig, appId: e.target.value })}
-                      placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                      className="w-full rounded-xl border border-border p-2 text-xs bg-background text-foreground font-mono"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-foreground">
-                      OneSignal REST API Key (Opcional)
-                    </label>
-                    <input
-                      type="password"
-                      value={pushConfig.restApiKey || ""}
-                      onChange={(e) => setPushConfig({ ...pushConfig, restApiKey: e.target.value })}
-                      placeholder="Os_v2_app_xxxxxxxxxxxx..."
-                      className="w-full rounded-xl border border-border p-2 text-xs bg-background text-foreground font-mono"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-foreground">Webhook URL Masivo</label>
-                    <input
-                      type="url"
-                      value={pushConfig.webhookUrl || ""}
-                      onChange={(e) => setPushConfig({ ...pushConfig, webhookUrl: e.target.value })}
-                      placeholder="https://tu-servidor.com/api/push/broadcast"
-                      className="w-full rounded-xl border border-border p-2 text-xs bg-background text-foreground font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-2 flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      savePushConfig(pushConfig);
-                      alert("¡Configuración de API y Webhooks de OneSignal guardada!");
-                    }}
-                    className="px-4 py-2 rounded-xl bg-foreground text-background text-xs font-semibold hover:bg-foreground/90 transition"
-                  >
-                    Guardar Configuración de Conexión
-                  </button>
-                </div>
               </div>
-            </div>
           )}
             </>
           )}
@@ -4025,44 +3232,23 @@ Presenta este código al momento de pagar:
 
               <button
                 type="button"
-                onClick={() => setActiveTab("composio")}
+                onClick={() => setActiveTab("security")}
                 className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
-                  activeTab === "composio"
+                  activeTab === "security"
                     ? "bg-gold text-neutral-950 shadow-md font-bold"
                     : "text-neutral-300 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Bell className={`h-4 w-4 ${activeTab === "composio" ? "text-neutral-950" : "text-indigo-400"}`} />
+                  <ShieldCheck className={`h-4 w-4 ${activeTab === "security" ? "text-neutral-950" : "text-amber-400"}`} />
                   <div>
-                    <div className="leading-tight">{t("Composio.dev & AI", "Composio.dev & AI")}</div>
-                    <div className={`text-[10px] font-normal ${activeTab === "composio" ? "text-neutral-900" : "text-neutral-400"}`}>
-                      Conexión con 200+ apps
+                    <div className="leading-tight">{t("Permisos & PINs", "Permissions & PINs")}</div>
+                    <div className={`text-[10px] font-normal ${activeTab === "security" ? "text-neutral-900" : "text-neutral-400"}`}>
+                      Claves y roles de personal
                     </div>
                   </div>
                 </div>
-                {!canAccessTab("composio") && <Lock className="h-3 w-3 text-amber-500" />}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("databases")}
-                className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
-                  activeTab === "databases"
-                    ? "bg-gold text-neutral-950 shadow-md font-bold"
-                    : "text-neutral-300 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Database className={`h-4 w-4 ${activeTab === "databases" ? "text-neutral-950" : "text-cyan-400"}`} />
-                  <div>
-                    <div className="leading-tight">{t("Seguridad & Bases Datos", "Security & DB")}</div>
-                    <div className={`text-[10px] font-normal ${activeTab === "databases" ? "text-neutral-900" : "text-neutral-400"}`}>
-                      PINs RBAC y Supabase
-                    </div>
-                  </div>
-                </div>
-                {!canAccessTab("databases") && <Lock className="h-3 w-3 text-amber-500" />}
+                {!canAccessTab("security") && <Lock className="h-3 w-3 text-amber-500" />}
               </button>
             </div>
           </div>
