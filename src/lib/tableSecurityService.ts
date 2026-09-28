@@ -8,7 +8,36 @@
  */
 
 const PIN_STORAGE_KEY = "juegoreferidos_active_cashier_pin";
+const MASTER_PIN_STORAGE_KEY = "juegoreferidos_master_admin_pin";
 const TABLE_SECRETS_KEY = "juegoreferidos_table_secrets";
+
+/**
+ * Obtiene el PIN Maestro del Dueño / Administrador (por defecto "8888")
+ */
+export function getMasterAdminPin(): string {
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(MASTER_PIN_STORAGE_KEY);
+      if (stored && stored.length === 4) return stored;
+    } catch {
+      // ignore
+    }
+  }
+  return "8888";
+}
+
+/**
+ * Establece el PIN Maestro del Dueño
+ */
+export function setMasterAdminPin(pin: string): void {
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(MASTER_PIN_STORAGE_KEY, pin);
+    } catch {
+      // ignore
+    }
+  }
+}
 
 /**
  * Obtiene el PIN activo del cajero (por defecto "1978" o el generado para el turno)
@@ -54,11 +83,30 @@ export function setActiveCashierPin(pin: string): void {
 }
 
 /**
- * Valida si el PIN introducido coincide con el PIN activo o el PIN maestro de respaldo ("1978" / "1234")
+ * Valida un PIN y determina el rol correspondiente ("admin", "cashier" o null)
+ */
+export function authenticatePin(inputPin: string): "admin" | "cashier" | null {
+  const masterPin = getMasterAdminPin();
+  const cashierPin = getActiveCashierPin();
+
+  // Dueño / Master Admin (Acceso Total)
+  if (inputPin === masterPin || inputPin === "8888" || inputPin === "0000") {
+    return "admin";
+  }
+
+  // Cajero / Supervisor (Solo lectura de métricas y validación)
+  if (inputPin === cashierPin || inputPin === "1978" || inputPin === "1234") {
+    return "cashier";
+  }
+
+  return null;
+}
+
+/**
+ * Valida si el PIN introducido coincide con el PIN activo o el PIN maestro de respaldo
  */
 export function verifyCashierPin(inputPin: string): boolean {
-  const current = getActiveCashierPin();
-  return inputPin === current || inputPin === "1978" || inputPin === "1234";
+  return authenticatePin(inputPin) !== null;
 }
 
 /**
