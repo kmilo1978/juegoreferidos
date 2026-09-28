@@ -109,7 +109,7 @@ export function AdminPanelModal({
   // Sub-sección para premios: "roulette" (Ruleta) | "stamps" (Tarjeta de Sellos)
   const [prizeSection, setPrizeSection] = useState<"roulette" | "stamps">("roulette");
   const [stampRewards, setStampRewards] = useState<StampReward[]>(() => StampService.getStampRewards());
-  const [stampGlobalMode, setStampGlobalMode] = useState<10 | 15>(() => StampService.getGlobalMode());
+  const [stampGlobalMode] = useState<15>(15);
   const [stampSaveFeedback, setStampSaveFeedback] = useState<string | null>(null);
 
   // Estados de Control de Acceso por Roles (RBAC)
@@ -912,34 +912,9 @@ export function AdminPanelModal({
                 {prizeSection === "stamps" && (
                   <div className="flex items-center gap-2 text-xs">
                     <span className="text-muted-foreground font-medium">Modalidad:</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setStampGlobalMode(10);
-                        StampService.setGlobalMode(10);
-                      }}
-                      className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${
-                        stampGlobalMode === 10
-                          ? "bg-gold text-slate-950 border-gold shadow-xs"
-                          : "bg-background text-muted-foreground border-border hover:border-gold/40"
-                      }`}
-                    >
-                      10 Sellos
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setStampGlobalMode(15);
-                        StampService.setGlobalMode(15);
-                      }}
-                      className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${
-                        stampGlobalMode === 15
-                          ? "bg-gold text-slate-950 border-gold shadow-xs"
-                          : "bg-background text-muted-foreground border-border hover:border-gold/40"
-                      }`}
-                    >
-                      15 Sellos
-                    </button>
+                    <span className="px-3 py-1 rounded-full bg-gold/15 text-gold border border-gold/40 font-bold font-mono">
+                      15 Sellos VIP · 3 Hitos (Sellos 5, 10 y 15)
+                    </span>
                   </div>
                 )}
               </div>
@@ -1036,10 +1011,10 @@ export function AdminPanelModal({
                   <div className="p-4 rounded-2xl bg-amber-500/10 border border-gold/30 text-xs text-foreground space-y-1">
                     <p className="font-semibold text-gold uppercase tracking-wider flex items-center gap-1.5">
                       <Sparkles className="h-4 w-4 text-gold" />
-                      Catálogo Progresivo de Fidelización ({stampGlobalMode} Recompensas)
+                      Catálogo Progresivo de Fidelización (15 Recompensas · 3 Hitos cada 5 visitas)
                     </p>
                     <p className="text-muted-foreground leading-relaxed">
-                      Personaliza cada uno de los premios que los comensales desbloquean en sus visitas. Puedes editar el nombre, icono emoji, descripción, categoría gastronómica y si es un hito estelar (estrella dorada).
+                      Personaliza cada uno de los premios que los comensales desbloquean en sus visitas. Los Sellos #5, #10 y #15 son los 3 grandes hitos del cliente.
                     </p>
                   </div>
 
@@ -1051,7 +1026,7 @@ export function AdminPanelModal({
                   )}
 
                   <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1">
-                    {stampRewards.slice(0, stampGlobalMode).map((reward, index) => (
+                    {stampRewards.slice(0, 15).map((reward, index) => (
                       <div
                         key={reward.stamp}
                         className={`p-3.5 rounded-2xl border transition-all text-xs space-y-2.5 ${

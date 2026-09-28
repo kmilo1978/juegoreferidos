@@ -38,6 +38,7 @@ export interface InstagramEvidence {
   storyGenerated: boolean;
   screenshotFileUrl?: string | undefined;
   instagramHandle?: string | undefined;
+  sharedVia?: "instagram" | "whatsapp" | "skipped" | undefined;
 }
 
 export interface WonPrize {

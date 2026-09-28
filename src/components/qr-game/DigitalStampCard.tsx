@@ -31,20 +31,15 @@ export function DigitalStampCard({
   const { t } = useLanguage();
   const [selectedReward, setSelectedReward] = useState<StampReward | null>(null);
   const [showAllCatalog, setShowAllCatalog] = useState(false);
-  const [activeMode, setActiveMode] = useState<10 | 15>(() => initialStampCard.mode || 15);
   const isHappyHourActive = StampService.isHappyHour();
 
-  const totalRequired = activeMode;
+  const totalRequired = 15;
   const stamps = Array.from({ length: totalRequired }, (_, i) => i + 1);
-
-  const handleModeChange = (mode: 10 | 15) => {
-    setActiveMode(mode);
-    StampService.setGlobalMode(mode);
-  };
 
   const currentStamps = Math.min(initialStampCard.currentStamps, totalRequired);
   const currentReward = StampService.getRewardForStamp(currentStamps);
   const nextReward = StampService.getRewardForStamp(Math.min(currentStamps + 1, totalRequired));
+  const nextMilestone = StampService.getNextMilestone(currentStamps);
   const isCompleted = currentStamps >= totalRequired;
 
   return (
@@ -52,50 +47,26 @@ export function DigitalStampCard({
       {/* Detalle decorativo de fondo */}
       <div className="absolute top-0 right-0 -mr-8 -mt-8 w-28 h-28 rounded-full bg-gold/15 blur-2xl pointer-events-none" />
 
-      {/* ENCABEZADO Y SELECTOR DE MODALIDAD (10 O 15 SELLOS) */}
-      <div className="space-y-2 mb-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      {/* ENCABEZADO VIP */}
+      <div className="space-y-2 mb-4">
+        <div className="flex items-center justify-between gap-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/20 text-gold text-[10px] font-bold uppercase tracking-widest border border-gold/40">
             <Sparkles className="h-3 w-3" />
-            <span>{t("Fidelización VIP", "VIP Loyalty")}</span>
+            <span>{t("Fidelización VIP · 15 Visitas", "VIP Loyalty · 15 Visits")}</span>
           </div>
 
-          {/* Toggle de 10 o 15 sellos */}
-          <div className="inline-flex items-center p-0.5 rounded-xl bg-background border border-border text-[11px] font-semibold">
-            <button
-              type="button"
-              onClick={() => handleModeChange(10)}
-              className={`px-3 py-1 rounded-lg transition-all ${
-                activeMode === 10
-                  ? "bg-gold text-slate-950 font-bold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              10 Sellos
-            </button>
-            <button
-              type="button"
-              onClick={() => handleModeChange(15)}
-              className={`px-3 py-1 rounded-lg transition-all ${
-                activeMode === 15
-                  ? "bg-gold text-slate-950 font-bold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              15 Sellos (Completo)
-            </button>
-          </div>
+          <span className="text-[11px] font-bold font-mono text-gold px-2.5 py-0.5 rounded-full bg-gold/10 border border-gold/30">
+            3 Hitos · Cada 5 Visitas
+          </span>
         </div>
 
         <h3 className="font-display text-xl sm:text-2xl text-foreground font-semibold">
-          {activeMode === 15
-            ? t("Ruta de 15 Visitas · ¡15 Premios Diferentes!", "15 Visits Journey · 15 Unique Rewards!")
-            : t("Tarjeta de 10 Visitas · 10 Premios Progresivos", "10 Visits Card · 10 Progressive Rewards")}
+          {t("Tarjeta de 15 Visitas · Premios Cada 5 Sellos", "15 Visits Card · Rewards Every 5 Stamps")}
         </h3>
         <p className="text-xs text-muted-foreground font-light max-w-md mx-auto">
           {t(
-            "Cada vez que disfrutes en mesa y el cajero valide tu cuenta con su PIN, acumulas un nuevo sello y desbloqueas un beneficio mayor.",
-            "Each visit validated with PIN earns a stamp and unlocks a higher-tier culinary perk."
+            "Cada vez que disfrutes en mesa y el cajero valide tu cuenta con su PIN, acumulas un nuevo sello y desbloqueas un gran premio cada 5 visitas.",
+            "Each visit validated with PIN earns a stamp and unlocks a major reward every 5 visits."
           )}
         </p>
 
@@ -108,7 +79,7 @@ export function DigitalStampCard({
             </span>
           </div>
         ) : (
-          <div className="mt-3 py-1.5 px-3 rounded-full bg-muted/60 text-muted-foreground text-[10px] inline-flex items-center gap-1.5 border border-border/60">
+          <div className="mt-2 py-1.5 px-3 rounded-full bg-muted/60 text-muted-foreground text-[10px] inline-flex items-center gap-1.5 border border-border/60">
             <Zap className="h-3 w-3 text-gold" />
             <span>
               {t("Horas Felices (3 PM a 6 PM): Cada visita en la tarde otorga Doble Sello (x2)", "Happy Hours (3 PM to 6 PM): Afternoon visits earn Double Stamps (x2)")}
@@ -117,13 +88,96 @@ export function DigitalStampCard({
         )}
       </div>
 
-      {/* REJILLA DE CASILLAS DE SELLOS (ADAPTABLE PARA 10 O 15) */}
-      <div className="grid grid-cols-5 gap-2 sm:gap-3 my-6 max-w-lg mx-auto">
+      {/* MAPA VISUAL DE LOS 3 HITOS CADA 5 VISITAS */}
+      <div className="grid grid-cols-3 gap-2 my-4 max-w-lg mx-auto text-left">
+        {/* HITO 1: SELLO 5 */}
+        <div
+          onClick={() => setSelectedReward(StampService.getRewardForStamp(5))}
+          className={`p-2.5 rounded-2xl border transition-all cursor-pointer ${
+            currentStamps >= 5
+              ? "bg-emerald-50/80 border-emerald-300 text-emerald-950 shadow-xs"
+              : currentStamps >= 1
+              ? "bg-gold/10 border-gold/40 text-foreground"
+              : "bg-background/80 border-border/80 text-muted-foreground"
+          }`}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-base">🍰</span>
+            <span
+              className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                currentStamps >= 5 ? "bg-emerald-600 text-white" : "bg-gold/20 text-gold"
+              }`}
+            >
+              {currentStamps >= 5 ? "Ganado" : "5 Sellos"}
+            </span>
+          </div>
+          <p className="text-[11px] font-bold truncate text-foreground">Hito 1: Torta</p>
+          <span className="text-[10px] text-muted-foreground block truncate">
+            {currentStamps >= 5 ? "✓ Reclamable" : `Faltan ${Math.max(0, 5 - currentStamps)} sellos`}
+          </span>
+        </div>
+
+        {/* HITO 2: SELLO 10 */}
+        <div
+          onClick={() => setSelectedReward(StampService.getRewardForStamp(10))}
+          className={`p-2.5 rounded-2xl border transition-all cursor-pointer ${
+            currentStamps >= 10
+              ? "bg-emerald-50/80 border-emerald-300 text-emerald-950 shadow-xs"
+              : currentStamps >= 5
+              ? "bg-gold/10 border-gold/40 text-foreground"
+              : "bg-background/80 border-border/80 text-muted-foreground"
+          }`}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-base">👑</span>
+            <span
+              className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                currentStamps >= 10 ? "bg-emerald-600 text-white" : "bg-gold/20 text-gold"
+              }`}
+            >
+              {currentStamps >= 10 ? "Ganado" : "10 Sellos"}
+            </span>
+          </div>
+          <p className="text-[11px] font-bold truncate text-foreground">Hito 2: Brunch</p>
+          <span className="text-[10px] text-muted-foreground block truncate">
+            {currentStamps >= 10 ? "✓ Reclamable" : `Faltan ${Math.max(0, 10 - currentStamps)} sellos`}
+          </span>
+        </div>
+
+        {/* HITO 3: SELLO 15 */}
+        <div
+          onClick={() => setSelectedReward(StampService.getRewardForStamp(15))}
+          className={`p-2.5 rounded-2xl border transition-all cursor-pointer ${
+            currentStamps >= 15
+              ? "bg-emerald-50/80 border-emerald-300 text-emerald-950 shadow-xs"
+              : currentStamps >= 10
+              ? "bg-gold/10 border-gold/40 text-foreground"
+              : "bg-background/80 border-border/80 text-muted-foreground"
+          }`}
+        >
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-base">🌟</span>
+            <span
+              className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                currentStamps >= 15 ? "bg-emerald-600 text-white" : "bg-gold/20 text-gold"
+              }`}
+            >
+              {currentStamps >= 15 ? "Ganado" : "15 Sellos"}
+            </span>
+          </div>
+          <p className="text-[11px] font-bold truncate text-foreground">Hito 3: Menú 2P</p>
+          <span className="text-[10px] text-muted-foreground block truncate">
+            {currentStamps >= 15 ? "✓ ¡Premio Mayor!" : `Faltan ${Math.max(0, 15 - currentStamps)} sellos`}
+          </span>
+        </div>
+      </div>
+
+      {/* REJILLA DE CASILLAS DE 15 SELLOS (3 FILAS DE 5 COLUMNAS) */}
+      <div className="grid grid-cols-5 gap-2 sm:gap-2.5 my-5 max-w-lg mx-auto">
         {stamps.map((index) => {
           const isStamped = index <= currentStamps;
-          const isCurrent = index === currentStamps;
           const reward = StampService.getRewardForStamp(index);
-          const isFinal = index === totalRequired;
+          const isMilestone = index % 5 === 0;
 
           return (
             <button
@@ -133,8 +187,8 @@ export function DigitalStampCard({
               className={`relative p-2 rounded-2xl flex flex-col items-center justify-between transition-all transform active:scale-95 border text-center ${
                 isStamped
                   ? "bg-gradient-to-tr from-amber-500/25 via-gold/20 to-amber-400/30 border-gold shadow-md text-foreground"
-                  : isFinal
-                  ? "border-2 border-dashed border-gold/70 bg-gold/10 text-gold hover:bg-gold/20"
+                  : isMilestone
+                  ? "border-2 border-dashed border-gold bg-gold/15 text-gold hover:bg-gold/25"
                   : "border-border/70 bg-background/80 text-muted-foreground hover:border-gold/40"
               }`}
             >
@@ -212,20 +266,29 @@ export function DigitalStampCard({
           />
         </div>
 
-        {/* Tarjeta de estado actual */}
-        <div className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-amber-950 text-xs text-left flex items-start gap-2.5">
-          <Gift className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-          <div className="space-y-0.5">
-            <span className="text-[10px] uppercase tracking-wider font-bold text-amber-800 block">
-              {isCompleted ? "🎉 ¡Ruta Completada!" : `Próximo Beneficio (Sello #${Math.min(currentStamps + 1, totalRequired)}):`}
-            </span>
-            <p className="font-bold text-foreground">
-              {isCompleted ? currentReward.title : nextReward.title}
+        {/* Tarjeta de estado actual con enfoque en hitos cada 5 visitas */}
+        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-50 to-gold/10 border border-gold/40 text-amber-950 text-xs text-left flex items-start gap-3">
+          <Gift className="h-5 w-5 text-gold mt-0.5 shrink-0" />
+          <div className="space-y-0.5 w-full">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase tracking-wider font-bold text-amber-900 block">
+                {isCompleted
+                  ? "🎉 ¡15 Visitas VIP Completadas!"
+                  : `Próximo Gran Hito (Sello #${nextMilestone.targetStamp}):`}
+              </span>
+              {!isCompleted && (
+                <span className="text-[10px] font-bold text-gold px-2 py-0.2 rounded-full bg-gold/15 font-mono">
+                  Faltan {nextMilestone.remaining} visita(s)
+                </span>
+              )}
+            </div>
+            <p className="font-bold text-foreground text-xs sm:text-sm">
+              {isCompleted ? currentReward.title : nextMilestone.reward.title}
             </p>
             <p className="text-[11px] text-muted-foreground">
               {isCompleted
-                ? `¡Felicitaciones ${customerName}! Presenta tu código al cajero para reclamar tu premio supremo.`
-                : `Te faltan solo ${totalRequired - currentStamps} visita(s) para completar la tarjeta.`}
+                ? `¡Felicitaciones ${customerName}! Presenta tu código al cajero para disfrutar de tu Experiencia VIP.`
+                : `${nextMilestone.reward.description}.`}
             </p>
           </div>
         </div>

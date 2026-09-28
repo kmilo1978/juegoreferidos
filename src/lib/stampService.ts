@@ -20,23 +20,23 @@ export const STAMP_REWARDS_15: StampReward[] = [
   { stamp: 2, title: "Galleta Artesanal de Pistacho", description: "Galleta horneada con trozos de pistacho y chocolate", category: "panaderia", icon: "🍪" },
   { stamp: 3, title: "Croissant Francés de Mantequilla", description: "Hojaldre clásico crocante elaborado a mano", category: "panaderia", icon: "🥐" },
   { stamp: 4, title: "Upgrade de Leche Vegetal / Topping", description: "Gratis en cualquier café o bebida fría de la casa", category: "bebida", icon: "🥛" },
-  { stamp: 5, title: "Porción de Torta Artesanal Bliss Soul", description: "Cualquier porción de la vitrina pastelera del día", category: "postre", icon: "🍰", highlight: true },
+  { stamp: 5, title: "🎁 HITO 1: Porción de Torta Artesanal", description: "Cualquier porción de la vitrina pastelera del día por tus 5 visitas", category: "postre", icon: "🍰", highlight: true },
   { stamp: 6, title: "Bebida Fría o Frappé de Autor", description: "Frappé moka, té frío infusionado o soda saborizada", category: "bebida", icon: "🥤" },
   { stamp: 7, title: "Toast de Masa Madre Gourmet", description: "Tostada con aguacate fresco, queso o mantequilla trufada", category: "panaderia", icon: "🥪" },
   { stamp: 8, title: "Bono de 20% en tu Factura de Hoy", description: "Descuento aplicable a todo tu consumo en mesa", category: "descuento", icon: "🎟️" },
   { stamp: 9, title: "Caja de 4 Trufas de Chocolate Belga", description: "Empaque especial con trufas artesanales premium", category: "postre", icon: "🍫" },
-  { stamp: 10, title: "Brunch Completo Individual", description: "Plato de brunch a elección con bebida y acompañamiento", category: "vip", icon: "👑", highlight: true },
+  { stamp: 10, title: "👑 HITO 2: Brunch Completo de Autor", description: "Plato de brunch a elección con bebida de autor por tus 10 visitas", category: "vip", icon: "👑", highlight: true },
   { stamp: 11, title: "Dúo de Cupcakes de Autor para Llevar", description: "Pastelería fina empacada para disfrutar en casa", category: "postre", icon: "🧁" },
   { stamp: 12, title: "Método de Filtrado V60 o Prensa Francesa", description: "Preparación artesanal en mesa con café de origen", category: "bebida", icon: "☕" },
   { stamp: 13, title: "Bono de 25% en tu Cuenta Total", description: "Descuento exclusivo en el consumo de toda la mesa", category: "descuento", icon: "🏷️" },
   { stamp: 14, title: "Torta Mediana para Compartir", description: "Torta artesanal para llevar a casa o celebrar", category: "postre", icon: "🎂" },
-  { stamp: 15, title: "Experiencia VIP: Menú Degustación para 2", description: "Cena o merienda exclusiva de autor para dos personas", category: "vip", icon: "🌟", highlight: true },
+  { stamp: 15, title: "🌟 HITO 3: Experiencia VIP Degustación para 2", description: "Menú degustación de autor completo para dos personas con atención VIP", category: "vip", icon: "🌟", highlight: true },
 ];
 
 export interface StampCardState {
   currentStamps: number;
-  totalRequired: number; // 10 o 15
-  mode: 10 | 15;
+  totalRequired: number; // Siempre 15 sellos fijos
+  mode: 15;
   rewardTitle: string;
   nextReward: StampReward;
   unlockedRewards: StampReward[];
@@ -44,7 +44,7 @@ export interface StampCardState {
   historyVisits: string[];
 }
 
-const DEFAULT_STAMP_MODE: 10 | 15 = 15;
+const DEFAULT_STAMP_MODE: 15 = 15;
 
 export class StampService {
   private static getKey(whatsapp: string): string {
@@ -123,32 +123,72 @@ export class StampService {
   }
 
   /**
-   * Obtiene la modalidad configurada (10 o 15 sellos)
+   * Obtiene la modalidad configurada (Siempre 15 sellos fijos)
    */
-  static getGlobalMode(): 10 | 15 {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem(this.getGlobalModeKey());
-        if (stored === "10") return 10;
-        if (stored === "15") return 15;
-      } catch {
-        // ignore
-      }
-    }
-    return DEFAULT_STAMP_MODE;
+  static getGlobalMode(): 15 {
+    return 15;
   }
 
   /**
-   * Cambia la modalidad de la tarjeta (10 o 15 sellos)
+   * Mantiene compatibilidad: la modalidad está fija en 15 sellos con 3 hitos cada 5 visitas
    */
-  static setGlobalMode(mode: 10 | 15): void {
+  static setGlobalMode(_mode?: number): void {
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem(this.getGlobalModeKey(), String(mode));
+        localStorage.setItem(this.getGlobalModeKey(), "15");
       } catch {
         // ignore
       }
     }
+  }
+
+  /**
+   * Obtiene los 3 grandes hitos cada 5 visitas (Sello 5, 10 y 15)
+   */
+  static getMilestoneRewards(): StampReward[] {
+    const rewards = this.getStampRewards();
+    return [
+      rewards[4] || STAMP_REWARDS_15[4],
+      rewards[9] || STAMP_REWARDS_15[9],
+      rewards[14] || STAMP_REWARDS_15[14],
+    ];
+  }
+
+  /**
+   * Obtiene el próximo hito a alcanzar (Sello 5, 10 o 15) y los sellos restantes
+   */
+  static getNextMilestone(currentStamps: number) {
+    const milestones = this.getMilestoneRewards();
+    if (currentStamps < 5) {
+      return {
+        targetStamp: 5,
+        remaining: 5 - currentStamps,
+        milestoneNumber: 1,
+        reward: milestones[0],
+      };
+    }
+    if (currentStamps < 10) {
+      return {
+        targetStamp: 10,
+        remaining: 10 - currentStamps,
+        milestoneNumber: 2,
+        reward: milestones[1],
+      };
+    }
+    if (currentStamps < 15) {
+      return {
+        targetStamp: 15,
+        remaining: 15 - currentStamps,
+        milestoneNumber: 3,
+        reward: milestones[2],
+      };
+    }
+    return {
+      targetStamp: 15,
+      remaining: 0,
+      milestoneNumber: 3,
+      reward: milestones[2],
+    };
   }
 
   /**

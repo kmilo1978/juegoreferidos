@@ -15,6 +15,8 @@ import {
   Store,
   Users,
   Download,
+  MessageCircle,
+  Share2,
 } from "lucide-react";
 import logoHeader from "@/assets/logo-header.png";
 import heroImg from "@/assets/hero-pistacho-cafe.jpg";
@@ -37,6 +39,8 @@ export function StepInstagramStory({
 }: StepInstagramStoryProps) {
   const { t } = useLanguage();
 
+  const [activeChannel, setActiveChannel] = useState<"whatsapp" | "instagram">("whatsapp");
+  const [hasSharedWhatsApp, setHasSharedWhatsApp] = useState<boolean>(false);
   const [downloaded, setDownloaded] = useState<boolean>(initialEvidence?.storyGenerated || false);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(
     initialEvidence?.screenshotFileUrl,
@@ -149,7 +153,28 @@ export function StepInstagramStory({
     setUploadError(null);
   };
 
+  const whatsappInviteMessage = `¡Hola! Te recomiendo visitar *${clientConfig.brand.name}* 🍽️✨\n\nEl ambiente y la comida son espectaculares. Cuando vayas y te sientes en tu mesa, escanea el código en la mesa y participa en su Ruleta de Premios:\n👉 ${typeof window !== "undefined" ? window.location.origin : ""}?ref=${encodeURIComponent(participantName)}\n\n¡Vamos juntos o visítalos hoy, te va a encantar! ❤️`;
+
+  const handleShareWhatsApp = () => {
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappInviteMessage)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+    setHasSharedWhatsApp(true);
+  };
+
+  const handleNextWhatsApp = () => {
+    onComplete({
+      storyGenerated: true,
+      sharedVia: "whatsapp",
+      instagramHandle: "Recomendado por WhatsApp",
+    });
+  };
+
   const handleNext = () => {
+    if (activeChannel === "whatsapp") {
+      handleNextWhatsApp();
+      return;
+    }
+
     if (!previewUrl) {
       setUploadError(
         t(
@@ -163,6 +188,7 @@ export function StepInstagramStory({
     onComplete({
       storyGenerated: downloaded,
       screenshotFileUrl: previewUrl,
+      sharedVia: "instagram",
       instagramHandle: handle.trim() || undefined,
     });
   };
@@ -176,280 +202,411 @@ export function StepInstagramStory({
           <div className="flex items-center justify-center gap-2 mb-3">
             <span className="h-px w-6 bg-gold" />
             <span className="text-xs uppercase tracking-[0.24em] text-gold font-medium">
-              {t("Paso 2 · Instagram Story", "Step 2 · Instagram Story")}
+              {t("Paso 2 · Desbloquea tu Giro", "Step 2 · Unlock Your Spin")}
             </span>
             <span className="h-px w-6 bg-gold" />
           </div>
 
           <h2 className="font-display text-2xl sm:text-3xl text-foreground font-normal tracking-tight">
-            {t("Comparte tu Momento Especial", "Share Your Special Moment")}
+            {t("Comparte tu Visita y Juega", "Share Your Visit & Play")}
           </h2>
 
-          <p className="mt-3 text-sm text-muted-foreground font-light leading-relaxed max-w-lg mx-auto">
+          <p className="mt-2.5 text-sm text-muted-foreground font-light leading-relaxed max-w-lg mx-auto">
             {t(
-              `¡La foto es 100% libre! Comparte en tus historias de Instagram una foto de tu pedido, de tu mesa o del local mencionando a ${clientConfig.channels.instagramHandle}, y sube la captura para desbloquear la ruleta.`,
-              `The photo is 100% free! Share a story on Instagram showing your food, table, or the space tagging ${clientConfig.channels.instagramHandle}, and upload the screenshot to unlock the roulette.`,
+              "Elige la opción más fácil para ti: comparte una invitación con amigos por WhatsApp o publica una historia en Instagram para desbloquear tu giro.",
+              "Choose the easiest option: share an invitation with friends on WhatsApp or post a story on Instagram to unlock your spin."
             )}
           </p>
-        </div>
-      </Reveal>
 
-      {/* Ideas de fotos libres que puede compartir */}
-      <Reveal delay={80}>
-        <div className="mt-6 grid grid-cols-3 gap-2.5 sm:gap-3 text-center">
-          <div className="rounded-xl border border-gold/30 bg-gold/5 p-3 sm:p-4">
-            <Coffee className="h-4 w-4 sm:h-5 sm:w-5 text-gold mx-auto mb-1.5" />
-            <p className="text-[11px] font-medium text-foreground uppercase tracking-wider">
-              {t("Tu Alimento", "Your Food")}
-            </p>
-            <p className="text-[10px] text-muted-foreground font-light hidden sm:block mt-0.5">
-              Café, postre o salado
-            </p>
-          </div>
+          {/* SELECTOR DUAL: WhatsApp (Ideal para adultos) vs Instagram */}
+          <div className="flex justify-center mt-5">
+            <div className="inline-flex p-1 rounded-2xl bg-muted/80 border border-border">
+              <button
+                type="button"
+                onClick={() => setActiveChannel("whatsapp")}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  activeChannel === "whatsapp"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span>{t("💬 Recomendar por WhatsApp (Fácil)", "💬 Recommend on WhatsApp (Easy)")}</span>
+              </button>
 
-          <div className="rounded-xl border border-gold/30 bg-gold/5 p-3 sm:p-4">
-            <Store className="h-4 w-4 sm:h-5 sm:w-5 text-gold mx-auto mb-1.5" />
-            <p className="text-[11px] font-medium text-foreground uppercase tracking-wider">
-              {t("El Espacio", "The Space")}
-            </p>
-            <p className="text-[10px] text-muted-foreground font-light hidden sm:block mt-0.5">
-              La calma de nuestra casa
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-gold/30 bg-gold/5 p-3 sm:p-4">
-            <Users className="h-4 w-4 sm:h-5 sm:w-5 text-gold mx-auto mb-1.5" />
-            <p className="text-[11px] font-medium text-foreground uppercase tracking-wider">
-              {t("En la Mesa", "At the Table")}
-            </p>
-            <p className="text-[10px] text-muted-foreground font-light hidden sm:block mt-0.5">
-              Compartiendo hoy
-            </p>
+              <button
+                type="button"
+                onClick={() => setActiveChannel("instagram")}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  activeChannel === "instagram"
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Instagram className="h-4 w-4" />
+                <span>{t("📸 Instagram Story", "📸 Instagram Story")}</span>
+              </button>
+            </div>
           </div>
         </div>
       </Reveal>
 
-      {/* Tarjeta de Instrucciones y Mención Oficial */}
-      <Reveal delay={120}>
-        <div className="mt-6 rounded-2xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs space-y-6">
-          {/* Recordatorio de mención a Instagram */}
-          <div className="rounded-xl border border-gold/40 bg-gold/10 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-gold text-white flex items-center justify-center shrink-0 shadow-xs">
-                <Instagram className="h-5 w-5" />
+      {/* ========================================================================= */}
+      {/* CANAL 1: WHATSAPP (IDEAL PARA ADULTOS Y FAMILIAS - CERO COMPLICACIONES)    */}
+      {/* ========================================================================= */}
+      {activeChannel === "whatsapp" && (
+        <Reveal delay={100}>
+          <div className="mt-6 rounded-2xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs space-y-5 animate-fade-in">
+            <div className="flex flex-col sm:flex-row items-center gap-3.5 p-4 rounded-xl bg-emerald-50/80 border border-emerald-300 text-emerald-950 text-center sm:text-left">
+              <div className="h-11 w-11 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <MessageCircle className="h-6 w-6" />
               </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.16em] font-semibold text-foreground">
-                  {t("Mención sugerida:", "Suggested tag:")}{" "}
-                  <span className="text-gold font-mono">{clientConfig.channels.instagramHandle}</span>
+              <div className="space-y-0.5">
+                <p className="text-xs uppercase tracking-wider font-bold">
+                  {t("Recomienda a un amigo, familiar o grupo", "Recommend to a friend, family or group")}
                 </p>
-                <p className="text-[11px] text-muted-foreground font-light mt-0.5">
+                <p className="text-[11px] text-emerald-800 font-light">
                   {t(
-                    "Etiqueta nuestra cuenta en tu historia para que podamos repostearte.",
-                    "Tag our account on your story so we can repost you.",
+                    "Solo toca el botón verde para enviarles una invitación por WhatsApp con tu enlace. ¡Es rápido, cómodo y no necesitas saber de redes sociales!",
+                    "Just tap the green button to send an invitation via WhatsApp with your link. Quick, easy, and no social media skills required!"
                   )}
                 </p>
               </div>
             </div>
 
-            <a
-              href={clientConfig.channels.instagramProfileUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card border border-gold/50 text-gold text-xs hover:bg-gold hover:text-white transition-colors shrink-0 shadow-2xs font-medium"
-            >
-              <span>Abrir Instagram</span>
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          </div>
+            {/* Vista previa del mensaje */}
+            <div className="p-4 rounded-xl bg-muted/40 border border-border text-xs space-y-1.5 text-left">
+              <span className="text-[10px] uppercase font-bold text-muted-foreground block tracking-wider">
+                {t("Mensaje listo para enviar a tus contactos:", "Ready-to-send invitation message:")}
+              </span>
+              <p className="font-mono text-[11px] text-foreground/90 whitespace-pre-line bg-background p-3.5 rounded-xl border border-border/70 leading-relaxed">
+                {whatsappInviteMessage}
+              </p>
+            </div>
 
-          {/* Subida de la captura de pantalla de evidencia */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xs uppercase tracking-[0.16em] text-foreground font-semibold">
-                  {t("Sube la captura de tu Story", "Upload your Story screenshot")}{" "}
-                  <span className="text-gold">*</span>
-                </h3>
-                <p className="text-[11px] text-muted-foreground font-light">
-                  {t(
-                    "Toma un pantallazo a la historia que publicaste y adjúntalo aquí:",
-                    "Take a screenshot of your posted story and upload it here:",
-                  )}
-                </p>
-              </div>
-
-              {/* Opción adicional para descargar plantilla si no quieren tomar foto */}
+            {/* Botón de envío por WhatsApp */}
+            <div className="pt-1">
               <button
                 type="button"
-                onClick={handleDownloadStory}
-                className="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-gold transition-colors"
-                title={t(
-                  "Descargar plantilla si prefieres no tomar foto",
-                  "Download template if you prefer not taking a photo",
-                )}
+                onClick={handleShareWhatsApp}
+                className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white text-xs uppercase tracking-[0.18em] font-semibold shadow-md transition-all cursor-pointer"
               >
-                <Download className="h-3 w-3" />
-                <span>{t("Descargar plantilla prediseñada", "Download pre-made template")}</span>
+                <Share2 className="h-4 w-4" />
+                <span>{t("📲 Abrir WhatsApp y Compartir Invitación", "📲 Open WhatsApp & Share Invitation")}</span>
               </button>
             </div>
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleFileUpload(file);
-              }}
-            />
-
-            {!previewUrl ? (
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  const file = e.dataTransfer.files?.[0];
-                  if (file) handleFileUpload(file);
-                }}
-                className={`border-2 border-dashed rounded-2xl p-7 text-center cursor-pointer transition-all ${
-                  uploadError
-                    ? "border-red-400 bg-red-50/20"
-                    : "border-border/80 hover:border-gold hover:bg-gold/5 bg-background"
-                }`}
-              >
-                <div className="mx-auto mb-2.5 flex h-11 w-11 items-center justify-center rounded-full bg-gold/15 text-gold">
-                  <Camera className="h-5 w-5" />
-                </div>
-                <p className="text-xs uppercase tracking-[0.18em] font-medium text-foreground">
-                  {isUploading
-                    ? t("Cargando imagen...", "Loading image...")
-                    : t(
-                        "Toca aquí para seleccionar tu captura",
-                        "Tap here to select your screenshot",
-                      )}
-                </p>
-                <p className="mt-1 text-[11px] text-muted-foreground font-light">
-                  {t("Formatos admitidos: PNG, JPG o WebP", "Supported formats: PNG, JPG, or WebP")}
-                </p>
-
-                {/* Botón rápido para modo demo */}
-                <div className="mt-4 pt-3 border-t border-border/50">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleUseDemoScreenshot();
-                    }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-mono bg-muted/70 text-foreground/80 hover:bg-gold/20 hover:text-gold transition-colors"
-                  >
-                    <Sparkles className="h-3 w-3 text-gold" />
-                    <span>
-                      {t("Usar captura de prueba (Modo Demo)", "Use test screenshot (Demo Mode)")}
-                    </span>
-                  </button>
-                </div>
+            {hasSharedWhatsApp && (
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-semibold flex items-center justify-center gap-2 animate-fade-in">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span>{t("✓ ¡Invitación enviada por WhatsApp! Tu ruleta ya está lista.", "✓ Invitation sent via WhatsApp! Your roulette is ready.")}</span>
               </div>
-            ) : (
-              /* Vista previa de la captura subida */
-              <div className="rounded-2xl border border-gold/40 bg-gold/5 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in">
-                <div className="flex items-center gap-3.5">
-                  <img
-                    src={previewUrl}
-                    alt="Evidencia"
-                    className="h-14 w-14 rounded-xl object-cover border border-gold/40 shadow-xs"
-                  />
+            )}
+
+            {/* Navegación WhatsApp */}
+            <div className="pt-4 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 border-t border-border/50">
+              <button
+                type="button"
+                onClick={onBack}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-5 text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>{t("Volver a tus datos", "Back to your info")}</span>
+              </button>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() =>
+                    onComplete({
+                      storyGenerated: false,
+                      sharedVia: "skipped",
+                    })
+                  }
+                  className="text-xs text-muted-foreground hover:text-gold transition-colors underline underline-offset-4 py-2 order-2 sm:order-1"
+                >
+                  {t("Omitir y pasar directo a la ruleta ›", "Skip & go directly to roulette ›")}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleNextWhatsApp}
+                  className="btn-solid w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-8 text-xs uppercase tracking-[0.2em] font-medium transition-all shadow-xs order-1 sm:order-2"
+                >
+                  <Sparkles className="h-4 w-4 text-white" />
+                  <span>{t("¡Ir a la Ruleta de Premios!", "Go to Prize Roulette!")}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      )}
+
+      {/* ========================================================================= */}
+      {/* CANAL 2: INSTAGRAM STORY (PARA JÓVENES Y AMANTES DE REDES SOCIALES)       */}
+      {/* ========================================================================= */}
+      {activeChannel === "instagram" && (
+        <>
+          {/* Ideas de fotos libres que puede compartir */}
+          <Reveal delay={80}>
+            <div className="mt-6 grid grid-cols-3 gap-2.5 sm:gap-3 text-center">
+              <div className="rounded-xl border border-gold/30 bg-gold/5 p-3 sm:p-4">
+                <Coffee className="h-4 w-4 sm:h-5 sm:w-5 text-gold mx-auto mb-1.5" />
+                <p className="text-[11px] font-medium text-foreground uppercase tracking-wider">
+                  {t("Tu Alimento", "Your Food")}
+                </p>
+                <p className="text-[10px] text-muted-foreground font-light hidden sm:block mt-0.5">
+                  Café, postre o salado
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-gold/30 bg-gold/5 p-3 sm:p-4">
+                <Store className="h-4 w-4 sm:h-5 sm:w-5 text-gold mx-auto mb-1.5" />
+                <p className="text-[11px] font-medium text-foreground uppercase tracking-wider">
+                  {t("El Espacio", "The Space")}
+                </p>
+                <p className="text-[10px] text-muted-foreground font-light hidden sm:block mt-0.5">
+                  La calma de nuestra casa
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-gold/30 bg-gold/5 p-3 sm:p-4">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-gold mx-auto mb-1.5" />
+                <p className="text-[11px] font-medium text-foreground uppercase tracking-wider">
+                  {t("En la Mesa", "At the Table")}
+                </p>
+                <p className="text-[10px] text-muted-foreground font-light hidden sm:block mt-0.5">
+                  Compartiendo hoy
+                </p>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Tarjeta de Instrucciones y Mención Oficial de Instagram */}
+          <Reveal delay={120}>
+            <div className="mt-6 rounded-2xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs space-y-6">
+              {/* Recordatorio de mención a Instagram */}
+              <div className="rounded-xl border border-gold/40 bg-gold/10 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-gold text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <Instagram className="h-5 w-5" />
+                  </div>
                   <div>
-                    <div className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-                      <CheckCircle2 className="h-4 w-4" />
-                      <span>
-                        {t("Captura registrada con éxito", "Screenshot successfully uploaded")}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground font-light">
-                      {t("Evidencia lista para verificación.", "Evidence ready for verification.")}
+                    <p className="text-xs uppercase tracking-[0.16em] font-semibold text-foreground">
+                      {t("Mención sugerida:", "Suggested tag:")}{" "}
+                      <span className="text-gold font-mono">{clientConfig.channels.instagramHandle}</span>
+                    </p>
+                    <p className="text-[11px] text-muted-foreground font-light mt-0.5">
+                      {t(
+                        "Etiqueta nuestra cuenta en tu historia para que podamos repostearte.",
+                        "Tag our account on your story so we can repost you.",
+                      )}
                     </p>
                   </div>
                 </div>
 
+                <a
+                  href={clientConfig.channels.instagramProfileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card border border-gold/50 text-gold text-xs hover:bg-gold hover:text-white transition-colors shrink-0 shadow-2xs font-medium"
+                >
+                  <span>Abrir Instagram</span>
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+
+              {/* Subida de la captura de pantalla de evidencia */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xs uppercase tracking-[0.16em] text-foreground font-semibold">
+                      {t("Sube la captura de tu Story", "Upload your Story screenshot")}{" "}
+                      <span className="text-gold">*</span>
+                    </h3>
+                    <p className="text-[11px] text-muted-foreground font-light">
+                      {t(
+                        "Toma un pantallazo a la historia que publicaste y adjúntalo aquí:",
+                        "Take a screenshot of your posted story and upload it here:",
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Opción adicional para descargar plantilla si no quieren tomar foto */}
+                  <button
+                    type="button"
+                    onClick={handleDownloadStory}
+                    className="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-gold transition-colors"
+                    title={t(
+                      "Descargar plantilla si prefieres no tomar foto",
+                      "Download template if you prefer not taking a photo",
+                    )}
+                  >
+                    <Download className="h-3 w-3" />
+                    <span>{t("Descargar plantilla prediseñada", "Download pre-made template")}</span>
+                  </button>
+                </div>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFileUpload(file);
+                  }}
+                />
+
+                {!previewUrl ? (
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const file = e.dataTransfer.files?.[0];
+                      if (file) handleFileUpload(file);
+                    }}
+                    className={`border-2 border-dashed rounded-2xl p-7 text-center cursor-pointer transition-all ${
+                      uploadError
+                        ? "border-red-400 bg-red-50/20"
+                        : "border-border/80 hover:border-gold hover:bg-gold/5 bg-background"
+                    }`}
+                  >
+                    <div className="mx-auto mb-2.5 flex h-11 w-11 items-center justify-center rounded-full bg-gold/15 text-gold">
+                      <Camera className="h-5 w-5" />
+                    </div>
+                    <p className="text-xs uppercase tracking-[0.18em] font-medium text-foreground">
+                      {isUploading
+                        ? t("Cargando imagen...", "Loading image...")
+                        : t(
+                            "Toca aquí para seleccionar tu captura",
+                            "Tap here to select your screenshot",
+                          )}
+                    </p>
+                    <p className="mt-1 text-[11px] text-muted-foreground font-light">
+                      {t("Formatos admitidos: PNG, JPG o WebP", "Supported formats: PNG, JPG, or WebP")}
+                    </p>
+
+                    {/* Botón rápido para modo demo */}
+                    <div className="mt-4 pt-3 border-t border-border/50">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUseDemoScreenshot();
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-mono bg-muted/70 text-foreground/80 hover:bg-gold/20 hover:text-gold transition-colors"
+                      >
+                        <Sparkles className="h-3 w-3 text-gold" />
+                        <span>
+                          {t("Usar captura de prueba (Modo Demo)", "Use test screenshot (Demo Mode)")}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Vista previa de la captura subida */
+                  <div className="rounded-2xl border border-gold/40 bg-gold/5 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in">
+                    <div className="flex items-center gap-3.5">
+                      <img
+                        src={previewUrl}
+                        alt="Evidencia"
+                        className="h-14 w-14 rounded-xl object-cover border border-gold/40 shadow-xs"
+                      />
+                      <div>
+                        <div className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+                          <CheckCircle2 className="h-4 w-4" />
+                          <span>
+                            {t("Captura registrada con éxito", "Screenshot successfully uploaded")}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground font-light">
+                          {t("Evidencia lista para verificación.", "Evidence ready for verification.")}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="inline-flex items-center gap-1 text-xs text-gold underline underline-offset-2 hover:text-gold/80"
+                    >
+                      <FileImage className="h-3.5 w-3.5" />
+                      <span>{t("Cambiar imagen", "Change image")}</span>
+                    </button>
+                  </div>
+                )}
+
+                {uploadError && <p className="text-xs text-red-500">{uploadError}</p>}
+
+                {/* Usuario de Instagram opcional */}
+                <div className="pt-1">
+                  <label
+                    htmlFor="ig-handle"
+                    className="block text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium mb-1"
+                  >
+                    {t("Tu usuario de Instagram (Opcional)", "Your Instagram handle (Optional)")}
+                  </label>
+                  <div className="relative max-w-xs">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-muted-foreground">
+                      @
+                    </span>
+                    <input
+                      id="ig-handle"
+                      type="text"
+                      value={handle}
+                      onChange={(e) => setHandle(e.target.value.replace(/^@/, ""))}
+                      placeholder="tu_cuenta"
+                      className="w-full rounded-xl border border-border/80 pl-8 pr-3.5 py-2 text-xs text-foreground bg-background focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Botones de navegación Instagram */}
+              <div className="pt-4 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 border-t border-border/50">
                 <button
                   type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center gap-1 text-xs text-gold underline underline-offset-2 hover:text-gold/80"
+                  onClick={onBack}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-5 text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <FileImage className="h-3.5 w-3.5" />
-                  <span>{t("Cambiar imagen", "Change image")}</span>
+                  <ArrowLeft className="h-4 w-4" />
+                  <span>{t("Volver a tus datos", "Back to your info")}</span>
                 </button>
-              </div>
-            )}
 
-            {uploadError && <p className="text-xs text-red-500">{uploadError}</p>}
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onComplete({
+                        storyGenerated: false,
+                        sharedVia: "skipped",
+                        instagramHandle: handle.trim() || undefined,
+                      })
+                    }
+                    className="text-xs text-muted-foreground hover:text-gold transition-colors underline underline-offset-4 py-2 order-2 sm:order-1"
+                  >
+                    {t("Omitir Story y pasar directo a la ruleta ›", "Skip Story & go directly to roulette ›")}
+                  </button>
 
-            {/* Usuario de Instagram opcional */}
-            <div className="pt-1">
-              <label
-                htmlFor="ig-handle"
-                className="block text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium mb-1"
-              >
-                {t("Tu usuario de Instagram (Opcional)", "Your Instagram handle (Optional)")}
-              </label>
-              <div className="relative max-w-xs">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-muted-foreground">
-                  @
-                </span>
-                <input
-                  id="ig-handle"
-                  type="text"
-                  value={handle}
-                  onChange={(e) => setHandle(e.target.value.replace(/^@/, ""))}
-                  placeholder="tu_cuenta"
-                  className="w-full rounded-xl border border-border/80 pl-8 pr-3.5 py-2 text-xs text-foreground bg-background focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold font-mono"
-                />
+                  <button
+                    type="submit"
+                    onClick={handleNext}
+                    disabled={!previewUrl}
+                    className="btn-solid w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-8 text-xs uppercase tracking-[0.2em] font-medium disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs order-1 sm:order-2"
+                  >
+                    <Sparkles className="h-4 w-4 text-white" />
+                    <span>{t("¡Ir a la Ruleta de Premios!", "Go to Prize Roulette!")}</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Botones de navegación */}
-          <div className="pt-4 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 border-t border-border/50">
-            <button
-              type="button"
-              onClick={onBack}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-5 text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>{t("Volver a tus datos", "Back to your info")}</span>
-            </button>
-
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={() =>
-                  onComplete({
-                    storyGenerated: false,
-                    instagramHandle: handle.trim() || undefined,
-                  })
-                }
-                className="text-xs text-muted-foreground hover:text-gold transition-colors underline underline-offset-4 py-2 order-2 sm:order-1"
-              >
-                {t("Omitir Story y pasar directo a la ruleta ›", "Skip Story & go directly to roulette ›")}
-              </button>
-
-              <button
-                type="submit"
-                onClick={handleNext}
-                disabled={!previewUrl}
-                className="btn-solid w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-8 text-xs uppercase tracking-[0.2em] font-medium disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs order-1 sm:order-2"
-              >
-                <Sparkles className="h-4 w-4 text-white" />
-                <span>{t("¡Ir a la Ruleta de Premios!", "Go to Prize Roulette!")}</span>
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </Reveal>
+          </Reveal>
+        </>
+      )}
     </div>
   );
 }
