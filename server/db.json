@@ -253,7 +253,7 @@
     "security": {
       "masterAdminPin": "8888",
       "managerAdminPin": "5555",
-      "cashierPin": "1978",
+      "cashierPin": "9395",
       "roles": {
         "admin": {
           "manageBrand": true,

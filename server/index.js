@@ -1629,15 +1629,15 @@ function renderBackendDashboard() {
             </p>
           </div>
           <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #9ca3af;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted);">
               <span style="width: 10px; height: 10px; border-radius: 2px; background: linear-gradient(to top, #10b981, #fbbf24);"></span>
               <span>Hora Pico</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #9ca3af;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted);">
               <span style="width: 10px; height: 10px; border-radius: 2px; background: linear-gradient(to top, #ef4444, #f59e0b);"></span>
               <span>Hora Muerta (Oportunidad)</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #9ca3af;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted);">
               <span style="width: 10px; height: 10px; border-radius: 2px; background: linear-gradient(to top, #3b82f6, #38bdf8);"></span>
               <span>Flujo Regular</span>
             </div>
@@ -1720,7 +1720,7 @@ function renderBackendDashboard() {
           <div class="panel-header">
             <div class="panel-title">
               <span>🎟️ Cupones y Tarjetas de Sellos</span>
-              <span style="font-size: 11px; background: #1f2937; padding: 2px 8px; border-radius: 6px; color: #9ca3af;">Base de Datos Local</span>
+              <span style="font-size: 11px; background: #1f2937; padding: 2px 8px; border-radius: 6px; color: var(--text-muted);">Base de Datos Local</span>
             </div>
             <input type="text" id="searchInput" placeholder="🔍 Buscar código, cliente o tel..." class="form-input" style="width: 220px;" onkeyup="filterTable()">
           </div>
@@ -1751,8 +1751,8 @@ function renderBackendDashboard() {
                             <td><span class="badge-code">${p.uniqueCode}</span></td>
                             <td><span style="color: #fbbf24; font-family: monospace; font-size: 11px;">${p.wonAt || "Hoy"}</span></td>
                             <td>
-                              <strong style="color: #fff;">${p.customerName || "Cliente"}</strong>
-                              <div style="font-size: 11px; color: #9ca3af;">${p.whatsapp || "Sin número"}</div>
+                              <strong style="color: var(--text);">${p.customerName || "Cliente"}</strong>
+                              <div style="font-size: 11px; color: var(--text-muted);">${p.whatsapp || "Sin número"}</div>
                             </td>
                             <td style="color: #e5e7eb;">
                               ${p.prizeName}
@@ -1760,7 +1760,7 @@ function renderBackendDashboard() {
                             </td>
                             <td>
                               <span class="stars-cell">${stars}</span>
-                              <div style="font-size: 10px; color: #9ca3af;">${stamps}/15 visitas</div>
+                              <div style="font-size: 10px; color: var(--text-muted);">${stamps}/15 visitas</div>
                             </td>
                             <td>
                               <span class="${isUsed ? "badge-status-used" : "badge-status-available"}">
@@ -2003,22 +2003,22 @@ function renderBackendDashboard() {
                 <!-- Datos del Comensal y Variable Conectada -->
                 <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 12px; margin: 10px 0; font-size: 11px; space-y: 4px;">
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="color: #9ca3af;">Comensal:</span>
-                    <strong style="color: #fff;">${table.currentCustomer || "Mesa Libre"}</strong>
+                    <span style="color: var(--text-muted);">Comensal:</span>
+                    <strong style="color: var(--text);">${table.currentCustomer || "Mesa Libre"}</strong>
                   </div>
                   ${table.currentWhatsapp ? `
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="color: #9ca3af;">WhatsApp:</span>
+                    <span style="color: var(--text-muted);">WhatsApp:</span>
                     <span style="color: #34d399; font-family: monospace;">+${table.currentWhatsapp}</span>
                   </div>` : ""}
                   ${table.prizeWon ? `
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="color: #9ca3af;">Premio:</span>
+                    <span style="color: var(--text-muted);">Premio:</span>
                     <span style="color: #fbbf24; font-weight: 700; text-align: right;">${table.prizeWon}</span>
                   </div>` : ""}
                   ${table.uniqueCode ? `
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="color: #9ca3af;">Cupón:</span>
+                    <span style="color: var(--text-muted);">Cupón:</span>
                     <span style="color: #fff; background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 4px; font-family: monospace; font-weight: 800;">${table.uniqueCode}</span>
                   </div>` : ""}
                   <div style="display: flex; justify-content: space-between; margin-top: 6px; padding-top: 4px; border-top: 1px dashed rgba(255,255,255,0.08); font-size: 10px;">
@@ -2135,87 +2135,152 @@ function renderBackendDashboard() {
         </div>
 
         <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
-          Configura qué tipo de juego verán los clientes en sus móviles al escanear el QR en la mesa. Puedes activar la Ruleta, el Reto de Precisión 10 segundos, o el Modo Libre donde el comensal elige cuál jugar.
+          Elige el tipo de juego que verán los clientes en sus móviles al escanear el QR en mesa. Después de seleccionar, configura cada detalle directamente aquí.
         </p>
 
-        <!-- Selector de 4 tarjetas -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
-          <div class="game-mode-card ${gc.gameMode === 'roulette' ? 'active' : ''}" onclick="selectBackendGameMode('roulette', this)">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="font-size: 24px;">🎡</span>
-              <span class="mode-check">${gc.gameMode === 'roulette' ? '✓ ACTIVO' : ''}</span>
-            </div>
-            <div style="font-weight: 700; color: #fff; font-size: 13px;">Ruleta de la Fortuna</div>
-            <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">Azar puro y emoción instantánea con disco dorado animado.</div>
-          </div>
+        <!-- PASO 1: Selector visual de 4 tarjetas -->
+        <div style="margin-bottom: 8px;">
+          <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px;">① Elige el tipo de juego</div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
 
-          <div class="game-mode-card ${gc.gameMode === 'precision' ? 'active' : ''}" onclick="selectBackendGameMode('precision', this)">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="font-size: 24px;">⏱️</span>
-              <span class="mode-check">${gc.gameMode === 'precision' ? '✓ ACTIVO' : ''}</span>
+            <div class="game-mode-card ${gc.gameMode === 'roulette' ? 'active' : ''}" onclick="selectBackendGameMode('roulette', this)">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 24px;">🎡</span>
+                <span class="mode-check">${gc.gameMode === 'roulette' ? '✓ ACTIVO' : ''}</span>
+              </div>
+              <div style="font-weight: 700; color: var(--text); font-size: 13px;">Ruleta de la Fortuna</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Azar puro y emoción instantánea con disco dorado animado.</div>
             </div>
-            <div style="font-weight: 700; color: #fff; font-size: 13px;">Reto de Precisión 10s</div>
-            <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">Habilidad táctil. El cliente debe frenar el cronómetro en 10.000s exactos.</div>
-          </div>
 
-          <div class="game-mode-card ${gc.gameMode === 'hybrid' ? 'active' : ''}" onclick="selectBackendGameMode('hybrid', this)">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="font-size: 24px;">🔄</span>
-              <span class="mode-check">${gc.gameMode === 'hybrid' ? '✓ ACTIVO' : ''}</span>
+            <div class="game-mode-card ${gc.gameMode === 'precision' ? 'active' : ''}" onclick="selectBackendGameMode('precision', this)">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 24px;">⏱️</span>
+                <span class="mode-check">${gc.gameMode === 'precision' ? '✓ ACTIVO' : ''}</span>
+              </div>
+              <div style="font-weight: 700; color: var(--text); font-size: 13px;">Reto de Precisión 10s</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Habilidad táctil. El cliente frena el cronómetro en 10.000s exactos.</div>
             </div>
-            <div style="font-weight: 700; color: #fbbf24; font-size: 13px;">Modo Libre / Híbrido</div>
-            <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">El comensal elige en su móvil si prefiere la Ruleta o el Reto de Precisión.</div>
-          </div>
 
-          <div class="game-mode-card ${gc.gameMode === 'stamps' ? 'active' : ''}" onclick="selectBackendGameMode('stamps', this)">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="font-size: 24px;">💳</span>
-              <span class="mode-check">${gc.gameMode === 'stamps' ? '✓ ACTIVO' : ''}</span>
+            <div class="game-mode-card ${gc.gameMode === 'hybrid' ? 'active' : ''}" onclick="selectBackendGameMode('hybrid', this)">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 24px;">🔄</span>
+                <span class="mode-check">${gc.gameMode === 'hybrid' ? '✓ ACTIVO' : ''}</span>
+              </div>
+              <div style="font-weight: 700; color: var(--text); font-size: 13px;">Modo Libre / Híbrido</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">El comensal elige en su móvil entre Ruleta o Reto de Precisión.</div>
             </div>
-            <div style="font-weight: 700; color: #fff; font-size: 13px;">Pasaporte de Sellos</div>
-            <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">Fidelización por visitas repetidas con premios cada 5 sellos.</div>
+
+            <div class="game-mode-card ${gc.gameMode === 'stamps' ? 'active' : ''}" onclick="selectBackendGameMode('stamps', this)">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 24px;">💳</span>
+                <span class="mode-check">${gc.gameMode === 'stamps' ? '✓ ACTIVO' : ''}</span>
+              </div>
+              <div style="font-weight: 700; color: var(--text); font-size: 13px;">Pasaporte de Sellos</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Fidelización por visitas repetidas con premios cada 5 sellos.</div>
+            </div>
           </div>
         </div>
 
         <input type="hidden" id="backendGameMode" value="${gc.gameMode}" />
 
-        <!-- Ajustes de Dificultad e Intentos para el Reto de Precisión -->
-        <div style="background: #0b0f19; padding: 16px; border-radius: 12px; border: 1px solid var(--card-border); margin-top: 14px;">
-          <div style="font-weight: 700; color: #fbbf24; font-size: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-            <span>⏱️ Calibración del Reto de Precisión 10 Segundos</span>
-          </div>
+        <!-- PASO 2: Panel de configuración contextual (cambia según el juego elegido) -->
+        <div id="game-config-wizard" style="display: flex; flex-direction: column; gap: 14px;">
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
-            <div>
-              <label style="display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Dificultad / Margen Humano Ganador:</label>
-              <select id="precisionDifficulty" class="form-input" style="padding: 8px 12px; font-size: 12px;">
-                <option value="facil" ${gc.precisionDifficulty === 'facil' ? 'selected' : ''}>🟢 Fácil (±80ms: 9.920s a 10.080s) — Más ganadores</option>
-                <option value="medio" ${gc.precisionDifficulty === 'medio' || !gc.precisionDifficulty ? 'selected' : ''}>🟡 Medio (±40ms: 9.960s a 10.040s) — Equilibrado</option>
-                <option value="dificil" ${gc.precisionDifficulty === 'dificil' ? 'selected' : ''}>🔴 Boutique Experto (±15ms: 9.985s a 10.015s) — Exclusivo</option>
-              </select>
-            </div>
-
-            <div>
-              <label style="display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Intentos Permitidos por Comensal:</label>
-              <select id="precisionAttempts" class="form-input" style="padding: 8px 12px; font-size: 12px;">
-                <option value="1" ${gc.maxAttempts === 1 ? 'selected' : ''}>1 Intento (Máxima adrenalina)</option>
-                <option value="2" ${gc.maxAttempts === 2 ? 'selected' : ''}>2 Intentos</option>
-                <option value="3" ${gc.maxAttempts === 3 || !gc.maxAttempts ? 'selected' : ''}>3 Intentos (Recomendado)</option>
-              </select>
-            </div>
-
-            <div>
-              <label style="display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Canal de Validación (Evidencia):</label>
-              <select id="validationChannel" class="form-input" style="padding: 8px 12px; font-size: 12px;">
-                <option value="both" ${gc.validationChannel === 'both' || !gc.validationChannel ? 'selected' : ''}>🌟 Ambos (El cliente escoge IG o WhatsApp)</option>
-                <option value="instagram" ${gc.validationChannel === 'instagram' ? 'selected' : ''}>📸 Solo Instagram Stories</option>
-                <option value="whatsapp" ${gc.validationChannel === 'whatsapp' ? 'selected' : ''}>💬 Solo WhatsApp Directo</option>
-              </select>
+          <!-- === CONFIGURACIÓN: RULETA === -->
+          <div id="wizard-roulette" style="display: ${gc.gameMode === 'roulette' || gc.gameMode === 'hybrid' ? 'block' : 'none'};">
+            <div style="background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 14px; padding: 18px 20px;">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; border-bottom: 1px solid #FDE68A; padding-bottom: 10px;">
+                <span style="font-size: 20px;">🎡</span>
+                <div>
+                  <div style="font-weight: 700; color: #92400E; font-size: 14px;">② Configura la Ruleta de la Fortuna</div>
+                  <div style="font-size: 11px; color: #B45309;">Los premios y probabilidades se configuran en la pestaña "Ruleta & Premios" del menú lateral</div>
+                </div>
+                <a href="#" onclick="switchTab('tab-roulette', document.querySelector('[data-tab=tab-roulette]'))" style="margin-left: auto; background: #92400E; color: #fff; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 8px; text-decoration: none;">Ir a Configurar Premios →</a>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Probabilidad de ganar (%)</label>
+                  <div style="font-size: 22px; font-weight: 800; color: #92400E;">${s.prizes ? s.prizes.filter(p => p.active !== false).reduce((acc, p) => acc + (p.probability || 0), 0) : 0}%</div>
+                  <span class="form-help">Suma de probabilidades de premios activos</span>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Premios activos</label>
+                  <div style="font-size: 22px; font-weight: 800; color: #92400E;">${s.prizes ? s.prizes.filter(p => p.active !== false).length : 0}</div>
+                  <span class="form-help">De ${s.prizes ? s.prizes.length : 0} premios configurados</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+
+          <!-- === CONFIGURACIÓN: PRECISIÓN === -->
+          <div id="wizard-precision" style="display: ${gc.gameMode === 'precision' || gc.gameMode === 'hybrid' ? 'block' : 'none'};">
+            <div style="background: var(--info-bg); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 14px; padding: 18px 20px;">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; border-bottom: 1px solid rgba(37, 99, 235, 0.15); padding-bottom: 10px;">
+                <span style="font-size: 20px;">⏱️</span>
+                <div>
+                  <div style="font-weight: 700; color: var(--info); font-size: 14px;">② Configura el Reto de Precisión 10s</div>
+                  <div style="font-size: 11px; color: #3B82F6;">Ajusta la dificultad y número de intentos permitidos</div>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Dificultad / Margen de victoria</label>
+                  <select id="precisionDifficulty" class="form-input" style="padding: 8px 12px; font-size: 12px;">
+                    <option value="facil" ${gc.precisionDifficulty === 'facil' ? 'selected' : ''}>🟢 Fácil (±80ms) — Más ganadores, más diversión</option>
+                    <option value="medio" ${gc.precisionDifficulty === 'medio' || !gc.precisionDifficulty ? 'selected' : ''}>🟡 Medio (±40ms) — Equilibrado y justo</option>
+                    <option value="dificil" ${gc.precisionDifficulty === 'dificil' ? 'selected' : ''}>🔴 Boutique Experto (±15ms) — Exclusivo y emocionante</option>
+                  </select>
+                  <span class="form-help">Define qué tan cerca de 10.000s debe frenar el comensal para ganar</span>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Intentos máximos por visita</label>
+                  <select id="maxAttempts" class="form-input" style="padding: 8px 12px; font-size: 12px;">
+                    <option value="1" ${gc.maxAttempts == 1 ? 'selected' : ''}>1 intento — Máxima emoción</option>
+                    <option value="2" ${gc.maxAttempts == 2 ? 'selected' : ''}>2 intentos — Equilibrado</option>
+                    <option value="3" ${!gc.maxAttempts || gc.maxAttempts == 3 ? 'selected' : ''}>3 intentos — Recomendado para mayor retención</option>
+                    <option value="5" ${gc.maxAttempts == 5 ? 'selected' : ''}>5 intentos — Modo diversión total</option>
+                  </select>
+                  <span class="form-help">Si falla todos los intentos, recibe un mensaje de ánimo y próxima visita</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- === CONFIGURACIÓN: SELLOS === -->
+          <div id="wizard-stamps" style="display: ${gc.gameMode === 'stamps' ? 'block' : 'none'};">
+            <div style="background: var(--success-bg); border: 1px solid rgba(5, 150, 105, 0.3); border-radius: 14px; padding: 18px 20px;">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px; border-bottom: 1px solid rgba(5, 150, 105, 0.15); padding-bottom: 10px;">
+                <span style="font-size: 20px;">💳</span>
+                <div>
+                  <div style="font-weight: 700; color: var(--success); font-size: 14px;">② Configura el Pasaporte de Sellos</div>
+                  <div style="font-size: 11px; color: #059669;">Los hitos y premios de sellos se configuran en la pestaña "Sellos & Fidelización"</div>
+                </div>
+                <a href="#" onclick="switchTab('tab-stamps', document.querySelector('[data-tab=tab-stamps]'))" style="margin-left: auto; background: var(--success); color: #fff; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 8px; text-decoration: none;">Ir a Configurar Sellos →</a>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                ${s.stamps.milestones.map(m => `
+                  <div style="background: #FFFFFF; border: 1px solid var(--card-border); border-radius: 10px; padding: 12px;">
+                    <div style="font-size: 20px; margin-bottom: 4px;">${m.icon}</div>
+                    <div style="font-size: 11px; font-weight: 700; color: var(--text);">Sello ${m.stamp}</div>
+                    <div style="font-size: 10px; color: var(--text-muted);">${m.title.replace(/^[^:]+:\s*/, '')}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- PASO 3: Botón de guardar siempre visible -->
+          <div style="display: flex; align-items: center; justify-content: space-between; background: #F8FAFC; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px 18px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">③ Activar en el restaurante</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">El cambio se aplica al instante en todos los móviles de los comensales</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span id="toast-game-mode" class="toast-success">✓ ¡Juego activado en el restaurante!</span>
+              <button class="btn-save" onclick="saveGameModeConfig()">⚡ Activar Juego Seleccionado</button>
+            </div>
+          </div>
 
     <!-- ========================================================================= -->
     <!-- PESTAÑA: PREMIOS DE RULETA & PROBABILIDADES MATEMÁTICAS (SUMA = 100%)      -->
@@ -2355,7 +2420,7 @@ function renderBackendDashboard() {
             ].map(p => `
               <button type="button" class="icon-preset-btn ${s.stamps.visitIcon === p.icon ? 'active' : ''}" onclick="selectVisitIconPreset('${p.icon}')">
                 <span>${p.icon}</span>
-                <span style="font-size: 10px; color: #9ca3af;">${p.label}</span>
+                <span style="font-size: 10px; color: var(--text-muted);">${p.label}</span>
               </button>
             `).join("")}
           </div>
@@ -2521,7 +2586,7 @@ function renderBackendDashboard() {
               </div>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-              <span id="comp-status-badge" style="font-size: 11px; padding: 4px 12px; border-radius: 20px; font-weight: 700; ${s.composio && s.composio.enabled ? 'background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);' : 'background: rgba(107, 114, 128, 0.2); color: #9ca3af; border: 1px solid rgba(107, 114, 128, 0.4);'}">
+              <span id="comp-status-badge" style="font-size: 11px; padding: 4px 12px; border-radius: 20px; font-weight: 700; ${s.composio && s.composio.enabled ? 'background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);' : 'background: rgba(107, 114, 128, 0.2); color: var(--text-muted); border: 1px solid rgba(107, 114, 128, 0.4);'}">
                 ${s.composio && s.composio.enabled ? '🟢 Conectado con Composio.dev' : '⚪ Sin conectar'}
               </span>
               <button onclick="connectComposioNow()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-weight: 800; font-size: 11px; text-transform: uppercase; padding: 9px 16px; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);">
@@ -2567,7 +2632,7 @@ function renderBackendDashboard() {
           </div>
 
           <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
-            <button onclick="testComposioSync()" style="background: rgba(255,255,255,0.08); color: #fff; font-size: 11px; padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer;">
+            <button onclick="testComposioSync()" style="background: #F8FAFC; color: var(--text); font-size: 11px; padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer;">
               🚀 Disparar Evento de Prueba a Composio
             </button>
           </div>
@@ -2675,7 +2740,7 @@ function renderBackendDashboard() {
         <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 14px; padding: 18px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
             <div>
-              <strong style="color: #fff; font-size: 13px; text-transform: uppercase;">Matriz de Asignación de Permisos</strong>
+              <strong style="color: var(--text); font-size: 13px; text-transform: uppercase;">Matriz de Asignación de Permisos</strong>
               <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
                 El Dueño Master decide qué módulos puede ver y editar el Administrador y el Cajero.
               </p>
@@ -2708,7 +2773,7 @@ function renderBackendDashboard() {
                 ].map(p => `
                   <tr>
                     <td>
-                      <strong style="color: #fff; font-size: 12px;">${p.name}</strong>
+                      <strong style="color: var(--text); font-size: 12px;">${p.name}</strong>
                       <span style="display: block; font-size: 10px; color: var(--text-muted);">${p.desc}</span>
                     </td>
                     <td style="text-align: center; color: #fbbf24; font-weight: 700; font-size: 12px;">
@@ -2739,7 +2804,7 @@ function renderBackendDashboard() {
           <span>💡</span>
           <span>Guía Rápida: Ofertas Push Masivas & Flujos OneSignal</span>
         </div>
-        <div style="font-size: 11px; color: #9ca3af; margin-bottom: 8px;">
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
           Envía notificaciones web push instantáneas a los navegadores y teléfonos de los comensales, o activa campañas automatizadas sin tocar código.
         </div>
         <div class="quick-guide-grid">
@@ -2774,7 +2839,7 @@ function renderBackendDashboard() {
         </div>
 
         <div style="margin-bottom: 14px;">
-          <span style="font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 8px;">
+          <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 8px;">
             Plantillas Rápidas (Haz clic para rellenar formulario):
           </span>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
@@ -2818,7 +2883,7 @@ function renderBackendDashboard() {
             <textarea id="pushBody" class="form-input" rows="2" style="resize: vertical;" required>¡Hola! Hoy de 3:00 a 6:00 PM acumula el DOBLE de sellos y disfruta 2x1 en bebidas de autor. ¡Muestra este mensaje en caja!</textarea>
             <!-- BOTONES DE VARIABLES DINÁMICAS -->
             <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;">
-              <span style="font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase;">Variables:</span>
+              <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Variables:</span>
               <button type="button" class="btn-secondary" style="padding: 2px 8px; font-size: 10px; font-family: monospace;" onclick="insertPushTag('{nombre}')">+ {nombre}</button>
               <button type="button" class="btn-secondary" style="padding: 2px 8px; font-size: 10px; font-family: monospace;" onclick="insertPushTag('{premio}')">+ {premio}</button>
               <button type="button" class="btn-secondary" style="padding: 2px 8px; font-size: 10px; font-family: monospace;" onclick="insertPushTag('{restaurante}')">+ {restaurante}</button>
@@ -2870,7 +2935,7 @@ function renderBackendDashboard() {
               <button type="button" class="btn-secondary" style="padding: 6px 12px; font-size: 11px; white-space: nowrap;" onclick="saveCurrentPushDraft()">💾 Guardar Plantilla</button>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-              <span id="pushStatusMsg" style="font-size: 11px; color: #9ca3af;"></span>
+              <span id="pushStatusMsg" style="font-size: 11px; color: var(--text-muted);"></span>
               <button type="submit" class="btn-save" style="background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color: #fff;">
                 🚀 Enviar Notificación Masiva Ahora
               </button>
@@ -2892,11 +2957,11 @@ function renderBackendDashboard() {
             <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;">
               <div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-                  <strong style="color: #fff; font-size: 12px;">${d.name}</strong>
-                  <span style="font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.08); color: #9ca3af;">${d.scheduleType === "scheduled" ? "📅 Programada" : "⚡ Inmediata"}</span>
+                  <strong style="color: var(--text); font-size: 12px;">${d.name}</strong>
+                  <span style="font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.08); color: var(--text-muted);">${d.scheduleType === "scheduled" ? "📅 Programada" : "⚡ Inmediata"}</span>
                 </div>
                 <p style="color: #fbbf24; font-size: 11px; font-weight: 600; margin: 2px 0;">${d.title}</p>
-                <p style="color: #9ca3af; font-size: 11px; line-height: 1.4; margin: 4px 0 8px 0;">${d.body}</p>
+                <p style="color: var(--text-muted); font-size: 11px; line-height: 1.4; margin: 4px 0 8px 0;">${d.body}</p>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
                 <span style="font-size: 9px; color: #6b7280;">${d.createdAt || "Plantilla"}</span>
@@ -2928,8 +2993,8 @@ function renderBackendDashboard() {
               <strong style="color: #34d399; font-size: 12px;">🎉 Bienvenida (6 min)</strong>
               <span class="badge-status-available">ACTIVO</span>
             </div>
-            <p style="font-size: 11px; color: #9ca3af; margin-bottom: 6px;">Disparo automático 6 minutos después del primer juego en mesa.</p>
-            <div style="font-size: 11px; color: #fff; background: rgba(255,255,255,0.04); padding: 8px; border-radius: 8px; font-family: monospace;">
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Disparo automático 6 minutos después del primer juego en mesa.</p>
+            <div style="font-size: 11px; color: #fff; background: #F8FAFC; padding: 8px; border-radius: 8px; font-family: monospace;">
               "¡Gracias por visitarnos! Tu primer sello ya está activo en tu tarjeta digital."
             </div>
           </div>
@@ -2940,8 +3005,8 @@ function renderBackendDashboard() {
               <strong style="color: #fbbf24; font-size: 12px;">⏳ Urgencia Cupón (24h)</strong>
               <span class="badge-status-available">ACTIVO</span>
             </div>
-            <p style="font-size: 11px; color: #9ca3af; margin-bottom: 6px;">Se envía 24h antes de que expire el beneficio de la ruleta.</p>
-            <div style="font-size: 11px; color: #fff; background: rgba(255,255,255,0.04); padding: 8px; border-radius: 8px; font-family: monospace;">
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Se envía 24h antes de que expire el beneficio de la ruleta.</p>
+            <div style="font-size: 11px; color: #fff; background: #F8FAFC; padding: 8px; border-radius: 8px; font-family: monospace;">
               "¡Tu premio vence mañana! Ven hoy y disfrútalo en mesa antes de su caducidad."
             </div>
           </div>
@@ -2952,8 +3017,8 @@ function renderBackendDashboard() {
               <strong style="color: #c084fc; font-size: 12px;">☕ Reactivación (14 Días)</strong>
               <span class="badge-status-available">ACTIVO</span>
             </div>
-            <p style="font-size: 11px; color: #9ca3af; margin-bottom: 6px;">Se envía a clientes que llevan 14 días sin visitarnos.</p>
-            <div style="font-size: 11px; color: #fff; background: rgba(255,255,255,0.04); padding: 8px; border-radius: 8px; font-family: monospace;">
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Se envía a clientes que llevan 14 días sin visitarnos.</p>
+            <div style="font-size: 11px; color: #fff; background: #F8FAFC; padding: 8px; border-radius: 8px; font-family: monospace;">
               "¡Te extrañamos! Esta semana recibe un postre artesanal sorpresa de cortesía con tu café."
             </div>
           </div>
@@ -2964,8 +3029,8 @@ function renderBackendDashboard() {
               <strong style="color: #38bdf8; font-size: 12px;">⚡ Happy Hour (3 a 6 PM)</strong>
               <span class="badge-status-available">ACTIVO</span>
             </div>
-            <p style="font-size: 11px; color: #9ca3af; margin-bottom: 6px;">Multiplicador automático x2 de sellos en horas muertas de Lunes a Jueves.</p>
-            <div style="font-size: 11px; color: #fff; background: rgba(255,255,255,0.04); padding: 8px; border-radius: 8px; font-family: monospace;">
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Multiplicador automático x2 de sellos en horas muertas de Lunes a Jueves.</p>
+            <div style="font-size: 11px; color: #fff; background: #F8FAFC; padding: 8px; border-radius: 8px; font-family: monospace;">
               "¡Tarde dulce! Hoy tus consumos suman 2 SELLOS en tu tarjeta de fidelización."
             </div>
           </div>
@@ -3301,8 +3366,9 @@ function renderBackendDashboard() {
       }
     }
 
-    // SELECCIÓN VISUAL DE MODO DE JUEGO EN BACKEND
+    // SELECCIÓN VISUAL DE MODO DE JUEGO EN BACKEND + WIZARD CONTEXTUAL
     function selectBackendGameMode(mode, cardEl) {
+      // 1. Actualizar tarjetas visuales
       document.querySelectorAll('.game-mode-card').forEach(function(c) {
         c.classList.remove('active');
         var chk = c.querySelector('.mode-check');
@@ -3313,15 +3379,47 @@ function renderBackendDashboard() {
         var chk = cardEl.querySelector('.mode-check');
         if (chk) chk.innerText = '✓ ACTIVO';
       }
+
+      // 2. Actualizar input oculto
       var hiddenInput = document.getElementById('backendGameMode');
       if (hiddenInput) hiddenInput.value = mode;
+
+      // 3. Mostrar/ocultar paneles de configuración según el juego elegido
+      var showRoulette = (mode === 'roulette' || mode === 'hybrid');
+      var showPrecision = (mode === 'precision' || mode === 'hybrid');
+      var showStamps = (mode === 'stamps');
+
+      var wizardRoulette = document.getElementById('wizard-roulette');
+      var wizardPrecision = document.getElementById('wizard-precision');
+      var wizardStamps = document.getElementById('wizard-stamps');
+
+      if (wizardRoulette) {
+        wizardRoulette.style.display = showRoulette ? 'block' : 'none';
+        wizardRoulette.style.animation = showRoulette ? 'fadeIn 0.25s ease' : 'none';
+      }
+      if (wizardPrecision) {
+        wizardPrecision.style.display = showPrecision ? 'block' : 'none';
+        wizardPrecision.style.animation = showPrecision ? 'fadeIn 0.25s ease' : 'none';
+      }
+      if (wizardStamps) {
+        wizardStamps.style.display = showStamps ? 'block' : 'none';
+        wizardStamps.style.animation = showStamps ? 'fadeIn 0.25s ease' : 'none';
+      }
+
+      // 4. Scroll suave al wizard si está visible
+      var wizard = document.getElementById('game-config-wizard');
+      if (wizard) {
+        setTimeout(function() {
+          wizard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      }
     }
 
-    // GUARDAR CONFIGURACIÓN DE MECÁNICA DE JUEGO (RULETA VS PRECISIÓN 10S)
+    // GUARDAR CONFIGURACIÓN DE MECÁNICA DE JUEGO
     function saveGameModeConfig() {
       var mode = document.getElementById('backendGameMode') ? document.getElementById('backendGameMode').value : 'hybrid';
       var difficulty = document.getElementById('precisionDifficulty') ? document.getElementById('precisionDifficulty').value : 'medio';
-      var attempts = document.getElementById('precisionAttempts') ? parseInt(document.getElementById('precisionAttempts').value, 10) : 3;
+      var attempts = document.getElementById('maxAttempts') ? parseInt(document.getElementById('maxAttempts').value, 10) : 3;
       var channel = document.getElementById('validationChannel') ? document.getElementById('validationChannel').value : 'both';
 
       var toleranceMs = difficulty === 'facil' ? 80 : difficulty === 'dificil' ? 15 : 40;
@@ -3336,6 +3434,10 @@ function renderBackendDashboard() {
         reviewTiming: 'after_game'
       };
 
+      // Deshabilitar botón durante el guardado
+      var btn = document.querySelector('[onclick="saveGameModeConfig()"]');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Activando...'; }
+
       fetch('/api/game-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -3343,6 +3445,7 @@ function renderBackendDashboard() {
       })
       .then(function(res) { return res.json(); })
       .then(function(data) {
+        if (btn) { btn.disabled = false; btn.textContent = '⚡ Activar Juego Seleccionado'; }
         if (data.success) {
           showToast('toast-game-mode');
         } else {
@@ -3350,6 +3453,7 @@ function renderBackendDashboard() {
         }
       })
       .catch(function(err) {
+        if (btn) { btn.disabled = false; btn.textContent = '⚡ Activar Juego Seleccionado'; }
         alert('Error conectando con el servidor: ' + err.message);
       });
     }
@@ -3624,8 +3728,8 @@ function renderBackendDashboard() {
                   <td><span class="badge-code">\${p.uniqueCode}</span></td>
                   <td><span style="color: #fbbf24; font-family: monospace; font-size: 11px;">\${p.wonAt || "Hoy"}</span></td>
                   <td>
-                    <strong style="color: #fff;">\${p.customerName || "Cliente"}</strong>
-                    <div style="font-size: 11px; color: #9ca3af;">\${p.whatsapp || "Sin número"}</div>
+                    <strong style="color: var(--text);">\${p.customerName || "Cliente"}</strong>
+                    <div style="font-size: 11px; color: var(--text-muted);">\${p.whatsapp || "Sin número"}</div>
                   </td>
                   <td style="color: #e5e7eb;">
                     \${p.prizeName}
@@ -3633,7 +3737,7 @@ function renderBackendDashboard() {
                   </td>
                   <td>
                     <span class="stars-cell">\${stars}</span>
-                    <div style="font-size: 10px; color: #9ca3af;">\${stamps}/15 visitas</div>
+                    <div style="font-size: 10px; color: var(--text-muted);">\${stamps}/15 visitas</div>
                   </td>
                   <td>
                     <span class="\${isUsed ? "badge-status-used" : "badge-status-available"}">
