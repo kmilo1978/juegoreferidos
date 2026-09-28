@@ -109,6 +109,7 @@ export function AdminPanelModal({
   // Sub-sección para premios: "roulette" (Ruleta) | "stamps" (Tarjeta de Sellos)
   const [prizeSection, setPrizeSection] = useState<"roulette" | "stamps">("roulette");
   const [stampRewards, setStampRewards] = useState<StampReward[]>(() => StampService.getStampRewards());
+  const [visitIcon, setVisitIcon] = useState<string>(() => StampService.getVisitIcon());
   const [stampGlobalMode] = useState<15>(15);
   const [stampSaveFeedback, setStampSaveFeedback] = useState<string | null>(null);
 
@@ -197,17 +198,34 @@ export function AdminPanelModal({
   };
 
   const handleSaveStampRewards = () => {
+    StampService.setVisitIcon(visitIcon);
     StampService.saveStampRewards(stampRewards);
     StampService.setGlobalMode(stampGlobalMode);
-    setStampSaveFeedback("¡Recompensas de la tarjeta de sellos guardadas con éxito!");
+    setStampSaveFeedback("¡Recompensas e iconos de la tarjeta de sellos guardados con éxito!");
     setTimeout(() => setStampSaveFeedback(null), 3500);
+
+    // Sincronizar en segundo plano con el servidor backend REST
+    try {
+      fetch("http://localhost:3001/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          visitIcon,
+          stampRewards,
+        }),
+      }).catch(() => {});
+    } catch {
+      // ignore
+    }
   };
 
   const handleResetStampRewards = () => {
-    if (confirm("¿Deseas restaurar las 15 recompensas gastronómicas por defecto?")) {
+    if (confirm("¿Deseas restaurar las recompensas e iconos gastronómicos por defecto?")) {
       const def = StampService.resetStampRewardsToDefault();
+      StampService.setVisitIcon("☕");
+      setVisitIcon("☕");
       setStampRewards([...def]);
-      setStampSaveFeedback("Catálogo de sellos restaurado a valores originales.");
+      setStampSaveFeedback("Catálogo e iconos de sellos restaurados a valores originales.");
       setTimeout(() => setStampSaveFeedback(null), 3500);
     }
   };
@@ -1025,6 +1043,66 @@ export function AdminPanelModal({
                     </div>
                   )}
 
+                  {/* SELECTOR DE ICONO PARA SELLOS DE VISITA INTERMEDIA */}
+                  <div className="p-3.5 rounded-2xl border border-border/80 bg-background space-y-2.5 shadow-2xs">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="h-10 w-10 rounded-xl bg-gold/15 border border-gold/40 flex items-center justify-center text-xl shrink-0">
+                          {visitIcon}
+                        </span>
+                        <div>
+                          <h5 className="font-bold text-xs text-foreground">
+                            Icono de Visitas Intermedias (Sellos 1-4, 6-9, 11-14)
+                          </h5>
+                          <p className="text-[10px] text-muted-foreground">
+                            Elige el icono que representa el consumo habitual de tu negocio (Café, Panadería, Pizzería, etc.).
+                          </p>
+                        </div>
+                      </div>
+                      <input
+                        type="text"
+                        value={visitIcon}
+                        onChange={(e) => setVisitIcon(e.target.value)}
+                        className="w-12 text-center text-lg p-1.5 rounded-xl border border-border bg-card font-mono shrink-0"
+                        maxLength={4}
+                      />
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 pt-1 border-t border-border/40">
+                      <span className="text-[10px] text-muted-foreground font-semibold uppercase self-center mr-1">
+                        Paleta Rápida:
+                      </span>
+                      {[
+                        { icon: "☕", label: "Café" },
+                        { icon: "🥐", label: "Pan" },
+                        { icon: "🍪", label: "Galleta" },
+                        { icon: "🧁", label: "Muffin" },
+                        { icon: "🍔", label: "Burger" },
+                        { icon: "🍕", label: "Pizza" },
+                        { icon: "🌮", label: "Tacos" },
+                        { icon: "🍹", label: "Cóctel" },
+                        { icon: "🐾", label: "Mascotas" },
+                        { icon: "⭐", label: "Estrella" },
+                        { icon: "🏷️", label: "Comercio" },
+                        { icon: "✨", label: "Magia" },
+                      ].map((preset) => (
+                        <button
+                          key={preset.icon}
+                          type="button"
+                          onClick={() => setVisitIcon(preset.icon)}
+                          className={`px-2 py-1 rounded-lg border text-xs flex items-center gap-1 transition-all ${
+                            visitIcon === preset.icon
+                              ? "border-gold bg-gold/20 font-bold shadow-2xs"
+                              : "border-border hover:border-gold/50 bg-card"
+                          }`}
+                        >
+                          <span>{preset.icon}</span>
+                          <span className="text-[9px] text-muted-foreground">{preset.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1">
                     {stampRewards.map((reward, index) => (
                       <div
@@ -1076,9 +1154,9 @@ export function AdminPanelModal({
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1">
-                          <div className="sm:col-span-2">
-                            <label className="text-[10px] text-muted-foreground uppercase block font-semibold">
-                              Icono (Emoji):
+                          <div className="sm:col-span-3">
+                            <label className="text-[10px] text-muted-foreground uppercase block font-semibold mb-1">
+                              Icono del Premio:
                             </label>
                             <input
                               type="text"
@@ -1089,6 +1167,28 @@ export function AdminPanelModal({
                               className="w-full text-center text-lg p-1.5 rounded-lg border border-border bg-card font-mono"
                               maxLength={4}
                             />
+                            {/* Paleta rápida de iconos para el hito */}
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {(index === 0
+                                ? ["🍰", "🧁", "🍪", "🥐", "☕", "🎁", "🍩", "🍦"]
+                                : index === 1
+                                ? ["👑", "🍔", "🍕", "🥗", "🍹", "🏆", "🥪", "🍳"]
+                                : ["🌟", "🥂", "🍾", "🍽️", "🎂", "💎", "🎖️", "🍷"]
+                              ).map((emoji) => (
+                                <button
+                                  key={emoji}
+                                  type="button"
+                                  onClick={() => handleUpdateStampReward(index, "icon", emoji)}
+                                  className={`h-6 w-6 rounded-md border flex items-center justify-center text-xs transition-all ${
+                                    reward.icon === emoji
+                                      ? "border-gold bg-gold/30 font-bold scale-110 shadow-2xs"
+                                      : "border-border/60 hover:border-gold/40 bg-card"
+                                  }`}
+                                >
+                                  {emoji}
+                                </button>
+                              ))}
+                            </div>
                           </div>
 
                           <div className="sm:col-span-5">
@@ -1106,7 +1206,7 @@ export function AdminPanelModal({
                             />
                           </div>
 
-                          <div className="sm:col-span-5">
+                          <div className="sm:col-span-4">
                             <label className="text-[10px] text-muted-foreground uppercase block font-semibold">
                               Descripción del Beneficio:
                             </label>

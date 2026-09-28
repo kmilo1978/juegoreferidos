@@ -89,88 +89,95 @@ export function DigitalStampCard({
       </div>
 
       {/* MAPA VISUAL DE LOS 3 HITOS CADA 5 VISITAS */}
-      <div className="grid grid-cols-3 gap-2 my-4 max-w-lg mx-auto text-left">
-        {/* HITO 1: SELLO 5 */}
-        <div
-          onClick={() => setSelectedReward(StampService.getRewardForStamp(5))}
-          className={`p-2.5 rounded-2xl border transition-all cursor-pointer ${
-            currentStamps >= 5
-              ? "bg-emerald-50/80 border-emerald-300 text-emerald-950 shadow-xs"
-              : currentStamps >= 1
-              ? "bg-gold/10 border-gold/40 text-foreground"
-              : "bg-background/80 border-border/80 text-muted-foreground"
-          }`}
-        >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-base">🍰</span>
-            <span
-              className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
-                currentStamps >= 5 ? "bg-emerald-600 text-white" : "bg-gold/20 text-gold"
+      {(() => {
+        const m5 = StampService.getRewardForStamp(5) || STAMP_MILESTONES_3[0];
+        const m10 = StampService.getRewardForStamp(10) || STAMP_MILESTONES_3[1];
+        const m15 = StampService.getRewardForStamp(15) || STAMP_MILESTONES_3[2];
+        return (
+          <div className="grid grid-cols-3 gap-2 my-4 max-w-lg mx-auto text-left">
+            {/* HITO 1: SELLO 5 */}
+            <div
+              onClick={() => setSelectedReward(m5)}
+              className={`p-2.5 rounded-2xl border transition-all cursor-pointer ${
+                currentStamps >= 5
+                  ? "bg-emerald-50/80 border-emerald-300 text-emerald-950 shadow-xs"
+                  : currentStamps >= 1
+                  ? "bg-gold/10 border-gold/40 text-foreground"
+                  : "bg-background/80 border-border/80 text-muted-foreground"
               }`}
             >
-              {currentStamps >= 5 ? "Ganado" : "5 Sellos"}
-            </span>
-          </div>
-          <p className="text-[11px] font-bold truncate text-foreground">Hito 1: Torta</p>
-          <span className="text-[10px] text-muted-foreground block truncate">
-            {currentStamps >= 5 ? "✓ Reclamable" : `Faltan ${Math.max(0, 5 - currentStamps)} sellos`}
-          </span>
-        </div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-base">{m5.icon || "🍰"}</span>
+                <span
+                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                    currentStamps >= 5 ? "bg-emerald-600 text-white" : "bg-gold/20 text-gold"
+                  }`}
+                >
+                  {currentStamps >= 5 ? "Ganado" : "5 Sellos"}
+                </span>
+              </div>
+              <p className="text-[11px] font-bold truncate text-foreground">{m5.title || "Hito 1: Sello 5"}</p>
+              <span className="text-[10px] text-muted-foreground block truncate">
+                {currentStamps >= 5 ? "✓ Reclamable" : `Faltan ${Math.max(0, 5 - currentStamps)} sellos`}
+              </span>
+            </div>
 
-        {/* HITO 2: SELLO 10 */}
-        <div
-          onClick={() => setSelectedReward(StampService.getRewardForStamp(10))}
-          className={`p-2.5 rounded-2xl border transition-all cursor-pointer ${
-            currentStamps >= 10
-              ? "bg-emerald-50/80 border-emerald-300 text-emerald-950 shadow-xs"
-              : currentStamps >= 5
-              ? "bg-gold/10 border-gold/40 text-foreground"
-              : "bg-background/80 border-border/80 text-muted-foreground"
-          }`}
-        >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-base">👑</span>
-            <span
-              className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
-                currentStamps >= 10 ? "bg-emerald-600 text-white" : "bg-gold/20 text-gold"
+            {/* HITO 2: SELLO 10 */}
+            <div
+              onClick={() => setSelectedReward(m10)}
+              className={`p-2.5 rounded-2xl border transition-all cursor-pointer ${
+                currentStamps >= 10
+                  ? "bg-emerald-50/80 border-emerald-300 text-emerald-950 shadow-xs"
+                  : currentStamps >= 5
+                  ? "bg-gold/10 border-gold/40 text-foreground"
+                  : "bg-background/80 border-border/80 text-muted-foreground"
               }`}
             >
-              {currentStamps >= 10 ? "Ganado" : "10 Sellos"}
-            </span>
-          </div>
-          <p className="text-[11px] font-bold truncate text-foreground">Hito 2: Brunch</p>
-          <span className="text-[10px] text-muted-foreground block truncate">
-            {currentStamps >= 10 ? "✓ Reclamable" : `Faltan ${Math.max(0, 10 - currentStamps)} sellos`}
-          </span>
-        </div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-base">{m10.icon || "👑"}</span>
+                <span
+                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                    currentStamps >= 10 ? "bg-emerald-600 text-white" : "bg-gold/20 text-gold"
+                  }`}
+                >
+                  {currentStamps >= 10 ? "Ganado" : "10 Sellos"}
+                </span>
+              </div>
+              <p className="text-[11px] font-bold truncate text-foreground">{m10.title || "Hito 2: Sello 10"}</p>
+              <span className="text-[10px] text-muted-foreground block truncate">
+                {currentStamps >= 10 ? "✓ Reclamable" : `Faltan ${Math.max(0, 10 - currentStamps)} sellos`}
+              </span>
+            </div>
 
-        {/* HITO 3: SELLO 15 */}
-        <div
-          onClick={() => setSelectedReward(StampService.getRewardForStamp(15))}
-          className={`p-2.5 rounded-2xl border transition-all cursor-pointer ${
-            currentStamps >= 15
-              ? "bg-emerald-50/80 border-emerald-300 text-emerald-950 shadow-xs"
-              : currentStamps >= 10
-              ? "bg-gold/10 border-gold/40 text-foreground"
-              : "bg-background/80 border-border/80 text-muted-foreground"
-          }`}
-        >
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-base">🌟</span>
-            <span
-              className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
-                currentStamps >= 15 ? "bg-emerald-600 text-white" : "bg-gold/20 text-gold"
+            {/* HITO 3: SELLO 15 */}
+            <div
+              onClick={() => setSelectedReward(m15)}
+              className={`p-2.5 rounded-2xl border transition-all cursor-pointer ${
+                currentStamps >= 15
+                  ? "bg-emerald-50/80 border-emerald-300 text-emerald-950 shadow-xs"
+                  : currentStamps >= 10
+                  ? "bg-gold/10 border-gold/40 text-foreground"
+                  : "bg-background/80 border-border/80 text-muted-foreground"
               }`}
             >
-              {currentStamps >= 15 ? "Ganado" : "15 Sellos"}
-            </span>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-base">{m15.icon || "🌟"}</span>
+                <span
+                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                    currentStamps >= 15 ? "bg-emerald-600 text-white" : "bg-gold/20 text-gold"
+                  }`}
+                >
+                  {currentStamps >= 15 ? "Ganado" : "15 Sellos"}
+                </span>
+              </div>
+              <p className="text-[11px] font-bold truncate text-foreground">{m15.title || "Hito 3: Sello 15"}</p>
+              <span className="text-[10px] text-muted-foreground block truncate">
+                {currentStamps >= 15 ? "✓ ¡Premio Mayor!" : `Faltan ${Math.max(0, 15 - currentStamps)} sellos`}
+              </span>
+            </div>
           </div>
-          <p className="text-[11px] font-bold truncate text-foreground">Hito 3: Menú 2P</p>
-          <span className="text-[10px] text-muted-foreground block truncate">
-            {currentStamps >= 15 ? "✓ ¡Premio Mayor!" : `Faltan ${Math.max(0, 15 - currentStamps)} sellos`}
-          </span>
-        </div>
-      </div>
+        );
+      })()}
 
       {/* REJILLA DE CASILLAS DE 15 SELLOS (3 FILAS DE 5 COLUMNAS) */}
       <div className="grid grid-cols-5 gap-2 sm:gap-2.5 my-5 max-w-lg mx-auto">
@@ -178,6 +185,7 @@ export function DigitalStampCard({
           const isStamped = index <= currentStamps;
           const isMilestone = StampService.isPrizeStamp(index);
           const prize = StampService.getRewardForStamp(index);
+          const visitIcon = StampService.getVisitIcon();
 
           return (
             <button
@@ -192,7 +200,7 @@ export function DigitalStampCard({
                     title: `Visita #${index} (Paso al Premio)`,
                     description: `Sello de acumulación de visitas. Recuerda que recibes un premio exclusivo cada 5 visitas (Sellos #5, #10 y #15).`,
                     category: "visita" as any,
-                    icon: "☕",
+                    icon: visitIcon || "☕",
                   });
                 }
               }}
@@ -219,7 +227,7 @@ export function DigitalStampCard({
 
               {/* Icono: Trofeo/Regalo para hitos, Café para visitas */}
               <span className={`my-0.5 filter drop-shadow-xs ${isMilestone ? "text-2xl sm:text-3xl" : "text-lg sm:text-xl opacity-85"}`}>
-                {isMilestone ? (prize?.icon || "🎁") : "☕"}
+                {isMilestone ? (prize?.icon || "🎁") : (visitIcon || "☕")}
               </span>
 
               {/* Número del sello */}

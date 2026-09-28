@@ -78,6 +78,38 @@ export class StampService {
     return "juegoreferidos_custom_milestone_prizes_v2";
   }
 
+  private static getVisitIconKey(): string {
+    return "juegoreferidos_custom_visit_icon";
+  }
+
+  /**
+   * Obtiene el icono configurado para los sellos de visita intermedia (ej: ☕, 🥐, 🍪, 🍔, 🍕, etc.)
+   */
+  static getVisitIcon(): string {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem(this.getVisitIconKey());
+        if (stored) return stored;
+      } catch {
+        // ignore
+      }
+    }
+    return "☕";
+  }
+
+  /**
+   * Guarda el icono de sellos de visita intermedia
+   */
+  static setVisitIcon(icon: string): void {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(this.getVisitIconKey(), icon);
+      } catch {
+        // ignore
+      }
+    }
+  }
+
   /**
    * Obtiene los 3 grandes premios (Sellos 5, 10 y 15)
    */
