@@ -3,7 +3,7 @@ import { WonPrize } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
 import { GoldenQRCode } from "./GoldenQRCode";
-import { CheckCircle2, Share2, Sparkles, Bell, Flame, Zap } from "lucide-react";
+import { CheckCircle2, Share2, Sparkles, Bell, Flame, Zap, Lock } from "lucide-react";
 import { waLink } from "@/data/site";
 import logoHeader from "@/assets/logo-header.png";
 import { StepFeedback } from "./StepFeedback";
@@ -13,7 +13,6 @@ import { DigitalStampCard } from "./DigitalStampCard";
 import { StampService } from "@/lib/stampService";
 import { PinAuthModal } from "./PinAuthModal";
 import { SupabaseService } from "@/lib/supabaseService";
-import { AddToHomeScreenModal } from "./AddToHomeScreenModal";
 
 interface StepPrizeClaimProps {
   prize: WonPrize;
@@ -189,19 +188,65 @@ Restaurante: ${clientConfig.brand.name}
               </h3>
             </div>
 
-            {/* Código QR Dorado de Alta Tolerancia */}
+            {/* Código QR Dorado de Alta Tolerancia e interactivo para validación del personal */}
             <div className="flex flex-col items-center justify-center py-2">
-              <GoldenQRCode
-                value={typeof window !== "undefined" ? `${window.location.origin}?val=${prize.uniqueCode}` : `https://beneficio.com?val=${prize.uniqueCode}`}
-                size={210}
-              />
-              <div className="mt-3">
-                <span className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground block">
+              <div
+                onClick={!isUsed ? () => setIsPinModalOpen(true) : undefined}
+                className={`relative group p-3.5 rounded-3xl transition-all ${
+                  !isUsed
+                    ? "cursor-pointer bg-gold/5 hover:bg-gold/10 border-2 border-dashed border-gold/40 hover:border-gold/80 hover:shadow-md"
+                    : "opacity-80 border-2 border-border bg-muted/20"
+                }`}
+                title={!isUsed ? t("Personal: Toca aquí para validar con PIN", "Staff: Tap here to validate with PIN") : undefined}
+              >
+                <GoldenQRCode
+                  value={typeof window !== "undefined" ? `${window.location.origin}?val=${prize.uniqueCode}` : `https://beneficio.com?val=${prize.uniqueCode}`}
+                  size={200}
+                />
+
+                {!isUsed && (
+                  <div className="absolute inset-0 bg-ink/75 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl flex flex-col items-center justify-center text-white p-4 backdrop-blur-[2px]">
+                    <div className="p-2.5 rounded-full bg-gold/20 border border-gold/50 mb-2">
+                      <Lock className="h-6 w-6 text-gold" />
+                    </div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-gold">
+                      {t("Validar en Caja", "Validate at Cashier")}
+                    </span>
+                    <span className="text-[11px] text-neutral-300 mt-0.5">
+                      {t("Uso del personal (PIN)", "Staff use only (PIN)")}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-3.5 text-center space-y-1">
+                <span className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground block font-medium">
                   {t("Código Único de Canje", "Unique Voucher Code")}
                 </span>
-                <span className="font-mono text-xl sm:text-2xl font-bold tracking-widest text-gold selection:bg-gold selection:text-white">
+                <div className="font-mono text-2xl sm:text-3xl font-extrabold tracking-widest text-gold selection:bg-gold selection:text-white">
                   {prize.uniqueCode}
-                </span>
+                </div>
+
+                {/* Micro-trigger elegante integrado para el personal (evita botón tosco abajo) */}
+                {!isUsed ? (
+                  <div className="pt-1 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setIsPinModalOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gold/10 hover:bg-gold/20 border border-gold/30 text-gold hover:text-amber-800 text-[11px] font-medium tracking-wide transition-all shadow-2xs cursor-pointer active:scale-95"
+                    >
+                      <Lock className="h-3 w-3 text-gold shrink-0" />
+                      <span>{t("Personal de mesa / caja: Validar con PIN", "Staff only: Validate with PIN")}</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="pt-1 flex justify-center">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-[11px] font-medium">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                      <span>{t("✓ Canjeado con éxito en caja", "✓ Successfully redeemed at register")}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -304,26 +349,27 @@ Restaurante: ${clientConfig.brand.name}
               </div>
             )}
 
-            {/* Acciones principales: WhatsApp, Validación en Caja y PWA */}
-            <div className="space-y-3 pt-2">
+            {/* Acciones principales del cliente: Limpio, enfocado y sin botones redundantes */}
+            <div className="space-y-2.5 pt-2">
+              {/* Acción Hero Principal del Cliente: Guardar en WhatsApp */}
               <button
                 type="button"
                 onClick={handleOpenWhatsApp}
-                className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs uppercase tracking-[0.18em] font-medium shadow-sm transition-all"
+                className="w-full inline-flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white text-xs uppercase tracking-[0.18em] font-semibold shadow-md transition-all"
               >
                 <Share2 className="h-4 w-4" />
                 <span>{t("Enviar comprobante a WhatsApp", "Send voucher to WhatsApp")}</span>
               </button>
 
-              {/* Botón de Notificaciones Web Push (OneSignal / PWA) */}
+              {/* Botón sutil de Notificaciones Push (Recordatorio de urgencia) */}
               {!isPushSubscribed ? (
                 <button
                   type="button"
                   onClick={handleEnablePush}
-                  className="w-full inline-flex items-center justify-center gap-2.5 py-3 px-6 rounded-xl border border-sky-400 bg-sky-50 hover:bg-sky-100 text-sky-900 text-xs uppercase tracking-[0.16em] font-semibold transition-all shadow-xs"
+                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-sky-300 bg-sky-50/70 hover:bg-sky-100 text-sky-800 text-xs font-medium transition-all"
                 >
-                  <Bell className="h-4 w-4 text-sky-600 animate-bounce" />
-                  <span>{t("🔔 Recordarme en mi celular (Push)", "🔔 Remind me on phone (Push)")}</span>
+                  <Bell className="h-3.5 w-3.5 text-sky-600" />
+                  <span>{t("🔔 Recordarme en mi celular antes de que venza (Push)", "🔔 Remind me on phone before expiry (Push)")}</span>
                 </button>
               ) : (
                 <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-sky-500/10 border border-sky-400/30 text-sky-800 text-[11px] font-medium">
@@ -332,50 +378,19 @@ Restaurante: ${clientConfig.brand.name}
                 </div>
               )}
 
-              {/* GEMA 3: GUARDAR TARJETA EN PANTALLA DE INICIO (PWA 1-TAP) */}
-              <AddToHomeScreenModal />
-
-              {/* GEMA 1: BANNER DE HORA FELIZ AL VALIDAR EN CAJA */}
+              {/* Banner informativo de Hora Feliz (al canjear suma sellos dobles) */}
               {!isUsed && isHappyHourNow && (
                 <div className="p-3 rounded-2xl bg-amber-500/15 border-2 border-gold text-amber-950 text-xs font-semibold flex items-center justify-center gap-2 shadow-xs animate-pulse">
                   <Zap className="h-4 w-4 text-amber-600 fill-amber-500 shrink-0" />
                   <span>
-                    ⚡ {t("¡HORA FELIZ ACTIVA (3 PM - 6 PM)! Esta validación acreditará +2 SELLOS en tu tarjeta.", "⚡ HAPPY HOUR ACTIVE (3 PM - 6 PM)! Cashier validation awards +2 STAMPS.")}
+                    ⚡ {t("¡HORA FELIZ ACTIVA (3 PM - 6 PM)! Al validar en caja recibirás +2 SELLOS en tu tarjeta.", "⚡ HAPPY HOUR ACTIVE (3 PM - 6 PM)! Validation awards +2 STAMPS.")}
                   </span>
                 </div>
               )}
 
-              {/* Botón de Validación en Caja */}
-              {!isUsed ? (
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => setIsPinModalOpen(true)}
-                    className="w-full inline-flex items-center justify-center gap-2 py-3 px-6 rounded-xl border border-gold text-gold hover:bg-gold hover:text-white text-xs uppercase tracking-[0.18em] font-medium transition-all shadow-sm"
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span>
-                      {t(
-                        "Validar en caja (Uso exclusivo del personal)",
-                        "Redeem at register (Staff use only)",
-                      )}
-                    </span>
-                  </button>
-
-                  <PinAuthModal
-                    isOpen={isPinModalOpen}
-                    onClose={() => setIsPinModalOpen(false)}
-                    onSuccess={() => {
-                      onValidateAtCashier();
-                      const updated = StampService.addStamp(prize.participantWhatsapp);
-                      setStampCard(updated);
-                      // Sincronizar en Supabase
-                      SupabaseService.validateCashierPin(prize.uniqueCode, updated.currentStamps).catch(() => {});
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="p-3.5 rounded-xl bg-muted text-center text-xs text-muted-foreground">
+              {/* Estado cuando ya fue canjeado */}
+              {isUsed && (
+                <div className="p-3.5 rounded-xl bg-muted text-center text-xs text-muted-foreground border border-border">
                   <p>
                     {t(
                       "✓ Este premio ya fue redimido en caja. No puede volver a utilizarse.",
@@ -385,6 +400,19 @@ Restaurante: ${clientConfig.brand.name}
                 </div>
               )}
             </div>
+
+            {/* Modal de PIN para el personal de mesa / cajero (se abre desde el QR o micro-trigger) */}
+            <PinAuthModal
+              isOpen={isPinModalOpen}
+              onClose={() => setIsPinModalOpen(false)}
+              onSuccess={() => {
+                onValidateAtCashier();
+                const updated = StampService.addStamp(prize.participantWhatsapp);
+                setStampCard(updated);
+                // Sincronizar en Supabase
+                SupabaseService.validateCashierPin(prize.uniqueCode, updated.currentStamps).catch(() => {});
+              }}
+            />
           </div>
 
           {/* Ganadores semanales */}
