@@ -13,6 +13,7 @@ interface GameHeaderProps {
   onOpenAdmin: () => void;
   onResetSession: () => void;
   onOpenTableStand?: () => void;
+  onSelectStep?: (step: number) => void;
 }
 
 export function GameHeader({
@@ -45,7 +46,7 @@ export function GameHeader({
   const gameSteps = [
     { num: 1, label: t("Tus Datos", "Your Info") },
     { num: 2, label: t("Story IG", "IG Story") },
-    { num: 3, label: t("Ruleta", "Roulette") },
+    { num: 3, label: t("Desafío / Juego", "Game Challenge") },
     { num: 4, label: t("Premio QR", "QR Prize") },
     { num: 5, label: t("Feedback", "Feedback") },
   ];
@@ -162,20 +163,23 @@ export function GameHeader({
 
                 return (
                   <div key={s.num} className="flex items-center gap-1">
-                    <div
-                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
+                    <button
+                      type="button"
+                      onClick={() => onSelectStep && onSelectStep(s.num)}
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer hover:scale-105 ${
                         isCurrent
-                          ? "bg-gold text-white shadow-xs font-semibold"
+                          ? "bg-gold text-white shadow-xs font-semibold ring-2 ring-gold/40"
                           : isCompleted
-                            ? "bg-gold/15 text-gold border border-gold/30"
-                            : "bg-muted/60 text-muted-foreground/60 border border-transparent"
+                            ? "bg-gold/15 text-gold border border-gold/30 hover:bg-gold/25"
+                            : "bg-muted/60 text-muted-foreground/80 border border-transparent hover:bg-muted"
                       }`}
+                      title={`Ir al Paso ${s.num}: ${s.label}`}
                     >
                       <span className="h-4 w-4 rounded-full flex items-center justify-center text-[10px] bg-black/10">
                         {isCompleted ? "✓" : s.num}
                       </span>
                       <span className="hidden md:inline">{s.label}</span>
-                    </div>
+                    </button>
                     {s.num < gameSteps.length && (
                       <span className="text-muted-foreground/30 text-[10px]">›</span>
                     )}

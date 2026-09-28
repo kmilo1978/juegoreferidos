@@ -98,6 +98,27 @@ function JuegoQrPage() {
       setHistory(stored);
     }
 
+    // Sincronizar configuración en vivo con el backend
+    GameConfigService.syncFromBackend().then((cfg) => {
+      if (cfg) setGameConfig(cfg);
+    });
+
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      // Atajos para probar directamente el nuevo juego
+      if (params.get("juego") === "precision" || params.get("test") === "precision" || params.get("paso") === "3") {
+        sessionStorage.removeItem("juego_won_prize");
+        setChosenGameMode("precision");
+        setCurrentStep(3);
+        return;
+      }
+      if (params.get("reset") === "1") {
+        sessionStorage.removeItem("juego_won_prize");
+        setCurrentStep(1);
+        return;
+      }
+    }
+
     try {
       const savedPrize = sessionStorage.getItem("juego_won_prize");
       if (savedPrize) {
@@ -170,9 +191,15 @@ function JuegoQrPage() {
     );
 
     if (existingActivePrize) {
-      alert(
-        `¡Hola, ${data.fullName}! Detectamos que ya participaste hoy con el número (+${cleanWhatsapp}).\n\nTienes activo tu premio: "${existingActivePrize.prizeName}" (Código: ${existingActivePrize.uniqueCode}). Para mantener la equidad en el sorteo, se permite 1 giro diario por persona.\n\nTe llevamos directamente a tu cupón.`
+      const wantReplay = confirm(
+        `¡Hola, ${data.fullName}! Tienes un premio registrado hoy: "${existingActivePrize.prizeName}".\n\n¿Deseas probar y jugar el nuevo juego de todos modos en esta prueba? Presiona "Aceptar" para probar o "Cancelar" para ver tu cupón.`
       );
+      if (wantReplay) {
+        setParticipant(data);
+        setCurrentStep(3);
+        setChosenGameMode(gameConfig.gameMode === "roulette" ? "roulette" : "precision");
+        return;
+      }
       setWonPrize(existingActivePrize);
       setCurrentStep(4);
       return;
@@ -324,6 +351,12 @@ function JuegoQrPage() {
         onOpenAdmin={() => setIsAdminOpen(true)}
         onResetSession={handleResetSession}
         onOpenTableStand={() => setIsTableStandOpen(true)}
+        onSelectStep={(step) => {
+          setCurrentStep(step);
+          if (step === 3 && !chosenGameMode) {
+            setChosenGameMode(gameConfig.gameMode === "roulette" ? "roulette" : "precision");
+          }
+        }}
       />
 
       {/* Contenido principal según el modo seleccionado */}
@@ -512,10 +545,23 @@ function JuegoQrPage() {
             )}
 
             {currentStep === 4 && wonPrize && (
-              <StepPrizeClaim
-                prize={wonPrize}
-                onValidateAtCashier={handleOpenValidatePin}
-              />
+              <div className="space-y-6">
+                <StepPrizeClaim
+                  prize={wonPrize}
+                  onValidateAtCashier={handleOpenValidatePin}
+                />
+
+                <div className="text-center pt-2">
+                  <button
+                    type="button"
+                    onClick={handleResetSession}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-amber-500/40 text-amber-400 hover:bg-neutral-800 text-xs font-semibold shadow-md transition-all active:scale-95 cursor-pointer"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    <span>{t("🔄 Reiniciar y Probar Nuevo Juego en Mesa", "🔄 Reset and Try Another Table Game")}</span>
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         )}
