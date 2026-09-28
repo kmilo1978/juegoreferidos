@@ -72,6 +72,15 @@ const DEFAULT_SETTINGS = {
       { stamp: 15, title: "🌟 Gran Premio Sello 15: Menú Degustación para 2", description: "Experiencia gastronómica VIP de autor para 2 personas con atención de la casa.", icon: "🌟", category: "vip" },
     ],
   },
+  gameConfig: {
+    gameMode: "hybrid", // "roulette" | "precision" | "hybrid" | "stamps"
+    precisionTarget: 10.0,
+    precisionDifficulty: "medio", // "facil" | "medio" | "dificil"
+    toleranceMs: 40,
+    maxAttempts: 3,
+    validationChannel: "both", // "both" | "instagram" | "whatsapp"
+    reviewTiming: "after_game",
+  },
   databases: {
     googleSheetWebhookUrl: "",
     supabaseEnabled: false,
@@ -247,6 +256,10 @@ if (fs.existsSync(DB_FILE)) {
         savedPushDrafts: (loaded.settings && loaded.settings.savedPushDrafts && loaded.settings.savedPushDrafts.length > 0)
           ? loaded.settings.savedPushDrafts
           : DEFAULT_SETTINGS.savedPushDrafts,
+        gameConfig: {
+          ...DEFAULT_SETTINGS.gameConfig,
+          ...((loaded.settings && loaded.settings.gameConfig) || {}),
+        },
       },
     };
   } catch (err) {
@@ -357,6 +370,38 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ success: true, message: `Mesa ${tableNum} liberada con éxito`, tables: db.tables }));
     return;
+  }
+
+  // 11. API: CONFIGURACIÓN DE JUEGO (GET & POST /api/game-config)
+  if (pathname === "/api/game-config") {
+    if (req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: true, gameConfig: db.settings.gameConfig || DEFAULT_SETTINGS.gameConfig }));
+      return;
+    }
+
+    if (req.method === "POST") {
+      let body = "";
+      req.on("data", (chunk) => (body += chunk));
+      req.on("end", () => {
+        try {
+          const data = JSON.parse(body || "{}");
+          const incoming = data.gameConfig || data;
+          db.settings.gameConfig = {
+            ...(db.settings.gameConfig || DEFAULT_SETTINGS.gameConfig),
+            ...incoming,
+          };
+          saveDb();
+          logRequest("POST", "/api/game-config", 200, `Mecánica de juego actualizada: ${db.settings.gameConfig.gameMode}`);
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: true, gameConfig: db.settings.gameConfig }));
+        } catch (err) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: false, error: err.message }));
+        }
+      });
+      return;
+    }
   }
 
   // 1. DASHBOARD VISUAL DEL BACKEND (Ruta raíz /)
@@ -725,6 +770,7 @@ const server = http.createServer((req, res) => {
 // INTERFAZ VISUAL DEL BACKEND (HTML SERVIDO EN http://localhost:3001)
 function renderBackendDashboard() {
   const s = db.settings;
+  const gc = s.gameConfig || DEFAULT_SETTINGS.gameConfig;
   const totalPrizes = db.prizes.length;
   const redeemed = db.prizes.filter((p) => p.status === "UTILIZADO").length;
   const totalCustomers = Object.keys(db.customers).length;
@@ -996,6 +1042,35 @@ function renderBackendDashboard() {
     .stat-title { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); }
     .stat-value { font-size: 28px; font-weight: 800; color: #fff; margin: 4px 0; display: block; }
     .stat-sub { font-size: 11px; color: #6b7280; }
+
+    /* TARJETAS SELECTORAS DE MODO DE JUEGO */
+    .game-mode-card {
+      background: #111827;
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .game-mode-card:hover {
+      border-color: rgba(217, 119, 6, 0.6);
+      background: #1f2937;
+    }
+    .game-mode-card.active {
+      border-color: #d97706;
+      background: rgba(217, 119, 6, 0.12);
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+    }
+    .game-mode-card .mode-check {
+      font-size: 10px;
+      font-family: monospace;
+      color: #fbbf24;
+      font-weight: 800;
+    }
 
     /* PANELES DIVIDIDOS */
     .panels-grid {
@@ -1868,6 +1943,100 @@ function renderBackendDashboard() {
           <div class="quick-guide-item">
             <strong>⚡ Sincronización en Vivo</strong>
             <span>Al presionar guardar, el frontend de comensales lee las nuevas opciones al instante sin recargar.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN: SELECTOR DE MECÁNICA DE JUEGO ACTIVA EN MESA -->
+      <div class="panel" style="margin-bottom: 24px; border: 1px solid #d97706; background: rgba(217, 119, 6, 0.04);">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span style="font-size: 16px;">🎮 Mecánica de Juego Activa en Mesa (Ruleta vs Reto de Precisión 10s)</span>
+          </div>
+          <div>
+            <span id="toast-game-mode" class="toast-success">✓ ¡Mecánica de juego actualizada!</span>
+            <button class="btn-save" onclick="saveGameModeConfig()">💾 Guardar Experiencia</button>
+          </div>
+        </div>
+
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+          Configura qué tipo de juego verán los clientes en sus móviles al escanear el QR en la mesa. Puedes activar la Ruleta, el Reto de Precisión 10 segundos, o el Modo Libre donde el comensal elige cuál jugar.
+        </p>
+
+        <!-- Selector de 4 tarjetas -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+          <div class="game-mode-card ${gc.gameMode === 'roulette' ? 'active' : ''}" onclick="selectBackendGameMode('roulette', this)">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 24px;">🎡</span>
+              <span class="mode-check">${gc.gameMode === 'roulette' ? '✓ ACTIVO' : ''}</span>
+            </div>
+            <div style="font-weight: 700; color: #fff; font-size: 13px;">Ruleta de la Fortuna</div>
+            <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">Azar puro y emoción instantánea con disco dorado animado.</div>
+          </div>
+
+          <div class="game-mode-card ${gc.gameMode === 'precision' ? 'active' : ''}" onclick="selectBackendGameMode('precision', this)">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 24px;">⏱️</span>
+              <span class="mode-check">${gc.gameMode === 'precision' ? '✓ ACTIVO' : ''}</span>
+            </div>
+            <div style="font-weight: 700; color: #fff; font-size: 13px;">Reto de Precisión 10s</div>
+            <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">Habilidad táctil. El cliente debe frenar el cronómetro en 10.000s exactos.</div>
+          </div>
+
+          <div class="game-mode-card ${gc.gameMode === 'hybrid' ? 'active' : ''}" onclick="selectBackendGameMode('hybrid', this)">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 24px;">🔄</span>
+              <span class="mode-check">${gc.gameMode === 'hybrid' ? '✓ ACTIVO' : ''}</span>
+            </div>
+            <div style="font-weight: 700; color: #fbbf24; font-size: 13px;">Modo Libre / Híbrido</div>
+            <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">El comensal elige en su móvil si prefiere la Ruleta o el Reto de Precisión.</div>
+          </div>
+
+          <div class="game-mode-card ${gc.gameMode === 'stamps' ? 'active' : ''}" onclick="selectBackendGameMode('stamps', this)">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 24px;">💳</span>
+              <span class="mode-check">${gc.gameMode === 'stamps' ? '✓ ACTIVO' : ''}</span>
+            </div>
+            <div style="font-weight: 700; color: #fff; font-size: 13px;">Pasaporte de Sellos</div>
+            <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">Fidelización por visitas repetidas con premios cada 5 sellos.</div>
+          </div>
+        </div>
+
+        <input type="hidden" id="backendGameMode" value="${gc.gameMode}" />
+
+        <!-- Ajustes de Dificultad e Intentos para el Reto de Precisión -->
+        <div style="background: #0b0f19; padding: 16px; border-radius: 12px; border: 1px solid var(--card-border); margin-top: 14px;">
+          <div style="font-weight: 700; color: #fbbf24; font-size: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <span>⏱️ Calibración del Reto de Precisión 10 Segundos</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+            <div>
+              <label style="display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Dificultad / Margen Humano Ganador:</label>
+              <select id="precisionDifficulty" class="form-input" style="padding: 8px 12px; font-size: 12px;">
+                <option value="facil" ${gc.precisionDifficulty === 'facil' ? 'selected' : ''}>🟢 Fácil (±80ms: 9.920s a 10.080s) — Más ganadores</option>
+                <option value="medio" ${gc.precisionDifficulty === 'medio' || !gc.precisionDifficulty ? 'selected' : ''}>🟡 Medio (±40ms: 9.960s a 10.040s) — Equilibrado</option>
+                <option value="dificil" ${gc.precisionDifficulty === 'dificil' ? 'selected' : ''}>🔴 Boutique Experto (±15ms: 9.985s a 10.015s) — Exclusivo</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Intentos Permitidos por Comensal:</label>
+              <select id="precisionAttempts" class="form-input" style="padding: 8px 12px; font-size: 12px;">
+                <option value="1" ${gc.maxAttempts === 1 ? 'selected' : ''}>1 Intento (Máxima adrenalina)</option>
+                <option value="2" ${gc.maxAttempts === 2 ? 'selected' : ''}>2 Intentos</option>
+                <option value="3" ${gc.maxAttempts === 3 || !gc.maxAttempts ? 'selected' : ''}>3 Intentos (Recomendado)</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Canal de Validación (Evidencia):</label>
+              <select id="validationChannel" class="form-input" style="padding: 8px 12px; font-size: 12px;">
+                <option value="both" ${gc.validationChannel === 'both' || !gc.validationChannel ? 'selected' : ''}>🌟 Ambos (El cliente escoge IG o WhatsApp)</option>
+                <option value="instagram" ${gc.validationChannel === 'instagram' ? 'selected' : ''}>📸 Solo Instagram Stories</option>
+                <option value="whatsapp" ${gc.validationChannel === 'whatsapp' ? 'selected' : ''}>💬 Solo WhatsApp Directo</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -2950,6 +3119,59 @@ function renderBackendDashboard() {
         badge.style.color = '#f87171';
         badge.innerText = 'Suma Actual: ' + sum + '% (Debe ser 100%) ⚠️';
       }
+    }
+
+    // SELECCIÓN VISUAL DE MODO DE JUEGO EN BACKEND
+    function selectBackendGameMode(mode, cardEl) {
+      document.querySelectorAll('.game-mode-card').forEach(function(c) {
+        c.classList.remove('active');
+        var chk = c.querySelector('.mode-check');
+        if (chk) chk.innerText = '';
+      });
+      if (cardEl) {
+        cardEl.classList.add('active');
+        var chk = cardEl.querySelector('.mode-check');
+        if (chk) chk.innerText = '✓ ACTIVO';
+      }
+      var hiddenInput = document.getElementById('backendGameMode');
+      if (hiddenInput) hiddenInput.value = mode;
+    }
+
+    // GUARDAR CONFIGURACIÓN DE MECÁNICA DE JUEGO (RULETA VS PRECISIÓN 10S)
+    function saveGameModeConfig() {
+      var mode = document.getElementById('backendGameMode') ? document.getElementById('backendGameMode').value : 'hybrid';
+      var difficulty = document.getElementById('precisionDifficulty') ? document.getElementById('precisionDifficulty').value : 'medio';
+      var attempts = document.getElementById('precisionAttempts') ? parseInt(document.getElementById('precisionAttempts').value, 10) : 3;
+      var channel = document.getElementById('validationChannel') ? document.getElementById('validationChannel').value : 'both';
+
+      var toleranceMs = difficulty === 'facil' ? 80 : difficulty === 'dificil' ? 15 : 40;
+
+      var gameConfig = {
+        gameMode: mode,
+        precisionDifficulty: difficulty,
+        precisionTarget: 10.0,
+        toleranceMs: toleranceMs,
+        maxAttempts: attempts,
+        validationChannel: channel,
+        reviewTiming: 'after_game'
+      };
+
+      fetch('/api/game-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gameConfig: gameConfig })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.success) {
+          showToast('toast-game-mode');
+        } else {
+          alert('Error guardando mecánica de juego: ' + (data.error || 'Desconocido'));
+        }
+      })
+      .catch(function(err) {
+        alert('Error conectando con el servidor: ' + err.message);
+      });
     }
 
     // UTILIDAD DE FEEDBACK VISUAL

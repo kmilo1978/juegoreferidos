@@ -197,6 +197,15 @@
         }
       ]
     },
+    "gameConfig": {
+      "gameMode": "hybrid",
+      "precisionTarget": 10,
+      "precisionDifficulty": "medio",
+      "toleranceMs": 40,
+      "maxAttempts": 3,
+      "validationChannel": "both",
+      "reviewTiming": "after_game"
+    },
     "databases": {
       "googleSheetWebhookUrl": "",
       "supabaseEnabled": false,

@@ -91,6 +91,8 @@ import {
   StampService,
   StampReward,
 } from "../../lib/stampService";
+import { GameConfigService, DIFFICULTY_SETTINGS } from "../../lib/gameConfigService";
+import { GameConfig, GameMode, PrecisionDifficulty } from "./gameTypes";
 
 /**
  * Componente de Guía Rápida colapsable para secciones con cierta complejidad
@@ -244,6 +246,17 @@ export function AdminPanelModal({
   const [visitIcon, setVisitIcon] = useState<string>(() => StampService.getVisitIcon());
   const [stampGlobalMode] = useState<15>(15);
   const [stampSaveFeedback, setStampSaveFeedback] = useState<string | null>(null);
+
+  // Estados de Configuración de Mecánica de Juego (Ruleta vs Precisión 10s vs Híbrido)
+  const [modalGameConfig, setModalGameConfig] = useState<GameConfig>(() => GameConfigService.getGameConfig());
+  const [gameConfigSaveFeedback, setGameConfigSaveFeedback] = useState<string | null>(null);
+
+  const handleUpdateModalGameConfig = (updates: Partial<GameConfig>) => {
+    const updated = GameConfigService.saveGameConfig(updates);
+    setModalGameConfig(updated);
+    setGameConfigSaveFeedback("¡Mecánica de juego actualizada y sincronizada en todas las mesas!");
+    setTimeout(() => setGameConfigSaveFeedback(null), 3500);
+  };
 
   // Estados de Control de Acceso por Roles (RBAC 3 Niveles: Owner, Admin, Cashier)
   const [authenticatedRole, setAuthenticatedRole] = useState<"owner" | "admin" | "cashier" | null>(null);
@@ -2001,10 +2014,249 @@ export function AdminPanelModal({
 
           {/* TAB 3: Campaña y Términos */}
           {activeTab === "campaign" && (
-            <div className="space-y-4 text-xs">
+            <div className="space-y-5 text-xs">
+              {/* Notificación de guardado */}
+              {gameConfigSaveFeedback && (
+                <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>{gameConfigSaveFeedback}</span>
+                </div>
+              )}
+
+              {/* SECCIÓN PRINCIPAL: SELECTOR DE MECÁNICA DE JUEGO */}
+              <div className="rounded-2xl border border-amber-500/30 p-5 bg-amber-500/5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-500/20 pb-3">
+                  <div>
+                    <h4 className="font-bold text-foreground text-sm uppercase tracking-wider flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-amber-500" />
+                      <span>Mecánica de Juego Activa en Mesa</span>
+                    </h4>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Elige qué experiencia interactiva vivirán tus clientes al escanear el QR desde sus mesas.
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-mono bg-amber-500/20 text-amber-600 dark:text-amber-300 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider self-start sm:self-auto">
+                    Modo actual: {modalGameConfig.gameMode}
+                  </span>
+                </div>
+
+                {/* Grid de 4 tarjetas de selección interactiva */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Tarjeta 1: Ruleta */}
+                  <div
+                    onClick={() => handleUpdateModalGameConfig({ gameMode: "roulette" })}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 select-none flex flex-col justify-between ${
+                      modalGameConfig.gameMode === "roulette"
+                        ? "border-amber-500 bg-amber-500/10 shadow-md ring-2 ring-amber-500/30"
+                        : "border-border bg-card hover:border-amber-500/50 hover:bg-muted/30"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-2xl">🎡</span>
+                        {modalGameConfig.gameMode === "roulette" ? (
+                          <span className="h-5 w-5 rounded-full bg-amber-500 text-neutral-950 flex items-center justify-center text-xs font-bold">✓</span>
+                        ) : (
+                          <span className="h-4 w-4 rounded-full border border-muted-foreground" />
+                        )}
+                      </div>
+                      <div className="font-bold text-foreground text-xs">Ruleta de la Fortuna</div>
+                      <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+                        Azar y emoción instantánea. El comensal gira el disco dorado con física natural y gana premios según probabilidad.
+                      </p>
+                    </div>
+                    <div className="mt-3 text-[10px] font-mono text-amber-600 font-semibold">
+                      Ideal para: Rapidez y familias
+                    </div>
+                  </div>
+
+                  {/* Tarjeta 2: Reto Precisión 10s */}
+                  <div
+                    onClick={() => handleUpdateModalGameConfig({ gameMode: "precision" })}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 select-none flex flex-col justify-between ${
+                      modalGameConfig.gameMode === "precision"
+                        ? "border-amber-500 bg-amber-500/10 shadow-md ring-2 ring-amber-500/30"
+                        : "border-border bg-card hover:border-amber-500/50 hover:bg-muted/30"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-2xl">⏱️</span>
+                        {modalGameConfig.gameMode === "precision" ? (
+                          <span className="h-5 w-5 rounded-full bg-amber-500 text-neutral-950 flex items-center justify-center text-xs font-bold">✓</span>
+                        ) : (
+                          <span className="h-4 w-4 rounded-full border border-muted-foreground" />
+                        )}
+                      </div>
+                      <div className="font-bold text-foreground text-xs">Reto de Precisión 10.000s</div>
+                      <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+                        Destreza y habilidad en mesa. El cliente debe frenar el cronómetro en 10.000s exactos. Cero sensación de azar trucado.
+                      </p>
+                    </div>
+                    <div className="mt-3 text-[10px] font-mono text-amber-600 font-semibold">
+                      Ideal para: Parejas, grupos y eventos
+                    </div>
+                  </div>
+
+                  {/* Tarjeta 3: Modo Híbrido (Recomendado) */}
+                  <div
+                    onClick={() => handleUpdateModalGameConfig({ gameMode: "hybrid" })}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 select-none flex flex-col justify-between ${
+                      modalGameConfig.gameMode === "hybrid"
+                        ? "border-amber-500 bg-amber-500/10 shadow-md ring-2 ring-amber-500/30"
+                        : "border-border bg-card hover:border-amber-500/50 hover:bg-muted/30"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-2xl">🔄</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] bg-amber-500/20 text-amber-600 font-bold px-1.5 py-0.5 rounded font-mono">
+                            RECOMENDADO
+                          </span>
+                          {modalGameConfig.gameMode === "hybrid" ? (
+                            <span className="h-5 w-5 rounded-full bg-amber-500 text-neutral-950 flex items-center justify-center text-xs font-bold">✓</span>
+                          ) : (
+                            <span className="h-4 w-4 rounded-full border border-muted-foreground" />
+                          )}
+                        </div>
+                      </div>
+                      <div className="font-bold text-foreground text-xs">Modo Libre / Híbrido</div>
+                      <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+                        El comensal decide en su pantalla si prefiere probar suerte en la Ruleta o retar su precisión en el Cronómetro.
+                      </p>
+                    </div>
+                    <div className="mt-3 text-[10px] font-mono text-amber-600 font-semibold">
+                      Máxima conversión y diversión
+                    </div>
+                  </div>
+
+                  {/* Tarjeta 4: Pasaporte de Sellos */}
+                  <div
+                    onClick={() => handleUpdateModalGameConfig({ gameMode: "stamps" })}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 select-none flex flex-col justify-between ${
+                      modalGameConfig.gameMode === "stamps"
+                        ? "border-amber-500 bg-amber-500/10 shadow-md ring-2 ring-amber-500/30"
+                        : "border-border bg-card hover:border-amber-500/50 hover:bg-muted/30"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-2xl">💳</span>
+                        {modalGameConfig.gameMode === "stamps" ? (
+                          <span className="h-5 w-5 rounded-full bg-amber-500 text-neutral-950 flex items-center justify-center text-xs font-bold">✓</span>
+                        ) : (
+                          <span className="h-4 w-4 rounded-full border border-muted-foreground" />
+                        )}
+                      </div>
+                      <div className="font-bold text-foreground text-xs">Pasaporte de 15 Sellos</div>
+                      <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+                        Fidelización acumulativa. El cliente acumula sellos por visita y reclama premios en los sellos 5, 10 y 15.
+                      </p>
+                    </div>
+                    <div className="mt-3 text-[10px] font-mono text-amber-600 font-semibold">
+                      Ideal para: Clientes recurrentes diarios
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sub-configuración si el modo involucra el Cronómetro de Precisión */}
+                {(modalGameConfig.gameMode === "precision" || modalGameConfig.gameMode === "hybrid") && (
+                  <div className="mt-4 pt-4 border-t border-amber-500/20 space-y-4">
+                    <div className="font-bold text-foreground text-xs flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5 text-amber-500" />
+                      <span>Ajustes del Reto de Precisión 10 Segundos</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Selector de Dificultad y Tolerancia */}
+                      <div>
+                        <label className="block text-muted-foreground mb-1 text-[11px] font-medium">
+                          Nivel de Tolerancia / Dificultad Humana:
+                        </label>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {(["facil", "medio", "dificil"] as PrecisionDifficulty[]).map((dif) => (
+                            <button
+                              key={dif}
+                              type="button"
+                              onClick={() => handleUpdateModalGameConfig({ precisionDifficulty: dif })}
+                              className={`px-2 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${
+                                modalGameConfig.precisionDifficulty === dif
+                                  ? "bg-amber-500 text-neutral-950 border-amber-500 shadow-sm"
+                                  : "border-border bg-card text-muted-foreground hover:border-amber-500/40"
+                              }`}
+                            >
+                              {dif === "facil" ? "🟢 Fácil" : dif === "medio" ? "🟡 Medio" : "🔴 Experto"}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-1.5">
+                          {DIFFICULTY_SETTINGS[modalGameConfig.precisionDifficulty || "medio"].desc} (Rango ganador: {DIFFICULTY_SETTINGS[modalGameConfig.precisionDifficulty || "medio"].rangeText})
+                        </p>
+                      </div>
+
+                      {/* Selector de Intentos */}
+                      <div>
+                        <label className="block text-muted-foreground mb-1 text-[11px] font-medium">
+                          Intentos Permitidos por Mesa:
+                        </label>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {[1, 2, 3].map((num) => (
+                            <button
+                              key={num}
+                              type="button"
+                              onClick={() => handleUpdateModalGameConfig({ maxAttempts: num })}
+                              className={`px-2 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${
+                                (modalGameConfig.maxAttempts || 3) === num
+                                  ? "bg-amber-500 text-neutral-950 border-amber-500 shadow-sm"
+                                  : "border-border bg-card text-muted-foreground hover:border-amber-500/40"
+                              }`}
+                            >
+                              {num} {num === 1 ? "Intento" : "Intentos"}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-1.5">
+                          Recomendado: 3 intentos para que el cliente pueda calibrar sus reflejos.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Canal de Validación de Evidencia */}
+                <div className="mt-4 pt-4 border-t border-amber-500/20">
+                  <label className="block text-muted-foreground mb-1 text-[11px] font-medium">
+                    Canal de Validación de Visita (Evidencia de Foto):
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: "instagram", label: "📸 Solo Instagram", desc: "Historia etiquetando a la cuenta" },
+                      { id: "whatsapp", label: "💬 Solo WhatsApp", desc: "Envío directo al chat del negocio" },
+                      { id: "both", label: "🌟 Ambos (Libre)", desc: "El comensal elige su red preferida" },
+                    ].map((chan) => (
+                      <button
+                        key={chan.id}
+                        type="button"
+                        onClick={() => handleUpdateModalGameConfig({ validationChannel: chan.id as any })}
+                        className={`p-2.5 rounded-xl text-left border transition-all ${
+                          (modalGameConfig.validationChannel || "both") === chan.id
+                            ? "bg-amber-500/10 border-amber-500 text-amber-700 dark:text-amber-300 font-bold"
+                            : "border-border bg-card text-muted-foreground hover:border-amber-500/40"
+                        }`}
+                      >
+                        <div className="text-xs">{chan.label}</div>
+                        <div className="text-[9px] text-muted-foreground font-normal mt-0.5">{chan.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* INFORMACIÓN BASE DE CAMPAÑA */}
               <div className="rounded-xl border p-4 bg-background space-y-3">
                 <h4 className="font-semibold text-foreground uppercase tracking-wider">
-                  Configuración de Campaña
+                  Configuración General de Campaña
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>

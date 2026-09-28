@@ -14,6 +14,7 @@ import { StepFeedback } from "./components/qr-game/StepFeedback";
 import { StepUserData } from "./components/qr-game/StepUserData";
 import { StepInstagramStory } from "./components/qr-game/StepInstagramStory";
 import { StepRouletteWheel } from "./components/qr-game/StepRouletteWheel";
+import { StepPrecisionTimer } from "./components/qr-game/StepPrecisionTimer";
 import { StepPrizeClaim } from "./components/qr-game/StepPrizeClaim";
 import { AdminPanelModal } from "./components/qr-game/AdminPanelModal";
 import { PinAuthModal } from "./components/qr-game/PinAuthModal";
@@ -23,7 +24,9 @@ import { ComposioService } from "./lib/composioService";
 import { OneSignalService } from "./lib/oneSignalService";
 import { SupabaseService } from "./lib/supabaseService";
 import { TableManagerService } from "./lib/tableManagerService";
-import { MessageCircle } from "lucide-react";
+import { GameConfigService } from "./lib/gameConfigService";
+import { GameConfig } from "./components/qr-game/gameTypes";
+import { MessageCircle, Sparkles, Timer, RotateCcw } from "lucide-react";
 import { site } from "./data/site";
 import { clientConfig } from "./config/clientConfig";
 
@@ -81,7 +84,11 @@ function JuegoQrPage() {
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isTableStandOpen, setIsTableStandOpen] = useState<boolean>(false);
 
-  // Registrar visita y cargar historial persistente
+  // Configuración de modalidad de juego activa (Ruleta vs Precisión 10s vs Híbrido)
+  const [gameConfig, setGameConfig] = useState<GameConfig>(() => GameConfigService.getGameConfig());
+  const [chosenGameMode, setChosenGameMode] = useState<"roulette" | "precision" | null>(null);
+
+  // Registrar visita, cargar historial persistente y sincronizar configuración de juego
   useEffect(() => {
     recordPageView();
     OneSignalService.init();
@@ -101,6 +108,16 @@ function JuegoQrPage() {
     } catch {
       // Ignorar errores de parseo
     }
+
+    // Escuchar cambios reactivos en la configuración de juego desde el backend o modal
+    const handleConfigChange = (e: Event) => {
+      const customEvent = e as CustomEvent<GameConfig>;
+      if (customEvent.detail) {
+        setGameConfig(customEvent.detail);
+      }
+    };
+    window.addEventListener("game-config-changed", handleConfigChange);
+    return () => window.removeEventListener("game-config-changed", handleConfigChange);
   }, []);
 
   // Helper para identificar número de mesa (1 a 10)
@@ -116,6 +133,7 @@ function JuegoQrPage() {
     TableManagerService.resetTable(tNum);
     setSession(createInitialSession());
     setCurrentStep(1);
+    setChosenGameMode(null);
     setFeedback(undefined);
     setParticipant(undefined);
     setInstagramEvidence(undefined);
@@ -362,11 +380,135 @@ function JuegoQrPage() {
             )}
 
             {currentStep === 3 && (
-              <StepRouletteWheel
-                prizes={prizes}
-                participantName={participant?.fullName || "Invitado"}
-                onPrizeWon={handlePrizeWon}
-              />
+              <div>
+                {/* 1. MODO DIRECTO: SOLO RULETA */}
+                {gameConfig.gameMode === "roulette" && (
+                  <StepRouletteWheel
+                    prizes={prizes}
+                    participantName={participant?.fullName || "Invitado"}
+                    onPrizeWon={handlePrizeWon}
+                  />
+                )}
+
+                {/* 2. MODO DIRECTO: SOLO RETO DE PRECISIÓN 10S */}
+                {gameConfig.gameMode === "precision" && (
+                  <StepPrecisionTimer
+                    prizes={prizes}
+                    participantName={participant?.fullName || "Invitado"}
+                    onPrizeWon={handlePrizeWon}
+                  />
+                )}
+
+                {/* 3. MODO HÍBRIDO / LIBRE ELECCIÓN POR EL COMENSAL */}
+                {(gameConfig.gameMode === "hybrid" || gameConfig.gameMode === "stamps") && (
+                  <div>
+                    {chosenGameMode === "precision" ? (
+                      <StepPrecisionTimer
+                        prizes={prizes}
+                        participantName={participant?.fullName || "Invitado"}
+                        onPrizeWon={handlePrizeWon}
+                        onSwitchToRoulette={() => setChosenGameMode("roulette")}
+                      />
+                    ) : chosenGameMode === "roulette" ? (
+                      <div>
+                        <div className="mb-4 text-center">
+                          <button
+                            type="button"
+                            onClick={() => setChosenGameMode("precision")}
+                            className="text-xs text-neutral-500 hover:text-amber-700 transition-colors inline-flex items-center gap-1.5"
+                          >
+                            <Timer className="h-3.5 w-3.5 text-amber-600" />
+                            <span>
+                              {t(
+                                "¿Prefieres el Reto de Precisión 10s en vez de la ruleta? Toca aquí",
+                                "Prefer the 10s Precision Challenge instead? Click here"
+                              )}
+                            </span>
+                          </button>
+                        </div>
+                        <StepRouletteWheel
+                          prizes={prizes}
+                          participantName={participant?.fullName || "Invitado"}
+                          onPrizeWon={handlePrizeWon}
+                        />
+                      </div>
+                    ) : (
+                      /* PANTALLA DE SELECCIÓN DE EXPERIENCIA EN MESA */
+                      <div className="max-w-xl mx-auto py-4">
+                        <div className="text-center mb-8">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 text-xs font-semibold mb-2">
+                            <Sparkles className="h-3.5 w-3.5" />
+                            <span>{t("Experiencia Interactiva en Mesa", "Interactive Table Experience")}</span>
+                          </div>
+                          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-neutral-900 tracking-tight">
+                            {t("¡Elige tu Desafío!", "Choose Your Challenge!")}
+                          </h2>
+                          <p className="text-sm text-neutral-600 mt-2 max-w-md mx-auto">
+                            {t(
+                              "¡Hola " + (participant?.fullName || "Invitado") + "! Selecciona cómo deseas obtener tu beneficio de la casa hoy:",
+                              "Hello " + (participant?.fullName || "Guest") + "! Select how you'd like to get your house reward today:"
+                            )}
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {/* Opción 1: Ruleta de la Fortuna */}
+                          <button
+                            type="button"
+                            onClick={() => setChosenGameMode("roulette")}
+                            className="group relative p-6 rounded-3xl bg-white border-2 border-neutral-200 hover:border-amber-500 hover:shadow-xl transition-all duration-200 text-left flex flex-col justify-between"
+                          >
+                            <div>
+                              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                                🎡
+                              </div>
+                              <h3 className="text-lg font-serif font-bold text-neutral-900 mb-1">
+                                {t("Ruleta de la Fortuna", "Roulette of Fortune")}
+                              </h3>
+                              <p className="text-xs text-neutral-500 leading-relaxed mb-4">
+                                {t(
+                                  "Gira el disco dorado con sonido y animación realista. Emoción instantánea y beneficios directos.",
+                                  "Spin the golden wheel with realistic sound effects. Instant excitement and rewards."
+                                )}
+                              </p>
+                            </div>
+                            <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-700 group-hover:translate-x-1 transition-transform">
+                              <span>{t("Girar Ruleta", "Spin Wheel")}</span>
+                              <span>→</span>
+                            </div>
+                          </button>
+
+                          {/* Opción 2: Reto de Precisión 10s */}
+                          <button
+                            type="button"
+                            onClick={() => setChosenGameMode("precision")}
+                            className="group relative p-6 rounded-3xl bg-white border-2 border-neutral-200 hover:border-amber-500 hover:shadow-xl transition-all duration-200 text-left flex flex-col justify-between"
+                          >
+                            <div>
+                              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                                ⏱️
+                              </div>
+                              <h3 className="text-lg font-serif font-bold text-neutral-900 mb-1">
+                                {t("Reto Precisión 10s", "10s Precision Challenge")}
+                              </h3>
+                              <p className="text-xs text-neutral-500 leading-relaxed mb-4">
+                                {t(
+                                  "Pon a prueba tus reflejos en la mesa. Detén el cronómetro exactamente en 10.000s para ganar.",
+                                  "Test your reflexes at the table. Stop the timer at exactly 10.000s to win."
+                                )}
+                              </p>
+                            </div>
+                            <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-700 group-hover:translate-x-1 transition-transform">
+                              <span>{t("Retar Cronómetro", "Challenge Timer")}</span>
+                              <span>→</span>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
 
             {currentStep === 4 && wonPrize && (

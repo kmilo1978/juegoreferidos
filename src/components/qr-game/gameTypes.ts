@@ -60,6 +60,29 @@ export interface WonPrize {
   usedAt?: string;
 }
 
+export type GameMode = "roulette" | "precision" | "hybrid" | "stamps";
+export type PrecisionDifficulty = "facil" | "medio" | "dificil";
+
+export interface GameConfig {
+  gameMode: GameMode;
+  precisionTarget: number; // 10.000s
+  precisionDifficulty: PrecisionDifficulty;
+  toleranceMs: number; // milisegundos de margen (80ms, 40ms, 15ms)
+  maxAttempts: number; // 1, 2 o 3 intentos
+  validationChannel: "both" | "instagram" | "whatsapp";
+  reviewTiming: "after_game" | "before_game";
+}
+
+export const DEFAULT_GAME_CONFIG: GameConfig = {
+  gameMode: "hybrid",
+  precisionTarget: 10.0,
+  precisionDifficulty: "medio",
+  toleranceMs: 40,
+  maxAttempts: 3,
+  validationChannel: "both",
+  reviewTiming: "after_game",
+};
+
 export const DEFAULT_PRIZES: GamePrize[] = [
   {
     id: "p1",
