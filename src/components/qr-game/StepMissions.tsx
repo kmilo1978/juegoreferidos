@@ -13,9 +13,14 @@ import {
   ChevronUp,
   ArrowLeft,
   RotateCcw,
+  Share2,
+  CreditCard,
+  Users,
 } from "lucide-react";
 import { StampService } from "@/lib/stampService";
 import { MissionItem } from "./MissionsModal";
+import { DigitalStampCard } from "./DigitalStampCard";
+import { clientConfig } from "@/config/clientConfig";
 
 const DEFAULT_MISSIONS: MissionItem[] = [
   {
@@ -107,6 +112,7 @@ export function StepMissions({
   onResetToStart,
 }: StepMissionsProps) {
   const { t } = useLanguage();
+  const [activeTab, setActiveTab] = useState<"missions" | "stamps" | "refer">("missions");
   const [missions, setMissions] = useState<MissionItem[]>(DEFAULT_MISSIONS);
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [missionUrls, setMissionUrls] = useState<Record<string, string>>({});
@@ -168,6 +174,14 @@ export function StepMissions({
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const handleReferFriend = () => {
+    const brandName = clientConfig.brand.name;
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const inviteMessage = `¡Hola! Te recomiendo mucho visitar *${brandName}* 🍽️✨\n\nEl ambiente y la comida son espectaculares. Además, cuando vayas a visitarlos y te sientes en tu mesa, puedes escanear el QR y participar en su Ruleta de Premios:\n👉 ${origin}?ref=${encodeURIComponent(customerName || "Amigo")}\n\n¡Vamos juntos o visítalos hoy, te va a encantar!`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(inviteMessage)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   const handleSubmitForReview = async (mission: MissionItem) => {
     const url = (missionUrls[mission.id] || "").trim();
     if (!url) {
@@ -222,199 +236,291 @@ export function StepMissions({
           <div className="flex items-center justify-center gap-2 mb-3">
             <span className="h-px w-6 bg-gold" />
             <span className="text-xs uppercase tracking-[0.24em] text-gold font-medium">
-              {t("Paso 7 · Centro de Misiones", "Step 7 · Mission Center")}
+              {t("Paso 7 · Fidelización VIP & Misiones", "Step 7 · VIP Loyalty & Missions")}
             </span>
             <span className="h-px w-6 bg-gold" />
           </div>
 
           <h2 className="font-display text-2xl sm:text-3xl text-foreground font-normal tracking-tight">
-            {t("Misiones Gourmet & Sellos Extras", "Gourmet Missions & Extra Stamps")}
+            {t("Club de Fidelidad & Sellos Extras", "Loyalty Club & Extra Stamps")}
           </h2>
 
-          <p className="mt-2 text-sm text-muted-foreground font-light max-w-lg mx-auto">
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground font-light max-w-lg mx-auto">
             {t(
-              "¡Sigue ganando! Completa estas tareas en redes sociales, envía el enlace y acumula sellos en tu tarjeta digital.",
-              "Keep winning! Complete these tasks on social media, submit the link and collect stamps on your digital card."
+              "Guarda tu tarjeta digital de 15 visitas, completa misiones virales y acumula premios exclusivos para tu próxima visita.",
+              "Save your 15-visit digital card, complete viral missions and collect exclusive rewards for your next visit."
             )}
           </p>
-        </div>
-      </Reveal>
 
-      {/* TARJETA RESUMEN ESTILO SCREPY CON CONTADOR GENERAL */}
-      <Reveal delay={100}>
-        <div className="bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-gold/30 rounded-2xl p-5 sm:p-6 shadow-sm">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center divide-y sm:divide-y-0 sm:divide-x divide-gold/20">
-            <div className="py-2 sm:py-0">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground block font-medium">
-                {t("Sellos Ganados", "Earned Stamps")}
-              </span>
-              <span className="text-3xl sm:text-4xl font-display font-bold text-amber-700 block mt-1">
-                {currentStamps}
-              </span>
-              <span className="text-[11px] text-muted-foreground/80 mt-0.5 block">
-                {t("En tu tarjeta digital activa", "On your active digital card")}
-              </span>
-            </div>
+          {/* SELECTOR DE PESTAÑAS PARA EVITAR SATURACIÓN VISUAL */}
+          <div className="mt-6 inline-flex p-1 bg-muted/60 rounded-2xl border border-border text-xs gap-1">
+            <button
+              type="button"
+              onClick={() => setActiveTab("missions")}
+              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer ${
+                activeTab === "missions"
+                  ? "bg-card text-gold shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>{t("🎯 Tareas Screpy", "🎯 Screpy Tasks")}</span>
+            </button>
 
-            <div className="py-2 sm:py-0">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground block font-medium">
-                {t("En Revisión (24h)", "In Review (24h)")}
-              </span>
-              <span className="text-3xl sm:text-4xl font-display font-bold text-amber-600 block mt-1">
-                {pendingStamps}
-              </span>
-              <span className="text-[11px] text-muted-foreground/80 mt-0.5 block">
-                {myPendingSubmissions.length} {t("tarea(s) enviada(s)", "task(s) submitted")}
-              </span>
-            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab("stamps")}
+              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer ${
+                activeTab === "stamps"
+                  ? "bg-card text-gold shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <CreditCard className="h-3.5 w-3.5" />
+              <span>{t("💳 Mi Tarjeta de 15 Sellos", "💳 My 15-Stamp Card")}</span>
+            </button>
 
-            <div className="py-2 sm:py-0">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground block font-medium">
-                {t("Disponibles por Ganar", "Available to Earn")}
-              </span>
-              <span className="text-3xl sm:text-4xl font-display font-bold text-emerald-600 block mt-1">
-                +{totalAvailableStamps}
-              </span>
-              <span className="text-[11px] text-muted-foreground/80 mt-0.5 block">
-                {missions.filter((m) => m.active).length} {t("misiones activas hoy", "active missions today")}
-              </span>
-            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab("refer")}
+              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer ${
+                activeTab === "refer"
+                  ? "bg-card text-gold shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Users className="h-3.5 w-3.5" />
+              <span>{t("👥 Invitar Amigos", "👥 Invite Friends")}</span>
+            </button>
           </div>
         </div>
       </Reveal>
 
-      {/* MENSAJES DE ERROR O ÉXITO */}
-      {errorMessage && (
-        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs text-center font-medium">
-          ⚠️ {errorMessage}
+      {/* CONTENIDO SEGÚN LA PESTAÑA SELECCIONADA */}
+      {activeTab === "missions" && (
+        <div className="space-y-6">
+          {/* TARJETA RESUMEN ESTILO SCREPY CON CONTADOR GENERAL */}
+          <Reveal delay={100}>
+            <div className="bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-gold/30 rounded-2xl p-5 sm:p-6 shadow-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center divide-y sm:divide-y-0 sm:divide-x divide-gold/20">
+                <div className="py-2 sm:py-0">
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground block font-medium">
+                    {t("Sellos Ganados", "Earned Stamps")}
+                  </span>
+                  <span className="text-3xl sm:text-4xl font-display font-bold text-amber-700 block mt-1">
+                    {currentStamps}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground/80 mt-0.5 block">
+                    {t("En tu tarjeta digital activa", "On your active digital card")}
+                  </span>
+                </div>
+
+                <div className="py-2 sm:py-0">
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground block font-medium">
+                    {t("En Revisión (24h)", "In Review (24h)")}
+                  </span>
+                  <span className="text-3xl sm:text-4xl font-display font-bold text-amber-600 block mt-1">
+                    {pendingStamps}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground/80 mt-0.5 block">
+                    {myPendingSubmissions.length} {t("tarea(s) enviada(s)", "task(s) submitted")}
+                  </span>
+                </div>
+
+                <div className="py-2 sm:py-0">
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground block font-medium">
+                    {t("Disponibles por Ganar", "Available to Earn")}
+                  </span>
+                  <span className="text-3xl sm:text-4xl font-display font-bold text-emerald-600 block mt-1">
+                    +{totalAvailableStamps}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground/80 mt-0.5 block">
+                    {missions.filter((m) => m.active).length} {t("misiones activas hoy", "active missions today")}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* MENSAJES DE ERROR O ÉXITO */}
+          {errorMessage && (
+            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs text-center font-medium">
+              ⚠️ {errorMessage}
+            </div>
+          )}
+
+          {/* LISTADO DE MISIONES ESTILO SCREPY */}
+          <div className="space-y-4">
+            {missions
+              .filter((m) => m.active)
+              .map((mission) => {
+                const isExpanded = expandedId === mission.id;
+                const isSubmitting = submittingMissionId === mission.id;
+                const isSuccess = successMissionId === mission.id;
+                const currentUrl = missionUrls[mission.id] || "";
+
+                return (
+                  <div
+                    key={mission.id}
+                    className="bg-card border border-border/80 rounded-2xl shadow-xs hover:border-gold/50 transition-all overflow-hidden"
+                  >
+                    {/* Cabecera de la misión */}
+                    <div
+                      onClick={() => setExpandedId(isExpanded ? null : mission.id)}
+                      className="p-4 sm:p-5 flex items-center justify-between gap-3 cursor-pointer hover:bg-muted/30 transition-colors"
+                    >
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <span className="text-2xl sm:text-3xl flex-shrink-0 p-2 rounded-xl bg-amber-50 border border-amber-200/50">
+                          {mission.icon}
+                        </span>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-gold/15 text-gold border border-gold/30">
+                              {mission.badge}
+                            </span>
+                            <span className="text-xs text-muted-foreground hidden sm:inline">
+                              {mission.category}
+                            </span>
+                          </div>
+                          <h4 className="font-medium text-foreground text-sm sm:base mt-1 truncate">
+                            {mission.title}
+                          </h4>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 font-bold text-xs sm:text-sm border border-emerald-500/20">
+                          <Sparkles className="h-3.5 w-3.5" />
+                          {mission.rewardText}
+                        </span>
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Contenido expandido con barra de acción estilo Screpy */}
+                    {isExpanded && (
+                      <div className="px-4 sm:p-5 pb-5 pt-1 border-t border-border/40 bg-muted/10 space-y-4">
+                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                          {mission.description}
+                        </p>
+
+                        {/* Reglas / Pasos rápidos */}
+                        <div className="bg-background/80 rounded-xl p-3 border border-border/60">
+                          <span className="text-[11px] font-semibold uppercase tracking-wider text-gold block mb-2">
+                            📋 {t("Cómo completar la tarea:", "How to complete the task:")}
+                          </span>
+                          <ul className="space-y-1.5 text-xs text-muted-foreground">
+                            {mission.rules.map((rule, idx) => (
+                              <li key={idx} className="flex items-start gap-2">
+                                <span className="text-gold font-bold text-[11px]">{idx + 1}.</span>
+                                <span>{rule}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* BARRA DE ACCIÓN: ABRIR TAREA + PEGAR URL + ENVIAR */}
+                        <div className="bg-amber-500/5 border border-gold/30 rounded-xl p-3 sm:p-4 space-y-3">
+                          <div className="flex flex-col sm:flex-row gap-2">
+                            {/* Botón 1: Abrir tarea */}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenTask(mission.actionUrl)}
+                              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border text-foreground text-xs font-semibold hover:border-gold hover:text-gold transition-all shadow-2xs cursor-pointer flex-shrink-0"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5 text-gold" />
+                              <span>{t("↗ Abrir tarea", "↗ Open task")}</span>
+                            </button>
+
+                            {/* Campo: Pegar URL */}
+                            <input
+                              type="url"
+                              value={currentUrl}
+                              onChange={(e) => handleUrlChange(mission.id, e.target.value)}
+                              placeholder={mission.evidencePlaceholder}
+                              className="flex-1 bg-white border border-border rounded-xl px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-gold"
+                            />
+
+                            {/* Botón 2: Enviar a revisión */}
+                            <button
+                              type="button"
+                              disabled={isSubmitting}
+                              onClick={() => handleSubmitForReview(mission)}
+                              className="btn-solid inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider font-bold text-white shadow-xs disabled:opacity-50 cursor-pointer flex-shrink-0"
+                            >
+                              {isSubmitting ? (
+                                <Clock className="h-3.5 w-3.5 animate-spin" />
+                              ) : (
+                                <Send className="h-3.5 w-3.5" />
+                              )}
+                              <span>{t("Enviar para revisión", "Submit for review")}</span>
+                            </button>
+                          </div>
+
+                          {isSuccess && (
+                            <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 font-medium">
+                              <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                              <span>{t("¡Misión enviada exitosamente! Se revisará en menos de 24 horas.", "Mission submitted successfully! Will be reviewed in under 24 hours.")}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+          </div>
         </div>
       )}
 
-      {/* LISTADO DE MISIONES ESTILO SCREPY */}
-      <div className="space-y-4">
-        {missions
-          .filter((m) => m.active)
-          .map((mission) => {
-            const isExpanded = expandedId === mission.id;
-            const isSubmitting = submittingMissionId === mission.id;
-            const isSuccess = successMissionId === mission.id;
-            const currentUrl = missionUrls[mission.id] || "";
+      {/* PESTAÑA 2: MI TARJETA DIGITAL DE 15 SELLOS */}
+      {activeTab === "stamps" && (
+        <Reveal>
+          <DigitalStampCard
+            stampCard={stampCard}
+            customerName={customerName || name || "Comensal"}
+            onOpenMissions={() => setActiveTab("missions")}
+          />
+        </Reveal>
+      )}
 
-            return (
-              <div
-                key={mission.id}
-                className="bg-card border border-border/80 rounded-2xl shadow-xs hover:border-gold/50 transition-all overflow-hidden"
+      {/* PESTAÑA 3: INVITAR AMIGOS A VISITAR EL LOCAL */}
+      {activeTab === "refer" && (
+        <Reveal>
+          <div className="rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 via-white to-orange-50/50 p-6 sm:p-8 text-center shadow-sm space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100/90 text-amber-900 text-xs font-semibold uppercase tracking-wider">
+              <Share2 className="h-3.5 w-3.5 text-amber-800" />
+              <span>{t("Multiplica tus Oportunidades", "Multiply Your Chances")}</span>
+            </div>
+
+            <h3 className="font-display text-xl sm:text-2xl text-foreground font-medium">
+              {t("¡Invita a tus amigos a visitar el local!", "Invite your friends to visit our place!")}
+            </h3>
+
+            <p className="text-xs sm:text-sm text-muted-foreground font-light max-w-md mx-auto leading-relaxed">
+              {t(
+                "Comparte esta experiencia con tus amigos para que vengan a visitarnos. Cuando tus amigos vengan al local, se sienten a su mesa y prueben la ruleta con tu invitación, desbloqueas participaciones extra y beneficios exclusivos para tu próxima visita.",
+                "Share this experience so your friends visit us. When they visit our venue, sit at their table and play the roulette, you unlock extra entries and exclusive perks for your next visit."
+              )}
+            </p>
+
+            <div className="pt-2 flex justify-center">
+              <button
+                type="button"
+                onClick={handleReferFriend}
+                className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm tracking-wider uppercase shadow-md hover:shadow-lg transition-all cursor-pointer"
               >
-                {/* Cabecera de la misión */}
-                <div
-                  onClick={() => setExpandedId(isExpanded ? null : mission.id)}
-                  className="p-4 sm:p-5 flex items-center justify-between gap-3 cursor-pointer hover:bg-muted/30 transition-colors"
-                >
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    <span className="text-2xl sm:text-3xl flex-shrink-0 p-2 rounded-xl bg-amber-50 border border-amber-200/50">
-                      {mission.icon}
-                    </span>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-gold/15 text-gold border border-gold/30">
-                          {mission.badge}
-                        </span>
-                        <span className="text-xs text-muted-foreground hidden sm:inline">
-                          {mission.category}
-                        </span>
-                      </div>
-                      <h4 className="font-medium text-foreground text-sm sm:text-base mt-1 truncate">
-                        {mission.title}
-                      </h4>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 font-bold text-xs sm:text-sm border border-emerald-500/20">
-                      <Sparkles className="h-3.5 w-3.5" />
-                      {mission.rewardText}
-                    </span>
-                    {isExpanded ? (
-                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </div>
-                </div>
-
-                {/* Contenido expandido con barra de acción estilo Screpy */}
-                {isExpanded && (
-                  <div className="px-4 sm:px-5 pb-5 pt-1 border-t border-border/40 bg-muted/10 space-y-4">
-                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                      {mission.description}
-                    </p>
-
-                    {/* Reglas / Pasos rápidos */}
-                    <div className="bg-background/80 rounded-xl p-3 border border-border/60">
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-gold block mb-2">
-                        📋 {t("Cómo completar la tarea:", "How to complete the task:")}
-                      </span>
-                      <ul className="space-y-1.5 text-xs text-muted-foreground">
-                        {mission.rules.map((rule, idx) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <span className="text-gold font-bold text-[11px]">{idx + 1}.</span>
-                            <span>{rule}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* BARRA DE ACCIÓN: ABRIR TAREA + PEGAR URL + ENVIAR */}
-                    <div className="bg-amber-500/5 border border-gold/30 rounded-xl p-3 sm:p-4 space-y-3">
-                      <div className="flex flex-col sm:flex-row gap-2">
-                        {/* Botón 1: Abrir tarea */}
-                        <button
-                          type="button"
-                          onClick={() => handleOpenTask(mission.actionUrl)}
-                          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border text-foreground text-xs font-semibold hover:border-gold hover:text-gold transition-all shadow-2xs cursor-pointer flex-shrink-0"
-                        >
-                          <ExternalLink className="h-3.5 w-3.5 text-gold" />
-                          <span>{t("↗ Abrir tarea", "↗ Open task")}</span>
-                        </button>
-
-                        {/* Campo: Pegar URL */}
-                        <input
-                          type="url"
-                          value={currentUrl}
-                          onChange={(e) => handleUrlChange(mission.id, e.target.value)}
-                          placeholder={mission.evidencePlaceholder}
-                          className="flex-1 bg-white border border-border rounded-xl px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-gold"
-                        />
-
-                        {/* Botón 2: Enviar a revisión */}
-                        <button
-                          type="button"
-                          disabled={isSubmitting}
-                          onClick={() => handleSubmitForReview(mission)}
-                          className="btn-solid inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider font-bold text-white shadow-xs disabled:opacity-50 cursor-pointer flex-shrink-0"
-                        >
-                          {isSubmitting ? (
-                            <Clock className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Send className="h-3.5 w-3.5" />
-                          )}
-                          <span>{t("Enviar para revisión", "Submit for review")}</span>
-                        </button>
-                      </div>
-
-                      {isSuccess && (
-                        <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 font-medium">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
-                          <span>{t("¡Misión enviada exitosamente! Se revisará en menos de 24 horas.", "Mission submitted successfully! Will be reviewed in under 24 hours.")}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-      </div>
+                <Share2 className="h-4 w-4" />
+                <span>{t("Invitar Amigos por WhatsApp", "Invite Friends via WhatsApp")}</span>
+              </button>
+            </div>
+          </div>
+        </Reveal>
+      )}
 
       {/* BOTONES INFERIORES DE NAVEGACIÓN */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border/60">

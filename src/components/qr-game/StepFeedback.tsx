@@ -79,6 +79,29 @@ export function StepFeedback({
     5: t("5 DE 5 · ¡EXTRAORDINARIA! · INOLVIDABLE", "5 OUT OF 5 · EXTRAORDINARY · UNFORGETTABLE"),
   };
 
+  const [hasClickedGoogle, setHasClickedGoogle] = useState(false);
+  const [hasReturnedToTab, setHasReturnedToTab] = useState(false);
+
+  // Detectar cuándo el comensal vuelve de la app de Google Maps / pestaña de Google
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible" && hasClickedGoogle) {
+        setHasReturnedToTab(true);
+      }
+    };
+    const onFocus = () => {
+      if (hasClickedGoogle) {
+        setHasReturnedToTab(true);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("focus", onFocus);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [hasClickedGoogle]);
+
   const handleSelectRating = (val: number) => {
     setRating(val);
     if (onComplete) {
@@ -98,6 +121,7 @@ export function StepFeedback({
 
     // Si es 4 o 5 estrellas, abrimos Google My Business automáticamente
     if (val >= 4) {
+      setHasClickedGoogle(true);
       window.open(googleReviewUrl, "_blank", "noopener,noreferrer");
     }
   };
@@ -131,6 +155,7 @@ export function StepFeedback({
   };
 
   const handleOpenGoogleDirectly = () => {
+    setHasClickedGoogle(true);
     window.open(googleReviewUrl, "_blank", "noopener,noreferrer");
     fetch("/api/reputation/feedback", {
       method: "POST",
@@ -398,34 +423,89 @@ export function StepFeedback({
               </button>
             </div>
 
-            {/* SEGUNDA OPORTUNIDAD TRAS CALIFICAR EN GOOGLE */}
+            {/* ESTADO INTELIGENTE DE RETORNO TRAS CALIFICAR EN GOOGLE */}
             {onUnlockSecondChance && secondChanceConfig?.enabled !== false && (
-              <div className="pt-6 border-t-2 border-dashed border-amber-500/30 text-center space-y-3 bg-gradient-to-br from-amber-50/70 via-white to-amber-50/50 p-5 sm:p-6 rounded-2xl border border-amber-200/80">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 text-xs font-bold animate-pulse">
-                  <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
-                  <span>{t("¡Segunda Opción de Ganar Habilitada!", "2nd Chance to Win Enabled!")}</span>
-                </div>
-                <h4 className="text-base sm:text-lg font-serif font-bold text-neutral-900">
-                  {t("¡Se ha habilitado tu Segunda Opción de Ganar!", "Your 2nd Chance to Win is now Enabled!")}
-                </h4>
-                <p className="text-xs text-neutral-600 font-light max-w-md mx-auto leading-relaxed">
-                  {t(
-                    "Por calificar tu experiencia en Google My Business, ahora tienes una segunda oportunidad de ganar en el Reto de Precisión 10s:",
-                    "For rating your experience on Google My Business, you now have a second chance to win in the 10s Precision Challenge:"
-                  )}
-                  <strong className="text-amber-800 font-bold block mt-1 text-sm font-serif">
-                    {secondChanceConfig?.prizeName || "Tarta Vasca de Pistacho y Queso"}
-                  </strong>
-                </p>
-                <div className="pt-2 flex flex-col items-center">
-                  <button
-                    type="button"
-                    onClick={onUnlockSecondChance}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 py-4 px-10 rounded-2xl bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 hover:from-amber-700 hover:to-orange-600 text-white text-xs uppercase tracking-wider font-bold shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-[0.98]"
-                  >
-                    <span>{t("🎯 JUGAR SEGUNDA OPCIÓN DE GANAR ➔", "🎯 PLAY 2ND CHANCE TO WIN ➔")}</span>
-                  </button>
-                </div>
+              <div className="pt-6 border-t-2 border-dashed border-amber-500/30 text-center space-y-4">
+                {hasReturnedToTab ? (
+                  /* ESTADO 1: EL CLIENTE YA REGRESÓ DE GOOGLE MAPS */
+                  <div className="bg-gradient-to-br from-amber-500/15 via-gold/10 to-amber-500/5 p-6 sm:p-7 rounded-3xl border-2 border-gold shadow-lg animate-fade-in space-y-3.5">
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-800 text-xs font-bold animate-bounce">
+                      <span>🎉</span>
+                      <span>{t("¡Bienvenido de vuelta a tu mesa!", "Welcome back to your table!")}</span>
+                    </div>
+
+                    <h4 className="text-lg sm:text-xl font-serif font-bold text-neutral-900">
+                      {t("¡Tu 2ª Oportunidad está 100% Desbloqueada!", "Your 2nd Chance is 100% Unlocked!")}
+                    </h4>
+
+                    <p className="text-xs sm:text-sm text-neutral-600 font-light max-w-md mx-auto leading-relaxed">
+                      {t(
+                        "Muchísimas gracias por tu reseña en Google. Tu turno en el Reto del Cronómetro de 10s está listo para que te lleves la:",
+                        "Thank you so much for your Google review. Your turn in the 10s Precision Challenge is ready to win the:"
+                      )}
+                      <strong className="text-amber-800 font-bold block mt-1 text-sm font-serif">
+                        {secondChanceConfig?.prizeName || "Tarta Vasca de Pistacho y Queso"}
+                      </strong>
+                    </p>
+
+                    <div className="pt-2 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={onUnlockSecondChance}
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 py-4 px-10 rounded-2xl bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 hover:from-amber-700 hover:to-orange-600 text-white text-xs sm:text-sm uppercase tracking-wider font-bold shadow-xl hover:shadow-2xl transition-all cursor-pointer animate-pulse active:scale-[0.98]"
+                      >
+                        <span>{t("🎯 JUGAR SEGUNDA OPCIÓN AHORA (PASO 6) ➔", "🎯 PLAY 2ND CHANCE NOW (STEP 6) ➔")}</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : hasClickedGoogle ? (
+                  /* ESTADO 2: EL CLIENTE ACABA DE TOCAR GOOGLE (ESPERANDO REGRESO) */
+                  <div className="bg-amber-50/90 p-5 sm:p-6 rounded-2xl border-2 border-dashed border-amber-400 shadow-sm space-y-3">
+                    <div className="flex items-center justify-center gap-2 text-amber-900 text-xs font-bold uppercase tracking-wider">
+                      <span className="h-2.5 w-2.5 rounded-full bg-amber-500 animate-ping" />
+                      <span>{t("🌟 Abriendo Google Maps... Te esperamos en mesa", "🌟 Opening Google Maps... Waiting for you")}</span>
+                    </div>
+
+                    <p className="text-xs text-neutral-600 max-w-md mx-auto leading-relaxed">
+                      {t(
+                        "Publica tu reseña y vuelve a esta pantalla. Si la app no te detectó automáticamente, presiona el botón abajo:",
+                        "Publish your review and return to this screen. If the app didn't auto-detect, tap below:"
+                      )}
+                    </p>
+
+                    <div className="pt-1 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={onUnlockSecondChance}
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-8 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs uppercase tracking-wider font-bold shadow-md transition-all cursor-pointer"
+                      >
+                        <span>{t("✅ ¡Listo, ya califiqué! ➔ Ir al Paso 6", "✅ Done, I reviewed! ➔ Go to Step 6")}</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* ESTADO 3: INCENTIVO INICIAL PARA CALIFICAR */
+                  <div className="bg-gradient-to-br from-amber-50/70 via-white to-amber-50/50 p-5 sm:p-6 rounded-2xl border border-amber-200/80 space-y-2.5">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 text-xs font-bold">
+                      <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                      <span>{t("Incentivo Exclusivo en Mesa", "Exclusive Table Incentive")}</span>
+                    </div>
+
+                    <h4 className="text-sm sm:text-base font-serif font-bold text-neutral-900">
+                      {t("¡Tu reseña en Google desbloquea tu 2ª Oportunidad!", "Your Google review unlocks your 2nd Chance!")}
+                    </h4>
+
+                    <p className="text-xs text-neutral-600 font-light max-w-md mx-auto leading-relaxed">
+                      {t(
+                        "Al calificar tu visita en Google, el sistema te habilitará de inmediato el Reto del Cronómetro de 10s para ganarte una porción de:",
+                        "By reviewing your visit on Google, you immediately unlock the 10s Timer Challenge to win a portion of:"
+                      )}
+                      <strong className="text-amber-800 font-bold block mt-0.5 text-xs font-serif">
+                        {secondChanceConfig?.prizeName || "Tarta Vasca de Pistacho y Queso"}
+                      </strong>
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>

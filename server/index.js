@@ -3487,50 +3487,78 @@ function renderBackendDashboard() {
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
           <!-- Flujo 1 -->
-          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <strong style="color: #34d399; font-size: 12px;">🎉 Bienvenida (6 min)</strong>
-              <span class="badge-status-available">ACTIVO</span>
+          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="color: #34d399; font-size: 12px;">🎉 Bienvenida (6 min)</strong>
+                <span class="badge-status-available">ACTIVO</span>
+              </div>
+              <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Disparo automático 6 minutos después del primer juego en mesa.</p>
+              <div style="font-size: 12px; color: #0f172a; background: #f8fafc; padding: 10px; border-radius: 8px; font-family: monospace; border: 1px solid #cbd5e1; line-height: 1.4; margin-bottom: 10px;">
+                "¡Gracias por visitarnos! Tu primer sello ya está activo en tu tarjeta digital."
+              </div>
             </div>
-            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Disparo automático 6 minutos después del primer juego en mesa.</p>
-            <div style="font-size: 11px; color: #fff; background: #F8FAFC; padding: 8px; border-radius: 8px; font-family: monospace;">
-              "¡Gracias por visitarnos! Tu primer sello ya está activo en tu tarjeta digital."
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+              <button type="button" onclick="copyFlowMessage(this, '¡Gracias por visitarnos! Tu primer sello ya está activo en tu tarjeta digital.')" style="padding: 5px 12px; font-size: 11px; font-weight: 600; background: rgba(52, 211, 153, 0.15); border: 1px solid #34d399; color: #34d399; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                📋 Copiar Flujo
+              </button>
             </div>
           </div>
 
           <!-- Flujo 2 -->
-          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <strong style="color: #fbbf24; font-size: 12px;">⏳ Urgencia Cupón (24h)</strong>
-              <span class="badge-status-available">ACTIVO</span>
+          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="color: #fbbf24; font-size: 12px;">⏳ Urgencia Cupón (24h)</strong>
+                <span class="badge-status-available">ACTIVO</span>
+              </div>
+              <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Se envía 24h antes de que expire el beneficio de la ruleta.</p>
+              <div style="font-size: 12px; color: #0f172a; background: #f8fafc; padding: 10px; border-radius: 8px; font-family: monospace; border: 1px solid #cbd5e1; line-height: 1.4; margin-bottom: 10px;">
+                "¡Tu premio vence mañana! Ven hoy y disfrútalo en mesa antes de su caducidad."
+              </div>
             </div>
-            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Se envía 24h antes de que expire el beneficio de la ruleta.</p>
-            <div style="font-size: 11px; color: #fff; background: #F8FAFC; padding: 8px; border-radius: 8px; font-family: monospace;">
-              "¡Tu premio vence mañana! Ven hoy y disfrútalo en mesa antes de su caducidad."
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+              <button type="button" onclick="copyFlowMessage(this, '¡Tu premio vence mañana! Ven hoy y disfrútalo en mesa antes de su caducidad.')" style="padding: 5px 12px; font-size: 11px; font-weight: 600; background: rgba(251, 191, 36, 0.15); border: 1px solid #fbbf24; color: #fbbf24; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                📋 Copiar Flujo
+              </button>
             </div>
           </div>
 
           <!-- Flujo 3 -->
-          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <strong style="color: #c084fc; font-size: 12px;">☕ Reactivación (14 Días)</strong>
-              <span class="badge-status-available">ACTIVO</span>
+          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="color: #c084fc; font-size: 12px;">☕ Reactivación (14 Días)</strong>
+                <span class="badge-status-available">ACTIVO</span>
+              </div>
+              <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Se envía a clientes que llevan 14 días sin visitarnos.</p>
+              <div style="font-size: 12px; color: #0f172a; background: #f8fafc; padding: 10px; border-radius: 8px; font-family: monospace; border: 1px solid #cbd5e1; line-height: 1.4; margin-bottom: 10px;">
+                "¡Te extrañamos! Esta semana recibe un postre artesanal sorpresa de cortesía con tu café."
+              </div>
             </div>
-            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Se envía a clientes que llevan 14 días sin visitarnos.</p>
-            <div style="font-size: 11px; color: #fff; background: #F8FAFC; padding: 8px; border-radius: 8px; font-family: monospace;">
-              "¡Te extrañamos! Esta semana recibe un postre artesanal sorpresa de cortesía con tu café."
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+              <button type="button" onclick="copyFlowMessage(this, '¡Te extrañamos! Esta semana recibe un postre artesanal sorpresa de cortesía con tu café.')" style="padding: 5px 12px; font-size: 11px; font-weight: 600; background: rgba(192, 132, 252, 0.15); border: 1px solid #c084fc; color: #c084fc; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                📋 Copiar Flujo
+              </button>
             </div>
           </div>
 
           <!-- Flujo 4 -->
-          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <strong style="color: #38bdf8; font-size: 12px;">⚡ Happy Hour (3 a 6 PM)</strong>
-              <span class="badge-status-available">ACTIVO</span>
+          <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong style="color: #38bdf8; font-size: 12px;">⚡ Happy Hour (3 a 6 PM)</strong>
+                <span class="badge-status-available">ACTIVO</span>
+              </div>
+              <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Multiplicador automático x2 de sellos en horas muertas de Lunes a Jueves.</p>
+              <div style="font-size: 12px; color: #0f172a; background: #f8fafc; padding: 10px; border-radius: 8px; font-family: monospace; border: 1px solid #cbd5e1; line-height: 1.4; margin-bottom: 10px;">
+                "¡Tarde dulce! Hoy tus consumos suman 2 SELLOS en tu tarjeta de fidelización."
+              </div>
             </div>
-            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Multiplicador automático x2 de sellos en horas muertas de Lunes a Jueves.</p>
-            <div style="font-size: 11px; color: #fff; background: #F8FAFC; padding: 8px; border-radius: 8px; font-family: monospace;">
-              "¡Tarde dulce! Hoy tus consumos suman 2 SELLOS en tu tarjeta de fidelización."
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+              <button type="button" onclick="copyFlowMessage(this, '¡Tarde dulce! Hoy tus consumos suman 2 SELLOS en tu tarjeta de fidelización.')" style="padding: 5px 12px; font-size: 11px; font-weight: 600; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                📋 Copiar Flujo
+              </button>
             </div>
           </div>
         </div>
@@ -4843,6 +4871,29 @@ function renderBackendDashboard() {
         }
       } catch (err) {
         alert("Error de conexión al guardar configuración");
+      }
+    }
+
+    // COPIAR MENSAJE DE FLUJO AUTOMATIZADO AL PORTAPAPELES
+    function copyFlowMessage(btn, text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.innerHTML;
+          btn.innerHTML = "✓ ¡Copiado!";
+          btn.style.background = "#059669";
+          btn.style.color = "#ffffff";
+          btn.style.borderColor = "#10b981";
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.style.background = "";
+            btn.style.color = "";
+            btn.style.borderColor = "";
+          }, 2000);
+        }).catch(() => {
+          prompt("Copia el texto del flujo:", text);
+        });
+      } else {
+        prompt("Copia el texto del flujo:", text);
       }
     }
   
