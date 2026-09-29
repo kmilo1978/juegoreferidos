@@ -3570,12 +3570,36 @@ function renderBackendDashboard() {
         </div>
       </div>
 
+      <!-- MÉTRICAS DE MISIONES Y EMBAJADORES (ESTILO SCREPY) -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-title">Misiones Disponibles</span>
+          <span class="stat-value" style="color: var(--accent);">${missions.length}</span>
+          <span class="stat-sub">TikTok, Trustpilot, Facebook y WhatsApp</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Máximo Sellos por Cliente</span>
+          <span class="stat-value" style="color: #059669;">+7 Sellos</span>
+          <span class="stat-sub">Equivale a casi la mitad de la tarjeta VIP</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Pendientes de Revisión</span>
+          <span class="stat-value" style="color: #d97706;">${submissions.filter(s => s.status === 'PENDIENTE').length}</span>
+          <span class="stat-sub">Esperando aprobación del administrador</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Misiones Aprobadas</span>
+          <span class="stat-value" style="color: var(--info);">${submissions.filter(s => s.status === 'APROBADO').length}</span>
+          <span class="stat-sub">Sellos acreditados a comensales</span>
+        </div>
+      </div>
+
       <!-- BANDEJA DE APROBACIÓN DE EVIDENCIAS -->
       <div class="panel" style="margin-bottom: 20px;">
         <div class="panel-header">
           <div class="panel-title">
             <span>📥 Bandeja de Aprobación de Misiones Enviadas</span>
-            <span style="font-size: 11px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 8px; border-radius: 9999px; font-weight: 700;">
+            <span style="font-size: 11px; background: rgba(59, 130, 246, 0.2); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 8px; border-radius: 9999px; font-weight: 700;">
               ${submissions.filter(s => s.status === 'PENDIENTE').length} pendientes de revisión
             </span>
           </div>
@@ -3618,20 +3642,20 @@ function renderBackendDashboard() {
                       <span style="font-size: 16px;">${sub.missionIcon || '🎯'}</span>
                       <div>
                         <strong style="font-size: 12px; color: var(--text);">${sub.missionTitle}</strong>
-                        <span style="display: block; font-size: 10px; color: #34d399; font-weight: 700;">+${sub.rewardStamps} Sellos de Visita</span>
+                        <span style="display: block; font-size: 10px; color: #059669; font-weight: 700;">+${sub.rewardStamps} Sellos de Visita</span>
                       </div>
                     </div>
                   </td>
                   <td>
-                    <a href="${sub.evidenceUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 4px; color: #38bdf8; text-decoration: underline; font-size: 11px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <a href="${sub.evidenceUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 4px; color: #0284c7; text-decoration: underline; font-size: 11px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                       🔗 Abrir enlace (${sub.evidenceUrl.length > 30 ? sub.evidenceUrl.substring(0, 30) + '...' : sub.evidenceUrl})
                     </a>
                   </td>
                   <td>
                     <span id="badge-sub-${sub.id}" style="font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 9999px; ${
-                      sub.status === 'APROBADO' ? 'background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);' :
-                      sub.status === 'RECHAZADO' ? 'background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);' :
-                      'background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);'
+                      sub.status === 'APROBADO' ? 'background: rgba(16, 185, 129, 0.15); color: #059669; border: 1px solid rgba(16, 185, 129, 0.35);' :
+                      sub.status === 'RECHAZADO' ? 'background: rgba(239, 68, 68, 0.15); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.35);' :
+                      'background: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.35);'
                     }">
                       ${sub.status}
                     </span>
@@ -3639,10 +3663,10 @@ function renderBackendDashboard() {
                   <td style="text-align: right;">
                     ${sub.status === 'PENDIENTE' ? `
                       <div id="actions-sub-${sub.id}" style="display: inline-flex; gap: 6px;">
-                        <button type="button" onclick="reviewSubmission('${sub.id}', 'approve')" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                        <button type="button" onclick="reviewSubmission('${sub.id}', 'approve')" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); color: #059669; padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;">
                           ✓ Aprobar (+${sub.rewardStamps})
                         </button>
-                        <button type="button" onclick="reviewSubmission('${sub.id}', 'reject')" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;">
+                        <button type="button" onclick="reviewSubmission('${sub.id}', 'reject')" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); color: #dc2626; padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;">
                           ✗ Rechazar
                         </button>
                       </div>
@@ -3657,38 +3681,38 @@ function renderBackendDashboard() {
         </div>
       </div>
 
-      <!-- CATÁLOGO DE MISIONES ACTIVAS -->
+      <!-- CATÁLOGO DE MISIONES ACTIVAS (LIGHT THEME LIMPIO) -->
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">
             <span>📋 Catálogo de Misiones Configuradas</span>
           </div>
-          <span class="badge-role" style="background: rgba(162, 126, 44, 0.2); color: var(--accent); border-color: rgba(162, 126, 44, 0.4);">
+          <span class="badge-role" style="background: rgba(162, 126, 44, 0.15); color: var(--accent); border-color: rgba(162, 126, 44, 0.35);">
             ${missions.length} ACTIVAS
           </span>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
           ${missions.map(m => `
-            <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="background: #FFFFFF; border: 1px solid var(--card-border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
               <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                  <span style="font-size: 24px;">${m.icon}</span>
-                  <span style="font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <span style="font-size: 26px;">${m.icon}</span>
+                  <span style="font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 9999px; background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); font-family: monospace;">
                     ${m.rewardText}
                   </span>
                 </div>
-                <strong style="color: var(--text); font-size: 14px; display: block; margin-bottom: 4px;">${m.title}</strong>
-                <p style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px;">${m.description}</p>
-                <div style="font-size: 10px; color: var(--text-light); background: #131b2e; padding: 8px; border-radius: 8px;">
-                  <strong>Reglas:</strong>
-                  <ul style="padding-left: 16px; margin-top: 4px;">
+                <strong style="color: var(--text); font-size: 15px; display: block; margin-bottom: 6px; font-weight: 700;">${m.title}</strong>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">${m.description}</p>
+                <div style="font-size: 11px; color: #475569; background: #F8FAFC; border: 1px solid #E2E8F0; padding: 10px 12px; border-radius: 10px;">
+                  <strong style="color: var(--text); display: block; margin-bottom: 4px;">Reglas:</strong>
+                  <ul style="padding-left: 16px; margin-top: 2px; line-height: 1.4;">
                     ${(m.rules || []).map(r => `<li>${r}</li>`).join('')}
                   </ul>
                 </div>
               </div>
-              <div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 10px; color: var(--text-muted);">Categoría: ${m.category}</span>
-                <a href="${m.actionUrl}" target="_blank" rel="noopener noreferrer" style="font-size: 11px; color: var(--accent); text-decoration: underline;">
+              <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">Categoría: ${m.category}</span>
+                <a href="${m.actionUrl}" target="_blank" rel="noopener noreferrer" style="font-size: 11.5px; font-weight: 600; color: var(--accent); text-decoration: none; background: #F8FAFC; border: 1px solid var(--card-border); padding: 4px 10px; border-radius: 8px; transition: all 0.15s;">
                   Ver enlace ↗
                 </a>
               </div>
