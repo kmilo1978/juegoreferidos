@@ -233,11 +233,11 @@ export function DigitalStampCard({
               className={`relative p-2 rounded-2xl flex flex-col items-center justify-between transition-all transform active:scale-95 border text-center ${
                 isStamped
                   ? isMilestone
-                    ? "bg-gradient-to-tr from-amber-500/30 via-gold/30 to-amber-400/40 border-2 border-gold shadow-md text-foreground"
-                    : "bg-emerald-500/15 border-emerald-400/60 text-foreground shadow-2xs"
+                    ? "bg-gradient-to-tr from-amber-500/35 via-gold/30 to-amber-400/45 border-2 border-gold shadow-md text-amber-950 font-bold"
+                    : "bg-gradient-to-br from-emerald-500/25 to-emerald-600/15 border-2 border-emerald-500/80 text-emerald-950 font-bold shadow-xs"
                   : isMilestone
-                  ? "border-2 border-dashed border-gold bg-gold/15 text-gold hover:bg-gold/25"
-                  : "border-border/70 bg-background/80 text-muted-foreground hover:border-gold/40"
+                  ? "border-2 border-dashed border-gold/70 bg-gold/15 text-gold hover:bg-gold/25"
+                  : "border-2 border-dashed border-border/80 bg-white/80 text-muted-foreground hover:border-gold/50"
               }`}
             >
               {/* Insignia de sello completado */}

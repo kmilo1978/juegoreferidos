@@ -121,6 +121,24 @@ const DEFAULT_MISSIONS: MissionItem[] = [
     evidencePlaceholder: "Confirmación de envío o nombres de tus invitados",
     active: true,
   },
+  {
+    id: "m_whatsapp_community",
+    category: "Comunidad Exclusiva",
+    title: "Unirse a la Comunidad VIP de WhatsApp",
+    rewardStamps: 2,
+    rewardText: "+2 Sellos de Visita",
+    badge: "CLUB PRIVADO",
+    icon: "💬",
+    description: "Únete a nuestro grupo oficial y exclusivo de WhatsApp para recibir ofertas secretas de repostería, lanzamientos de temporada y catas privadas.",
+    rules: [
+      "Toca el botón 'Abrir WhatsApp' y únete al grupo oficial de nuestra Comunidad VIP.",
+      "Recibe antes que nadie promociones relámpago, recetas de autor y regalos.",
+      "Pega tu número de WhatsApp para confirmar tu ingreso y sumar tus sellos.",
+    ],
+    actionUrl: "https://chat.whatsapp.com/BlissSoulVIPCommunity",
+    evidencePlaceholder: "Tu número de WhatsApp o confirmación de ingreso al grupo",
+    active: true,
+  },
 ];
 
 interface MissionsModalProps {

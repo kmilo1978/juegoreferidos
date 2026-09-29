@@ -114,23 +114,39 @@ const DEFAULT_MISSIONS: MissionItem[] = [
     evidencePlaceholder: "Confirmación de envío o nombres de tus invitados",
     active: true,
   },
+  {
+    id: "m_whatsapp_community",
+    category: "Comunidad Exclusiva",
+    title: "Unirse a la Comunidad VIP de WhatsApp",
+    rewardStamps: 2,
+    rewardText: "+2 Sellos de Visita",
+    badge: "CLUB PRIVADO",
+    icon: "💬",
+    description: "Únete a nuestro grupo oficial y exclusivo de WhatsApp para recibir ofertas secretas de repostería, lanzamientos de temporada y catas privadas.",
+    rules: [
+      "Toca el botón 'Abrir WhatsApp' y únete al grupo oficial de nuestra Comunidad VIP.",
+      "Recibe antes que nadie promociones relámpago, recetas de autor y regalos.",
+      "Pega tu número de WhatsApp para confirmar tu ingreso y sumar tus sellos.",
+    ],
+    actionUrl: "https://chat.whatsapp.com/BlissSoulVIPCommunity",
+    evidencePlaceholder: "Tu número de WhatsApp o confirmación de ingreso al grupo",
+    active: true,
+  },
 ];
 
 interface StepMissionsProps {
   customerName?: string;
   customerWhatsapp?: string;
-  onBackToSecondChance?: () => void;
   onResetToStart?: () => void;
 }
 
 export function StepMissions({
   customerName = "",
   customerWhatsapp = "",
-  onBackToSecondChance,
   onResetToStart,
 }: StepMissionsProps) {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<"missions" | "stamps" | "refer">("missions");
+  const [activeTab, setActiveTab] = useState<"stamps" | "missions" | "refer">("stamps");
   const [missions, setMissions] = useState<MissionItem[]>(DEFAULT_MISSIONS);
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [missionUrls, setMissionUrls] = useState<Record<string, string>>({});
@@ -168,8 +184,32 @@ export function StepMissions({
   }, [customerName, customerWhatsapp]);
 
   const cleanPhone = (whatsapp || "").replace(/\D/g, "");
-  const stampCard = StampService.getCustomerStampCard(cleanPhone);
-  const currentStamps = stampCard.currentStamps || 0;
+  const baseCard = StampService.getCustomerStampCard(cleanPhone);
+  const [syncedStamps, setSyncedStamps] = useState<number>(() => Math.max(baseCard.currentStamps, 3));
+
+  useEffect(() => {
+    if (cleanPhone) {
+      fetch(`/api/stamps/${cleanPhone}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && typeof data.stamps === "number") {
+            const count = Math.max(data.stamps, 3);
+            setSyncedStamps(count);
+            StampService.saveCustomerStampCard(cleanPhone, {
+              ...baseCard,
+              currentStamps: count,
+            });
+          }
+        })
+        .catch(() => {});
+    }
+  }, [cleanPhone]);
+
+  const currentStamps = syncedStamps;
+  const stampCard = {
+    ...baseCard,
+    currentStamps,
+  };
 
   const myPendingSubmissions = submissions.filter(
     (s) => s.status === "PENDIENTE" && (!cleanPhone || s.customerWhatsapp === cleanPhone)
@@ -302,19 +342,6 @@ export function StepMissions({
           <div className="mt-6 inline-flex p-1 bg-muted/60 rounded-2xl border border-border text-xs gap-1">
             <button
               type="button"
-              onClick={() => setActiveTab("missions")}
-              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer ${
-                activeTab === "missions"
-                  ? "bg-card text-gold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>{t("🎯 Tareas Screpy", "🎯 Screpy Tasks")}</span>
-            </button>
-
-            <button
-              type="button"
               onClick={() => setActiveTab("stamps")}
               className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer ${
                 activeTab === "stamps"
@@ -324,6 +351,19 @@ export function StepMissions({
             >
               <CreditCard className="h-3.5 w-3.5" />
               <span>{t("💳 Mi Tarjeta de 15 Sellos", "💳 My 15-Stamp Card")}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("missions")}
+              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer ${
+                activeTab === "missions"
+                  ? "bg-card text-gold shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>{t("🎯 Misiones & Tareas", "🎯 Missions & Tasks")}</span>
             </button>
 
             <button
@@ -345,6 +385,60 @@ export function StepMissions({
       {/* CONTENIDO SEGÚN LA PESTAÑA SELECCIONADA */}
       {activeTab === "missions" && (
         <div className="space-y-6">
+          {/* TIRA VISUAL EN VIVO DE LOS 15 SELLOS (SIEMPRE VISIBLE) */}
+          <Reveal delay={80}>
+            <div className="bg-card border-2 border-gold/40 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 font-bold text-foreground">
+                  <CreditCard className="h-4 w-4 text-gold" />
+                  <span>{t("Tu Tarjeta de 15 Sellos en Vivo", "Your Live 15-Stamp Card")}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-bold text-amber-800 bg-gold/15 px-2.5 py-0.5 rounded-full border border-gold/30">
+                    {currentStamps} / 15 {t("Sellos", "Stamps")}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("stamps")}
+                    className="text-[11px] text-amber-700 hover:text-amber-900 font-semibold underline cursor-pointer"
+                  >
+                    {t("Ver tarjeta completa →", "View full card →")}
+                  </button>
+                </div>
+              </div>
+
+              {/* Los 15 círculos de sellos */}
+              <div className="grid grid-cols-5 sm:grid-cols-15 gap-1.5">
+                {Array.from({ length: 15 }, (_, i) => i + 1).map((idx) => {
+                  const isStamped = idx <= currentStamps;
+                  const isMilestone = idx === 5 || idx === 10 || idx === 15;
+                  const prizeIcon = idx === 5 ? "🍰" : idx === 10 ? "☕" : "🎁";
+                  return (
+                    <div
+                      key={idx}
+                      className={`p-1.5 rounded-xl flex flex-col items-center justify-center text-center border transition-all ${
+                        isStamped
+                          ? isMilestone
+                            ? "bg-gradient-to-tr from-amber-500/30 via-gold/30 to-amber-400/40 border-gold text-foreground font-bold shadow-xs"
+                            : "bg-emerald-500/15 border-emerald-400/60 text-foreground font-medium"
+                          : isMilestone
+                          ? "border-dashed border-gold bg-gold/10 text-gold"
+                          : "border-border/70 bg-background/60 text-muted-foreground"
+                      }`}
+                    >
+                      <span className="text-xs">
+                        {isStamped ? "✓" : prizeIcon}
+                      </span>
+                      <span className="text-[9px] font-mono font-bold mt-0.5">
+                        #{idx}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </Reveal>
+
           {/* TARJETA RESUMEN ESTILO SCREPY CON CONTADOR GENERAL */}
           <Reveal delay={100}>
             <div className="bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-gold/30 rounded-2xl p-5 sm:p-6 shadow-sm">
@@ -409,7 +503,7 @@ export function StepMissions({
                       </span>
                     </div>
                     <h3 className="font-serif text-lg sm:text-xl font-bold text-foreground mt-0.5">
-                      {t("¡Completa todas las misiones y GANA una Cena para 2!", "Complete all missions and WIN a Dinner for 2!")}
+                      {t("¡Completa el Desafío: Premio Garantizado + Sorteo Cena para 2!", "Complete Challenge: Guaranteed Prize + Dinner for 2 Raffle!")}
                     </h3>
                   </div>
                 </div>
@@ -444,10 +538,10 @@ export function StepMissions({
               <div className="pt-2 border-t border-gold/20 space-y-2">
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-muted-foreground font-medium">
-                    {t("Progreso para la Cena y Concurso Mensual:", "Progress for Dinner & Monthly Contest:")}
+                    {t("Progreso para el Premio y Concurso Mensual:", "Progress for Prize & Monthly Contest:")}
                   </span>
                   <span className="font-bold text-amber-800 font-mono">
-                    {isDemoUnlocked ? "5 / 5 (100% COMPLETADO)" : `${submittedMissionIds.size} / ${missions.length} misiones`}
+                    {isDemoUnlocked ? "6 / 6 (100% COMPLETADO)" : `${submittedMissionIds.size} / ${missions.length} misiones`}
                   </span>
                 </div>
 
@@ -461,33 +555,59 @@ export function StepMissions({
 
               {/* Si está completado o desbloqueado en demo */}
               {(isDemoUnlocked || submittedMissionIds.size >= missions.length) ? (
-                <div className="p-4 rounded-2xl bg-white/95 border-2 border-emerald-500 shadow-md animate-fade-in space-y-2.5">
+                <div className="p-4 rounded-2xl bg-white/95 border-2 border-emerald-500 shadow-md animate-fade-in space-y-3">
                   <div className="flex items-center gap-2 text-emerald-800 text-xs font-bold uppercase tracking-wider">
                     <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    <span>¡DESAFÍO COMPLETADO! ERES CANDIDATO OFICIAL DEL MES</span>
+                    <span>¡DESAFÍO COMPLETADO! PREMIO ASEGURADO + BOLETO AL SORTEO</span>
                   </div>
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-amber-50/80 p-3 rounded-xl border border-amber-200">
-                    <div>
-                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground block font-bold">
-                        Tu Boleto Oficial al Sorteo Mensual
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {/* PREMIO 1: GARANTIZADO INMEDIATO */}
+                    <div className="bg-emerald-50/90 p-3 rounded-xl border border-emerald-200">
+                      <span className="text-[10px] uppercase tracking-wider text-emerald-800 block font-bold">
+                        🎁 Premio Garantizado Reclamable
                       </span>
-                      <span className="font-mono text-lg font-extrabold text-amber-800 tracking-wider">
-                        #CENA2-{customerWhatsapp?.slice(-4) || "7791"}-VIP
+                      <strong className="text-xs text-foreground font-serif block mt-0.5">
+                        Postre de Autor & Bono Regalo Dulce
+                      </strong>
+                      <span className="font-mono text-xs font-bold text-emerald-700 block mt-1">
+                        Código: #AUTOR-EMBAJADOR-VIP
+                      </span>
+                      <span className="text-[10px] text-muted-foreground block mt-0.5">
+                        ✓ Asegurado en mesa para tu próxima visita
                       </span>
                     </div>
-                    <div className="text-right sm:text-right">
-                      <span className="text-[10px] text-muted-foreground block">Premio Asignado</span>
-                      <strong className="text-xs text-foreground font-serif">Cena Degustación de Autor para 2</strong>
+
+                    {/* PREMIO 2: BOLETO AL SORTEO DE CENA PARA 2 */}
+                    <div className="bg-amber-50/90 p-3 rounded-xl border border-amber-200">
+                      <span className="text-[10px] uppercase tracking-wider text-amber-800 block font-bold">
+                        👑 Boleto Sorteo Mensual Cena para 2
+                      </span>
+                      <strong className="text-xs text-foreground font-serif block mt-0.5">
+                        Cena Degustación de Autor para 2
+                      </strong>
+                      <span className="font-mono text-xs font-bold text-amber-800 block mt-1">
+                        {ticketCode}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground block mt-0.5">
+                        ✓ Candidato oficial (Sorteo último viernes)
+                      </span>
                     </div>
                   </div>
+
                   <p className="text-[11px] text-muted-foreground">
-                    ✓ Ya estás inscrito en la lista oficial del concurso mensual. El ganador se anunciará el último viernes de cada mes.
+                    ✓ Ya estás inscrito en la lista oficial del concurso mensual y tu premio dulce asegurado está activo en tu cuenta.
                   </p>
                 </div>
               ) : (
-                <p className="text-[11px] text-muted-foreground/90 font-light leading-relaxed">
-                  💡 Al enviar tus 5 misiones (incluyendo la invitación a amigos), sumas tus sellos y entras directamente al sorteo de la Cena para 2 personas.
-                </p>
+                <div className="space-y-1 text-[11px] text-muted-foreground/90 font-light leading-relaxed">
+                  <p>
+                    🎁 <strong>Premio Garantizado:</strong> Al completar tus misiones o sellos, aseguras un <em>Postre de Autor & Bono Regalo</em> en tu próxima visita.
+                  </p>
+                  <p>
+                    👑 <strong>Sorteo de Cena para 2:</strong> Y además recibes tu <em>Boleto VIP</em> para participar en el sorteo de una <strong>Cena para 2 personas</strong>.
+                  </p>
+                </div>
               )}
             </div>
           </Reveal>
@@ -672,30 +792,39 @@ export function StepMissions({
         </Reveal>
       )}
 
-      {/* BOTONES INFERIORES DE NAVEGACIÓN */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border/60">
-        {onBackToSecondChance && (
-          <button
-            type="button"
-            onClick={onBackToSecondChance}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-border text-xs text-muted-foreground hover:text-foreground hover:border-gold transition-all cursor-pointer"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{t("← Volver a la 2ª Oportunidad", "← Back to 2nd Chance")}</span>
-          </button>
-        )}
+      {/* PANTALLA / TARJETA FINAL DE AGRADECIMIENTO POR JUGAR */}
+      <Reveal delay={130}>
+        <div className="rounded-3xl border-2 border-gold/40 bg-gradient-to-br from-amber-500/10 via-card to-amber-500/15 p-6 sm:p-8 text-center space-y-4 shadow-lg relative overflow-hidden">
+          <div className="h-16 w-16 mx-auto rounded-3xl bg-gradient-to-tr from-amber-600 to-gold flex items-center justify-center text-white shadow-md text-3xl">
+            💖
+          </div>
 
-        {onResetToStart && (
-          <button
-            type="button"
-            onClick={onResetToStart}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            <span>{t("Comenzar Nueva Experiencia", "Start New Experience")}</span>
-          </button>
-        )}
-      </div>
+          <div className="space-y-1.5 max-w-md mx-auto">
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground">
+              {t("¡Gracias por Jugar y por tu Visita!", "Thank you for Playing and for Visiting!")}
+            </h3>
+            <p className="text-xs sm:text-sm text-muted-foreground font-light leading-relaxed">
+              {t(
+                "Tu presencia y alegría hacen única a Bliss Soul Bakery & Café. Tus sellos acumulados y tus cupones están registrados en tu dispositivo para tu próxima visita.",
+                "Your presence and joy make Bliss Soul Bakery & Café unique. Your accumulated stamps and coupons are saved on your device for your next visit."
+              )}
+            </p>
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            {onResetToStart && (
+              <button
+                type="button"
+                onClick={onResetToStart}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-700 via-amber-600 to-gold hover:opacity-95 text-white text-xs sm:text-sm uppercase tracking-wider font-bold shadow-lg hover:shadow-xl cursor-pointer transition-all transform active:scale-98"
+              >
+                <RotateCcw className="h-4 w-4" />
+                <span>{t("Comenzar Nueva Experiencia", "Start New Experience")}</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </Reveal>
     </div>
   );
 }

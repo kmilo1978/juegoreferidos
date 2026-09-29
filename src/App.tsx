@@ -652,10 +652,6 @@ function JuegoQrPage() {
                 <StepMissions
                   customerName={participant?.fullName || wonPrize?.participantName}
                   customerWhatsapp={participant?.whatsapp || wonPrize?.participantWhatsapp}
-                  onBackToSecondChance={() => {
-                    setCurrentStep(6);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
                   onResetToStart={handleResetSession}
                 />
               </div>
