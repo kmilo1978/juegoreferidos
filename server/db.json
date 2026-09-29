@@ -29,6 +29,15 @@
       "whatsapp": "573001234567",
       "stamps": 3,
       "lastVisit": "2026-09-29T00:18:57.876Z"
+    },
+    "573009998877": {
+      "fullName": "Laura Cliente VIP",
+      "whatsapp": "573009998877",
+      "email": "laura@example.com",
+      "stamps": 1,
+      "visits": 1,
+      "origin": "PORTAL_CAUTIVO_WIFI",
+      "connectedAt": "2026-09-29T16:21:29.827Z"
     }
   },
   "missionSubmissions": [
@@ -115,6 +124,14 @@
     }
   ],
   "logs": [
+    {
+      "id": "mumvvuc2f61",
+      "timestamp": "11:21:29 a. m.",
+      "method": "POST",
+      "url": "/api/push/subscribe",
+      "status": 200,
+      "detail": "Dispositivo suscrito a Web Push: Laura Cliente VIP"
+    },
     {
       "id": "mumsjqa4ru6",
       "timestamp": "9:48:05 a. m.",
@@ -836,6 +853,17 @@
       "startedAt": null,
       "lastActivityAt": null,
       "qrUrl": "http://localhost:5173/?mesa=10"
+    }
+  ],
+  "webPushSubscriptions": [
+    {
+      "id": "sub_1790698889808",
+      "endpoint": "https://fcm.googleapis.com/fcm/send/test-device-token-123",
+      "keys": {},
+      "customerWhatsapp": "573009998877",
+      "customerName": "Laura Cliente VIP",
+      "subscribedAt": "2026-09-29T16:21:29.808Z",
+      "userAgent": "node"
     }
   ]
 }
