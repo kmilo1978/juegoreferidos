@@ -22,11 +22,13 @@ import { AddToHomeScreenModal } from "./AddToHomeScreenModal";
 interface DigitalStampCardProps {
   stampCard: StampCardState;
   customerName: string;
+  onOpenMissions?: () => void;
 }
 
 export function DigitalStampCard({
   stampCard: initialStampCard,
   customerName,
+  onOpenMissions,
 }: DigitalStampCardProps) {
   const { t } = useLanguage();
   const [selectedReward, setSelectedReward] = useState<StampReward | null>(null);
@@ -84,6 +86,30 @@ export function DigitalStampCard({
             <span>
               {t("Horas Felices (3 PM a 6 PM): Cada visita en la tarde otorga Doble Sello (x2)", "Happy Hours (3 PM to 6 PM): Afternoon visits earn Double Stamps (x2)")}
             </span>
+          </div>
+        )}
+
+        {/* BANNER ACCESO AL CENTRO DE MISIONES Y EMBAJADORES */}
+        {onOpenMissions && (
+          <div className="mt-3 p-3 rounded-2xl bg-amber-500/10 border border-gold/40 flex items-center justify-between gap-3 text-left">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xl">🎯</span>
+              <div>
+                <p className="text-xs font-bold text-foreground">
+                  {t("¿Quieres sellos extra sin esperar a tu próxima visita?", "Want extra stamps without waiting for your next visit?")}
+                </p>
+                <p className="text-[10px] text-muted-foreground leading-tight">
+                  {t("Gana hasta +3 sellos compartiendo en TikTok, Trustpilot o WhatsApp.", "Earn up to +3 stamps reviewing on TikTok, Trustpilot or WhatsApp.")}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onOpenMissions}
+              className="shrink-0 px-3 py-1.5 rounded-xl bg-gold hover:bg-gold/90 text-white font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer shadow-xs"
+            >
+              {t("Ver Misiones", "Missions")} →
+            </button>
           </div>
         )}
       </div>

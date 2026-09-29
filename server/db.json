@@ -23,9 +23,49 @@
       "birthDate": "14/11",
       "stamps": 3,
       "lastVisit": "2026-09-28T20:53:25.619Z"
+    },
+    "573001234567": {
+      "fullName": "Ana Gourmet",
+      "whatsapp": "573001234567",
+      "stamps": 3,
+      "lastVisit": "2026-09-29T00:18:57.876Z"
     }
   },
+  "missionSubmissions": [
+    {
+      "id": "SUB-MULXHVUV",
+      "missionId": "m_tiktok",
+      "missionTitle": "Video o Reel en TikTok",
+      "missionIcon": "🎵",
+      "category": "Creación de Contenido",
+      "customerName": "Ana Gourmet",
+      "customerWhatsapp": "573001234567",
+      "evidenceUrl": "https://www.tiktok.com/@ana/video/123456789",
+      "rewardStamps": 3,
+      "rewardText": "+3 Sellos de Visita",
+      "submittedAt": "07:18 p. m.",
+      "dateFormatted": "28 de sept",
+      "status": "APROBADO",
+      "reviewedAt": "07:18 p. m."
+    }
+  ],
   "logs": [
+    {
+      "id": "mulxi0nocd5",
+      "timestamp": "7:18:57 p. m.",
+      "method": "POST",
+      "url": "/api/missions/review",
+      "status": 200,
+      "detail": "Misión APROBADA: Video o Reel en TikTok (+3 sellos a Ana Gourmet)"
+    },
+    {
+      "id": "mulxhvuybin",
+      "timestamp": "7:18:51 p. m.",
+      "method": "POST",
+      "url": "/api/missions/submit",
+      "status": 200,
+      "detail": "Misión enviada para revisión: Video o Reel en TikTok por Ana Gourmet"
+    },
     {
       "id": "mulueles3t9",
       "timestamp": "5:52:19 p. m.",
@@ -245,6 +285,81 @@
       "difficulty": "medio",
       "toleranceMs": 40
     },
+    "missions": [
+      {
+        "id": "m_tiktok",
+        "category": "Creación de Contenido",
+        "title": "Video o Reel en TikTok",
+        "rewardStamps": 3,
+        "rewardText": "+3 Sellos de Visita",
+        "badge": "VIRAL",
+        "icon": "🎵",
+        "description": "Comparte un video corto disfrutando tu café o postre favorito de Bliss Soul.",
+        "rules": [
+          "Publica un video público en TikTok.",
+          "Menciona a @blisssoulbakery en la descripción o usa la etiqueta de ubicación.",
+          "Muestra tu experiencia real con el producto o en el local.",
+          "Mantén el video público de forma permanente."
+        ],
+        "actionUrl": "https://www.tiktok.com",
+        "evidencePlaceholder": "https://www.tiktok.com/@tu_usuario/video/...",
+        "active": true
+      },
+      {
+        "id": "m_trustpilot",
+        "category": "Reseñas de Confianza",
+        "title": "Reseña en Trustpilot",
+        "rewardStamps": 2,
+        "rewardText": "+2 Sellos de Visita",
+        "badge": "AUTORIDAD",
+        "icon": "⭐",
+        "description": "Comparte tu experiencia sincera sobre el servicio y la calidad de nuestra repostería.",
+        "rules": [
+          "Escribe una reseña honesta en nuestra página de Trustpilot.",
+          "Menciona tu producto favorito y cómo fue tu atención.",
+          "Pega el enlace directo a tu reseña publicada."
+        ],
+        "actionUrl": "https://www.trustpilot.com",
+        "evidencePlaceholder": "https://www.trustpilot.com/reviews/...",
+        "active": true
+      },
+      {
+        "id": "m_facebook",
+        "category": "Comunidad y Familia",
+        "title": "Recomendación en Facebook",
+        "rewardStamps": 1,
+        "rewardText": "+1 Sello de Visita",
+        "badge": "COMUNIDAD",
+        "icon": "👥",
+        "description": "Recomienda nuestra página oficial o haz check-in en el local con una foto.",
+        "rules": [
+          "Deja una recomendación positiva en la Fanpage oficial de Facebook o haz check-in.",
+          "Comparte una foto de tu postre o pedido.",
+          "Asegúrate de que la publicación esté en modo público."
+        ],
+        "actionUrl": "https://www.facebook.com",
+        "evidencePlaceholder": "https://www.facebook.com/tu_publicacion/...",
+        "active": true
+      },
+      {
+        "id": "m_whatsapp_status",
+        "category": "Boca a Boca Directo",
+        "title": "Estados de WhatsApp",
+        "rewardStamps": 1,
+        "rewardText": "+1 Sello de Visita",
+        "badge": "WHATSAPP",
+        "icon": "💬",
+        "description": "Sube una foto de tu pedido a tus Estados de WhatsApp recomendando el local.",
+        "rules": [
+          "Publica una foto de tu postre o café en tus Estados de WhatsApp.",
+          "Escribe una frase recomendando a Bliss Soul Bakery.",
+          "Envía el enlace o confirmación de tu estado."
+        ],
+        "actionUrl": "https://api.whatsapp.com",
+        "evidencePlaceholder": "https://wa.me/... o confirmación",
+        "active": true
+      }
+    ],
     "databases": {
       "googleSheetWebhookUrl": "",
       "supabaseEnabled": false,

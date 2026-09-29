@@ -21,6 +21,7 @@ interface StepPrizeClaimProps {
   onValidateAtCashier: () => void;
   secondChanceConfig?: SecondChanceConfig | undefined;
   onUnlockSecondChance?: (() => void) | undefined;
+  onOpenMissions?: () => void;
 }
 
 export function StepPrizeClaim({
@@ -28,6 +29,7 @@ export function StepPrizeClaim({
   onValidateAtCashier,
   secondChanceConfig,
   onUnlockSecondChance,
+  onOpenMissions,
 }: StepPrizeClaimProps) {
   const { lang, t } = useLanguage();
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
@@ -445,7 +447,11 @@ Restaurante: ${clientConfig.brand.name}
       {/* JOYA 1: TARJETA DE SELLOS DIGITALES (DIGITAL STAMP CARD) */}
       <Reveal delay={120}>
         <div className="mt-8">
-          <DigitalStampCard stampCard={stampCard} customerName={prize.participantName} />
+          <DigitalStampCard
+            stampCard={stampCard}
+            customerName={prize.participantName}
+            onOpenMissions={onOpenMissions}
+          />
         </div>
       </Reveal>
 

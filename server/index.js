@@ -91,6 +91,81 @@ const DEFAULT_SETTINGS = {
     shareChannels: ["instagram", "whatsapp"], // canales disponibles para compartir
     whatsappVerificationMessage: "¡Hola! 📸 Te comparto mi captura de estado para participar en la 2ª oportunidad del Reto de Precisión en {restaurante}. Mesa {tableNumber} - Cliente: {participantName}",
   },
+  missions: [
+    {
+      id: "m_tiktok",
+      category: "Creación de Contenido",
+      title: "Video o Reel en TikTok",
+      rewardStamps: 3,
+      rewardText: "+3 Sellos de Visita",
+      badge: "VIRAL",
+      icon: "🎵",
+      description: "Comparte un video corto disfrutando tu café o postre favorito de Bliss Soul.",
+      rules: [
+        "Publica un video público en TikTok.",
+        "Menciona a @blisssoulbakery en la descripción o usa la etiqueta de ubicación.",
+        "Muestra tu experiencia real con el producto o en el local.",
+        "Mantén el video público de forma permanente."
+      ],
+      actionUrl: "https://www.tiktok.com",
+      evidencePlaceholder: "https://www.tiktok.com/@tu_usuario/video/...",
+      active: true,
+    },
+    {
+      id: "m_trustpilot",
+      category: "Reseñas de Confianza",
+      title: "Reseña en Trustpilot",
+      rewardStamps: 2,
+      rewardText: "+2 Sellos de Visita",
+      badge: "AUTORIDAD",
+      icon: "⭐",
+      description: "Comparte tu experiencia sincera sobre el servicio y la calidad de nuestra repostería.",
+      rules: [
+        "Escribe una reseña honesta en nuestra página de Trustpilot.",
+        "Menciona tu producto favorito y cómo fue tu atención.",
+        "Pega el enlace directo a tu reseña publicada."
+      ],
+      actionUrl: "https://www.trustpilot.com",
+      evidencePlaceholder: "https://www.trustpilot.com/reviews/...",
+      active: true,
+    },
+    {
+      id: "m_facebook",
+      category: "Comunidad y Familia",
+      title: "Recomendación en Facebook",
+      rewardStamps: 1,
+      rewardText: "+1 Sello de Visita",
+      badge: "COMUNIDAD",
+      icon: "👥",
+      description: "Recomienda nuestra página oficial o haz check-in en el local con una foto.",
+      rules: [
+        "Deja una recomendación positiva en la Fanpage oficial de Facebook o haz check-in.",
+        "Comparte una foto de tu postre o pedido.",
+        "Asegúrate de que la publicación esté en modo público."
+      ],
+      actionUrl: "https://www.facebook.com",
+      evidencePlaceholder: "https://www.facebook.com/tu_publicacion/...",
+      active: true,
+    },
+    {
+      id: "m_whatsapp_status",
+      category: "Boca a Boca Directo",
+      title: "Estados de WhatsApp",
+      rewardStamps: 1,
+      rewardText: "+1 Sello de Visita",
+      badge: "WHATSAPP",
+      icon: "💬",
+      description: "Sube una foto de tu pedido a tus Estados de WhatsApp recomendando el local.",
+      rules: [
+        "Publica una foto de tu postre o café en tus Estados de WhatsApp.",
+        "Escribe una frase recomendando a Bliss Soul Bakery.",
+        "Envía el enlace o confirmación de tu estado."
+      ],
+      actionUrl: "https://api.whatsapp.com",
+      evidencePlaceholder: "https://wa.me/... o confirmación",
+      active: true,
+    },
+  ],
   databases: {
     googleSheetWebhookUrl: "",
     supabaseEnabled: false,
@@ -214,6 +289,7 @@ let db = {
       lastVisit: new Date().toISOString(),
     },
   },
+  missionSubmissions: [],
   logs: [],
   settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
 };
@@ -274,7 +350,11 @@ if (fs.existsSync(DB_FILE)) {
           ...DEFAULT_SETTINGS.secondChance,
           ...((loaded.settings && loaded.settings.secondChance) || {}),
         },
+        missions: (loaded.settings && loaded.settings.missions && loaded.settings.missions.length > 0)
+          ? loaded.settings.missions
+          : DEFAULT_SETTINGS.missions,
       },
+      missionSubmissions: Array.isArray(loaded.missionSubmissions) ? loaded.missionSubmissions : [],
     };
   } catch (err) {
     console.error("Error leyendo db.json:", err.message);
@@ -448,6 +528,121 @@ const server = http.createServer((req, res) => {
       });
       return;
     }
+  }
+
+  // 13. API: CENTRO DE MISIONES (GET /api/missions, POST /api/missions/submit, POST /api/missions/review)
+  if (pathname === "/api/missions") {
+    if (req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          success: true,
+          missions: db.settings.missions || DEFAULT_SETTINGS.missions,
+          submissions: db.missionSubmissions || [],
+        })
+      );
+      return;
+    }
+  }
+
+  if (pathname === "/api/missions/submit" && req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { missionId, customerName, customerWhatsapp, evidenceUrl } = JSON.parse(body || "{}");
+        if (!evidenceUrl || !evidenceUrl.trim()) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: false, error: "Debes ingresar el enlace de tu publicación o video" }));
+          return;
+        }
+
+        const missions = db.settings.missions || DEFAULT_SETTINGS.missions;
+        const targetMission = missions.find((m) => m.id === missionId) || missions[0];
+
+        const cleanPhone = (customerWhatsapp || "").replace(/\D/g, "") || "573000000000";
+
+        const newSubmission = {
+          id: `SUB-${Date.now().toString(36).toUpperCase()}`,
+          missionId: targetMission.id,
+          missionTitle: targetMission.title,
+          missionIcon: targetMission.icon || "🎯",
+          category: targetMission.category,
+          customerName: customerName || "Comensal Gourmet",
+          customerWhatsapp: cleanPhone,
+          evidenceUrl: evidenceUrl.trim(),
+          rewardStamps: targetMission.rewardStamps || 1,
+          rewardText: targetMission.rewardText || "+1 Sello",
+          submittedAt: new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }),
+          dateFormatted: new Date().toLocaleDateString("es-CO", { day: "2-digit", month: "short" }),
+          status: "PENDIENTE", // "PENDIENTE" | "APROBADO" | "RECHAZADO"
+        };
+
+        db.missionSubmissions = db.missionSubmissions || [];
+        db.missionSubmissions.unshift(newSubmission);
+        saveDb();
+
+        logRequest("POST", "/api/missions/submit", 200, `Misión enviada para revisión: ${targetMission.title} por ${newSubmission.customerName}`);
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true, submission: newSubmission }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  if (pathname === "/api/missions/review" && req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { submissionId, action } = JSON.parse(body || "{}");
+        db.missionSubmissions = db.missionSubmissions || [];
+        const sub = db.missionSubmissions.find((s) => s.id === submissionId);
+        if (!sub) {
+          res.writeHead(404, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: false, error: "Evidencia de misión no encontrada" }));
+          return;
+        }
+
+        if (action === "approve") {
+          sub.status = "APROBADO";
+          sub.reviewedAt = new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+
+          // Sumar sellos al cliente en la base de datos de fidelización
+          const customerPhone = sub.customerWhatsapp;
+          if (customerPhone) {
+            if (!db.customers[customerPhone]) {
+              db.customers[customerPhone] = {
+                fullName: sub.customerName,
+                whatsapp: customerPhone,
+                stamps: 0,
+                lastVisit: new Date().toISOString(),
+              };
+            }
+            const prevStamps = db.customers[customerPhone].stamps || 0;
+            db.customers[customerPhone].stamps = Math.min(15, prevStamps + sub.rewardStamps);
+            logRequest("POST", "/api/missions/review", 200, `Misión APROBADA: ${sub.missionTitle} (+${sub.rewardStamps} sellos a ${sub.customerName})`);
+          }
+        } else {
+          sub.status = "RECHAZADO";
+          sub.reviewedAt = new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+          logRequest("POST", "/api/missions/review", 200, `Misión RECHAZADA: ${sub.missionTitle} de ${sub.customerName}`);
+        }
+
+        saveDb();
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true, submission: sub, customers: db.customers }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
   }
 
   // 1. DASHBOARD VISUAL DEL BACKEND (Ruta raíz /)
@@ -842,6 +1037,8 @@ function renderBackendDashboard() {
   const funnelPlays = totalPrizes;
   const funnelRedeemed = redeemed;
   const funnelReturning = returningCount;
+  const missions = s.missions || DEFAULT_SETTINGS.missions;
+  const submissions = db.missionSubmissions || [];
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -1410,6 +1607,13 @@ function renderBackendDashboard() {
               <div>
                 <div class="tab-title">Tarjeta de 15 Sellos</div>
                 <div class="tab-sub">Premios cada 5 e iconos</div>
+              </div>
+            </button>
+            <button type="button" class="nav-tab-btn" data-tab="tab-missions" onclick="switchTab('tab-missions', this)">
+              <span>🎯</span>
+              <div>
+                <div class="tab-title">Misiones & Embajadores</div>
+                <div class="tab-sub">Revisión de tareas (TikTok, etc.)</div>
               </div>
             </button>
           </div>
@@ -3210,6 +3414,167 @@ function renderBackendDashboard() {
         </div>
       </div>
     </div>
+
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA 10: CENTRO DE MISIONES & EMBAJADORES GOURMET                       -->
+    <!-- ========================================================================= -->
+    <div id="tab-missions" class="tab-content">
+      <!-- GUÍA RÁPIDA -->
+      <div class="quick-guide-box">
+        <div class="quick-guide-header">
+          <span>🎯</span>
+          <span>Guía Rápida: Centro de Misiones & Embajadores Gourmet (Estilo Screpy)</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+          Permite a los comensales acumular sellos adicionales para su tarjeta VIP realizando acciones virales desde su casa o teléfono (TikTok, Trustpilot, Facebook o WhatsApp).
+        </div>
+        <div class="quick-guide-grid">
+          <div class="quick-guide-item">
+            <strong>🎵 TikTok Review (+3 Sellos)</strong>
+            <span>Los comensales suben un video probando un postre y pegan el enlace. Gran alcance viral.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>⭐ Trustpilot (+2 Sellos)</strong>
+            <span>Genera autoridad y confianza en plataformas de opiniones externas verificadas.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>👥 Facebook (+1 Sello)</strong>
+            <span>Recomendación directa en la Fanpage oficial o Check-in en el local con foto familiar.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>💬 Estados WhatsApp (+1 Sello)</strong>
+            <span>Recomendación persona a persona en su círculo íntimo con foto del pedido.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BANDEJA DE APROBACIÓN DE EVIDENCIAS -->
+      <div class="panel" style="margin-bottom: 20px;">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>📥 Bandeja de Aprobación de Misiones Enviadas</span>
+            <span style="font-size: 11px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 8px; border-radius: 9999px; font-weight: 700;">
+              ${submissions.filter(s => s.status === 'PENDIENTE').length} pendientes de revisión
+            </span>
+          </div>
+          <button type="button" class="btn-secondary" onclick="window.location.reload()" style="font-size: 11px; padding: 4px 10px;">
+            🔄 Actualizar Bandeja
+          </button>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="data-table" style="width: 100%;">
+            <thead>
+              <tr>
+                <th>ID / Fecha</th>
+                <th>Comensal / WhatsApp</th>
+                <th>Misión & Recompensa</th>
+                <th>Enlace de Evidencia</th>
+                <th>Estado</th>
+                <th style="text-align: right;">Acción de Validación</th>
+              </tr>
+            </thead>
+            <tbody id="missionsTableBody">
+              ${submissions.length === 0 ? `
+                <tr>
+                  <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                    🎯 No hay evidencias enviadas aún. Cuando los clientes completen misiones desde el juego o domicilio, aparecerán aquí para tu aprobación.
+                  </td>
+                </tr>
+              ` : submissions.map(sub => `
+                <tr id="sub-row-${sub.id}">
+                  <td>
+                    <span style="font-family: monospace; font-size: 11px; color: var(--accent); font-weight: 700;">${sub.id}</span>
+                    <span style="display: block; font-size: 10px; color: var(--text-muted);">${sub.dateFormatted || ''} ${sub.submittedAt || ''}</span>
+                  </td>
+                  <td>
+                    <strong style="color: var(--text); font-size: 12px;">${sub.customerName}</strong>
+                    <span style="display: block; font-size: 11px; font-family: monospace; color: var(--text-muted);">${sub.customerWhatsapp}</span>
+                  </td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span style="font-size: 16px;">${sub.missionIcon || '🎯'}</span>
+                      <div>
+                        <strong style="font-size: 12px; color: var(--text);">${sub.missionTitle}</strong>
+                        <span style="display: block; font-size: 10px; color: #34d399; font-weight: 700;">+${sub.rewardStamps} Sellos de Visita</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <a href="${sub.evidenceUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 4px; color: #38bdf8; text-decoration: underline; font-size: 11px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      🔗 Abrir enlace (${sub.evidenceUrl.length > 30 ? sub.evidenceUrl.substring(0, 30) + '...' : sub.evidenceUrl})
+                    </a>
+                  </td>
+                  <td>
+                    <span id="badge-sub-${sub.id}" style="font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 9999px; ${
+                      sub.status === 'APROBADO' ? 'background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);' :
+                      sub.status === 'RECHAZADO' ? 'background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);' :
+                      'background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);'
+                    }">
+                      ${sub.status}
+                    </span>
+                  </td>
+                  <td style="text-align: right;">
+                    ${sub.status === 'PENDIENTE' ? `
+                      <div id="actions-sub-${sub.id}" style="display: inline-flex; gap: 6px;">
+                        <button type="button" onclick="reviewSubmission('${sub.id}', 'approve')" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                          ✓ Aprobar (+${sub.rewardStamps})
+                        </button>
+                        <button type="button" onclick="reviewSubmission('${sub.id}', 'reject')" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;">
+                          ✗ Rechazar
+                        </button>
+                      </div>
+                    ` : `
+                      <span style="font-size: 11px; color: var(--text-muted);">Revisado ${sub.reviewedAt || ''}</span>
+                    `}
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CATÁLOGO DE MISIONES ACTIVAS -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>📋 Catálogo de Misiones Configuradas</span>
+          </div>
+          <span class="badge-role" style="background: rgba(162, 126, 44, 0.2); color: var(--accent); border-color: rgba(162, 126, 44, 0.4);">
+            ${missions.length} ACTIVAS
+          </span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+          ${missions.map(m => `
+            <div style="background: #0b0f19; border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-size: 24px;">${m.icon}</span>
+                  <span style="font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+                    ${m.rewardText}
+                  </span>
+                </div>
+                <strong style="color: var(--text); font-size: 14px; display: block; margin-bottom: 4px;">${m.title}</strong>
+                <p style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px;">${m.description}</p>
+                <div style="font-size: 10px; color: var(--text-light); background: #131b2e; padding: 8px; border-radius: 8px;">
+                  <strong>Reglas:</strong>
+                  <ul style="padding-left: 16px; margin-top: 4px;">
+                    ${(m.rules || []).map(r => `<li>${r}</li>`).join('')}
+                  </ul>
+                </div>
+              </div>
+              <div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 10px; color: var(--text-muted);">Categoría: ${m.category}</span>
+                <a href="${m.actionUrl}" target="_blank" rel="noopener noreferrer" style="font-size: 11px; color: var(--accent); text-decoration: underline;">
+                  Ver enlace ↗
+                </a>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
       </main>
     </div>
 
@@ -4086,6 +4451,40 @@ function renderBackendDashboard() {
         }
       } catch (err) {
         alert("Error al guardar mesa.");
+      }
+    }
+
+    // GESTIÓN Y REVISIÓN DE MISIONES GOURMET (1-CLIC)
+    async function reviewSubmission(submissionId, action) {
+      if (!confirm(action === 'approve' ? '¿Aprobar esta misión y acreditar los sellos al comensal?' : '¿Rechazar esta evidencia de misión?')) {
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/missions/review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ submissionId, action })
+        });
+        const data = await res.json();
+        if (data.success) {
+          const badge = document.getElementById('badge-sub-' + submissionId);
+          if (badge) {
+            badge.innerText = action === 'approve' ? 'APROBADO' : 'RECHAZADO';
+            badge.style.background = action === 'approve' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+            badge.style.color = action === 'approve' ? '#34d399' : '#f87171';
+            badge.style.borderColor = action === 'approve' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
+          }
+          const actionsDiv = document.getElementById('actions-sub-' + submissionId);
+          if (actionsDiv) {
+            actionsDiv.innerHTML = '<span style="font-size: 11px; color: var(--text-muted);">Revisado ahora</span>';
+          }
+          alert(action === 'approve' ? '¡Misión APROBADA con éxito! Los sellos han sido acreditados al cliente.' : 'Misión rechazada.');
+        } else {
+          alert('Error: ' + (data.error || 'No se pudo procesar la revisión'));
+        }
+      } catch (err) {
+        alert('Error de conexión al revisar misión');
       }
     }
   

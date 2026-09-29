@@ -25,6 +25,7 @@ import { StepSecondChancePrecision } from "./components/qr-game/StepSecondChance
 import { AdminPanelModal } from "./components/qr-game/AdminPanelModal";
 import { PinAuthModal } from "./components/qr-game/PinAuthModal";
 import { TableStandModal } from "./components/qr-game/TableStandModal";
+import { MissionsModal } from "./components/qr-game/MissionsModal";
 import { recordPageView, getStoredHistory, saveStoredHistory } from "./lib/analyticsService";
 import { ComposioService } from "./lib/composioService";
 import { OneSignalService } from "./lib/oneSignalService";
@@ -41,6 +42,9 @@ function getInitialTable(): string {
     const params = new URLSearchParams(window.location.search);
     const modo = params.get("modo");
     if (modo === "caja") return "Punto de Pago / Caja";
+    if (modo === "domicilio" || modo === "delivery" || params.get("mesa") === "domicilio") {
+      return "🛵 Pedido a Domicilio / Takeout";
+    }
     const mesa = params.get("mesa");
     const token = params.get("token");
     if (mesa) {
@@ -89,6 +93,7 @@ function JuegoQrPage() {
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isTableStandOpen, setIsTableStandOpen] = useState<boolean>(false);
+  const [isMissionsOpen, setIsMissionsOpen] = useState<boolean>(false);
 
   // Configuración de modalidad de juego activa (Ruleta vs Precisión 10s vs Híbrido)
   const [gameConfig, setGameConfig] = useState<GameConfig>(() => GameConfigService.getGameConfig());
@@ -385,6 +390,7 @@ function JuegoQrPage() {
         onSelectStep={(step) => {
           setCurrentStep(step);
         }}
+        onOpenMissions={() => setIsMissionsOpen(true)}
       />
 
       {/* Contenido principal según el modo seleccionado */}
@@ -541,6 +547,7 @@ function JuegoQrPage() {
                       setCurrentStep(5);
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
+                    onOpenMissions={() => setIsMissionsOpen(true)}
                   />
 
                   {/* Atajo discreto para modo desarrollo si ?debug=1 */}
@@ -683,6 +690,14 @@ function JuegoQrPage() {
       <TableStandModal
         isOpen={isTableStandOpen}
         onClose={() => setIsTableStandOpen(false)}
+      />
+
+      {/* Modal del Centro de Misiones & Embajadores (Estilo Screpy) */}
+      <MissionsModal
+        isOpen={isMissionsOpen}
+        onClose={() => setIsMissionsOpen(false)}
+        customerName={participant?.fullName || wonPrize?.participantName}
+        customerWhatsapp={participant?.whatsapp || wonPrize?.participantWhatsapp}
       />
     </div>
   );

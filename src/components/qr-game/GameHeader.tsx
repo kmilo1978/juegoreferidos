@@ -13,6 +13,7 @@ interface GameHeaderProps {
   onResetSession: () => void;
   onOpenTableStand?: () => void;
   onSelectStep?: (step: number) => void;
+  onOpenMissions?: () => void;
 }
 
 export function GameHeader({
@@ -22,6 +23,7 @@ export function GameHeader({
   onChangeMode,
   onResetSession,
   onSelectStep,
+  onOpenMissions,
 }: GameHeaderProps) {
   const { t } = useLanguage();
 
@@ -60,18 +62,33 @@ export function GameHeader({
             </span>
           </div>
 
-          {/* Atajo discreto exclusivo para modo desarrollo (?debug=1) */}
-          {isDebug && (
-            <button
-              onClick={onResetSession}
-              type="button"
-              className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] rounded text-muted-foreground hover:text-foreground bg-muted/40"
-              title="Debug: Reiniciar sesión"
-            >
-              <RotateCcw className="h-3 w-3" />
-              <span>Debug Reset</span>
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {onOpenMissions && (
+              <button
+                type="button"
+                onClick={onOpenMissions}
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold/15 hover:bg-gold/25 text-gold border border-gold/40 text-[10px] sm:text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+                title={t("Misiones Gourmet · Gana sellos extras", "Gourmet Missions · Earn extra stamps")}
+              >
+                <span>🎯</span>
+                <span className="font-semibold">{t("Misiones", "Missions")}</span>
+                <span className="bg-gold text-white text-[9px] px-1.5 py-0.2 rounded-full font-mono">+Sellos</span>
+              </button>
+            )}
+
+            {/* Atajo discreto exclusivo para modo desarrollo (?debug=1) */}
+            {isDebug && (
+              <button
+                onClick={onResetSession}
+                type="button"
+                className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] rounded text-muted-foreground hover:text-foreground bg-muted/40"
+                title="Debug: Reiniciar sesión"
+              >
+                <RotateCcw className="h-3 w-3" />
+                <span>Debug Reset</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Marca y Selector de Modo o Stepper */}
@@ -85,7 +102,9 @@ export function GameHeader({
               />
               <div className="border-l border-gold/30 pl-3">
                 <p className="text-[10px] uppercase tracking-[0.24em] text-gold font-semibold">
-                  {t("Experiencia en Mesa", "Table Experience")}
+                  {session.tableNumber.includes("Domicilio")
+                    ? t("Experiencia en Casa", "At Home Experience")
+                    : t("Experiencia en Mesa", "Table Experience")}
                 </p>
                 <p className="text-xs font-serif text-foreground/80">
                   {t("Juego de Premios & Gratitud", "Prize Game & Hospitality")}

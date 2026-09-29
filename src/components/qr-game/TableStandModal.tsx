@@ -11,15 +11,18 @@ interface TableStandModalProps {
 
 export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
   const [selectedTable, setSelectedTable] = useState<string>("1");
-  const [isCashierOnly, setIsCashierOnly] = useState<boolean>(false);
+  const [locationType, setLocationType] = useState<"table" | "caja" | "domicilio">("table");
   const [tableToken, setTableToken] = useState<string>(() => getTableSecurityToken("1"));
 
   if (!isOpen) return null;
 
   const currentUrl = typeof window !== "undefined" ? window.location.origin : "https://turestaurante.com";
-  const tableQrUrl = isCashierOnly 
-    ? `${currentUrl}?modo=caja` 
-    : `${currentUrl}?mesa=${selectedTable}&token=${tableToken}`;
+  const tableQrUrl =
+    locationType === "caja"
+      ? `${currentUrl}?modo=caja`
+      : locationType === "domicilio"
+      ? `${currentUrl}?modo=domicilio`
+      : `${currentUrl}?mesa=${selectedTable}&token=${tableToken}`;
 
   const handleTableChange = (newTable: string) => {
     setSelectedTable(newTable);
@@ -43,7 +46,7 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
           <div className="flex items-center gap-2">
             <QrCode className="h-4 w-4 text-gold" />
             <span className="text-xs uppercase tracking-wider font-semibold text-gold">
-              Arte para Mesa y Caja
+              Arte para Mesa, Caja o Domicilios
             </span>
           </div>
           <button
@@ -55,25 +58,30 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
           </button>
         </div>
 
-        {/* SELECTOR DE MESA O CAJA (Oculto al imprimir) */}
+        {/* SELECTOR DE MESA, CAJA O DOMICILIOS (Oculto al imprimir) */}
         <div className="p-4 bg-muted/60 border-b border-border/80 space-y-2 print:hidden">
           <label className="text-[11px] font-semibold text-foreground block">
-            📍 Selecciona la ubicación para este código QR:
+            📍 Selecciona la ubicación o destino de este código QR:
           </label>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <select
-                value={isCashierOnly ? "caja" : selectedTable}
+                value={locationType === "table" ? selectedTable : locationType}
                 onChange={(e) => {
                   if (e.target.value === "caja") {
-                    setIsCashierOnly(true);
+                    setLocationType("caja");
+                  } else if (e.target.value === "domicilio") {
+                    setLocationType("domicilio");
                   } else {
-                    setIsCashierOnly(false);
+                    setLocationType("table");
                     handleTableChange(e.target.value);
                   }
                 }}
                 className="bg-card text-foreground border border-gold/40 text-xs rounded-lg px-3 py-1.5 font-medium focus:outline-none focus:ring-1 focus:ring-gold"
               >
+                <optgroup label="🛵 Empaques & Domicilios">
+                  <option value="domicilio">🛵 Sticker para Caja / Domicilios</option>
+                </optgroup>
                 <optgroup label="Mesas del Restaurante">
                   {Array.from({ length: 15 }, (_, i) => i + 1).map((num) => (
                     <option key={num} value={String(num)}>
@@ -86,7 +94,7 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
                 </optgroup>
               </select>
 
-              {!isCashierOnly && (
+              {locationType === "table" && (
                 <button
                   type="button"
                   onClick={handleRegenerateToken}
@@ -100,7 +108,11 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
             </div>
 
             <span className="text-[10px] text-muted-foreground">
-              {isCashierOnly ? "QR especial para cobro en caja" : `QR protegido con token #${tableToken} para Mesa ${selectedTable}`}
+              {locationType === "domicilio"
+                ? "Sticker permanente para empaques y bolsas de delivery"
+                : locationType === "caja"
+                ? "QR especial para cobro en caja"
+                : `QR con token #${tableToken} para Mesa ${selectedTable}`}
             </span>
           </div>
         </div>
@@ -115,12 +127,16 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
               className="h-14 w-auto mx-auto object-contain"
             />
             
-            {/* DISTINTIVO DE MESA / CAJA */}
+            {/* DISTINTIVO DE MESA / CAJA / DOMICILIO */}
             <div className="flex flex-col items-center gap-1">
-              <div className="inline-block px-3 py-1 rounded-full bg-gold/15 border border-gold/40 text-gold text-xs font-bold uppercase tracking-widest">
-                {isCashierOnly ? "💳 PUNTO DE PAGO / CAJA" : `🍽️ MESA ${selectedTable}`}
+              <div className="inline-block px-3.5 py-1 rounded-full bg-gold/15 border border-gold/40 text-gold text-xs font-bold uppercase tracking-widest">
+                {locationType === "domicilio"
+                  ? "🛵 EXPERIENCIA EN CASA / DOMICILIO"
+                  : locationType === "caja"
+                  ? "💳 PUNTO DE PAGO / CAJA"
+                  : `🍽️ MESA ${selectedTable}`}
               </div>
-              {!isCashierOnly && (
+              {locationType === "table" && (
                 <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100/80 border border-emerald-300 text-emerald-800 text-[10px] font-mono font-bold">
                   <ShieldCheck className="h-3 w-3 text-emerald-600" />
                   <span>CÓDIGO DE SEGURIDAD: #{tableToken}</span>
@@ -129,13 +145,19 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
             </div>
 
             <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground font-semibold">
-              {isCashierOnly ? "BENEFICIO EXCLUSIVO EN TU FACTURA" : "EXPERIENCIA EXCLUSIVA EN TU MESA"}
+              {locationType === "domicilio"
+                ? "¡GRACIAS POR DISFRUTAR NUESTRA PASTELERÍA EN CASA!"
+                : locationType === "caja"
+                ? "BENEFICIO EXCLUSIVO EN TU FACTURA"
+                : "EXPERIENCIA EXCLUSIVA EN TU MESA"}
             </p>
             <h2 className="font-display text-2xl text-foreground font-normal">
-              ¡Gira la Ruleta & Gana!
+              {locationType === "domicilio" ? "¡Tu Pedido tiene Premio!" : "¡Gira la Ruleta & Gana!"}
             </h2>
             <p className="text-xs text-muted-foreground font-light max-w-xs mx-auto leading-relaxed">
-              {isCashierOnly 
+              {locationType === "domicilio"
+                ? "Escanea este código QR desde tu hogar para girar nuestra Ruleta y ganar un premio especial para tu próximo pedido o visita."
+                : locationType === "caja"
                 ? "Escanea este código al pagar para descubrir tu beneficio o descuento en tu cuenta."
                 : `Acerca tu celular o escanea este código QR desde tu Mesa ${selectedTable} para descubrir tu beneficio de hoy.`}
             </p>
@@ -146,7 +168,13 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
             <GoldenQRCode value={tableQrUrl} size={210} />
             <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-gold font-semibold uppercase tracking-wider">
               <Sparkles className="h-3.5 w-3.5" />
-              <span>{isCashierOnly ? "Escaneo en Caja" : `Mesa ${selectedTable} · Compatible con NFC y Cámara`}</span>
+              <span>
+                {locationType === "domicilio"
+                  ? "Sticker de Empaque · Compatible con Cámara"
+                  : locationType === "caja"
+                  ? "Escaneo en Caja"
+                  : `Mesa ${selectedTable} · Compatible con NFC y Cámara`}
+              </span>
             </div>
           </div>
           {/* Pasos Rápidos para el Comensal */}
@@ -161,7 +189,7 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
             </div>
             <div>
               <span className="font-bold text-foreground block">3. Redime</span>
-              <span>En tu cuenta de hoy</span>
+              <span>{locationType === "domicilio" ? "En tu próximo pedido" : "En tu cuenta de hoy"}</span>
             </div>
           </div>
         </div>
@@ -169,7 +197,9 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
         {/* Botones de Acción (Ocultos al imprimir) */}
         <div className="p-4 bg-muted/40 border-t border-border flex items-center justify-between gap-3 print:hidden">
           <p className="text-[11px] text-muted-foreground font-light">
-            Tamaño sugerido: Acrílico de mesa 10x15 cm
+            {locationType === "domicilio"
+              ? "Tamaño sugerido: Sticker adhesivo 8x8 cm o tarjeta 10x10 cm"
+              : "Tamaño sugerido: Acrílico de mesa 10x15 cm"}
           </p>
           <button
             type="button"
