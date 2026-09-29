@@ -132,6 +132,24 @@ const DEFAULT_MISSIONS: MissionItem[] = [
     evidencePlaceholder: "Tu número de WhatsApp o confirmación de ingreso al grupo",
     active: true,
   },
+  {
+    id: "m_bing",
+    category: "Motores de Búsqueda",
+    title: "Reseña en Bing Places & Maps",
+    rewardStamps: 2,
+    rewardText: "+2 Sellos de Visita",
+    badge: "BING MAPS",
+    icon: "🌐",
+    description: "Comparte tu opinión y calificación en nuestro perfil de Microsoft Bing Places para ayudarnos a posicionar en búsquedas.",
+    rules: [
+      "Abre el perfil de Bliss Soul Bakery en Bing Maps o Microsoft Search.",
+      "Califica con estrellas y comparte tu producto o postre favorito.",
+      "Pega el enlace de tu reseña o confirmación para sumar tus sellos.",
+    ],
+    actionUrl: "https://www.bing.com/maps",
+    evidencePlaceholder: "https://www.bing.com/maps?... o confirmación",
+    active: true,
+  },
 ];
 
 interface StepMissionsProps {
@@ -164,7 +182,8 @@ export function StepMissions({
       .then((data) => {
         if (data && data.success) {
           if (Array.isArray(data.missions) && data.missions.length > 0) {
-            setMissions(data.missions);
+            const activeOnly = data.missions.filter((m: MissionItem) => m.active !== false);
+            setMissions(activeOnly.length > 0 ? activeOnly : data.missions);
           }
           if (Array.isArray(data.submissions)) {
             setSubmissions(data.submissions);

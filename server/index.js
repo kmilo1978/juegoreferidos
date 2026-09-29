@@ -83,12 +83,17 @@ const DEFAULT_SETTINGS = {
   },
   secondChance: {
     enabled: true,
-    prizeName: "Postre Artesanal Gratis",
+    prizeName: "Postre Artesanal de Autor Gratis",
     prizeDescription: "Una porción de nuestra Tarta Vasca artesanal del día",
+    prizeValue: "$18.000 COP",
+    claimTerms: "Válido hoy en caja presentando tu código único de ganador.",
     prizeImageUrl: "/src/assets/tarta-vasca.jpg",
     prizeImageSize: "medium", // "small" | "medium" | "large"
     maxAttempts: 3,
+    difficulty: "medio",
+    toleranceMs: 40,
     shareChannels: ["instagram", "whatsapp"], // canales disponibles para compartir
+    whatsappStatusText: "¡Disfrutando de una tarde increíble en Bliss Soul Bakery & Café! ☕🍰 Les recomiendo probar sus postres artesanales. 10/10 ✨",
     whatsappVerificationMessage: "¡Hola! 📸 Te comparto mi captura de estado para participar en la 2ª oportunidad del Reto de Precisión en {restaurante}. Mesa {tableNumber} - Cliente: {participantName}",
   },
   missions: [
@@ -199,6 +204,24 @@ const DEFAULT_SETTINGS = {
       ],
       actionUrl: "https://chat.whatsapp.com/BlissSoulVIPCommunity",
       evidencePlaceholder: "Tu número de WhatsApp o confirmación de ingreso al grupo",
+      active: true,
+    },
+    {
+      id: "m_bing",
+      category: "Motores de Búsqueda",
+      title: "Reseña en Bing Places & Maps",
+      rewardStamps: 2,
+      rewardText: "+2 Sellos de Visita",
+      badge: "BING MAPS",
+      icon: "🌐",
+      description: "Comparte tu opinión y calificación en nuestro perfil de Microsoft Bing Places para ayudarnos a posicionar en búsquedas.",
+      rules: [
+        "Abre el perfil de Bliss Soul Bakery en Bing Maps o Microsoft Search.",
+        "Califica con estrellas y comparte tu producto o postre favorito.",
+        "Pega el enlace de tu reseña o confirmación para sumar tus sellos.",
+      ],
+      actionUrl: "https://www.bing.com/maps",
+      evidencePlaceholder: "https://www.bing.com/maps?... o confirmación",
       active: true,
     },
   ],
@@ -421,9 +444,17 @@ if (fs.existsSync(DB_FILE)) {
           ...DEFAULT_SETTINGS.secondChance,
           ...((loaded.settings && loaded.settings.secondChance) || {}),
         },
-        missions: (loaded.settings && loaded.settings.missions && loaded.settings.missions.length > 0)
-          ? loaded.settings.missions
-          : DEFAULT_SETTINGS.missions,
+        missions: (() => {
+          let list = (loaded.settings && loaded.settings.missions && loaded.settings.missions.length > 0)
+            ? [...loaded.settings.missions]
+            : [...DEFAULT_SETTINGS.missions];
+          DEFAULT_SETTINGS.missions.forEach((defM) => {
+            if (!list.some((m) => m.id === defM.id)) {
+              list.push(defM);
+            }
+          });
+          return list;
+        })(),
         reputation: {
           ...DEFAULT_SETTINGS.reputation,
           ...((loaded.settings && loaded.settings.reputation) || {}),
@@ -606,7 +637,7 @@ const server = http.createServer((req, res) => {
     }
   }
 
-  // 13. API: CENTRO DE MISIONES (GET /api/missions, POST /api/missions/submit, POST /api/missions/review)
+  // 13. API: CENTRO DE MISIONES (GET /api/missions, POST /api/missions/config, POST /api/missions/submit, POST /api/missions/review)
   if (pathname === "/api/missions") {
     if (req.method === "GET") {
       res.writeHead(200, { "Content-Type": "application/json" });
@@ -619,6 +650,30 @@ const server = http.createServer((req, res) => {
       );
       return;
     }
+  }
+
+  if (pathname === "/api/missions/config" && req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { missions } = JSON.parse(body || "{}");
+        if (Array.isArray(missions)) {
+          db.settings.missions = missions;
+          saveDb();
+          logRequest("POST", "/api/missions/config", 200, `Catálogo de misiones actualizado (${missions.length} misiones configuradas)`);
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: true, missions: db.settings.missions }));
+        } else {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: false, error: "Formato de misiones no válido" }));
+        }
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
   }
 
   if (pathname === "/api/missions/submit" && req.method === "POST") {
@@ -2855,18 +2910,44 @@ function renderBackendDashboard() {
             <span class="form-help">Si está activo, los comensales verán el botón para desbloquear el reto</span>
           </div>
 
-          <!-- 2. Nombre del Premio -->
+          <!-- Selector de Modo de Premio / Plantillas Rápidas -->
           <div class="form-group">
-            <label class="form-label">Nombre del Premio a Ganar *</label>
-            <input type="text" id="scPrizeName" class="form-input" value="${sc.prizeName || 'Postre Artesanal de Autor Gratis'}" placeholder="Ej. Postre Artesanal de Autor Gratis" oninput="updateSecondChancePreview()" />
-            <span class="form-help">Título grande y tentador que verá el comensal antes de jugar</span>
+            <label class="form-label">Modalidad de Programación del Premio</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px;">
+              <button type="button" class="btn-secondary" onclick="applySecondChancePreset('vasca')" style="font-size: 11px; padding: 6px 4px; text-align: center;">🍰 Tarta Vasca</button>
+              <button type="button" class="btn-secondary" onclick="applySecondChancePreset('redvelvet')" style="font-size: 11px; padding: 6px 4px; text-align: center;">🎂 Red Velvet</button>
+              <button type="button" class="btn-secondary" onclick="applySecondChancePreset('cafe')" style="font-size: 11px; padding: 6px 4px; text-align: center;">☕ Café Especial</button>
+              <button type="button" class="btn-secondary" onclick="applySecondChancePreset('manual')" style="font-size: 11px; padding: 6px 4px; text-align: center; border-color: var(--accent); color: var(--accent); font-weight: 700;">✍️ Premio Manual</button>
+            </div>
+            <span class="form-help">Selecciona una plantilla rápida o haz clic en ✍️ Premio Manual para personalizar</span>
           </div>
 
-          <!-- 3. Descripción del Premio -->
+          <!-- 2. Nombre del Premio Manual -->
+          <div class="form-group">
+            <label class="form-label">Nombre del Premio a Ganar (Manual) *</label>
+            <input type="text" id="scPrizeName" class="form-input" value="${(sc.prizeName || 'Postre Artesanal de Autor Gratis').replace(/"/g, '&quot;')}" placeholder="Ej. Tarta Vasca / Desayuno Gourmet / Bono $30.000" oninput="updateSecondChancePreview()" />
+            <span class="form-help">Escribe libremente el nombre del postre, bono, producto o experiencia</span>
+          </div>
+
+          <!-- 2b. Valor Comercial Estimado -->
+          <div class="form-group">
+            <label class="form-label">Valor Comercial Estimado (Visual)</label>
+            <input type="text" id="scPrizeValue" class="form-input" value="${(sc.prizeValue || '$18.000 COP').replace(/"/g, '&quot;')}" placeholder="Ej. $18.000 COP, $45.000 COP o Cortesía de la Casa" oninput="updateSecondChancePreview()" />
+            <span class="form-help">Aumenta el valor percibido del reto ante el comensal</span>
+          </div>
+
+          <!-- 3. Descripción Gastronómica del Premio -->
           <div class="form-group" style="grid-column: 1 / -1;">
             <label class="form-label">Descripción Gastronómica del Premio</label>
-            <input type="text" id="scPrizeDescription" class="form-input" value="${sc.prizeDescription || 'Una porción de nuestra Tarta Vasca artesanal o Red Velvet del día'}" placeholder="Ej. Porción de Tarta Vasca o Red Velvet" oninput="updateSecondChancePreview()" />
+            <input type="text" id="scPrizeDescription" class="form-input" value="${(sc.prizeDescription || 'Una porción de nuestra Tarta Vasca artesanal o Red Velvet del día').replace(/"/g, '&quot;')}" placeholder="Ej. Porción de Tarta Vasca o Red Velvet" oninput="updateSecondChancePreview()" />
             <span class="form-help">Detalles que antojen al comensal a esforzarse por ganar</span>
+          </div>
+
+          <!-- 3b. Términos y Condiciones de Reclamo -->
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label">Términos y Condiciones de Reclamo Manual</label>
+            <input type="text" id="scClaimTerms" class="form-input" value="${(sc.claimTerms || 'Válido hoy en mesa o caja presentando el código único ganado.').replace(/"/g, '&quot;')}" placeholder="Ej. Válido hoy en caja presentando tu código único" oninput="updateSecondChancePreview()" />
+            <span class="form-help">Instrucciones claras para el comensal y el cajero sobre cómo y cuándo redimir el premio</span>
           </div>
 
           <!-- 4. Foto del Premio (Catálogo + URL personalizada) -->
@@ -2876,9 +2957,10 @@ function renderBackendDashboard() {
               <option value="/src/assets/tarta-vasca.jpg" ${sc.prizeImageUrl?.includes('tarta-vasca') ? 'selected' : ''}>🍰 Tarta Vasca Artesanal (Catálogo)</option>
               <option value="/src/assets/torta-red-velvet.jpg" ${sc.prizeImageUrl?.includes('red-velvet') ? 'selected' : ''}>🎂 Torta Red Velvet (Catálogo)</option>
               <option value="/src/assets/cafe-latte.jpg" ${sc.prizeImageUrl?.includes('cafe-latte') ? 'selected' : ''}>☕ Café Latte Gourmet (Catálogo)</option>
-              <option value="custom" ${!sc.prizeImageUrl?.includes('/src/assets/') ? 'selected' : ''}>🔗 URL Personalizada...</option>
+              <option value="/src/assets/hero-pistacho-cafe.jpg" ${sc.prizeImageUrl?.includes('hero-pistacho') ? 'selected' : ''}>🥐 Especial Pistacho & Café (Catálogo)</option>
+              <option value="custom" ${!sc.prizeImageUrl?.includes('/src/assets/') ? 'selected' : ''}>🔗 URL Personalizada (Cualquier foto de internet o local)...</option>
             </select>
-            <input type="text" id="scPrizeImageUrl" class="form-input" style="margin-top: 6px;" value="${sc.prizeImageUrl || '/src/assets/tarta-vasca.jpg'}" placeholder="URL de la imagen" oninput="updateSecondChancePreview()" />
+            <input type="text" id="scPrizeImageUrl" class="form-input" style="margin-top: 6px;" value="${(sc.prizeImageUrl || '/src/assets/tarta-vasca.jpg').replace(/"/g, '&quot;')}" placeholder="URL de la imagen del premio" oninput="updateSecondChancePreview()" />
           </div>
 
           <!-- 5. Tamaño de la Foto en Pantalla -->
@@ -2914,21 +2996,34 @@ function renderBackendDashboard() {
             </select>
             <span class="form-help">Margen milimétrico en torno a 10.000s</span>
           </div>
+
+          <!-- 8. Mensaje para Estados de WhatsApp -->
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label">Frase Sugerida para el Estado de WhatsApp del Cliente</label>
+            <input type="text" id="scWhatsappStatusText" class="form-input" value="${(sc.whatsappStatusText || '¡Disfrutando de una tarde increíble en Bliss Soul Bakery & Café! ☕🍰 Les recomiendo probar sus postres artesanales. 10/10 ✨').replace(/"/g, '&quot;')}" placeholder="Texto que copiará el cliente para su Estado" />
+            <span class="form-help">Mensaje predeterminado que viraliza tu marca en las historias de WhatsApp de los comensales</span>
+          </div>
         </div>
 
         <!-- Vista Previa en Vivo de la Tarjeta del Premio -->
         <div style="margin-top: 18px; padding: 16px; background: #FFFFFF; border: 1px solid var(--card-border); border-radius: 12px;">
           <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
-            👁️ Vista Previa de la Tarjeta que verá el Comensal en el Cronómetro:
+            👁️ Vista Previa en Tiempo Real de la Tarjeta Programada (Lo que verá el comensal en el cronómetro):
           </div>
-          <div id="scPreviewBox" style="max-width: 360px; margin: 0 auto; border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; background: #FFFFFF; box-shadow: 0 4px 14px rgba(0,0,0,0.06); text-align: center;">
-            <div id="scPreviewImgWrap" style="height: ${sc.prizeImageSize === 'small' ? '120px' : sc.prizeImageSize === 'large' ? '260px' : '180px'}; background: #F1F5F9; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+          <div id="scPreviewBox" style="max-width: 380px; margin: 0 auto; border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; background: #FFFFFF; box-shadow: 0 4px 14px rgba(0,0,0,0.08); text-align: center;">
+            <div id="scPreviewImgWrap" style="height: ${sc.prizeImageSize === 'small' ? '120px' : sc.prizeImageSize === 'large' ? '260px' : '180px'}; background: #F1F5F9; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center;">
               <img id="scPreviewImg" src="${sc.prizeImageUrl || '/src/assets/tarta-vasca.jpg'}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/src/assets/tarta-vasca.jpg'" />
+              <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); color: #FFF; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">
+                <span id="scPreviewValBadge">${sc.prizeValue || '$18.000 COP'}</span>
+              </div>
             </div>
             <div style="padding: 14px 16px;">
               <span style="font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase;">🏆 Tu Premio Si Ganas</span>
-              <h4 id="scPreviewTitle" style="font-size: 15px; font-weight: 800; color: var(--text); margin: 4px 0 2px;">${sc.prizeName || 'Postre Artesanal de Autor Gratis'}</h4>
-              <p id="scPreviewDesc" style="font-size: 11px; color: var(--text-muted);">${sc.prizeDescription || 'Una porción de nuestra Tarta Vasca artesanal del día'}</p>
+              <h4 id="scPreviewTitle" style="font-size: 16px; font-weight: 800; color: var(--text); margin: 4px 0 3px;">${sc.prizeName || 'Postre Artesanal de Autor Gratis'}</h4>
+              <p id="scPreviewDesc" style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 6px;">${sc.prizeDescription || 'Una porción de nuestra Tarta Vasca artesanal del día'}</p>
+              <div id="scPreviewTerms" style="font-size: 10.5px; color: #64748B; background: #F8FAFC; border: 1px solid #E2E8F0; padding: 6px 10px; border-radius: 8px;">
+                ${sc.claimTerms || 'Válido hoy en mesa o caja presentando el código único ganado.'}
+              </div>
             </div>
           </div>
         </div>
@@ -3964,43 +4059,95 @@ function renderBackendDashboard() {
         </div>
       </div>
 
-      <!-- CATÁLOGO DE MISIONES ACTIVAS (LIGHT THEME LIMPIO) -->
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">
-            <span>📋 Catálogo de Misiones Configuradas</span>
-          </div>
-          <span class="badge-role" style="background: rgba(162, 126, 44, 0.15); color: var(--accent); border-color: rgba(162, 126, 44, 0.35);">
-            ${missions.length} ACTIVAS
-          </span>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-          ${missions.map(m => `
-            <div style="background: #FFFFFF; border: 1px solid var(--card-border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-              <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                  <span style="font-size: 26px;">${m.icon}</span>
-                  <span style="font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 9999px; background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); font-family: monospace;">
-                    ${m.rewardText}
-                  </span>
-                </div>
-                <strong style="color: var(--text); font-size: 15px; display: block; margin-bottom: 6px; font-weight: 700;">${m.title}</strong>
-                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">${m.description}</p>
-                <div style="font-size: 11px; color: #475569; background: #F8FAFC; border: 1px solid #E2E8F0; padding: 10px 12px; border-radius: 10px;">
-                  <strong style="color: var(--text); display: block; margin-bottom: 4px;">Reglas:</strong>
-                  <ul style="padding-left: 16px; margin-top: 2px; line-height: 1.4;">
-                    ${(m.rules || []).map(r => `<li>${r}</li>`).join('')}
-                  </ul>
-                </div>
-              </div>
-              <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">Categoría: ${m.category}</span>
-                <a href="${m.actionUrl}" target="_blank" rel="noopener noreferrer" style="font-size: 11.5px; font-weight: 600; color: var(--accent); text-decoration: none; background: #F8FAFC; border: 1px solid var(--card-border); padding: 4px 10px; border-radius: 8px; transition: all 0.15s;">
-                  Ver enlace ↗
-                </a>
-              </div>
+      <!-- PANEL: CHECKLIST Y PUNTOS DINÁMICOS DEL CATÁLOGO DE MISIONES -->
+      <div class="panel" style="margin-top: 24px; border: 2px solid var(--accent); background: linear-gradient(135deg, #FFFDF8 0%, #FFFFFF 100%);">
+        <div class="panel-header" style="border-bottom: 1px solid rgba(162, 126, 44, 0.2); padding-bottom: 14px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <div class="panel-title" style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 20px;">📋</span>
+              <span style="font-weight: 800; font-size: 16px; color: var(--text);">Catálogo de Misiones: Checklist & Puntos Dinámicos</span>
+              <span style="font-size: 11px; background: var(--accent-light); color: var(--accent); border: 1px solid rgba(162,126,44,0.3); padding: 3px 10px; border-radius: 9999px; font-weight: 700;">
+                CONTROL TOTAL
+              </span>
             </div>
-          `).join('')}
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+              Activa o pausa cada misión usando el checklist, asigna cuántos sellos de fidelidad (+1, +2, +3...) entrega cada una y personaliza sus enlaces de destino (Bing, TikTok, etc.).
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="toast-missions-config" class="toast-success">✓ ¡Catálogo de misiones guardado con éxito!</span>
+            <button type="button" class="btn-save" onclick="saveMissionsCatalog()">💾 Guardar Catálogo</button>
+          </div>
+        </div>
+
+        <!-- TABLA INTERACTIVA TIPO CHECKLIST -->
+        <div style="overflow-x: auto;">
+          <table class="data-table" style="width: 100%; border-collapse: separate; border-spacing: 0 8px;">
+            <thead>
+              <tr style="background: #F8FAFC;">
+                <th style="width: 130px; text-align: center;">Checklist / Estado</th>
+                <th style="width: 240px;">Misión & Categoría</th>
+                <th style="width: 160px; text-align: center;">Sellos / Puntos</th>
+                <th style="width: 250px;">Enlace de Destino (URL)</th>
+                <th>Instrucciones / Reglas</th>
+              </tr>
+            </thead>
+            <tbody id="missionsConfigTableBody">
+              ${missions.map(m => {
+                const isActive = m.active !== false;
+                return `
+                <tr id="mission-row-${m.id}" style="background: ${isActive ? '#FFFFFF' : '#F9FAFB'}; opacity: ${isActive ? '1' : '0.65'}; transition: all 0.2s;">
+                  <td style="text-align: center; vertical-align: middle;">
+                    <label style="display: inline-flex; flex-direction: column; align-items: center; cursor: pointer; gap: 4px;">
+                      <input type="checkbox" id="m_active_${m.id}" ${isActive ? 'checked' : ''} onchange="toggleMissionRow('${m.id}')" style="width: 20px; height: 20px; cursor: pointer; accent-color: #059669;" />
+                      <span id="m_status_badge_${m.id}" style="font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 9999px; ${isActive ? 'background: rgba(16, 185, 129, 0.15); color: #059669;' : 'background: #E2E8F0; color: #64748B;'}">
+                        ${isActive ? '✅ ACTIVA' : '⏸️ PAUSADA'}
+                      </span>
+                    </label>
+                  </td>
+                  <td style="vertical-align: top;">
+                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                      <span style="font-size: 24px;">${m.icon || '🎯'}</span>
+                      <div style="flex: 1;">
+                        <input type="text" id="m_title_${m.id}" class="form-input" value="${(m.title || '').replace(/"/g, '&quot;')}" style="font-size: 13px; font-weight: 700; margin-bottom: 4px;" placeholder="Título de la misión" />
+                        <span style="font-size: 10px; font-weight: 600; color: #64748B; background: #F1F5F9; padding: 2px 6px; border-radius: 4px;">
+                          ${m.category || 'Misión'}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                  <td style="text-align: center; vertical-align: middle;">
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                      <div style="display: flex; align-items: center; gap: 6px;">
+                        <input type="number" id="m_stamps_${m.id}" class="form-input" min="1" max="15" value="${m.rewardStamps || 1}" oninput="updateMissionBadge('${m.id}')" style="width: 65px; text-align: center; font-size: 15px; font-weight: 800; color: #059669; padding: 6px 4px;" />
+                        <span style="font-size: 13px; font-weight: 700; color: #059669;">pts</span>
+                      </div>
+                      <span id="m_stamps_label_${m.id}" style="font-size: 11px; font-weight: 700; color: #047857; font-family: monospace;">
+                        +${m.rewardStamps || 1} Sello${(m.rewardStamps || 1) > 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  </td>
+                  <td style="vertical-align: top;">
+                    <input type="text" id="m_url_${m.id}" class="form-input" value="${(m.actionUrl || '').replace(/"/g, '&quot;')}" placeholder="https://..." style="font-size: 11.5px; font-family: monospace; margin-bottom: 4px;" />
+                    <a href="${m.actionUrl || '#'}" id="m_url_preview_${m.id}" target="_blank" rel="noopener noreferrer" style="font-size: 11px; color: #0284c7; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;">
+                      Probar enlace ↗
+                    </a>
+                  </td>
+                  <td style="vertical-align: top;">
+                    <textarea id="m_desc_${m.id}" class="form-input" rows="2" style="font-size: 11.5px; resize: vertical;" placeholder="Descripción de la misión">${m.description || ''}</textarea>
+                  </td>
+                </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="font-size: 12px; color: var(--text-muted);">
+            💡 <strong>Consejo Gourmet:</strong> Puedes activar Bing Maps, TikTok, Trustpilot, Facebook y WhatsApp según tu campaña. Las misiones desactivadas no aparecerán en el teléfono de los comensales.
+          </div>
+          <button type="button" class="btn-save" onclick="saveMissionsCatalog()">💾 Guardar Cambios en Catálogo</button>
         </div>
       </div>
     </div>
@@ -4194,6 +4341,7 @@ function renderBackendDashboard() {
   <script>
     // DATOS DE PLANTILLAS GUARDADAS EN EL BACKEND
     window.SAVED_DRAFTS = ${JSON.stringify(s.savedPushDrafts || [])};
+    window.CURRENT_MISSIONS = ${JSON.stringify(missions || [])};
 
     // CAMBIO DE PESTAÑAS EN EL BACKEND
     function switchTab(tabId, btn) {
@@ -4607,6 +4755,46 @@ function renderBackendDashboard() {
       });
     }
 
+    // SEGUNDA OPORTUNIDAD: PLANTILLAS RÁPIDAS Y MODO MANUAL
+    function applySecondChancePreset(type) {
+      var nameEl = document.getElementById('scPrizeName');
+      var descEl = document.getElementById('scPrizeDescription');
+      var valEl = document.getElementById('scPrizeValue');
+      var termsEl = document.getElementById('scClaimTerms');
+      var imgSelect = document.getElementById('scPresetImage');
+      var imgUrl = document.getElementById('scPrizeImageUrl');
+
+      if (type === 'vasca') {
+        if (nameEl) nameEl.value = 'Porción de Tarta Vasca Artesanal';
+        if (descEl) descEl.value = 'Receta tradicional horneada a alta temperatura con centro ultra cremoso y frutos rojos';
+        if (valEl) valEl.value = '$18.000 COP';
+        if (termsEl) termsEl.value = 'Canjeable de inmediato en mesa o para llevar con código único.';
+        if (imgSelect) imgSelect.value = '/src/assets/tarta-vasca.jpg';
+        if (imgUrl) imgUrl.value = '/src/assets/tarta-vasca.jpg';
+      } else if (type === 'redvelvet') {
+        if (nameEl) nameEl.value = 'Torta Red Velvet Suave de Autor';
+        if (descEl) descEl.value = 'Esponjoso bizcocho aterciopelado con capas de frosting de queso crema artesanal';
+        if (valEl) valEl.value = '$20.000 COP';
+        if (termsEl) termsEl.value = 'Válido hoy en consumo presencial presentando código en caja.';
+        if (imgSelect) imgSelect.value = '/src/assets/torta-red-velvet.jpg';
+        if (imgUrl) imgUrl.value = '/src/assets/torta-red-velvet.jpg';
+      } else if (type === 'cafe') {
+        if (nameEl) nameEl.value = 'Café de Especialidad + Galleta Gourmet';
+        if (descEl) descEl.value = 'Café Latte o Cappuccino de origen especial con arte latte y galleta recién horneada';
+        if (valEl) valEl.value = '$14.000 COP';
+        if (termsEl) termsEl.value = 'Aplica para cualquier preparación de café de la carta.';
+        if (imgSelect) imgSelect.value = '/src/assets/cafe-latte.jpg';
+        if (imgUrl) imgUrl.value = '/src/assets/cafe-latte.jpg';
+      } else if (type === 'manual') {
+        if (nameEl) { nameEl.value = ''; nameEl.focus(); }
+        if (descEl) descEl.value = '';
+        if (valEl) valEl.value = 'Cortesía de la Casa';
+        if (termsEl) termsEl.value = 'Válido en mesa o caja mostrando el código ganador.';
+        if (imgSelect) imgSelect.value = 'custom';
+      }
+      updateSecondChancePreview();
+    }
+
     // SEGUNDA OPORTUNIDAD: CAMBIO DE IMAGEN PRESET
     function onSelectSecondChanceImage(val) {
       var urlInput = document.getElementById('scPrizeImageUrl');
@@ -4622,14 +4810,22 @@ function renderBackendDashboard() {
     function updateSecondChancePreview() {
       var name = document.getElementById('scPrizeName') ? document.getElementById('scPrizeName').value : '';
       var desc = document.getElementById('scPrizeDescription') ? document.getElementById('scPrizeDescription').value : '';
+      var val = document.getElementById('scPrizeValue') ? document.getElementById('scPrizeValue').value : '';
+      var terms = document.getElementById('scClaimTerms') ? document.getElementById('scClaimTerms').value : '';
       var imgUrl = document.getElementById('scPrizeImageUrl') ? document.getElementById('scPrizeImageUrl').value : '';
       var size = document.getElementById('scPrizeImageSize') ? document.getElementById('scPrizeImageSize').value : 'medium';
 
       var titleEl = document.getElementById('scPreviewTitle');
-      if (titleEl) titleEl.innerText = name || 'Postre Artesanal de Autor Gratis';
+      if (titleEl) titleEl.innerText = name || 'Premio Manual Programado';
 
       var descEl = document.getElementById('scPreviewDesc');
-      if (descEl) descEl.innerText = desc || 'Una porción de nuestra Tarta Vasca artesanal del día';
+      if (descEl) descEl.innerText = desc || 'Descripción gastronómica del premio programado';
+
+      var valEl = document.getElementById('scPreviewValBadge');
+      if (valEl) valEl.innerText = val || 'Cortesía';
+
+      var termsEl = document.getElementById('scPreviewTerms');
+      if (termsEl) termsEl.innerText = terms || 'Válido presentando código único ganado en caja.';
 
       var imgEl = document.getElementById('scPreviewImg');
       if (imgEl && imgUrl) imgEl.src = imgUrl;
@@ -4644,24 +4840,30 @@ function renderBackendDashboard() {
     function saveSecondChanceConfig() {
       var enabled = document.getElementById('scEnabled') ? document.getElementById('scEnabled').value === 'true' : true;
       var prizeName = document.getElementById('scPrizeName') ? document.getElementById('scPrizeName').value.trim() : 'Postre Artesanal de Autor Gratis';
+      var prizeValue = document.getElementById('scPrizeValue') ? document.getElementById('scPrizeValue').value.trim() : '$18.000 COP';
       var prizeDescription = document.getElementById('scPrizeDescription') ? document.getElementById('scPrizeDescription').value.trim() : '';
+      var claimTerms = document.getElementById('scClaimTerms') ? document.getElementById('scClaimTerms').value.trim() : '';
       var prizeImageUrl = document.getElementById('scPrizeImageUrl') ? document.getElementById('scPrizeImageUrl').value.trim() : '/src/assets/tarta-vasca.jpg';
       var prizeImageSize = document.getElementById('scPrizeImageSize') ? document.getElementById('scPrizeImageSize').value : 'medium';
       var maxAttempts = document.getElementById('scMaxAttempts') ? parseInt(document.getElementById('scMaxAttempts').value, 10) : 3;
       var difficulty = document.getElementById('scDifficulty') ? document.getElementById('scDifficulty').value : 'medio';
+      var whatsappStatusText = document.getElementById('scWhatsappStatusText') ? document.getElementById('scWhatsappStatusText').value.trim() : "¡Disfrutando de una tarde increíble en Bliss Soul Bakery & Café! ☕🍰 Les recomiendo probar sus postres artesanales. 10/10 ✨";
 
       var toleranceMs = difficulty === 'facil' ? 80 : difficulty === 'dificil' ? 15 : 40;
 
       var secondChance = {
         enabled: enabled,
         prizeName: prizeName,
+        prizeValue: prizeValue,
         prizeDescription: prizeDescription,
+        claimTerms: claimTerms,
         prizeImageUrl: prizeImageUrl,
         prizeImageSize: prizeImageSize,
         maxAttempts: maxAttempts,
         difficulty: difficulty,
         toleranceMs: toleranceMs,
-        whatsappStatusText: "¡Disfrutando de una tarde increíble en Bliss Soul Bakery & Café! ☕🍰 Les recomiendo probar sus postres artesanales. 10/10 ✨",
+        shareChannels: ["instagram", "whatsapp"],
+        whatsappStatusText: whatsappStatusText,
         whatsappVerificationMessage: "¡Hola! 📸 Acabo de compartir en mis Estados de WhatsApp la experiencia. Aquí les envío la captura de pantalla de mi estado para reclamar mi 2ª oportunidad en el Reto del Cronómetro."
       };
 
@@ -4684,6 +4886,106 @@ function renderBackendDashboard() {
       })
       .catch(function(err) {
         if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar 2ª Oportunidad'; }
+        alert('Error conectando con el servidor: ' + err.message);
+      });
+    }
+
+    // CATÁLOGO DE MISIONES: CAMBIO VISUAL DE FILA SEGÚN CHECKLIST
+    function toggleMissionRow(id) {
+      var chk = document.getElementById('m_active_' + id);
+      var row = document.getElementById('mission-row-' + id);
+      var badge = document.getElementById('m_status_badge_' + id);
+      if (!chk || !row || !badge) return;
+      if (chk.checked) {
+        row.style.background = '#FFFFFF';
+        row.style.opacity = '1';
+        badge.innerText = '✅ ACTIVA';
+        badge.style.background = 'rgba(16, 185, 129, 0.15)';
+        badge.style.color = '#059669';
+      } else {
+        row.style.background = '#F9FAFB';
+        row.style.opacity = '0.65';
+        badge.innerText = '⏸️ PAUSADA';
+        badge.style.background = '#E2E8F0';
+        badge.style.color = '#64748B';
+      }
+    }
+
+    // CATÁLOGO DE MISIONES: ACTUALIZAR BADGE DE SELLOS AL CAMBIAR NÚMERO
+    function updateMissionBadge(id) {
+      var numInput = document.getElementById('m_stamps_' + id);
+      var label = document.getElementById('m_stamps_label_' + id);
+      if (!numInput || !label) return;
+      var val = parseInt(numInput.value, 10) || 1;
+      label.innerText = '+' + val + ' Sello' + (val > 1 ? 's' : '');
+    }
+
+    // CATÁLOGO DE MISIONES: GUARDAR CONFIGURACIÓN COMPLETA
+    function saveMissionsCatalog() {
+      var rows = document.querySelectorAll('[id^="mission-row-"]');
+      var allIds = [];
+      rows.forEach(function(r) {
+        var id = r.id.replace('mission-row-', '');
+        if (!allIds.includes(id)) allIds.push(id);
+      });
+      if (allIds.length === 0) {
+        allIds = ['m_tiktok', 'm_trustpilot', 'm_facebook', 'm_bing', 'm_whatsapp_status', 'm_referrals', 'm_whatsapp_community'];
+      }
+
+      var cachedList = window.CURRENT_MISSIONS || [];
+      var updatedMissions = [];
+
+      allIds.forEach(function(id) {
+        var chk = document.getElementById('m_active_' + id);
+        var titleEl = document.getElementById('m_title_' + id);
+        var stampsEl = document.getElementById('m_stamps_' + id);
+        var urlEl = document.getElementById('m_url_' + id);
+        var descEl = document.getElementById('m_desc_' + id);
+
+        var isActive = chk ? chk.checked : true;
+        var title = titleEl ? titleEl.value.trim() : '';
+        var stamps = stampsEl ? (parseInt(stampsEl.value, 10) || 1) : 1;
+        var url = urlEl ? urlEl.value.trim() : '';
+        var desc = descEl ? descEl.value.trim() : '';
+
+        var orig = cachedList.find(function(m) { return m.id === id; }) || {};
+
+        updatedMissions.push({
+          id: id,
+          category: orig.category || 'Misión',
+          title: title || orig.title || 'Misión',
+          rewardStamps: stamps,
+          rewardText: '+' + stamps + ' Sello' + (stamps > 1 ? 's' : '') + ' de Visita',
+          badge: orig.badge || (stamps >= 3 ? 'TOP' : 'VIP'),
+          icon: orig.icon || '🎯',
+          description: desc || orig.description || '',
+          rules: orig.rules || ['Completa la acción indicada.', 'Pega tu comprobante o enlace.'],
+          actionUrl: url || orig.actionUrl || '',
+          evidencePlaceholder: orig.evidencePlaceholder || 'Enlace o confirmación...',
+          active: isActive
+        });
+      });
+
+      var btns = document.querySelectorAll('[onclick="saveMissionsCatalog()"]');
+      btns.forEach(function(b) { b.disabled = true; b.textContent = '⏳ Guardando...'; });
+
+      fetch('/api/missions/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ missions: updatedMissions })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        btns.forEach(function(b) { b.disabled = false; b.textContent = '💾 Guardar Cambios en Catálogo'; });
+        if (data.success) {
+          window.CURRENT_MISSIONS = data.missions || updatedMissions;
+          showToast('toast-missions-config');
+        } else {
+          alert('Error guardando catálogo de misiones: ' + (data.error || 'Desconocido'));
+        }
+      })
+      .catch(function(err) {
+        btns.forEach(function(b) { b.disabled = false; b.textContent = '💾 Guardar Cambios en Catálogo'; });
         alert('Error conectando con el servidor: ' + err.message);
       });
     }

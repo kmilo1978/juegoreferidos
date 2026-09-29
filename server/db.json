@@ -363,16 +363,19 @@
       "enabled": true,
       "prizeName": "Postre Artesanal de Autor Gratis",
       "prizeDescription": "Porci�n de Tarta Vasca artesanal reci�n horneada",
+      "prizeValue": "$18.000 COP",
+      "claimTerms": "Válido hoy en caja presentando tu código único de ganador.",
       "prizeImageUrl": "/src/assets/tarta-vasca.jpg",
       "prizeImageSize": "medium",
       "maxAttempts": 3,
+      "difficulty": "medio",
+      "toleranceMs": 40,
       "shareChannels": [
         "instagram",
         "whatsapp"
       ],
-      "whatsappVerificationMessage": "¡Hola! 📸 Te comparto mi captura de estado para participar en la 2ª oportunidad del Reto de Precisión en {restaurante}. Mesa {tableNumber} - Cliente: {participantName}",
-      "difficulty": "medio",
-      "toleranceMs": 40
+      "whatsappStatusText": "¡Disfrutando de una tarde increíble en Bliss Soul Bakery & Café! ☕🍰 Les recomiendo probar sus postres artesanales. 10/10 ✨",
+      "whatsappVerificationMessage": "¡Hola! 📸 Te comparto mi captura de estado para participar en la 2ª oportunidad del Reto de Precisión en {restaurante}. Mesa {tableNumber} - Cliente: {participantName}"
     },
     "missions": [
       {
@@ -431,6 +434,24 @@
         "active": true
       },
       {
+        "id": "m_bing",
+        "category": "Motores de Búsqueda",
+        "title": "Reseña en Bing Places & Maps",
+        "rewardStamps": 2,
+        "rewardText": "+2 Sellos de Visita",
+        "badge": "BING MAPS",
+        "icon": "🌐",
+        "description": "Comparte tu opinión y calificación en nuestro perfil de Microsoft Bing Places para ayudarnos a posicionar en búsquedas.",
+        "rules": [
+          "Abre el perfil de Bliss Soul Bakery en Bing Maps o Microsoft Search.",
+          "Califica con estrellas y comparte tu producto o postre favorito.",
+          "Pega el enlace de tu reseña o confirmación para sumar tus sellos."
+        ],
+        "actionUrl": "https://www.bing.com/maps",
+        "evidencePlaceholder": "https://www.bing.com/maps?... o confirmación",
+        "active": true
+      },
+      {
         "id": "m_whatsapp_status",
         "category": "Boca a Boca Directo",
         "title": "Estados de WhatsApp",
@@ -446,6 +467,42 @@
         ],
         "actionUrl": "https://api.whatsapp.com",
         "evidencePlaceholder": "https://wa.me/... o confirmación",
+        "active": true
+      },
+      {
+        "id": "m_referrals",
+        "category": "Embajador de la Casa",
+        "title": "Invitar a 3 Amigos por WhatsApp",
+        "rewardStamps": 3,
+        "rewardText": "+3 Sellos de Visita",
+        "badge": "VIRAL BOCA A BOCA",
+        "icon": "🤝",
+        "description": "Comparte tu enlace de invitación con 3 amigos o en un grupo de WhatsApp recomendando visitarnos.",
+        "rules": [
+          "Toca el botón Abrir WhatsApp y reenvía la invitación con tu código a 3 amigos.",
+          "Tus amigos recibirán cortesía sorpresa en mesa cuando nos visiten.",
+          "Pega tu número o confirmación para validar tus sellos y clasificar a la Cena para 2."
+        ],
+        "actionUrl": "https://api.whatsapp.com",
+        "evidencePlaceholder": "Confirmación de envío o nombres de tus invitados",
+        "active": true
+      },
+      {
+        "id": "m_whatsapp_community",
+        "category": "Comunidad Exclusiva",
+        "title": "Unirse a la Comunidad VIP de WhatsApp",
+        "rewardStamps": 2,
+        "rewardText": "+2 Sellos de Visita",
+        "badge": "CLUB PRIVADO",
+        "icon": "💬",
+        "description": "Únete a nuestro grupo oficial y exclusivo de WhatsApp para recibir ofertas secretas de repostería, lanzamientos de temporada y catas privadas.",
+        "rules": [
+          "Toca el botón Abrir WhatsApp y únete al grupo oficial de nuestra Comunidad VIP.",
+          "Recibe antes que nadie promociones relámpago, recetas de autor y regalos.",
+          "Pega tu número de WhatsApp para confirmar tu ingreso y sumar tus sellos."
+        ],
+        "actionUrl": "https://chat.whatsapp.com/BlissSoulVIPCommunity",
+        "evidencePlaceholder": "Tu número de WhatsApp o confirmación de ingreso al grupo",
         "active": true
       }
     ],
@@ -599,9 +656,9 @@
       "status": "PREMIO_PENDIENTE",
       "currentCustomer": "Juan camilo Botero",
       "currentWhatsapp": "5730053914",
-      "activeSessionId": "SES-MULZ5W7Y",
+      "activeSessionId": "SES-MUMRKX8P",
       "prizeWon": "Postre Artesanal Gratis",
-      "uniqueCode": "TURE-UVY1Y",
+      "uniqueCode": "TURE-BPYK0",
       "startedAt": "Hace 3 min",
       "lastActivityAt": "Ahora",
       "qrUrl": "http://localhost:5173/?mesa=1"

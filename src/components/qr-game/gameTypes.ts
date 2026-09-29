@@ -89,6 +89,8 @@ export interface SecondChanceConfig {
   prizeDescription: string;
   prizeImageUrl: string;
   prizeImageSize: "small" | "medium" | "large";
+  prizeValue?: string;
+  claimTerms?: string;
   maxAttempts: number;
   difficulty: PrecisionDifficulty;
   toleranceMs: number;
@@ -102,6 +104,8 @@ export const DEFAULT_SECOND_CHANCE_CONFIG: SecondChanceConfig = {
   prizeDescription: "Una porción de nuestra Tarta Vasca artesanal del día",
   prizeImageUrl: "/src/assets/tarta-vasca.jpg",
   prizeImageSize: "medium",
+  prizeValue: "$18.000 COP",
+  claimTerms: "Canjeable en mesa o para llevar presentando el código único en caja.",
   maxAttempts: 3,
   difficulty: "medio",
   toleranceMs: 40,

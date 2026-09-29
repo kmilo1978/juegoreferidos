@@ -122,13 +122,13 @@ export function StepSecondChancePrecision({
         name: `🎁 2ª Oportunidad: ${secondChanceConfig.prizeName}`,
         nameEn: `🎁 2nd Chance: ${secondChanceConfig.prizeName}`,
         type: "free_item",
-        value: secondChanceConfig.prizeName,
+        value: secondChanceConfig.prizeValue || secondChanceConfig.prizeName,
         probability: 100,
         color: "#10b981",
         textColor: "#ffffff",
         active: true,
-        terms: "Válido con la captura de Estado de WhatsApp enviada. Canjeable en mesa o caja.",
-        termsEn: "Valid with WhatsApp Status screenshot sent. Redeemable at table or cashier.",
+        terms: secondChanceConfig.claimTerms || "Válido con la captura de Estado de WhatsApp enviada. Canjeable en mesa o caja.",
+        termsEn: secondChanceConfig.claimTerms || "Valid with WhatsApp Status screenshot sent. Redeemable at table or cashier.",
       };
 
       onPrizeWon(prizeObj);
@@ -190,20 +190,34 @@ export function StepSecondChancePrecision({
 
             {/* Título sobre la imagen */}
             <div className="absolute bottom-3 left-4 right-4 text-white">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-amber-300">
-                {t("🏆 Tu Premio Si Ganas", "🏆 Your Prize If You Win")}
-              </span>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-300">
+                  {t("🏆 Tu Premio Si Ganas", "🏆 Your Prize If You Win")}
+                </span>
+                {secondChanceConfig.prizeValue && (
+                  <span className="px-2 py-0.5 rounded-full bg-amber-400 text-neutral-950 text-[10px] font-black shadow-sm">
+                    {secondChanceConfig.prizeValue}
+                  </span>
+                )}
+              </div>
               <h3 className="text-lg sm:text-xl font-serif font-bold drop-shadow-md">
                 {secondChanceConfig.prizeName}
               </h3>
             </div>
           </div>
 
-          <div className="p-4 sm:p-5 bg-neutral-50/50 flex items-center justify-between gap-3 text-xs border-t border-neutral-100">
-            <p className="text-neutral-600 line-clamp-1">
-              {secondChanceConfig.prizeDescription}
-            </p>
-            <span className="shrink-0 text-[10px] font-mono text-neutral-400">
+          <div className="p-4 sm:p-5 bg-neutral-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs border-t border-neutral-100">
+            <div>
+              <p className="text-neutral-700 font-medium">
+                {secondChanceConfig.prizeDescription}
+              </p>
+              {secondChanceConfig.claimTerms && (
+                <p className="text-[11px] text-neutral-400 mt-0.5">
+                  {secondChanceConfig.claimTerms}
+                </p>
+              )}
+            </div>
+            <span className="shrink-0 text-[10px] font-mono text-neutral-500 bg-white px-2.5 py-1 rounded-full border border-neutral-200">
               Margen: ±{toleranceMs}ms
             </span>
           </div>
