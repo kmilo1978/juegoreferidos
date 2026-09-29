@@ -27,22 +27,15 @@ export function GameHeader({
 }: GameHeaderProps) {
   const { t } = useLanguage();
 
-  const isSecondChance = currentStep >= 5;
-
-  const initialSteps = [
-    { num: 1, label: t("Tus Datos", "Your Info") },
-    { num: 2, label: t("Instagram", "Instagram") },
-    { num: 3, label: t("El Carrusel", "The Carousel") },
-    { num: 4, label: t("Calificar Google", "Rate on Google") },
+  const gameSteps = [
+    { num: 1, label: t("Datos", "Info") },
+    { num: 2, label: t("Instagram / Redes", "Instagram") },
+    { num: 3, label: t("Carrusel", "Carousel") },
+    { num: 4, label: t("Premio & Código", "Prize & Code") },
+    { num: 5, label: t("Calificar", "Rate") },
+    { num: 6, label: t("2ª Oportunidad", "2nd Chance") },
+    { num: 7, label: t("Misiones", "Missions") },
   ];
-
-  const secondChanceSteps = [
-    { num: 5, label: t("2ª Opción de Ganar", "2nd Chance to Win") },
-    { num: 6, label: t("Enviar Captura", "Send Screenshot") },
-    { num: 7, label: t("Reto Cronómetro", "Timer Challenge") },
-  ];
-
-  const gameSteps = isSecondChance ? secondChanceSteps : initialSteps;
 
   const isDebug = typeof window !== "undefined" && window.location.search.includes("debug=1");
 

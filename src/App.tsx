@@ -26,6 +26,7 @@ import { AdminPanelModal } from "./components/qr-game/AdminPanelModal";
 import { PinAuthModal } from "./components/qr-game/PinAuthModal";
 import { TableStandModal } from "./components/qr-game/TableStandModal";
 import { MissionsModal } from "./components/qr-game/MissionsModal";
+import { StepMissions } from "./components/qr-game/StepMissions";
 import { recordPageView, getStoredHistory, saveStoredHistory } from "./lib/analyticsService";
 import { ComposioService } from "./lib/composioService";
 import { OneSignalService } from "./lib/oneSignalService";
@@ -516,30 +517,36 @@ function JuegoQrPage() {
               </div>
             )}
 
-            {/* PASO 3: EL PREMIO (JUEGO DE RULETA / RETO Y CUPÓN DEL BENEFICIO) */}
+            {/* PASO 3: EL CARRUSEL (RULETA DE LA SUERTE) */}
             {currentStep === 3 && (
               <div>
-                {!wonPrize ? (
-                  /* SI AÚN NO HA JUGADO: EL CARRUSEL (RULETA DE LA SUERTE) */
-                  <StepRouletteWheel
-                    prizes={prizes}
-                    participantName={participant?.fullName || "Invitado"}
-                    onPrizeWon={handlePrizeWon}
-                  />
-                ) : (
-                  /* SI YA GANÓ: MOSTRAR CUPÓN DE PREMIO Y BOTÓN A CALIFICAR */
+                <StepRouletteWheel
+                  prizes={prizes}
+                  participantName={participant?.fullName || "Invitado"}
+                  onPrizeWon={handlePrizeWon}
+                />
+              </div>
+            )}
+
+            {/* PASO 4: PREMIO + CÓDIGO (VOUCHER Y CÓDIGO ÚNICO) */}
+            {currentStep === 4 && (
+              <div>
+                {wonPrize ? (
                   <div className="space-y-6">
                     <StepPrizeClaim
                       prize={wonPrize}
                       onValidateAtCashier={handleOpenValidatePin}
                       secondChanceConfig={secondChanceConfig}
                       onUnlockSecondChance={() => {
-                        setCurrentStep(5);
+                        setCurrentStep(6);
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
-                      onOpenMissions={() => setIsMissionsOpen(true)}
+                      onOpenMissions={() => {
+                        setCurrentStep(7);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
                       onProceedToFeedback={() => {
-                        setCurrentStep(4);
+                        setCurrentStep(5);
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                     />
@@ -551,6 +558,7 @@ function JuegoQrPage() {
                         onClick={() => {
                           setWonPrize(null);
                           sessionStorage.removeItem("juego_won_prize");
+                          setCurrentStep(3);
                         }}
                         className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-border text-xs text-muted-foreground hover:text-gold hover:border-gold transition-all cursor-pointer shadow-2xs"
                       >
@@ -559,12 +567,31 @@ function JuegoQrPage() {
                       </button>
                     </div>
                   </div>
+                ) : (
+                  <div className="text-center py-12 bg-white rounded-2xl border border-gold/30 p-8 shadow-xs">
+                    <h3 className="font-display text-xl text-foreground mb-2">
+                      {t("¡Aún no has descubierto tu premio!", "You haven't unveiled your prize yet!")}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      {t("Gira el Carrusel de la Suerte en el Paso 3 para descubrir tu beneficio exclusivo.", "Spin the Lucky Carousel in Step 3 to discover your exclusive treat.")}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCurrentStep(3);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className="btn-solid inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs uppercase tracking-wider font-bold text-white shadow-md cursor-pointer"
+                    >
+                      <span>🎡 {t("Ir al Carrusel (Paso 3)", "Go to Carousel (Step 3)")}</span>
+                    </button>
+                  </div>
                 )}
               </div>
             )}
 
-            {/* PASO 4: CALIFICACIÓN & OPINIÓN EN GOOGLE MY BUSINESS */}
-            {currentStep === 4 && (
+            {/* PASO 5: CALIFICACIÓN & OPINIÓN EN GOOGLE MY BUSINESS */}
+            {currentStep === 5 && (
               <div>
                 <StepFeedback
                   initialFeedback={feedback}
@@ -573,7 +600,7 @@ function JuegoQrPage() {
                   isStandAlone={false}
                   secondChanceConfig={secondChanceConfig}
                   onUnlockSecondChance={() => {
-                    setCurrentStep(5);
+                    setCurrentStep(6);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                   onComplete={(fb) => setFeedback(fb)}
@@ -585,48 +612,9 @@ function JuegoQrPage() {
               </div>
             )}
 
-            {/* PASO 5: SEGUNDA OPORTUNIDAD - COMPARTIR EN ESTADOS DE WHATSAPP */}
-            {currentStep === 5 && (
-              <div>
-                <StepSecondChanceShare
-                  secondChanceConfig={secondChanceConfig}
-                  participantName={participant?.fullName || wonPrize?.participantName}
-                  tableNumber={session.tableNumber}
-                  onProceedToVerify={() => {
-                    setCurrentStep(6);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  onSkip={() => {
-                    setCurrentStep(3);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                />
-              </div>
-            )}
-
-            {/* PASO 6: SEGUNDA OPORTUNIDAD - ENVIAR CAPTURA AL WHATSAPP DEL RESTAURANTE */}
+            {/* PASO 6: SEGUNDA OPORTUNIDAD (RETO DEL CRONÓMETRO DE PRECISIÓN 10S) */}
             {currentStep === 6 && (
-              <div>
-                <StepSecondChanceVerify
-                  secondChanceConfig={secondChanceConfig}
-                  participantName={participant?.fullName || wonPrize?.participantName}
-                  participantWhatsapp={participant?.whatsapp || wonPrize?.participantWhatsapp}
-                  tableNumber={session.tableNumber}
-                  onProceedToChallenge={() => {
-                    setCurrentStep(7);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  onBack={() => {
-                    setCurrentStep(5);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                />
-              </div>
-            )}
-
-            {/* PASO 7: SEGUNDA OPORTUNIDAD - RETO DEL CRONÓMETRO DE PRECISIÓN 10S */}
-            {currentStep === 7 && (
-              <div>
+              <div className="space-y-6">
                 <StepSecondChancePrecision
                   secondChanceConfig={secondChanceConfig}
                   participantName={participant?.fullName || wonPrize?.participantName}
@@ -636,9 +624,39 @@ function JuegoQrPage() {
                     handlePrizeWon(prize);
                   }}
                   onExit={() => {
-                    setCurrentStep(3);
+                    setCurrentStep(7);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
+                />
+
+                {/* Botón para continuar al Centro de Misiones (Paso 7) */}
+                <div className="pt-2 text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrentStep(7);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500/20 via-gold/30 to-amber-500/20 hover:from-amber-500/30 hover:to-amber-500/30 border border-gold/50 text-foreground text-xs uppercase tracking-wider font-bold transition-all shadow-xs cursor-pointer"
+                  >
+                    <span>🎯 {t("Ver Misiones Gourmet · Paso 7", "View Gourmet Missions · Step 7")}</span>
+                    <span>➔</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* PASO 7: MISIONES (CENTRO DE MISIONES ESTILO SCREPY) */}
+            {currentStep === 7 && (
+              <div>
+                <StepMissions
+                  customerName={participant?.fullName || wonPrize?.participantName}
+                  customerWhatsapp={participant?.whatsapp || wonPrize?.participantWhatsapp}
+                  onBackToSecondChance={() => {
+                    setCurrentStep(6);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  onResetToStart={handleResetSession}
                 />
               </div>
             )}
