@@ -1,4 +1,4 @@
-﻿/**
+/**
  * SERVIDOR BACKEND MODULAR - BLISS SOUL BAKERY & CAFÉ
  * Arquitectura modular y extensible de 0 dependencias.
  * Módulos integrados:
@@ -52,8 +52,12 @@ const server = http.createServer((req, res) => {
   const pathname = url.pathname;
 
   // 1. DASHBOARD VISUAL DEL BACKEND (Ruta raíz /)
-  if (req.method === "GET" && pathname === "/") {
+  if ((req.method === "GET" || req.method === "HEAD") && pathname === "/") {
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    if (req.method === "HEAD") {
+      res.end();
+      return;
+    }
     res.end(renderBackendDashboard());
     return;
   }

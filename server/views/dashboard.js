@@ -4442,7 +4442,7 @@ export function renderBackendDashboard() {
           if (pingVal) pingVal.innerText = "Último ping: " + (data.lastPing || "Ahora");
           const pingsCount = document.getElementById("hermesPingsVal");
           if (pingsCount && data.stats) pingsCount.innerText = data.stats.totalPings || 1;
-          alert("🤖 ¡Conexión con Hermes exitosa!\n\n" + data.message);
+          alert("🤖 ¡Conexión con Hermes exitosa!\\n\\n" + data.message);
         } else {
           if (resEl) {
             resEl.style.color = "#dc2626";
@@ -4465,7 +4465,7 @@ export function renderBackendDashboard() {
       const url = inp.value;
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url).then(() => {
-          alert("✓ URL del webhook copiada al portapapeles:\n" + url);
+          alert("✓ URL del webhook copiada al portapapeles:\\n" + url);
         }).catch(() => {
           prompt("Copia la URL del Webhook de Hermes:", url);
         });

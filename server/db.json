@@ -125,6 +125,14 @@
   ],
   "logs": [
     {
+      "id": "mumwdr2folm",
+      "timestamp": "11:35:25 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
       "id": "mumwd0nybmt",
       "timestamp": "11:34:51 a. m.",
       "method": "POST",
@@ -708,12 +716,12 @@
       "name": "Mesa 1",
       "zone": "Salón Principal",
       "capacity": 4,
-      "status": "CANJEADO",
-      "currentCustomer": "Cliente de la Casa",
-      "currentWhatsapp": "573000000000",
-      "activeSessionId": "SES-MUMWB7CA",
-      "prizeWon": "20% de Descuento",
-      "uniqueCode": "TURE-8W4Z7",
+      "status": "PREMIO_PENDIENTE",
+      "currentCustomer": "Juan camilo Botero",
+      "currentWhatsapp": "5730053914",
+      "activeSessionId": "SES-MUMWTNRP",
+      "prizeWon": "Bono Dulce Sorpresa",
+      "uniqueCode": "TURE-XBCBZ",
       "startedAt": "Hace 3 min",
       "lastActivityAt": "Ahora",
       "qrUrl": "http://localhost:5173/?mesa=1"
