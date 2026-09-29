@@ -73,10 +73,57 @@ function JuegoQrPage() {
 
   // Estados del juego
   const [session, setSession] = useState<TableSession>(() => createInitialSession());
-  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [currentStep, setCurrentStep] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const requestedStep = params.get("paso");
+      if (requestedStep && ["1", "2", "3", "4", "5", "6", "7"].includes(requestedStep)) {
+        return parseInt(requestedStep, 10);
+      }
+      if (params.get("juego") === "precision" || params.get("test") === "precision") {
+        return 3;
+      }
+      if (params.get("juego") === "ruleta" || params.get("test") === "ruleta") {
+        return 3;
+      }
+      if (params.get("reset") === "1") {
+        return 1;
+      }
+      try {
+        const savedStep = sessionStorage.getItem("juego_current_step");
+        if (savedStep) {
+          const stepNum = parseInt(savedStep, 10);
+          if (stepNum >= 1 && stepNum <= 7) return stepNum;
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return 1;
+  });
   const [feedback, setFeedback] = useState<FeedbackData | undefined>();
-  const [participant, setParticipant] = useState<ParticipantData | undefined>();
-  const [instagramEvidence, setInstagramEvidence] = useState<InstagramEvidence | undefined>();
+  const [participant, setParticipant] = useState<ParticipantData | undefined>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = sessionStorage.getItem("juego_participant");
+        if (saved) return JSON.parse(saved);
+      } catch {
+        // ignore
+      }
+    }
+    return undefined;
+  });
+  const [instagramEvidence, setInstagramEvidence] = useState<InstagramEvidence | undefined>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = sessionStorage.getItem("juego_instagram");
+        if (saved) return JSON.parse(saved);
+      } catch {
+        // ignore
+      }
+    }
+    return undefined;
+  });
   const [prizes, setPrizes] = useState<GamePrize[]>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -88,12 +135,49 @@ function JuegoQrPage() {
     }
     return DEFAULT_PRIZES;
   });
-  const [wonPrize, setWonPrize] = useState<WonPrize | null>(null);
+  const [wonPrize, setWonPrize] = useState<WonPrize | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const savedPrize = sessionStorage.getItem("juego_won_prize");
+        if (savedPrize) return JSON.parse(savedPrize) as WonPrize;
+      } catch {
+        // ignore
+      }
+    }
+    return null;
+  });
   const [history, setHistory] = useState<WonPrize[]>([]);
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isTableStandOpen, setIsTableStandOpen] = useState<boolean>(false);
   const [isMissionsOpen, setIsMissionsOpen] = useState<boolean>(false);
+
+  // Sincronizar estados críticos con sessionStorage
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("juego_current_step", String(currentStep));
+    } catch {}
+  }, [currentStep]);
+
+  useEffect(() => {
+    try {
+      if (participant) {
+        sessionStorage.setItem("juego_participant", JSON.stringify(participant));
+      } else {
+        sessionStorage.removeItem("juego_participant");
+      }
+    } catch {}
+  }, [participant]);
+
+  useEffect(() => {
+    try {
+      if (instagramEvidence) {
+        sessionStorage.setItem("juego_instagram", JSON.stringify(instagramEvidence));
+      } else {
+        sessionStorage.removeItem("juego_instagram");
+      }
+    } catch {}
+  }, [instagramEvidence]);
 
   // Configuración de modalidad de juego activa (Ruleta vs Precisión 10s vs Híbrido)
   const [gameConfig, setGameConfig] = useState<GameConfig>(() => GameConfigService.getGameConfig());
@@ -142,19 +226,10 @@ function JuegoQrPage() {
         setCurrentStep(3);
       } else if (params.get("reset") === "1") {
         sessionStorage.removeItem("juego_won_prize");
+        sessionStorage.removeItem("juego_participant");
+        sessionStorage.removeItem("juego_current_step");
+        sessionStorage.removeItem("juego_instagram");
         setCurrentStep(1);
-      } else {
-        // Por defecto, siempre comenzar la demo desde el Paso 1 (Tus Datos)
-        setCurrentStep(1);
-        try {
-          const savedPrize = sessionStorage.getItem("juego_won_prize");
-          if (savedPrize) {
-            const parsed = JSON.parse(savedPrize) as WonPrize;
-            setWonPrize(parsed);
-          }
-        } catch {
-          // Ignorar errores de parseo
-        }
       }
     }
 
@@ -200,6 +275,9 @@ function JuegoQrPage() {
     setWonPrize(null);
     try {
       sessionStorage.removeItem("juego_won_prize");
+      sessionStorage.removeItem("juego_participant");
+      sessionStorage.removeItem("juego_current_step");
+      sessionStorage.removeItem("juego_instagram");
     } catch {
       // ignore
     }
