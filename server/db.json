@@ -125,6 +125,14 @@
   ],
   "logs": [
     {
+      "id": "mumwd0nybmt",
+      "timestamp": "11:34:51 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
       "id": "mumvvuc2f61",
       "timestamp": "11:21:29 a. m.",
       "method": "POST",
@@ -700,12 +708,12 @@
       "name": "Mesa 1",
       "zone": "Salón Principal",
       "capacity": 4,
-      "status": "PREMIO_PENDIENTE",
-      "currentCustomer": "Juan camilo Botero",
-      "currentWhatsapp": "5730053914",
-      "activeSessionId": "SES-MUMRKX8P",
-      "prizeWon": "Postre Artesanal Gratis",
-      "uniqueCode": "TURE-BPYK0",
+      "status": "CANJEADO",
+      "currentCustomer": "Cliente de la Casa",
+      "currentWhatsapp": "573000000000",
+      "activeSessionId": "SES-MUMWB7CA",
+      "prizeWon": "20% de Descuento",
+      "uniqueCode": "TURE-8W4Z7",
       "startedAt": "Hace 3 min",
       "lastActivityAt": "Ahora",
       "qrUrl": "http://localhost:5173/?mesa=1"

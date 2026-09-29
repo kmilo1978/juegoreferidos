@@ -448,7 +448,7 @@ Restaurante: ${clientConfig.brand.name}
             />
           </div>
 
-          {/* Ganadores semanales */}
+                    {/* Ganadores semanales */}
           <div className="bg-muted/30 border-t border-border/70 p-5 text-center">
             <div className="flex items-center justify-center gap-1.5 text-xs text-gold font-medium mb-1">
               <Sparkles className="h-3.5 w-3.5" />
@@ -463,6 +463,53 @@ Restaurante: ${clientConfig.brand.name}
               ”
             </p>
           </div>
+        </div>
+      </Reveal>
+
+      {/* PÁGINA / SECCIÓN INDEPENDIENTE DE SELLOS TRAS GIRAR LA RULETA */}
+      <Reveal delay={110}>
+        <div className="space-y-4 pt-3">
+          <div className="bg-card border-2 border-gold/40 rounded-3xl p-5 sm:p-6 shadow-md space-y-3.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gold/20 pb-3">
+              <div className="flex items-center gap-2.5 text-foreground">
+                <div className="p-2 rounded-xl bg-gold/15 text-gold border border-gold/30">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="font-serif text-base sm:text-lg font-bold text-foreground">
+                    {t("Tu Tarjeta Digital de 15 Sellos en Vivo", "Your Live 15-Stamp Digital Card")}
+                  </h4>
+                  <p className="text-[11px] text-muted-foreground">
+                    {t("Tu visita suma sellos para postres de autor y cafés gratis en las visitas 5, 10 y 15.", "Your visit adds stamps for author desserts and free coffee on visits 5, 10, and 15.")}
+                  </p>
+                </div>
+              </div>
+
+              <span className="self-start sm:self-center font-mono font-bold text-amber-900 bg-gold/20 px-3.5 py-1 rounded-full border border-gold/40 text-xs">
+                {stampCard.currentStamps} / 15 {t("Sellos", "Stamps")}
+              </span>
+            </div>
+
+            <DigitalStampCard
+              stampCard={stampCard}
+              customerName={prize.participantName || "Comensal"}
+            />
+          </div>
+
+          {/* BOTÓN PRINCIPAL DESTACADO: Continuar a Calificar Experiencia (Paso 5) */}
+          {onProceedToFeedback && (
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={onProceedToFeedback}
+                className="w-full inline-flex items-center justify-center gap-3 py-4 px-8 rounded-2xl bg-gradient-to-r from-amber-600 via-gold to-amber-600 hover:brightness-105 active:scale-[0.99] text-white text-xs sm:text-sm uppercase tracking-wider font-bold shadow-xl transition-all cursor-pointer animate-pulse"
+              >
+                <span>⭐</span>
+                <span>{t("Continuar a Calificar Experiencia · Paso 5", "Continue to Rate Experience · Step 5")}</span>
+                <span>➔</span>
+              </button>
+            </div>
+          )}
         </div>
       </Reveal>
     </div>

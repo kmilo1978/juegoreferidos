@@ -1,4 +1,4 @@
-ï»¿import { TableSession } from "./gameTypes";
+import { TableSession } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { RotateCcw, Sparkles, MessageCircle, Wifi, Bell } from "lucide-react";
 import logoHeader from "@/assets/logo-header.png";
@@ -35,9 +35,9 @@ export function GameHeader({
     { num: 1, label: t("Datos", "Info") },
     { num: 2, label: t("Instagram / Redes", "Instagram") },
     { num: 3, label: t("Carrusel", "Carousel") },
-    { num: 4, label: t("Premio & CÃ³digo", "Prize & Code") },
+    { num: 4, label: t("Premio & Sellos", "Prize & Stamps") },
     { num: 5, label: t("Calificar", "Rate") },
-    { num: 6, label: t("2Âª Oportunidad", "2nd Chance") },
+    { num: 6, label: t("2ª Oportunidad", "2nd Chance") },
     { num: 7, label: t("Misiones", "Missions") },
   ];
 
@@ -53,9 +53,9 @@ export function GameHeader({
             <span className="font-semibold tracking-wide text-foreground">
               {session.tableNumber}
             </span>
-            <span className="text-muted-foreground/40">Â·</span>
+            <span className="text-muted-foreground/40">·</span>
             <span className="text-muted-foreground font-light">
-              {t("CortesÃ­a de la Casa", "Complimentary House Treat")}
+              {t("Cortesía de la Casa", "Complimentary House Treat")}
             </span>
           </div>
 
@@ -65,15 +65,15 @@ export function GameHeader({
                 type="button"
                 onClick={onOpenMissions}
                 className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold/15 hover:bg-gold/25 text-gold border border-gold/40 text-[10px] sm:text-xs font-semibold transition-all shadow-2xs cursor-pointer"
-                title={t("Misiones Gourmet Â· Gana sellos extras", "Gourmet Missions Â· Earn extra stamps")}
+                title={t("Misiones Gourmet · Gana sellos extras", "Gourmet Missions · Earn extra stamps")}
               >
-                <span>ðŸŽ¯</span>
+                <span>??</span>
                 <span className="font-semibold">{t("Misiones", "Missions")}</span>
                 <span className="bg-gold text-white text-[9px] px-1.5 py-0.2 rounded-full font-mono">+Sellos</span>
               </button>
             )}
 
-            {/* BotÃ³n para reiniciar demo desde el principio */}
+            {/* Botón para reiniciar demo desde el principio */}
             {onOpenKioskPortal && (
               <button
                 type="button"
@@ -131,7 +131,7 @@ export function GameHeader({
               </div>
             </div>
 
-            {/* PÃ­ldoras para alternar entre Juego y Solo Feedback */}
+            {/* Píldoras para alternar entre Juego y Solo Feedback */}
             <div className="flex items-center p-1 bg-muted/60 rounded-xl border border-border/70 text-xs">
               <button
                 type="button"
@@ -160,7 +160,7 @@ export function GameHeader({
             </div>
           </div>
 
-          {/* Stepper horizontal si estÃ¡ en modo Juego */}
+          {/* Stepper horizontal si está en modo Juego */}
           {activeMode === "game" && (
             <div className="flex items-center justify-between sm:justify-end gap-1 sm:gap-2">
               {gameSteps.map((s) => {
@@ -182,12 +182,12 @@ export function GameHeader({
                       title={`Ir al Paso ${s.num}: ${s.label}`}
                     >
                       <span className="h-4 w-4 rounded-full flex items-center justify-center text-[10px] bg-black/10">
-                        {isCompleted ? "âœ“" : s.num}
+                        {isCompleted ? "?" : s.num}
                       </span>
                       <span className="hidden md:inline">{s.label}</span>
                     </button>
                     {s.num < gameSteps.length && (
-                      <span className="text-muted-foreground/30 text-[10px]">â€º</span>
+                      <span className="text-muted-foreground/30 text-[10px]">›</span>
                     )}
                   </div>
                 );

@@ -164,7 +164,7 @@ export function StepMissions({
   onResetToStart,
 }: StepMissionsProps) {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<"stamps" | "missions" | "refer">("stamps");
+  // activeTab removed: Misiones es una página 100% independiente
   const [missions, setMissions] = useState<MissionItem[]>(DEFAULT_MISSIONS);
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [missionUrls, setMissionUrls] = useState<Record<string, string>>({});
@@ -357,53 +357,10 @@ export function StepMissions({
             )}
           </p>
 
-          {/* SELECTOR DE PESTAÑAS PARA EVITAR SATURACIÓN VISUAL */}
-          <div className="mt-6 inline-flex p-1 bg-muted/60 rounded-2xl border border-border text-xs gap-1">
-            <button
-              type="button"
-              onClick={() => setActiveTab("stamps")}
-              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer ${
-                activeTab === "stamps"
-                  ? "bg-card text-gold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <CreditCard className="h-3.5 w-3.5" />
-              <span>{t("💳 Mi Tarjeta de 15 Sellos", "💳 My 15-Stamp Card")}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("missions")}
-              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer ${
-                activeTab === "missions"
-                  ? "bg-card text-gold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>{t("🎯 Misiones & Tareas", "🎯 Missions & Tasks")}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("refer")}
-              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer ${
-                activeTab === "refer"
-                  ? "bg-card text-gold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Users className="h-3.5 w-3.5" />
-              <span>{t("👥 Invitar Amigos", "👥 Invite Friends")}</span>
-            </button>
           </div>
-        </div>
       </Reveal>
 
-      {/* CONTENIDO SEGÚN LA PESTAÑA SELECCIONADA */}
-      {activeTab === "missions" && (
-        <div className="space-y-6">
+      <div className="space-y-6">
           {/* TIRA VISUAL EN VIVO DE LOS 15 SELLOS (SIEMPRE VISIBLE) */}
           <Reveal delay={80}>
             <div className="bg-card border-2 border-gold/40 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
@@ -416,13 +373,7 @@ export function StepMissions({
                   <span className="font-mono font-bold text-amber-800 bg-gold/15 px-2.5 py-0.5 rounded-full border border-gold/30">
                     {currentStamps} / 15 {t("Sellos", "Stamps")}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("stamps")}
-                    className="text-[11px] text-amber-700 hover:text-amber-900 font-semibold underline cursor-pointer"
-                  >
-                    {t("Ver tarjeta completa →", "View full card →")}
-                  </button>
+                  <span className="text-[11px] text-amber-800 font-medium">✨ Acumulados</span>
                 </div>
               </div>
 
@@ -764,68 +715,39 @@ export function StepMissions({
               })}
           </div>
         </div>
-      )}
 
-      {/* PESTAÑA 2: MI TARJETA DIGITAL DE 15 SELLOS */}
-      {activeTab === "stamps" && (
-        <Reveal>
-          <DigitalStampCard
-            stampCard={stampCard}
-            customerName={customerName || name || "Comensal"}
-            onOpenMissions={() => setActiveTab("missions")}
-          />
-        </Reveal>
-      )}
+      {/* TARJETA FINAL DE PROFUNDO AGRADECIMIENTO E INVITACIÓN A VOLVER */}
+      <Reveal delay={130}>
+        <div className="rounded-3xl border-2 border-gold/50 bg-gradient-to-br from-amber-500/15 via-[#fffdfa] to-amber-700/15 p-6 sm:p-9 text-center space-y-5 shadow-xl relative overflow-hidden">
+          {/* Adorno superior dorado */}
+          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-600 via-gold to-amber-600" />
 
-      {/* PESTAÑA 3: INVITAR AMIGOS A VISITAR EL LOCAL */}
-      {activeTab === "refer" && (
-        <Reveal>
-          <div className="rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-50/80 via-white to-orange-50/50 p-6 sm:p-8 text-center shadow-sm space-y-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100/90 text-amber-900 text-xs font-semibold uppercase tracking-wider">
-              <Share2 className="h-3.5 w-3.5 text-amber-800" />
-              <span>{t("Multiplica tus Oportunidades", "Multiply Your Chances")}</span>
+          {/* Emblema o Icono de Gratitud Gastronómica */}
+          <div className="relative mx-auto w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-amber-600 via-gold to-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-900/15 border border-white/60">
+            <span className="text-3xl sm:text-4xl animate-pulse">💖</span>
+          </div>
+
+          <div className="space-y-2 max-w-lg mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/15 text-amber-900 text-[11px] font-bold uppercase tracking-wider border border-gold/30">
+              <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+              <span>{t("¡Esperamos Verte Muy Pronto!", "We Hope to See You Soon!")}</span>
             </div>
 
-            <h3 className="font-display text-xl sm:text-2xl text-foreground font-medium">
-              {t("¡Invita a tus amigos a visitar el local!", "Invite your friends to visit our place!")}
+            <h3 className="font-serif text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+              {t("¡Gracias de Corazón por tu Visita!", "Thank you from the Heart for Visiting!")}
             </h3>
 
-            <p className="text-xs sm:text-sm text-muted-foreground font-light max-w-md mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-neutral-700 font-light leading-relaxed pt-1">
               {t(
-                "Comparte esta experiencia con tus amigos para que vengan a visitarnos. Cuando tus amigos vengan al local, se sienten a su mesa y prueben la ruleta con tu invitación, desbloqueas participaciones extra y beneficios exclusivos para tu próxima visita.",
-                "Share this experience so your friends visit us. When they visit our venue, sit at their table and play the roulette, you unlock extra entries and exclusive perks for your next visit."
+                "Para todo el equipo de Bliss Soul Bakery & Café ha sido un auténtico placer recibirte hoy. Cada postre artesanal horneado y cada taza de café de especialidad servida está preparada con amor para hacer inolvidable tu día.",
+                "For the entire team at Bliss Soul Bakery & Café, it has been an absolute pleasure having you with us today. Every handcrafted dessert and specialty coffee is made with love to brighten your day."
               )}
             </p>
 
-            <div className="pt-2 flex justify-center">
-              <button
-                type="button"
-                onClick={handleReferFriend}
-                className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm tracking-wider uppercase shadow-md hover:shadow-lg transition-all cursor-pointer"
-              >
-                <Share2 className="h-4 w-4" />
-                <span>{t("Invitar Amigos por WhatsApp", "Invite Friends via WhatsApp")}</span>
-              </button>
-            </div>
-          </div>
-        </Reveal>
-      )}
-
-      {/* PANTALLA / TARJETA FINAL DE AGRADECIMIENTO POR JUGAR */}
-      <Reveal delay={130}>
-        <div className="rounded-3xl border-2 border-gold/40 bg-gradient-to-br from-amber-500/10 via-card to-amber-500/15 p-6 sm:p-8 text-center space-y-4 shadow-lg relative overflow-hidden">
-          <div className="h-16 w-16 mx-auto rounded-3xl bg-gradient-to-tr from-amber-600 to-gold flex items-center justify-center text-white shadow-md text-3xl">
-            💖
-          </div>
-
-          <div className="space-y-1.5 max-w-md mx-auto">
-            <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground">
-              {t("¡Gracias por Jugar y por tu Visita!", "Thank you for Playing and for Visiting!")}
-            </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground font-light leading-relaxed">
+            <p className="text-xs sm:text-sm font-medium text-amber-800 pt-1">
               {t(
-                "Tu presencia y alegría hacen única a Bliss Soul Bakery & Café. Tus sellos acumulados y tus cupones están registrados en tu dispositivo para tu próxima visita.",
-                "Your presence and joy make Bliss Soul Bakery & Café unique. Your accumulated stamps and coupons are saved on your device for your next visit."
+                "Tus sellos acumulados y beneficios exclusivos estarán guardados aquí esperándote. ¡Vuelve pronto a deleitarte con nosotros!",
+                "Your accumulated stamps and exclusive perks are safely saved here waiting for you. Come back soon to treat yourself again!"
               )}
             </p>
           </div>
