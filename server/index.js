@@ -166,6 +166,13 @@ const DEFAULT_SETTINGS = {
       active: true,
     },
   ],
+  reputation: {
+    googleBusinessUrl: "https://g.page/r/CfPSfNSGX8u1EBM/review",
+    whatsappPrivateNumber: "573000000000",
+    minRatingForGoogle: 4,
+    autoRedirectGoogle: true,
+    filterNegativeReviews: true,
+  },
   databases: {
     googleSheetWebhookUrl: "",
     supabaseEnabled: false,
@@ -290,6 +297,7 @@ let db = {
     },
   },
   missionSubmissions: [],
+  reputationFeedbacks: [],
   logs: [],
   settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
 };
@@ -353,8 +361,13 @@ if (fs.existsSync(DB_FILE)) {
         missions: (loaded.settings && loaded.settings.missions && loaded.settings.missions.length > 0)
           ? loaded.settings.missions
           : DEFAULT_SETTINGS.missions,
+        reputation: {
+          ...DEFAULT_SETTINGS.reputation,
+          ...((loaded.settings && loaded.settings.reputation) || {}),
+        },
       },
       missionSubmissions: Array.isArray(loaded.missionSubmissions) ? loaded.missionSubmissions : [],
+      reputationFeedbacks: Array.isArray(loaded.reputationFeedbacks) ? loaded.reputationFeedbacks : [],
     };
   } catch (err) {
     console.error("Error leyendo db.json:", err.message);
@@ -637,6 +650,100 @@ const server = http.createServer((req, res) => {
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: true, submission: sub, customers: db.customers }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  // 14. API: EMBUDO INTELIGENTE DE REPUTACIÓN (GET /api/reputation, POST /api/reputation/feedback, POST /api/reputation/config)
+  if (pathname === "/api/reputation") {
+    if (req.method === "GET") {
+      const repConfig = db.settings.reputation || DEFAULT_SETTINGS.reputation;
+      const feedbacks = db.reputationFeedbacks || [];
+      const total = feedbacks.length;
+      const googleCount = feedbacks.filter((f) => f.actionTaken === "google" || f.rating >= (repConfig.minRatingForGoogle || 4)).length;
+      const whatsappCount = feedbacks.filter((f) => f.actionTaken === "whatsapp" || f.rating < (repConfig.minRatingForGoogle || 4)).length;
+      const sumRatings = feedbacks.reduce((acc, cur) => acc + (cur.rating || 5), 0);
+      const avg = total > 0 ? (sumRatings / total).toFixed(1) : "5.0";
+      const protectionRate = total > 0 ? Math.round((googleCount / total) * 100) : 100;
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          success: true,
+          config: repConfig,
+          feedbacks: feedbacks,
+          stats: {
+            total,
+            averageRating: avg,
+            googleCount,
+            whatsappCount,
+            protectionRate,
+          },
+        })
+      );
+      return;
+    }
+  }
+
+  if (pathname === "/api/reputation/feedback" && req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { customerName, customerWhatsapp, tableNumber, rating, comment, actionTaken } = JSON.parse(body || "{}");
+        const cleanRating = parseInt(rating, 10) || 5;
+        const repConfig = db.settings.reputation || DEFAULT_SETTINGS.reputation;
+        const finalAction = actionTaken || (cleanRating >= (repConfig.minRatingForGoogle || 4) ? "google" : "whatsapp");
+
+        const newFeedback = {
+          id: `REV-${Date.now().toString(36).toUpperCase()}`,
+          customerName: customerName || "Comensal",
+          customerWhatsapp: (customerWhatsapp || "").replace(/\D/g, "") || "",
+          tableNumber: tableNumber || "Mesa 1",
+          rating: cleanRating,
+          comment: (comment || "").trim(),
+          actionTaken: finalAction,
+          timestamp: new Date().toISOString(),
+          timeFormatted: new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }),
+          dateFormatted: new Date().toLocaleDateString("es-CO", { day: "2-digit", month: "short" }),
+        };
+
+        db.reputationFeedbacks = db.reputationFeedbacks || [];
+        db.reputationFeedbacks.unshift(newFeedback);
+        saveDb();
+
+        logRequest("POST", "/api/reputation/feedback", 200, `Calificación recibida: ${cleanRating}★ (${finalAction}) por ${newFeedback.customerName}`);
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true, feedback: newFeedback }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  if (pathname === "/api/reputation/config" && req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const data = JSON.parse(body || "{}");
+        db.settings.reputation = {
+          ...DEFAULT_SETTINGS.reputation,
+          ...(db.settings.reputation || {}),
+          ...data,
+        };
+        saveDb();
+
+        logRequest("POST", "/api/reputation/config", 200, "Configuración del Embudo de Reputación actualizada");
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true, config: db.settings.reputation }));
       } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: false, error: err.message }));
@@ -1039,6 +1146,14 @@ function renderBackendDashboard() {
   const funnelReturning = returningCount;
   const missions = s.missions || DEFAULT_SETTINGS.missions;
   const submissions = db.missionSubmissions || [];
+  const repConfig = s.reputation || DEFAULT_SETTINGS.reputation;
+  const repFeedbacks = db.reputationFeedbacks || [];
+  const repTotal = repFeedbacks.length;
+  const repGoogleCount = repFeedbacks.filter((f) => f.actionTaken === "google" || f.rating >= (repConfig.minRatingForGoogle || 4)).length;
+  const repWhatsappCount = repFeedbacks.filter((f) => f.actionTaken === "whatsapp" || f.rating < (repConfig.minRatingForGoogle || 4)).length;
+  const repSum = repFeedbacks.reduce((acc, cur) => acc + (cur.rating || 5), 0);
+  const repAvg = repTotal > 0 ? (repSum / repTotal).toFixed(1) : "5.0";
+  const repProtectionRate = repTotal > 0 ? Math.round((repGoogleCount / repTotal) * 100) : 100;
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -1614,6 +1729,13 @@ function renderBackendDashboard() {
               <div>
                 <div class="tab-title">Misiones & Embajadores</div>
                 <div class="tab-sub">Revisión de tareas (TikTok, etc.)</div>
+              </div>
+            </button>
+            <button type="button" class="nav-tab-btn" data-tab="tab-reputation" onclick="switchTab('tab-reputation', this)">
+              <span>⭐</span>
+              <div>
+                <div class="tab-title">Embudo de Reputación</div>
+                <div class="tab-sub">Google My Business vs WhatsApp</div>
               </div>
             </button>
           </div>
@@ -3575,6 +3697,188 @@ function renderBackendDashboard() {
         </div>
       </div>
     </div>
+
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA 11: EMBUDO INTELIGENTE DE REPUTACIÓN (GOOGLE VS WHATSAPP)         -->
+    <!-- ========================================================================= -->
+    <div id="tab-reputation" class="tab-content">
+      <!-- GUÍA RÁPIDA -->
+      <div class="quick-guide-box">
+        <div class="quick-guide-header">
+          <span>⭐</span>
+          <span>Guía Rápida: Embudo Inteligente de Reputación y Reseñas</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+          Protege la reputación pública del negocio filtrando comentarios en base a la experiencia del comensal.
+        </div>
+        <div class="quick-guide-grid">
+          <div class="quick-guide-item">
+            <strong>🌟 Calificaciones de 4 a 5 Emblemas</strong>
+            <span>Dirige automáticamente a Google My Business / Google Maps para multiplicar las reseñas 5 estrellas y posicionamiento SEO.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>🛡️ Calificaciones de 1 a 3 Emblemas</strong>
+            <span>Filtro de contención privado: El comensal envía su sugerencia al WhatsApp de administración sin publicarla en Google.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>💬 Resolución Inmediata de Quejas</strong>
+            <span>Permite al gerente o dueño atender al cliente insatisfecho al instante y fidelizarlo antes de que abandone el local.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>🎁 Activación de 2ª Oportunidad</strong>
+            <span>Tras calificar en Google, el cliente desbloquea el reto del cronómetro 10s al compartir en sus Estados de WhatsApp.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MÉTRICAS DEL EMBUDO DE REPUTACIÓN -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-title">Calificación Promedio</span>
+          <span class="stat-value" style="color: #fbbf24;">${repAvg} ★</span>
+          <span class="stat-sub">${repTotal} calificaciones recibidas</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Dirigidas a Google Maps</span>
+          <span class="stat-value" style="color: var(--success);">${repGoogleCount}</span>
+          <span class="stat-sub">Experiencias positivas (4 a 5 ★)</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Quejas Interceptadas</span>
+          <span class="stat-value" style="color: var(--warning);">${repWhatsappCount}</span>
+          <span class="stat-sub">Atendidas en WhatsApp privado (1 a 3 ★)</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Protección de Marca</span>
+          <span class="stat-value" style="color: var(--info);">${repProtectionRate}%</span>
+          <span class="stat-sub">Tasa de reputación positiva</span>
+        </div>
+      </div>
+
+      <!-- FORMULARIO DE CONFIGURACIÓN DEL EMBUDO -->
+      <div class="panel" style="margin-bottom: 20px;">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>⚙️ Configuración del Embudo (Google My Business & WhatsApp)</span>
+          </div>
+          <span class="badge-role" style="background: rgba(162, 126, 44, 0.2); color: var(--accent); border-color: rgba(162, 126, 44, 0.4);">
+            EMBUDO INTELIGENTE ACTIVO
+          </span>
+        </div>
+
+        <form id="form-reputation-config" onsubmit="saveReputationConfig(event)">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 14px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Enlace a Google My Business / Google Maps Reviews:</label>
+              <input type="url" id="repGoogleUrl" class="form-input" value="${repConfig.googleBusinessUrl || 'https://g.page/r/CfPSfNSGX8u1EBM/review'}" required placeholder="https://g.page/r/.../review o https://maps.google.com/..." />
+              <span class="form-help">Enlace directo a la ficha de reseñas de Google para comensales que califiquen 4 o 5 emblemas.</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">WhatsApp Privado de Gerencia / Administración:</label>
+              <input type="tel" id="repWhatsappPhone" class="form-input" value="${repConfig.whatsappPrivateNumber || '573000000000'}" required placeholder="573001234567" />
+              <span class="form-help">Número con código de país para recibir las sugerencias y quejas privadas de 1 a 3 emblemas.</span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Umbral Mínimo para Google:</label>
+              <select id="repMinRating" class="form-input">
+                <option value="4" ${repConfig.minRatingForGoogle === 4 ? 'selected' : ''}>4 y 5 Emblemas van a Google (1 a 3 a WhatsApp privado)</option>
+                <option value="5" ${repConfig.minRatingForGoogle === 5 ? 'selected' : ''}>Solo 5 Emblemas van a Google (1 a 4 a WhatsApp privado)</option>
+              </select>
+              <span class="form-help">Define a partir de cuántos emblemas se envía la reseña pública a Google Maps.</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Redirección y Protección Activa:</label>
+              <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; color: var(--text);">
+                  <input type="checkbox" id="repAutoRedirect" ${repConfig.autoRedirectGoogle !== false ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: var(--accent);" />
+                  <span>Abrir Google Maps automáticamente en 4 y 5 estrellas</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn-primary" style="padding: 10px 22px;">
+              💾 Guardar Configuración de Reputación
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- BANDEJA EN VIVO DE CALIFICACIONES Y SUGERENCIAS RECIBIDAS -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>📥 Historial de Calificaciones y Sugerencias de Comensales</span>
+            <span style="font-size: 11px; background: rgba(162, 126, 44, 0.2); color: var(--accent); border-line: 1px solid rgba(162, 126, 44, 0.4); padding: 2px 8px; border-radius: 9999px; font-weight: 700;">
+              ${repTotal} registros
+            </span>
+          </div>
+          <button type="button" class="btn-secondary" onclick="window.location.reload()" style="font-size: 11px; padding: 4px 10px;">
+            🔄 Actualizar Historial
+          </button>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="data-table" style="width: 100%;">
+            <thead>
+              <tr>
+                <th>Fecha / Hora</th>
+                <th>Comensal / Mesa</th>
+                <th>Calificación</th>
+                <th>Canal del Embudo</th>
+                <th>Sugerencia / Comentario</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${repFeedbacks.length === 0 ? `
+                <tr>
+                  <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                    ⭐ Aún no hay calificaciones registradas. Cuando los comensales califiquen desde el QR de mesa o domicilio, aparecerán aquí.
+                  </td>
+                </tr>
+              ` : repFeedbacks.map(f => `
+                <tr>
+                  <td>
+                    <span style="font-size: 11px; font-weight: 600; color: var(--text);">${f.dateFormatted || ''}</span>
+                    <span style="display: block; font-size: 10px; color: var(--text-muted);">${f.timeFormatted || ''}</span>
+                  </td>
+                  <td>
+                    <strong style="color: var(--text); font-size: 12px;">${f.customerName}</strong>
+                    <span style="display: block; font-size: 10px; color: var(--text-muted);">${f.tableNumber}</span>
+                  </td>
+                  <td>
+                    <span style="color: #fbbf24; font-size: 14px; font-weight: 700;">${'★'.repeat(f.rating)}${'☆'.repeat(5 - f.rating)}</span>
+                    <span style="font-size: 10px; color: var(--text-muted); margin-left: 4px;">(${f.rating}/5)</span>
+                  </td>
+                  <td>
+                    ${f.actionTaken === 'google' || f.rating >= 4 ? `
+                      <span style="font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 9999px; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
+                        🌐 GOOGLE MY BUSINESS
+                      </span>
+                    ` : `
+                      <span style="font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 9999px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">
+                        🛡️ WHATSAPP PRIVADO (1-3★)
+                      </span>
+                    `}
+                  </td>
+                  <td style="max-width: 320px;">
+                    <span style="font-size: 11px; color: var(--text); line-height: 1.4;">
+                      ${f.comment ? `"${f.comment}"` : '<em style="color: var(--text-muted);">Sin comentario adicional</em>'}
+                    </span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
       </main>
     </div>
 
@@ -4485,6 +4789,36 @@ function renderBackendDashboard() {
         }
       } catch (err) {
         alert('Error de conexión al revisar misión');
+      }
+    }
+
+    // GUARDAR CONFIGURACIÓN DEL EMBUDO DE REPUTACIÓN
+    async function saveReputationConfig(e) {
+      if (e) e.preventDefault();
+      const googleUrl = document.getElementById("repGoogleUrl").value.trim();
+      const whatsappPhone = document.getElementById("repWhatsappPhone").value.trim();
+      const minRating = parseInt(document.getElementById("repMinRating").value, 10) || 4;
+      const autoRedirect = document.getElementById("repAutoRedirect").checked;
+
+      try {
+        const res = await fetch("/api/reputation/config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            googleBusinessUrl: googleUrl,
+            whatsappPrivateNumber: whatsappPhone,
+            minRatingForGoogle: minRating,
+            autoRedirectGoogle: autoRedirect
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("✓ ¡Configuración del Embudo de Reputación guardada exitosamente!");
+        } else {
+          alert("Error: " + (data.error || "No se pudo guardar"));
+        }
+      } catch (err) {
+        alert("Error de conexión al guardar configuración");
       }
     }
   

@@ -76,18 +76,16 @@ export function GameHeader({
               </button>
             )}
 
-            {/* Atajo discreto exclusivo para modo desarrollo (?debug=1) */}
-            {isDebug && (
-              <button
-                onClick={onResetSession}
-                type="button"
-                className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] rounded text-muted-foreground hover:text-foreground bg-muted/40"
-                title="Debug: Reiniciar sesión"
-              >
-                <RotateCcw className="h-3 w-3" />
-                <span>Debug Reset</span>
-              </button>
-            )}
+            {/* Botón para reiniciar demo desde el principio */}
+            <button
+              onClick={onResetSession}
+              type="button"
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium text-muted-foreground hover:text-foreground bg-muted/60 hover:bg-muted border border-border/60 transition-all cursor-pointer"
+              title="Reiniciar la demo al Paso 1 (Tus Datos)"
+            >
+              <RotateCcw className="h-3 w-3 text-gold" />
+              <span>{t("Reiniciar Demo", "Reset Demo")}</span>
+            </button>
           </div>
         </div>
 

@@ -144,12 +144,13 @@ function JuegoQrPage() {
         sessionStorage.removeItem("juego_won_prize");
         setCurrentStep(1);
       } else {
+        // Por defecto, siempre comenzar la demo desde el Paso 1 (Tus Datos)
+        setCurrentStep(1);
         try {
           const savedPrize = sessionStorage.getItem("juego_won_prize");
           if (savedPrize) {
             const parsed = JSON.parse(savedPrize) as WonPrize;
             setWonPrize(parsed);
-            setCurrentStep(3);
           }
         } catch {
           // Ignorar errores de parseo
@@ -548,6 +549,10 @@ function JuegoQrPage() {
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
                     onOpenMissions={() => setIsMissionsOpen(true)}
+                    onProceedToFeedback={() => {
+                      setCurrentStep(4);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
                   />
 
                   {/* Atajo discreto para modo desarrollo si ?debug=1 */}

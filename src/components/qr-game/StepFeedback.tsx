@@ -1,12 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FeedbackData } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
-import { ExternalLink, MessageCircle, CheckCircle2, Sparkles, ArrowRight, Share2 } from "lucide-react";
-import { waLink, waShareLink } from "@/data/site";
+import {
+  ExternalLink,
+  MessageCircle,
+  CheckCircle2,
+  Sparkles,
+  ArrowRight,
+  Star,
+  ShieldCheck,
+  Send,
+} from "lucide-react";
+import { waLink } from "@/data/site";
 import emblemaDorado from "@/assets/emblema-dorado.png";
 import { clientConfig } from "@/config/clientConfig";
-
 import { SecondChanceConfig } from "./gameTypes";
 
 interface StepFeedbackProps {
@@ -22,11 +30,9 @@ interface StepFeedbackProps {
 export function StepFeedback({
   initialFeedback,
   customerName = "",
-  isStandAlone = false,
   secondChanceConfig,
   onUnlockSecondChance,
   onComplete,
-  onSwitchToGame,
 }: StepFeedbackProps) {
   const { t } = useLanguage();
   const [rating, setRating] = useState<number>(initialFeedback?.rating || 0);
@@ -34,14 +40,42 @@ export function StepFeedback({
   const [name, setName] = useState<string>(customerName);
   const [comment, setComment] = useState<string>(initialFeedback?.comment || "");
   const [hasSentWhatsApp, setHasSentWhatsApp] = useState(false);
-  const [hasSharedInvite, setHasSharedInvite] = useState(false);
+  const [googleReviewUrl, setGoogleReviewUrl] = useState<string>(
+    clientConfig.channels.googleMapsReviewUrl || "https://g.page/r/CfPSfNSGX8u1EBM/review"
+  );
+  const [whatsappPrivate, setWhatsappPrivate] = useState<string>(
+    clientConfig.channels.whatsappNumber || "573000000000"
+  );
+
+  // Sincronizar configuración del Embudo de Reputación desde el Backend
+  useEffect(() => {
+    fetch("/api/reputation")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.success && data.config) {
+          if (data.config.googleBusinessUrl) {
+            setGoogleReviewUrl(data.config.googleBusinessUrl);
+          }
+          if (data.config.whatsappPrivateNumber) {
+            setWhatsappPrivate(data.config.whatsappPrivateNumber);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (customerName && !name) {
+      setName(customerName);
+    }
+  }, [customerName]);
 
   const ratingLabels: Record<number, string> = {
-    1: t("1 de 5 · Experiencia deficiente", "1 out of 5 · Poor experience"),
-    2: t("2 de 5 · Por debajo de lo esperado", "2 out of 5 · Below expectations"),
-    3: t("3 de 5 · Aceptable · Hay aspectos por mejorar", "3 out of 5 · Fair · Room to improve"),
-    4: t("4 de 5 · Muy buena experiencia", "4 out of 5 · Very good experience"),
-    5: t("5 de 5 · ¡Extraordinaria! · Inolvidable", "5 out of 5 · Extraordinary · Unforgettable"),
+    1: t("1 DE 5 · EXPERIENCIA DEFICIENTE", "1 OUT OF 5 · POOR EXPERIENCE"),
+    2: t("2 DE 5 · POR DEBAJO DE LO ESPERADO", "2 OUT OF 5 · BELOW EXPECTATIONS"),
+    3: t("3 DE 5 · ACEPTABLE · HAY ASPECTOS POR MEJORAR", "3 OUT OF 5 · FAIR · ROOM TO IMPROVE"),
+    4: t("4 DE 5 · MUY BUENA EXPERIENCIA", "4 OUT OF 5 · VERY GOOD EXPERIENCE"),
+    5: t("5 DE 5 · ¡EXTRAORDINARIA! · INOLVIDABLE", "5 OUT OF 5 · EXTRAORDINARY · UNFORGETTABLE"),
   };
 
   const handleSelectRating = (val: number) => {
@@ -49,28 +83,45 @@ export function StepFeedback({
     if (onComplete) {
       onComplete({ rating: val, comment });
     }
-    // Si es 4 o 5 estrellas, abrimos Google Maps automáticamente
+
+    // Registrar en el backend
+    fetch("/api/reputation/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerName: name || customerName || "Comensal",
+        rating: val,
+        actionTaken: val >= 4 ? "google" : "whatsapp",
+      }),
+    }).catch(() => {});
+
+    // Si es 4 o 5 estrellas, abrimos Google My Business automáticamente
     if (val >= 4) {
-      window.open("https://g.page/r/CfPSfNSGX8u1EBM/review", "_blank", "noopener,noreferrer");
+      window.open(googleReviewUrl, "_blank", "noopener,noreferrer");
     }
   };
 
-  const handleInviteFriendsWhatsApp = () => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const inviteMessage = `¡Hola! Te recomiendo mucho visitar *${clientConfig.brand.name}* 🍽️✨\n\nEl ambiente y la comida son espectaculares. Cuando vayas y te sientes en tu mesa, escanea el código en la mesa y participa en su Ruleta de Premios:\n👉 ${origin}?ref=${encodeURIComponent(customerName || name || "Amigo")}\n\n¡Vamos juntos o visítalos hoy, te va a encantar! ❤️`;
-    window.open(waShareLink(inviteMessage), "_blank", "noopener,noreferrer");
-    setHasSharedInvite(true);
-  };
-
-  const handleSendWhatsApp = (e: React.FormEvent) => {
+  const handleSendWhatsAppSuggestion = (e: React.FormEvent) => {
     e.preventDefault();
     if (!comment.trim()) return;
 
-    const stars = "★".repeat(rating || 1);
-    const nameLine = name.trim() ? `De: ${name.trim()}\n` : "";
-    const msg = `Hola ${clientConfig.brand.name}, estuve de visita y califiqué mi experiencia con ${rating}/5 (${stars}).\n${nameLine}Comentario / sugerencia para mejorar:\n"${comment.trim()}"`;
+    // Registrar feedback completo en el backend
+    fetch("/api/reputation/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerName: name.trim() || customerName || "Comensal",
+        rating: rating || 3,
+        comment: comment.trim(),
+        actionTaken: "whatsapp",
+      }),
+    }).catch(() => {});
 
-    window.open(waLink(msg), "_blank", "noopener,noreferrer");
+    const stars = "★".repeat(rating || 3);
+    const clientSignature = name.trim() ? `\nDe: ${name.trim()}` : "";
+    const msg = `Hola Administración de Bliss Soul Bakery,\nEstuve de visita y califiqué mi experiencia con ${rating}/5 (${stars}).${clientSignature}\n\nSugerencia privada para mejorar:\n"${comment.trim()}"`;
+
+    window.open(waLink(msg, whatsappPrivate), "_blank", "noopener,noreferrer");
     setHasSentWhatsApp(true);
 
     if (onComplete) {
@@ -78,35 +129,50 @@ export function StepFeedback({
     }
   };
 
+  const handleOpenGoogleDirectly = () => {
+    window.open(googleReviewUrl, "_blank", "noopener,noreferrer");
+    fetch("/api/reputation/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerName: name || customerName || "Comensal",
+        rating: rating || 5,
+        actionTaken: "google",
+      }),
+    }).catch(() => {});
+  };
+
   return (
-    <div className="max-w-2xl mx-auto py-6">
+    <div className="max-w-2xl mx-auto py-6 text-left">
       <Reveal>
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <span className="h-px w-6 bg-gold" />
-            <span className="text-xs uppercase tracking-[0.24em] text-gold font-medium">
-              {t("Tu Opinión", "Your Feedback")}
+        <div>
+          {/* LÍNEA Y SECCIÓN: — TU EXPERIENCIA */}
+          <div className="flex items-center gap-2 mb-2.5">
+            <span className="h-0.5 w-6 bg-gold" />
+            <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-gold font-bold">
+              {t("Tu Experiencia", "Your Experience")}
             </span>
-            <span className="h-px w-6 bg-gold" />
           </div>
 
-          <h2 className="font-display text-2xl sm:text-3xl text-foreground font-normal tracking-tight">
+          {/* TÍTULO PRINCIPAL SERIF */}
+          <h2 className="font-serif text-2xl sm:text-4xl text-neutral-900 font-normal tracking-tight leading-snug">
             {t(
               "Tu opinión es esencial y nos ayuda a mejorar.",
-              "Your opinion is essential and helps us improve.",
+              "Your opinion is essential and helps us improve."
             )}
           </h2>
 
-          <p className="mt-3 text-sm text-muted-foreground font-light leading-relaxed max-w-lg mx-auto">
+          {/* SUBTÍTULO DESCRIPTIVO */}
+          <p className="mt-3 text-xs sm:text-sm text-neutral-600 font-light leading-relaxed max-w-xl">
             {t(
-              `En ${clientConfig.brand.name} cada visita busca ser una experiencia inolvidable. ¿Cómo fue tu experiencia hoy? Califica con nuestros emblemas:`,
-              `At ${clientConfig.brand.name}, every visit strives to be an unforgettable experience. How was your experience today? Rate with our emblems:`,
+              "En Bliss Soul Bakery cada visita busca ser una pausa serena e inolvidable. ¿Cómo fue tu experiencia hoy? Califica con nuestros emblemas:",
+              "At Bliss Soul Bakery every visit seeks to be a serene and unforgettable pause. How was your experience today? Rate with our emblems:"
             )}
           </p>
         </div>
       </Reveal>
 
-      {/* Selector interactivo de 5 emblemas oficiales */}
+      {/* SELECTOR INTERACTIVO DE 5 EMBLEMAS */}
       <Reveal delay={80}>
         <div className="mt-8 flex flex-col items-center">
           <div
@@ -123,22 +189,22 @@ export function StepFeedback({
                   onClick={() => handleSelectRating(val)}
                   onMouseEnter={() => setHoveredRating(val)}
                   onMouseLeave={() => setHoveredRating(0)}
-                  className="group flex flex-col items-center p-2 focus:outline-none cursor-pointer bg-transparent transition-transform hover:scale-110 active:scale-95"
-                  aria-label={`${val} ${t("de 5 puntos", "out of 5 points")}`}
+                  className="group flex flex-col items-center p-1.5 sm:p-2 focus:outline-hidden cursor-pointer bg-transparent transition-transform hover:scale-110 active:scale-95"
+                  aria-label={`${val} de 5 puntos`}
                 >
                   <img
                     src={emblemaDorado}
                     alt=""
                     aria-hidden="true"
-                    className={`h-9 sm:h-11 w-auto object-contain transition-all duration-300 pointer-events-none ${
+                    className={`h-10 sm:h-12 w-auto object-contain transition-all duration-300 pointer-events-none ${
                       isHighlighted
                         ? "brightness-100 drop-shadow-[0_2px_12px_rgba(162,126,44,0.45)] scale-110"
-                        : "brightness-0 opacity-30 group-hover:opacity-60"
+                        : "brightness-0 opacity-25 group-hover:opacity-60"
                     }`}
                   />
                   <span
                     className={`mt-2 text-xs tracking-wider transition-colors font-mono ${
-                      isHighlighted ? "text-gold font-semibold" : "text-muted-foreground/60"
+                      isHighlighted ? "text-gold font-bold" : "text-neutral-400"
                     }`}
                   >
                     {val}
@@ -148,80 +214,165 @@ export function StepFeedback({
             })}
           </div>
 
-          {/* Etiqueta dinámica de la calificación */}
-          <p className="mt-4 h-6 text-xs uppercase tracking-widest text-muted-foreground transition-all">
+          {/* LEYENDA INFORMATIVA BAJO LOS EMBLEMAS */}
+          <p className="mt-4 h-6 text-[11px] sm:text-xs uppercase tracking-widest transition-all text-center">
             {hoveredRating || rating ? (
-              <span className="text-gold font-medium">{ratingLabels[hoveredRating || rating]}</span>
+              <span className="text-gold font-bold">
+                {ratingLabels[hoveredRating || rating]}
+              </span>
             ) : (
-              <span className="text-muted-foreground/70">
-                {t("Toca un emblema para calificar", "Click an emblem to rate")}
+              <span className="text-neutral-400 font-medium tracking-[0.2em]">
+                {t("HAZ CLIC EN UN EMBLEMA PARA CALIFICAR", "CLICK AN EMBLEM TO RATE")}
               </span>
             )}
           </p>
         </div>
       </Reveal>
 
-      {/* CASO 1: 4 a 5 estrellas -> Google Reviews directo */}
-      {rating >= 4 && (
+      {/* CASO 1: 1 A 3 ESTRELLAS -> FILTRO DE CONTENCIÓN A WHATSAPP PRIVADO */}
+      {rating > 0 && rating <= 3 && (
         <Reveal delay={120}>
-          <div className="mt-8 rounded-2xl border border-gold/40 bg-card p-6 sm:p-8 shadow-md text-center animate-fade-in">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gold/15 text-gold mb-3">
-              <CheckCircle2 className="h-6 w-6" />
-            </div>
-            <h3 className="font-display text-xl sm:text-2xl text-foreground font-normal">
-              {t("¡Nos alegra profundamente saberlo!", "We are truly delighted to hear that!")}
-            </h3>
-            <p className="mt-2 text-xs sm:text-sm text-muted-foreground font-light leading-relaxed max-w-lg mx-auto">
-              {t(
-                "Tu recomendación es el mayor impulso para todo nuestro equipo. Tu reseña en Google ayuda a que más amantes del buen café y la repostería artesanal nos conozcan.",
-                "Your recommendation is the greatest boost for our team. Your Google review helps more lovers of good coffee and artisan pastry discover us.",
-              )}
-            </p>
-
-            <div className="mt-6 flex items-center justify-center">
-              <a
-                href="https://g.page/r/CfPSfNSGX8u1EBM/review"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-solid inline-flex items-center gap-2 py-3 px-6 text-xs uppercase tracking-[0.18em] font-medium shadow-xs"
-              >
-                <span>{t("Escribir reseña en Google Maps", "Write review on Google Maps")}</span>
-                <ExternalLink className="h-4 w-4" />
-              </a>
-            </div>
-
-            {/* INVITAR A AMIGOS POR WHATSAPP TRAS CALIFICAR EN GOOGLE */}
-            <div className="mt-7 pt-5 border-t border-border/70 text-center space-y-2.5">
-              <span className="text-[10px] uppercase tracking-wider font-bold text-amber-900 block">
-                {t("🎁 Comparte la Experiencia con Amigos", "🎁 Share Experience with Friends")}
-              </span>
-              <p className="text-xs text-muted-foreground font-light max-w-md mx-auto">
-                {t(
-                  "Ahora que has calificado tu visita en Google, invita a tus amigos o familiares por WhatsApp a disfrutar de nuestra casa y ganar su propio premio en mesa:",
-                  "Now that you've reviewed your visit on Google, invite friends or family via WhatsApp to enjoy our venue and win their own prize:"
-                )}
-              </p>
-              <div className="pt-1 flex flex-col items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleInviteFriendsWhatsApp}
-                  className="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs uppercase tracking-wider font-semibold shadow-sm transition-all cursor-pointer"
-                >
-                  <Share2 className="h-4 w-4" />
-                  <span>{t("💬 Invitar a Amigos por WhatsApp", "💬 Invite Friends on WhatsApp")}</span>
-                </button>
-
-                {hasSharedInvite && (
-                  <span className="text-[11px] text-emerald-700 font-semibold animate-fade-in">
-                    ✓ ¡Invitación enviada por WhatsApp! Gracias por recomendarnos.
-                  </span>
-                )}
+          <div className="mt-8 rounded-2xl border border-neutral-200 bg-white p-6 sm:p-8 text-left shadow-xs animate-fade-in">
+            {/* Encabezado con icono circular de mensaje */}
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-gold border border-gold/30 text-lg shadow-2xs">
+                💬
+              </div>
+              <div>
+                <h3 className="font-serif text-base sm:text-lg text-neutral-900 font-medium">
+                  {t("Queremos escucharte y aprender de ti", "We want to listen and learn from you")}
+                </h3>
+                <p className="text-xs text-neutral-500 font-light mt-0.5">
+                  {t(
+                    "Tu mensaje llegará directamente a la administración para atenderlo",
+                    "Your message will reach administration directly to take care of it"
+                  )}
+                </p>
               </div>
             </div>
 
-            {/* DESBLOQUEAR SEGUNDA OPORTUNIDAD TRAS CALIFICAR EN GOOGLE */}
+            {/* Línea divisoria sutil */}
+            <div className="border-b border-neutral-100 my-4" />
+
+            <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed mb-5">
+              {t(
+                "Lamentamos profundamente que tu visita no haya sido del todo perfecta. Tu opinión sincera nos ayuda a corregir detalles y seguir mejorando cada día:",
+                "We deeply regret that your visit wasn't completely perfect. Your honest feedback helps us correct details and improve every day:"
+              )}
+            </p>
+
+            <form onSubmit={handleSendWhatsAppSuggestion} className="space-y-4">
+              <div>
+                <label className="block text-[10px] sm:text-[11px] uppercase tracking-wider text-neutral-500 font-semibold mb-1.5">
+                  {t("TU NOMBRE (OPCIONAL)", "YOUR NAME (OPTIONAL)")}
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Ej. María Gómez"
+                  className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-hidden focus:ring-2 focus:ring-gold/50 transition-all placeholder:text-neutral-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] sm:text-[11px] uppercase tracking-wider text-neutral-500 font-semibold mb-1.5">
+                  {t("¿QUÉ PODEMOS MEJORAR? *", "WHAT CAN WE IMPROVE? *")}
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Cuéntanos qué sucedió con total confianza (atención, producto, tiempo de espera)..."
+                  className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-hidden focus:ring-2 focus:ring-gold/50 transition-all resize-none placeholder:text-neutral-400"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3.5 px-5 rounded-xl border border-gold/70 bg-white hover:bg-amber-500/5 text-neutral-900 text-xs sm:text-[13px] uppercase tracking-[0.14em] font-medium flex items-center justify-between shadow-2xs hover:shadow-sm transition-all cursor-pointer group active:scale-[0.99]"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="text-base">💬</span>
+                  <span className="text-left font-serif font-medium">
+                    {t(
+                      "ENVIAR SUGERENCIA A NUESTRO WHATSAPP PRIVADO",
+                      "SEND FEEDBACK TO OUR PRIVATE WHATSAPP"
+                    )}
+                  </span>
+                </span>
+                <ArrowRight className="h-4 w-4 text-gold group-hover:translate-x-1 transition-transform shrink-0" />
+              </button>
+
+              {hasSentWhatsApp && (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs flex items-center gap-2 animate-fade-in">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span>
+                    {t(
+                      "✓ ¡Gracias por tu sugerencia! Ha sido enviada a la administración para atender tu caso personalmente.",
+                      "✓ Thank you! Your feedback has been sent to administration to personally assist you."
+                    )}
+                  </span>
+                </div>
+              )}
+            </form>
+          </div>
+        </Reveal>
+      )}
+
+      {/* CASO 2: 4 A 5 ESTRELLAS -> REDIRECCIÓN A GOOGLE MY BUSINESS & 2ª OPORTUNIDAD */}
+      {rating >= 4 && (
+        <Reveal delay={120}>
+          <div className="mt-8 rounded-2xl border border-gold/40 bg-white p-6 sm:p-8 text-left shadow-sm animate-fade-in space-y-6">
+            {/* Encabezado con estrella dorada */}
+            <div>
+              <div className="flex items-center gap-3.5">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold/15 text-gold border border-gold/30 shadow-2xs">
+                  <Star className="h-5 w-5 fill-gold text-gold" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-base sm:text-lg text-neutral-900 font-medium">
+                    {t("¡Nos alegra profundamente saberlo!", "We are truly delighted to hear that!")}
+                  </h3>
+                  <p className="text-xs text-neutral-500 font-light mt-0.5">
+                    {t(
+                      "Tu reseña en Google My Business nos ayuda a seguir creciendo",
+                      "Your Google My Business review helps us continue to grow"
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {/* Línea divisoria */}
+              <div className="border-b border-neutral-100 my-4" />
+
+              <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed mb-5">
+                {t(
+                  "Tu recomendación es el mayor impulso para todo nuestro equipo. Tu reseña en Google ayuda a que más amantes del buen café y la repostería artesanal nos conozcan:",
+                  "Your recommendation is the greatest boost for our team. Your Google review helps more lovers of good coffee and artisan pastry discover us:"
+                )}
+              </p>
+
+              {/* Botón directo a Google My Business */}
+              <button
+                type="button"
+                onClick={handleOpenGoogleDirectly}
+                className="w-full py-3.5 px-5 rounded-xl bg-gold hover:bg-gold/90 active:scale-[0.99] text-white text-xs sm:text-[13px] uppercase tracking-[0.14em] font-semibold flex items-center justify-between shadow-md hover:shadow-lg transition-all cursor-pointer group"
+              >
+                <span className="flex items-center gap-2">
+                  <Star className="h-4 w-4 fill-white text-white shrink-0" />
+                  <span className="text-left font-serif">
+                    {t("ESCRIBIR RESEÑA EN GOOGLE MY BUSINESS", "WRITE REVIEW ON GOOGLE MY BUSINESS")}
+                  </span>
+                </span>
+                <ExternalLink className="h-4 w-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
+
+            {/* SEGUNDA OPORTUNIDAD TRAS CALIFICAR EN GOOGLE */}
             {onUnlockSecondChance && secondChanceConfig?.enabled !== false && (
-              <div className="mt-7 pt-6 border-t-2 border-dashed border-amber-500/40 text-center space-y-3 bg-amber-50/50 p-5 rounded-2xl">
+              <div className="pt-6 border-t-2 border-dashed border-amber-500/30 text-center space-y-3 bg-gradient-to-br from-amber-50/70 via-white to-amber-50/50 p-5 sm:p-6 rounded-2xl border border-amber-200/80">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-900 text-xs font-bold">
                   <Sparkles className="h-3.5 w-3.5 text-amber-600" />
                   <span>{t("¡Beneficio Extra Desbloqueado!", "Extra Benefit Unlocked!")}</span>
@@ -234,11 +385,11 @@ export function StepFeedback({
                     "Comparte tu experiencia en tus Estados de WhatsApp y desbloquea el Reto de Precisión 10s para ganar: ",
                     "Share your experience on your WhatsApp Statuses and unlock the 10s Precision Challenge to win: "
                   )}
-                  <strong className="text-amber-800 font-bold block mt-1 text-sm">
+                  <strong className="text-amber-800 font-bold block mt-1 text-sm font-serif">
                     {secondChanceConfig?.prizeName || "Postre Artesanal de Autor Gratis"}
                   </strong>
                 </p>
-                <div className="pt-2 flex flex-col items-center gap-2">
+                <div className="pt-2 flex flex-col items-center">
                   <button
                     type="button"
                     onClick={onUnlockSecondChance}
@@ -251,120 +402,6 @@ export function StepFeedback({
             )}
           </div>
         </Reveal>
-      )}
-
-      {/* CASO 2: 1 a 3 estrellas -> Comentario constructivo directo a WhatsApp */}
-      {rating > 0 && rating <= 3 && (
-        <Reveal delay={120}>
-          <div className="mt-8 rounded-2xl border border-border/80 bg-card p-6 sm:p-8 text-left shadow-xs animate-fade-in">
-            <div className="flex items-center gap-3 border-b border-border/70 pb-4 mb-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/10 text-gold">
-                <MessageCircle className="h-5 w-5" />
-              </div>
-              <div>
-                <h3 className="font-display text-base sm:text-lg text-foreground font-normal">
-                  {t(
-                    "Queremos escucharte y aprender de ti",
-                    "We want to listen and learn from you",
-                  )}
-                </h3>
-                <p className="text-xs text-muted-foreground font-light">
-                  {t(
-                    "Tu mensaje llegará directamente a la administración para atenderlo.",
-                    "Your message will go directly to administration for attention.",
-                  )}
-                </p>
-              </div>
-            </div>
-
-            <p className="text-xs text-muted-foreground font-light leading-relaxed mb-4">
-              {t(
-                "Lamentamos profundamente que tu visita no haya sido del todo perfecta. Tu opinión sincera nos ayuda a corregir detalles y seguir mejorando cada día:",
-                "We deeply regret that your visit wasn't completely perfect. Your honest feedback helps us correct details and improve every day:",
-              )}
-            </p>
-
-            <form onSubmit={handleSendWhatsApp} className="space-y-4">
-              <div>
-                <label
-                  htmlFor="feedback-name"
-                  className="block text-xs uppercase tracking-[0.16em] text-foreground font-medium mb-1.5"
-                >
-                  {t("Tu nombre (Opcional)", "Your name (Optional)")}
-                </label>
-                <input
-                  id="feedback-name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={t("Ej. María Gómez", "E.g. Maria Gomez")}
-                  className="w-full rounded-xl border border-border/80 bg-background px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/50 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="feedback-comment"
-                  className="block text-xs uppercase tracking-[0.16em] text-foreground font-medium mb-1.5"
-                >
-                  {t("¿Qué podemos mejorar? *", "What can we improve? *")}
-                </label>
-                <textarea
-                  id="feedback-comment"
-                  required
-                  rows={3}
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder={t(
-                    "Cuéntanos qué sucedió con total confianza (atención, producto, tiempo de espera)...",
-                    "Tell us what happened in full confidence (service, product, wait time)...",
-                  )}
-                  className="w-full rounded-xl border border-border/80 bg-background px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground/50 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
-                />
-              </div>
-
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-start gap-3">
-                <button
-                  type="submit"
-                  className="btn-outline w-full sm:w-auto inline-flex items-center justify-center gap-2 border-gold text-gold hover:bg-gold hover:text-white py-3 px-6 text-xs uppercase tracking-[0.18em] font-medium transition-all shadow-xs"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  <span>
-                    {hasSentWhatsApp
-                      ? t("Sugerencia enviada a WhatsApp", "Suggestion sent to WhatsApp")
-                      : t(
-                          "Enviar sugerencia a nuestro WhatsApp privado",
-                          "Send suggestion to our private WhatsApp",
-                        )}
-                  </span>
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            </form>
-          </div>
-        </Reveal>
-      )}
-
-      {/* Único botón oficial para alternar a jugar por premios */}
-      {onSwitchToGame && (
-        <div className="mt-10 text-center pt-6 border-t border-border/60">
-          <p className="text-xs text-muted-foreground font-light mb-2.5">
-            {t(
-              "¿Prefieres jugar primero para obtener un premio o descuento en tu cuenta?",
-              "Would you prefer to play first to earn a prize or discount on your bill?",
-            )}
-          </p>
-          <button
-            type="button"
-            onClick={onSwitchToGame}
-            className="inline-flex items-center gap-2 py-2.5 px-5 rounded-full border border-gold/40 bg-gold/5 text-gold hover:bg-gold/15 text-xs uppercase tracking-[0.18em] font-medium transition-all"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>
-              {t("Jugar por premios con la ruleta →", "Play for prizes with the roulette →")}
-            </span>
-          </button>
-        </div>
       )}
     </div>
   );

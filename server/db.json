@@ -49,7 +49,41 @@
       "reviewedAt": "07:18 p. m."
     }
   ],
+  "reputationFeedbacks": [
+    {
+      "id": "REV-MULXVBA1",
+      "customerName": "Felipe Mendoza",
+      "customerWhatsapp": "573009876543",
+      "tableNumber": "Mesa 5",
+      "rating": 5,
+      "comment": "Excelente atención y la tarta vasca de pistacho es insuperable!",
+      "actionTaken": "google",
+      "timestamp": "2026-09-29T00:29:18.169Z",
+      "timeFormatted": "07:29 p. m.",
+      "dateFormatted": "28 de sept"
+    },
+    {
+      "id": "REV-MULXV21C",
+      "customerName": "María Gómez",
+      "customerWhatsapp": "573001234567",
+      "tableNumber": "Mesa 2",
+      "rating": 3,
+      "comment": "El café estuvo delicioso pero tardó un poco en llegar.",
+      "actionTaken": "whatsapp",
+      "timestamp": "2026-09-29T00:29:06.192Z",
+      "timeFormatted": "07:29 p. m.",
+      "dateFormatted": "28 de sept"
+    }
+  ],
   "logs": [
+    {
+      "id": "mulxv22c87b",
+      "timestamp": "7:29:06 p. m.",
+      "method": "POST",
+      "url": "/api/reputation/feedback",
+      "status": 200,
+      "detail": "Calificación recibida: 3★ (whatsapp) por María Gómez"
+    },
     {
       "id": "mulxi0nocd5",
       "timestamp": "7:18:57 p. m.",
@@ -360,6 +394,13 @@
         "active": true
       }
     ],
+    "reputation": {
+      "googleBusinessUrl": "https://g.page/r/CfPSfNSGX8u1EBM/review",
+      "whatsappPrivateNumber": "573000000000",
+      "minRatingForGoogle": 4,
+      "autoRedirectGoogle": true,
+      "filterNegativeReviews": true
+    },
     "databases": {
       "googleSheetWebhookUrl": "",
       "supabaseEnabled": false,

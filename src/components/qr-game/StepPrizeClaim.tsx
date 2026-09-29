@@ -22,6 +22,7 @@ interface StepPrizeClaimProps {
   secondChanceConfig?: SecondChanceConfig | undefined;
   onUnlockSecondChance?: (() => void) | undefined;
   onOpenMissions?: () => void;
+  onProceedToFeedback?: () => void;
 }
 
 export function StepPrizeClaim({
@@ -30,6 +31,7 @@ export function StepPrizeClaim({
   secondChanceConfig,
   onUnlockSecondChance,
   onOpenMissions,
+  onProceedToFeedback,
 }: StepPrizeClaimProps) {
   const { lang, t } = useLanguage();
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
@@ -371,6 +373,19 @@ Restaurante: ${clientConfig.brand.name}
                 <Share2 className="h-4 w-4" />
                 <span>{t("Enviar comprobante a WhatsApp", "Send voucher to WhatsApp")}</span>
               </button>
+
+              {/* Botón para avanzar al Paso 4: Calificación (Embudo de Reputación) */}
+              {onProceedToFeedback && (
+                <button
+                  type="button"
+                  onClick={onProceedToFeedback}
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-gradient-to-r from-amber-500/20 via-gold/30 to-amber-500/20 hover:from-amber-500/30 hover:to-amber-500/30 border border-gold/50 text-foreground text-xs uppercase tracking-wider font-bold transition-all shadow-xs cursor-pointer"
+                >
+                  <span>⭐</span>
+                  <span>{t("Calificar Experiencia · Paso 4", "Rate Experience · Step 4")}</span>
+                  <span>➔</span>
+                </button>
+              )}
 
               {/* Botón sutil de Notificaciones Push (Recordatorio de urgencia) */}
               {!isPushSubscribed ? (
