@@ -31,13 +31,13 @@ export function GameHeader({
 
   const initialSteps = [
     { num: 1, label: t("Tus Datos", "Your Info") },
-    { num: 2, label: t("El Desafío", "The Challenge") },
-    { num: 3, label: t("Tu Premio", "Your Prize") },
+    { num: 2, label: t("Instagram", "Instagram") },
+    { num: 3, label: t("El Premio", "The Prize") },
     { num: 4, label: t("Calificación", "Review") },
   ];
 
   const secondChanceSteps = [
-    { num: 5, label: t("Estados WhatsApp", "WhatsApp Status") },
+    { num: 5, label: t("2ª Opción: WhatsApp", "2nd Chance: WhatsApp") },
     { num: 6, label: t("Enviar Captura", "Send Screenshot") },
     { num: 7, label: t("Reto Cronómetro", "Timer Challenge") },
   ];

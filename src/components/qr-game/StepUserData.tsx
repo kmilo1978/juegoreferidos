@@ -292,7 +292,7 @@ export function StepUserData({ initialData, onBack, onComplete }: StepUserDataPr
               type="submit"
               className="btn-solid w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-8 text-xs uppercase tracking-[0.2em] font-semibold transition-all shadow-md active:scale-98"
             >
-              <span>{t("Continuar al Desafío", "Continue to Challenge")}</span>
+              <span>{t("Continuar a Instagram", "Continue to Instagram")}</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
