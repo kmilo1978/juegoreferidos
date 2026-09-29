@@ -165,6 +165,24 @@ const DEFAULT_SETTINGS = {
       evidencePlaceholder: "https://wa.me/... o confirmación",
       active: true,
     },
+    {
+      id: "m_referrals",
+      category: "Embajador de la Casa",
+      title: "Invitar a 3 Amigos por WhatsApp",
+      rewardStamps: 3,
+      rewardText: "+3 Sellos de Visita",
+      badge: "VIRAL BOCA A BOCA",
+      icon: "🤝",
+      description: "Comparte tu enlace de invitación con 3 amigos o en un grupo de WhatsApp recomendando visitarnos.",
+      rules: [
+        "Toca el botón 'Abrir WhatsApp' y reenvía la invitación con tu código a 3 amigos.",
+        "Tus amigos recibirán cortesía sorpresa en mesa cuando nos visiten.",
+        "Pega tu número o confirmación para validar tus sellos y clasificar a la Cena para 2.",
+      ],
+      actionUrl: "https://api.whatsapp.com",
+      evidencePlaceholder: "Confirmación de envío o nombres de tus invitados",
+      active: true,
+    },
   ],
   reputation: {
     googleBusinessUrl: "https://g.page/r/CfPSfNSGX8u1EBM/review",
@@ -298,6 +316,32 @@ let db = {
   },
   missionSubmissions: [],
   reputationFeedbacks: [],
+  monthlyContest: [
+    {
+      id: "TKT-DEMO-001",
+      customerName: "Carlos Andrés",
+      customerWhatsapp: "573009876543",
+      ticketCode: "#CENA2-6543-VIP",
+      prize: "Cena Degustación de Autor para 2 Personas",
+      missionsCount: 5,
+      enteredAt: "08:15 p. m.",
+      dateFormatted: "28 de sept",
+      status: "INSCRITO",
+      winner: false,
+    },
+    {
+      id: "TKT-DEMO-002",
+      customerName: "Ana Gourmet",
+      customerWhatsapp: "573001234567",
+      ticketCode: "#CENA2-4567-VIP",
+      prize: "Cena Degustación de Autor para 2 Personas",
+      missionsCount: 5,
+      enteredAt: "08:22 p. m.",
+      dateFormatted: "28 de sept",
+      status: "INSCRITO",
+      winner: false,
+    }
+  ],
   logs: [],
   settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
 };
@@ -310,6 +354,7 @@ if (fs.existsSync(DB_FILE)) {
     db = {
       ...db,
       ...loaded,
+      monthlyContest: (loaded.monthlyContest && loaded.monthlyContest.length > 0) ? loaded.monthlyContest : db.monthlyContest,
       settings: {
         ...DEFAULT_SETTINGS,
         ...(loaded.settings || {}),
@@ -655,6 +700,94 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ success: false, error: err.message }));
       }
     });
+    return;
+  }
+
+  // 13.1 API: CONCURSO MENSUAL - CENA DEGUSTACIÓN PARA 2 (/api/contest, /api/contest/enter, /api/contest/draw)
+  if (pathname === "/api/contest") {
+    if (req.method === "GET") {
+      const contestList = db.monthlyContest || [];
+      const winners = contestList.filter((c) => c.winner);
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          success: true,
+          contest: contestList,
+          totalEntries: contestList.length,
+          winners: winners,
+          prize: "Cena Degustación de Autor para 2 Personas",
+          nextDrawDate: "Último viernes del mes",
+        })
+      );
+      return;
+    }
+  }
+
+  if (pathname === "/api/contest/enter" && req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { customerName, customerWhatsapp, ticketCode, missionsCount } = JSON.parse(body || "{}");
+        const cleanPhone = (customerWhatsapp || "").replace(/[^0-9]/g, "");
+        db.monthlyContest = db.monthlyContest || [];
+
+        // Verificar si ya está registrado por teléfono
+        let entry = db.monthlyContest.find((c) => c.customerWhatsapp === cleanPhone && cleanPhone !== "");
+        if (entry) {
+          entry.missionsCount = missionsCount || 5;
+          entry.customerName = customerName || entry.customerName;
+          entry.updatedAt = new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+        } else {
+          const generatedTicket = ticketCode || `#CENA2-${(cleanPhone.slice(-4) || Math.floor(1000 + Math.random() * 9000))}-VIP`;
+          entry = {
+            id: `TKT-${Date.now().toString(36).toUpperCase()}`,
+            customerName: customerName || "Comensal Embajador",
+            customerWhatsapp: cleanPhone || "573000000000",
+            ticketCode: generatedTicket,
+            prize: "Cena Degustación de Autor para 2 Personas",
+            missionsCount: missionsCount || 5,
+            enteredAt: new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }),
+            dateFormatted: new Date().toLocaleDateString("es-CO", { day: "numeric", month: "short" }),
+            status: "INSCRITO",
+            winner: false,
+          };
+          db.monthlyContest.unshift(entry);
+        }
+
+        saveDb();
+        logRequest("POST", "/api/contest/enter", 200, `Inscripción al concurso mensual Cena para 2: ${entry.customerName} (${entry.ticketCode})`);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true, entry, contest: db.monthlyContest }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  if (pathname === "/api/contest/draw" && req.method === "POST") {
+    db.monthlyContest = db.monthlyContest || [];
+    if (db.monthlyContest.length === 0) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: false, error: "No hay participantes inscritos para realizar el sorteo." }));
+      return;
+    }
+
+    const eligible = db.monthlyContest.filter((c) => !c.winner);
+    const pool = eligible.length > 0 ? eligible : db.monthlyContest;
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    const winner = pool[randomIndex];
+
+    winner.winner = true;
+    winner.status = "GANADOR CENA PARA 2";
+    winner.wonAt = new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }) + " - " + new Date().toLocaleDateString("es-CO", { day: "numeric", month: "short" });
+
+    saveDb();
+    logRequest("POST", "/api/contest/draw", 200, `¡Ganador del sorteo mensual seleccionado!: ${winner.customerName} (${winner.ticketCode})`);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ success: true, winner, contest: db.monthlyContest }));
     return;
   }
 
@@ -1146,6 +1279,9 @@ function renderBackendDashboard() {
   const funnelReturning = returningCount;
   const missions = s.missions || DEFAULT_SETTINGS.missions;
   const submissions = db.missionSubmissions || [];
+  const monthlyContest = db.monthlyContest || [];
+  const contestWinners = monthlyContest.filter((c) => c.winner);
+  const activeContestWinner = contestWinners.length > 0 ? contestWinners[0] : null;
   const repConfig = s.reputation || DEFAULT_SETTINGS.reputation;
   const repFeedbacks = db.reputationFeedbacks || [];
   const repTotal = repFeedbacks.length;
@@ -3622,6 +3758,107 @@ function renderBackendDashboard() {
         </div>
       </div>
 
+      <!-- 👑 GRAN DESAFÍO EMBAJADOR: LISTA OFICIAL DE CONCURSO MENSUAL (CENA PARA 2) -->
+      <div class="panel" style="margin-bottom: 24px; border: 2px solid rgba(217, 119, 6, 0.4); background: linear-gradient(135deg, rgba(254, 243, 199, 0.3) 0%, rgba(255, 255, 255, 0.98) 100%);">
+        <div class="panel-header" style="flex-wrap: wrap; gap: 10px;">
+          <div>
+            <div class="panel-title" style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 22px;">👑</span>
+              <span style="color: #92400e; font-weight: 800; font-size: 15px;">Gran Desafío Embajador: Sorteo Mensual Cena para 2</span>
+              <span style="font-size: 11px; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; padding: 2px 10px; border-radius: 9999px; font-weight: 700;">
+                ${monthlyContest.length} Participantes Clasificados
+              </span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+              Los comensales que completan todas sus misiones y refieren amigos por WhatsApp clasifican automáticamente con su boleto VIP al sorteo del último viernes de cada mes.
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button type="button" onclick="addDemoContestEntry()" class="btn-secondary" style="font-size: 11px; padding: 6px 12px; background: #ffffff; border: 1px solid #d97706; color: #b45309; font-weight: 600; cursor: pointer;">
+              ➕ Inscribir Demo
+            </button>
+            <button type="button" onclick="drawContestWinner()" class="btn-primary" style="font-size: 12px; padding: 7px 16px; background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: #ffffff; font-weight: 700; border: none; box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35); cursor: pointer; border-radius: 8px;">
+              🎲 Realizar Sorteo Cena para 2
+            </button>
+          </div>
+        </div>
+
+        <!-- Banner de ganador si ya se realizó sorteo -->
+        <div id="contestWinnerBanner" style="${activeContestWinner ? 'display: block;' : 'display: none;'} margin-bottom: 16px; padding: 14px 18px; border-radius: 12px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 2px solid #10b981;">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 26px;">🎉</span>
+              <div>
+                <strong style="color: #065f46; font-size: 14px; display: block;">
+                  ¡GANADOR OFICIAL DE LA CENA PARA 2: <span id="winnerName">${activeContestWinner ? activeContestWinner.customerName : ''}</span>!
+                </strong>
+                <span style="font-size: 12px; color: #047857;">
+                  Boleto Ganador: <strong id="winnerTicket" style="font-family: monospace;">${activeContestWinner ? activeContestWinner.ticketCode : ''}</strong> | WhatsApp: <span id="winnerPhone">${activeContestWinner ? activeContestWinner.customerWhatsapp : ''}</span>
+                </span>
+              </div>
+            </div>
+            <span style="font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 9999px; background: #059669; color: #ffffff;">
+              ✓ GANADOR ASIGNADO
+            </span>
+          </div>
+        </div>
+
+        <!-- TABLA DE PARTICIPANTES CLASIFICADOS -->
+        <div style="overflow-x: auto;">
+          <table class="data-table" style="width: 100%;">
+            <thead>
+              <tr>
+                <th>Boleto VIP</th>
+                <th>Comensal / WhatsApp</th>
+                <th>Premio en Juego</th>
+                <th>Progreso Desafío</th>
+                <th>Fecha Registro</th>
+                <th style="text-align: right;">Estado</th>
+              </tr>
+            </thead>
+            <tbody id="contestTableBody">
+              ${monthlyContest.length === 0 ? `
+                <tr>
+                  <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                    👑 Ningún cliente ha clasificado todavía. Se inscribirán automáticamente al completar todas sus misiones y referidos en el juego.
+                  </td>
+                </tr>
+              ` : monthlyContest.map(entry => `
+                <tr id="contest-row-${entry.id}" style="${entry.winner ? 'background: rgba(16, 185, 129, 0.08); font-weight: 600;' : ''}">
+                  <td>
+                    <span style="font-family: monospace; font-size: 12px; color: #b45309; font-weight: 800; background: #fef3c7; padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(217, 119, 6, 0.3);">
+                      ${entry.ticketCode}
+                    </span>
+                  </td>
+                  <td>
+                    <strong style="color: var(--text); font-size: 12px;">${entry.customerName}</strong>
+                    <span style="display: block; font-size: 11px; font-family: monospace; color: var(--text-muted);">${entry.customerWhatsapp}</span>
+                  </td>
+                  <td>
+                    <span style="font-size: 12px; color: var(--text); font-weight: 600;">🍽️ Cena Degustación para 2</span>
+                  </td>
+                  <td>
+                    <span style="font-size: 11px; font-weight: 700; color: #059669; background: rgba(16, 185, 129, 0.12); padding: 2px 8px; border-radius: 9999px;">
+                      ✓ 100% Desafío Completo
+                    </span>
+                  </td>
+                  <td>
+                    <span style="font-size: 11px; color: var(--text-muted);">${entry.dateFormatted || ''} ${entry.enteredAt || ''}</span>
+                  </td>
+                  <td style="text-align: right;">
+                    <span style="font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 9999px; ${
+                      entry.winner ? 'background: #10b981; color: #ffffff;' : 'background: #fef3c7; color: #92400e; border: 1px solid #f59e0b;'
+                    }">
+                      ${entry.winner ? '👑 GANADOR' : 'CLASIFICADO'}
+                    </span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- BANDEJA DE APROBACIÓN DE EVIDENCIAS -->
       <div class="panel" style="margin-bottom: 20px;">
         <div class="panel-header">
@@ -4841,6 +5078,50 @@ function renderBackendDashboard() {
         }
       } catch (err) {
         alert('Error de conexión al revisar misión');
+      }
+    }
+
+    // SORTEO MENSUAL DE LA CENA PARA 2 PERSONAS
+    async function drawContestWinner() {
+      if (!confirm("¿Deseas realizar el Sorteo Aleatorio de la Cena para 2 entre los participantes clasificados?")) {
+        return;
+      }
+      try {
+        const res = await fetch("/api/contest/draw", { method: "POST" });
+        const data = await res.json();
+        if (data.success && data.winner) {
+          const w = data.winner;
+          alert("🎉 ¡FELICITACIONES!\\n\\nEl ganador oficial de la Cena Degustación para 2 Personas es:\\n\\n" + w.customerName + " (" + w.customerWhatsapp + ")\\nBoleto Oficial: " + w.ticketCode);
+          window.location.reload();
+        } else {
+          alert(data.error || "No se pudo realizar el sorteo.");
+        }
+      } catch (err) {
+        alert("Error al conectar con el servidor: " + err.message);
+      }
+    }
+
+    async function addDemoContestEntry() {
+      const demoNames = ["Valentina Rojas", "Santiago Gómez", "Camila Restrepo", "Mateo Silva", "Sofía Morales"];
+      const randName = demoNames[Math.floor(Math.random() * demoNames.length)];
+      const randPhone = "57310" + Math.floor(1000000 + Math.random() * 9000000);
+      try {
+        const res = await fetch("/api/contest/enter", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customerName: randName,
+            customerWhatsapp: randPhone,
+            missionsCount: 5,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("✓ Participante de prueba clasificado al concurso: " + randName + " (" + data.entry.ticketCode + ")");
+          window.location.reload();
+        }
+      } catch (err) {
+        alert("Error al registrar participante demo: " + err.message);
       }
     }
 

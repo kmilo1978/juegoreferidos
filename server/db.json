@@ -75,7 +75,54 @@
       "dateFormatted": "28 de sept"
     }
   ],
+  "monthlyContest": [
+    {
+      "id": "TKT-MUMQ9NHU",
+      "customerName": "Marcela Restrepo",
+      "customerWhatsapp": "573115556677",
+      "ticketCode": "#CENA2-6677-VIP",
+      "prize": "Cena Degustación de Autor para 2 Personas",
+      "missionsCount": 5,
+      "enteredAt": "08:44 a. m.",
+      "dateFormatted": "29 de sept",
+      "status": "INSCRITO",
+      "winner": false
+    },
+    {
+      "id": "TKT-DEMO-001",
+      "customerName": "Carlos Andrés",
+      "customerWhatsapp": "573009876543",
+      "ticketCode": "#CENA2-6543-VIP",
+      "prize": "Cena Degustación de Autor para 2 Personas",
+      "missionsCount": 5,
+      "enteredAt": "08:15 p. m.",
+      "dateFormatted": "28 de sept",
+      "status": "GANADOR CENA PARA 2",
+      "winner": true,
+      "wonAt": "08:44 a. m. - 29 de sept"
+    },
+    {
+      "id": "TKT-DEMO-002",
+      "customerName": "Ana Gourmet",
+      "customerWhatsapp": "573001234567",
+      "ticketCode": "#CENA2-4567-VIP",
+      "prize": "Cena Degustación de Autor para 2 Personas",
+      "missionsCount": 5,
+      "enteredAt": "08:22 p. m.",
+      "dateFormatted": "28 de sept",
+      "status": "INSCRITO",
+      "winner": false
+    }
+  ],
   "logs": [
+    {
+      "id": "mumq9nhvfef",
+      "timestamp": "8:44:16 a. m.",
+      "method": "POST",
+      "url": "/api/contest/enter",
+      "status": 200,
+      "detail": "Inscripción al concurso mensual Cena para 2: Marcela Restrepo (#CENA2-6677-VIP)"
+    },
     {
       "id": "mulyqa8w196",
       "timestamp": "7:53:23 p. m.",

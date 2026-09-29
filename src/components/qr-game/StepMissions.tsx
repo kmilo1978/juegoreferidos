@@ -96,6 +96,24 @@ const DEFAULT_MISSIONS: MissionItem[] = [
     evidencePlaceholder: "https://wa.me/... o confirmación",
     active: true,
   },
+  {
+    id: "m_referrals",
+    category: "Embajador de la Casa",
+    title: "Invitar a 3 Amigos por WhatsApp",
+    rewardStamps: 3,
+    rewardText: "+3 Sellos de Visita",
+    badge: "VIRAL BOCA A BOCA",
+    icon: "🤝",
+    description: "Comparte tu enlace de invitación con 3 amigos o en un grupo de WhatsApp recomendando visitarnos.",
+    rules: [
+      "Toca el botón 'Abrir WhatsApp' y reenvía la invitación con tu código a 3 amigos.",
+      "Tus amigos recibirán cortesía sorpresa en mesa cuando nos visiten.",
+      "Pega tu número o confirmación para validar tus sellos y clasificar a la Cena para 2.",
+    ],
+    actionUrl: "https://api.whatsapp.com",
+    evidencePlaceholder: "Confirmación de envío o nombres de tus invitados",
+    active: true,
+  },
 ];
 
 interface StepMissionsProps {
@@ -122,6 +140,7 @@ export function StepMissions({
   const [name, setName] = useState(customerName);
   const [whatsapp, setWhatsapp] = useState(customerWhatsapp);
   const [expandedId, setExpandedId] = useState<string | null>(DEFAULT_MISSIONS[0].id);
+  const [isDemoUnlocked, setIsDemoUnlocked] = useState(false);
 
   const loadMissionsData = () => {
     fetch("/api/missions")
@@ -164,6 +183,33 @@ export function StepMissions({
     (acc, m) => acc + (m.rewardStamps || 1),
     0
   );
+
+  const submittedMissionIds = new Set(
+    submissions
+      .filter((s) => !cleanPhone || s.customerWhatsapp === cleanPhone)
+      .map((s) => s.missionId)
+  );
+
+  const ticketCode = `#CENA2-${cleanPhone ? cleanPhone.slice(-4) : "7791"}-VIP`;
+  const [contestEntered, setContestEntered] = useState(false);
+
+  // Auto-inscribir en el concurso mensual de la Cena para 2 cuando se completan las misiones
+  useEffect(() => {
+    const isCompleted = isDemoUnlocked || (missions.length > 0 && submittedMissionIds.size >= missions.length);
+    if (isCompleted && !contestEntered) {
+      setContestEntered(true);
+      fetch("/api/contest/enter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: name || customerName || "Cliente Embajador",
+          customerWhatsapp: cleanPhone || customerWhatsapp || "573009876543",
+          ticketCode: ticketCode,
+          missionsCount: missions.length,
+        }),
+      }).catch(() => {});
+    }
+  }, [isDemoUnlocked, submittedMissionIds.size, missions.length, contestEntered, name, customerName, cleanPhone, customerWhatsapp, ticketCode]);
 
   const handleUrlChange = (missionId: string, val: string) => {
     setMissionUrls((prev) => ({ ...prev, [missionId]: val }));
@@ -339,6 +385,110 @@ export function StepMissions({
                   </span>
                 </div>
               </div>
+            </div>
+          </Reveal>
+
+          {/* BANNER DESTACADO: GRAN PREMIO CENA PARA 2 & CONCURSO MENSUAL */}
+          <Reveal delay={110}>
+            <div className="relative overflow-hidden rounded-3xl border-2 border-gold/60 bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-700/15 p-6 sm:p-7 shadow-lg space-y-4">
+              {/* Decoración de fondo */}
+              <div className="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-gold/15 rounded-full blur-2xl pointer-events-none" />
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-amber-600 to-gold flex items-center justify-center text-white shadow-md text-2xl flex-shrink-0">
+                    👑
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full bg-gold/25 text-amber-900 border border-gold/40">
+                        {t("GRAN DESAFÍO EMBAJADOR", "GRAND AMBASSADOR CHALLENGE")}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground font-mono">
+                        {t("Sorteo Fin de Mes", "End of Month Draw")}
+                      </span>
+                    </div>
+                    <h3 className="font-serif text-lg sm:text-xl font-bold text-foreground mt-0.5">
+                      {t("¡Completa todas las misiones y GANA una Cena para 2!", "Complete all missions and WIN a Dinner for 2!")}
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Botón de prueba rápida */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextVal = !isDemoUnlocked;
+                    setIsDemoUnlocked(nextVal);
+                    if (nextVal) {
+                      fetch("/api/contest/enter", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          customerName: name || customerName || "Cliente Embajador Demo",
+                          customerWhatsapp: cleanPhone || customerWhatsapp || "573009876543",
+                          ticketCode: ticketCode,
+                          missionsCount: missions.length,
+                        }),
+                      }).catch(() => {});
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded-full text-[11px] font-semibold bg-white/80 hover:bg-white text-amber-900 border border-gold/40 shadow-2xs transition-all cursor-pointer"
+                  title="Simular completar todo para probar la tarjeta y boleto ganador"
+                >
+                  {isDemoUnlocked ? "🔄 Reiniciar Reto Demo" : "⚡ Desbloquear en Demo (Probar)"}
+                </button>
+              </div>
+
+              {/* Barra de progreso interactiva */}
+              <div className="pt-2 border-t border-gold/20 space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-muted-foreground font-medium">
+                    {t("Progreso para la Cena y Concurso Mensual:", "Progress for Dinner & Monthly Contest:")}
+                  </span>
+                  <span className="font-bold text-amber-800 font-mono">
+                    {isDemoUnlocked ? "5 / 5 (100% COMPLETADO)" : `${submittedMissionIds.size} / ${missions.length} misiones`}
+                  </span>
+                </div>
+
+                <div className="w-full bg-white/70 h-3 rounded-full overflow-hidden border border-gold/30 p-0.5 shadow-inner">
+                  <div
+                    className="bg-gradient-to-r from-amber-600 via-orange-500 to-amber-500 h-full rounded-full transition-all duration-700 shadow-xs"
+                    style={{ width: isDemoUnlocked ? "100%" : `${Math.max(15, (submittedMissionIds.size / missions.length) * 100)}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Si está completado o desbloqueado en demo */}
+              {(isDemoUnlocked || submittedMissionIds.size >= missions.length) ? (
+                <div className="p-4 rounded-2xl bg-white/95 border-2 border-emerald-500 shadow-md animate-fade-in space-y-2.5">
+                  <div className="flex items-center gap-2 text-emerald-800 text-xs font-bold uppercase tracking-wider">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    <span>¡DESAFÍO COMPLETADO! ERES CANDIDATO OFICIAL DEL MES</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-amber-50/80 p-3 rounded-xl border border-amber-200">
+                    <div>
+                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground block font-bold">
+                        Tu Boleto Oficial al Sorteo Mensual
+                      </span>
+                      <span className="font-mono text-lg font-extrabold text-amber-800 tracking-wider">
+                        #CENA2-{customerWhatsapp?.slice(-4) || "7791"}-VIP
+                      </span>
+                    </div>
+                    <div className="text-right sm:text-right">
+                      <span className="text-[10px] text-muted-foreground block">Premio Asignado</span>
+                      <strong className="text-xs text-foreground font-serif">Cena Degustación de Autor para 2</strong>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    ✓ Ya estás inscrito en la lista oficial del concurso mensual. El ganador se anunciará el último viernes de cada mes.
+                  </p>
+                </div>
+              ) : (
+                <p className="text-[11px] text-muted-foreground/90 font-light leading-relaxed">
+                  💡 Al enviar tus 5 misiones (incluyendo la invitación a amigos), sumas tus sellos y entras directamente al sorteo de la Cena para 2 personas.
+                </p>
+              )}
             </div>
           </Reveal>
 

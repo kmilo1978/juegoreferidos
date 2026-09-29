@@ -103,6 +103,24 @@ const DEFAULT_MISSIONS: MissionItem[] = [
     evidencePlaceholder: "https://wa.me/... o confirmación",
     active: true,
   },
+  {
+    id: "m_referrals",
+    category: "Embajador de la Casa",
+    title: "Invitar a 3 Amigos por WhatsApp",
+    rewardStamps: 3,
+    rewardText: "+3 Sellos de Visita",
+    badge: "VIRAL BOCA A BOCA",
+    icon: "🤝",
+    description: "Comparte tu enlace de invitación con 3 amigos o en un grupo de WhatsApp recomendando visitarnos.",
+    rules: [
+      "Toca el botón 'Abrir WhatsApp' y reenvía la invitación con tu código a 3 amigos.",
+      "Tus amigos recibirán cortesía sorpresa en mesa cuando nos visiten.",
+      "Pega tu número o confirmación para validar tus sellos y clasificar a la Cena para 2.",
+    ],
+    actionUrl: "https://api.whatsapp.com",
+    evidencePlaceholder: "Confirmación de envío o nombres de tus invitados",
+    active: true,
+  },
 ];
 
 interface MissionsModalProps {
@@ -338,6 +356,32 @@ export function MissionsModal({
                   "We typically review submissions and credit stamps within 24 hours."
                 )}
               </span>
+            </div>
+          </div>
+
+          {/* GRAN DESAFÍO EMBAJADOR: CENA PARA 2 & CONCURSO MENSUAL */}
+          <div className="rounded-2xl border-2 border-amber-500/50 bg-gradient-to-br from-amber-500/15 via-slate-900 to-amber-900/20 p-5 shadow-lg space-y-3.5">
+            <div className="flex items-center gap-3">
+              <span className="h-10 w-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-xl">
+                👑
+              </span>
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
+                  Gran Desafío Mensual
+                </span>
+                <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
+                  ¡Completa todas las misiones y GANA una Cena para 2!
+                </h4>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Al completar las {missions.length} misiones (incluyendo invitar amigos), recibes tu pase VIP y entras automáticamente con tu número de boleto al <strong>Sorteo Mensual de la Casa</strong>.
+            </p>
+
+            <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+              <span className="text-slate-400">Premio del Sorteo:</span>
+              <strong className="text-amber-400 font-serif">Cena Degustación de Autor para 2</strong>
             </div>
           </div>
 
