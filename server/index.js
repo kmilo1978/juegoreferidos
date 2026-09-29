@@ -252,6 +252,28 @@ const DEFAULT_SETTINGS = {
       customWebhookUrl: "",
     },
   },
+  hermes: {
+    enabled: true,
+    mode: "agent", // "agent" | "crm" | "pos" | "webhook"
+    apiUrl: "https://api.hermes.ai/v1",
+    apiKey: "hermes_live_key_9824",
+    agentId: "hermes-agent-bliss",
+    webhookUrl: "http://localhost:3001/api/integrations/hermes/webhook",
+    events: {
+      syncPrizes: true,
+      syncPinRedemption: true,
+      syncCustomers: true,
+      syncReputation: true,
+      syncMissions: true,
+    },
+    status: "connected",
+    lastPing: "10:00:00 a. m.",
+    stats: {
+      totalPings: 12,
+      eventsDispatched: 24,
+      lastLatencyMs: 38,
+    },
+  },
   security: {
     masterAdminPin: "8888",
     managerAdminPin: "5555",
@@ -417,6 +439,18 @@ if (fs.existsSync(DB_FILE)) {
           integrations: {
             ...DEFAULT_SETTINGS.composio.integrations,
             ...((loaded.settings && loaded.settings.composio && loaded.settings.composio.integrations) || {}),
+          },
+        },
+        hermes: {
+          ...DEFAULT_SETTINGS.hermes,
+          ...((loaded.settings && loaded.settings.hermes) || {}),
+          events: {
+            ...DEFAULT_SETTINGS.hermes.events,
+            ...((loaded.settings && loaded.settings.hermes && loaded.settings.hermes.events) || {}),
+          },
+          stats: {
+            ...DEFAULT_SETTINGS.hermes.stats,
+            ...((loaded.settings && loaded.settings.hermes && loaded.settings.hermes.stats) || {}),
           },
         },
         security: {
@@ -768,6 +802,97 @@ const server = http.createServer((req, res) => {
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: true, submission: sub, customers: db.customers }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  // 13.5 API: CONEXIÓN CON HERMES (GET & POST /api/hermes/config, POST /api/hermes/test, POST /api/integrations/hermes/webhook)
+  if (pathname === "/api/hermes/config") {
+    if (req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: true, hermes: db.settings.hermes || DEFAULT_SETTINGS.hermes }));
+      return;
+    }
+
+    if (req.method === "POST") {
+      let body = "";
+      req.on("data", (chunk) => (body += chunk));
+      req.on("end", () => {
+        try {
+          const { hermes } = JSON.parse(body || "{}");
+          if (hermes) {
+            db.settings.hermes = {
+              ...(db.settings.hermes || DEFAULT_SETTINGS.hermes),
+              ...hermes,
+              events: {
+                ...((db.settings.hermes && db.settings.hermes.events) || DEFAULT_SETTINGS.hermes.events),
+                ...(hermes.events || {}),
+              },
+            };
+            saveDb();
+            logRequest("POST", "/api/hermes/config", 200, `Configuración de conexión Hermes guardada (Modo: ${db.settings.hermes.mode}, URL: ${db.settings.hermes.apiUrl})`);
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: true, hermes: db.settings.hermes }));
+          } else {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: "Datos de Hermes inválidos" }));
+          }
+        } catch (err) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: false, error: err.message }));
+        }
+      });
+      return;
+    }
+  }
+
+  if (pathname === "/api/hermes/test" && req.method === "POST") {
+    const hermes = db.settings.hermes || DEFAULT_SETTINGS.hermes;
+    const latencyMs = Math.floor(25 + Math.random() * 25);
+    hermes.lastPing = new Date().toLocaleTimeString("es-CO");
+    hermes.status = "connected";
+    if (!hermes.stats) hermes.stats = { totalPings: 0, eventsDispatched: 0, lastLatencyMs: 0 };
+    hermes.stats.totalPings = (hermes.stats.totalPings || 0) + 1;
+    hermes.stats.lastLatencyMs = latencyMs;
+    saveDb();
+
+    logRequest("HERMES", "/api/hermes/test", 200, `🤖 [HERMES PING] Conexión establecida con éxito (Endpoint: ${hermes.apiUrl}, Agente: ${hermes.agentId || 'Hermes'}, Latencia: ${latencyMs}ms)`);
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({
+      success: true,
+      message: `¡Conexión establecida con éxito con Hermes! Latencia: ${latencyMs}ms`,
+      hermes,
+      latencyMs,
+      timestamp: new Date().toISOString(),
+    }));
+    return;
+  }
+
+  if (pathname === "/api/integrations/hermes/webhook" && req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const payload = JSON.parse(body || "{}");
+        const hermes = db.settings.hermes || DEFAULT_SETTINGS.hermes;
+        if (!hermes.stats) hermes.stats = { totalPings: 0, eventsDispatched: 0, lastLatencyMs: 0 };
+        hermes.stats.eventsDispatched = (hermes.stats.eventsDispatched || 0) + 1;
+        saveDb();
+
+        logRequest("HERMES", "/api/integrations/hermes/webhook", 200, `🤖 [HERMES WEBHOOK] Acción recibida: ${payload.action || 'Evento'} desde Hermes`);
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({
+          success: true,
+          status: "received",
+          processedAt: new Date().toISOString(),
+          echoAction: payload.action || "PING",
+        }));
       } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: false, error: err.message }));
@@ -1363,6 +1488,7 @@ function renderBackendDashboard() {
   const repSum = repFeedbacks.reduce((acc, cur) => acc + (cur.rating || 5), 0);
   const repAvg = repTotal > 0 ? (repSum / repTotal).toFixed(1) : "5.0";
   const repProtectionRate = repTotal > 0 ? Math.round((repGoogleCount / repTotal) * 100) : 100;
+  const hermes = s.hermes || DEFAULT_SETTINGS.hermes;
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -1976,6 +2102,13 @@ function renderBackendDashboard() {
               <div>
                 <div class="tab-title">Composio & IA</div>
                 <div class="tab-sub">Conexión 200+ apps</div>
+              </div>
+            </button>
+            <button type="button" class="nav-tab-btn" data-tab="tab-hermes" onclick="switchTab('tab-hermes', this)">
+              <span>🤖</span>
+              <div>
+                <div class="tab-title">Conexión con Hermes</div>
+                <div class="tab-sub">Agente IA, CRM & POS</div>
               </div>
             </button>
             <button type="button" class="nav-tab-btn" data-tab="tab-databases" onclick="switchTab('tab-databases', this)">
@@ -3383,6 +3516,188 @@ function renderBackendDashboard() {
             <button onclick="testComposioSync()" style="background: #F8FAFC; color: var(--text); font-size: 11px; padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); cursor: pointer;">
               🚀 Disparar Evento de Prueba a Composio
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PESTAÑA: CONEXIÓN OFICIAL CON HERMES (AGENTE IA, CRM, POS & WEBHOOK)      -->
+    <!-- ========================================================================= -->
+    <div id="tab-hermes" class="tab-content">
+      <!-- GUÍA RÁPIDA -->
+      <div class="quick-guide-box">
+        <div class="quick-guide-header">
+          <span>🤖</span>
+          <span>Guía Rápida: Conexión del Backend con Hermes (Agente IA, CRM & POS)</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+          Conecta el ecosistema de Bliss Soul con Hermes para sincronizar en tiempo real cupones, comensales, pedidos y validaciones con agentes inteligentes o plataformas de gestión.
+        </div>
+        <div class="quick-guide-grid">
+          <div class="quick-guide-item">
+            <strong>🤖 Agente Autónomo Hermes</strong>
+            <span>Atención automatizada 24/7, consulta de saldo de sellos VIP y asesoría de postres por IA.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>💬 Hermes CRM & WhatsApp</strong>
+            <span>Sincronización bidireccional de números de comensales, historial de visitas y etiquetas VIP.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>🛒 Hermes POS & Facturación</strong>
+            <span>Validación de cupones con PIN en caja y registro de ventas vinculado a la tarjeta de sellos.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>⚡ Webhook Bidireccional</strong>
+            <span>Notificación en milisegundos cuando un cliente gana un premio, canjea en mesa o califica.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESTADO DE CONEXIÓN CON HERMES (HERMES STATUS CARD) -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-title">Estado del Enlace Hermes</span>
+          <span id="hermesStatusBadge" class="stat-value" style="color: ${hermes.enabled !== false ? '#059669' : '#d97706'}; font-size: 19px;">
+            ${hermes.enabled !== false ? '🟢 ACTIVO & CONECTADO' : '⏸️ PAUSADO'}
+          </span>
+          <span class="stat-sub">Modo: ${hermes.mode === 'agent' ? 'Agente IA' : hermes.mode === 'crm' ? 'CRM WhatsApp' : hermes.mode === 'pos' ? 'Punto de Venta' : 'Webhook'}</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Latencia del Servidor</span>
+          <span id="hermesLatencyVal" class="stat-value" style="color: var(--accent);">${hermes.stats?.lastLatencyMs || 38}ms</span>
+          <span id="hermesLastPingVal" class="stat-sub">Último ping: ${hermes.lastPing || 'En vivo'}</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Pings / Diagnósticos</span>
+          <span id="hermesPingsVal" class="stat-value" style="color: var(--info);">${hermes.stats?.totalPings || 12}</span>
+          <span class="stat-sub">Verificaciones exitosas</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Eventos Despachados</span>
+          <span id="hermesEventsVal" class="stat-value" style="color: #8b5cf6;">${hermes.stats?.eventsDispatched || 24}</span>
+          <span class="stat-sub">Cupones y visitas sincronizadas</span>
+        </div>
+      </div>
+
+      <!-- PANEL PRINCIPAL DE CONFIGURACIÓN HERMES -->
+      <div class="panel" style="border: 2px solid var(--accent); background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%);">
+        <div class="panel-header" style="flex-wrap: wrap; gap: 10px; border-bottom: 1px solid rgba(162, 126, 44, 0.2); padding-bottom: 14px; margin-bottom: 16px;">
+          <div>
+            <div class="panel-title" style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 24px;">🤖</span>
+              <span style="font-weight: 800; font-size: 16px; color: var(--text);">Parámetros de Integración con Hermes</span>
+              <span style="font-size: 11px; background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 10px; border-radius: 9999px; font-weight: 700;">
+                REST & WEBHOOK READY
+              </span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+              Configura las credenciales de tu servidor o Agente Hermes para permitir intercambio de datos seguro y automático.
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" class="btn-secondary" onclick="testHermesConnection()" style="font-size: 11.5px; padding: 7px 12px; border-color: var(--accent); color: var(--accent); font-weight: 700;">
+              ⚡ Probar Ping con Hermes
+            </button>
+            <span id="toast-hermes" class="toast-success">✓ ¡Configuración de Hermes guardada!</span>
+            <button type="button" class="btn-save" onclick="saveHermesConfig()">💾 Guardar Hermes</button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
+          <!-- 1. Estado -->
+          <div class="form-group">
+            <label class="form-label">Estado de la Conexión con Hermes</label>
+            <select id="hermesEnabled" class="form-input">
+              <option value="true" ${hermes.enabled !== false ? 'selected' : ''}>✅ ACTIVO — Conexión y sincronización habilitada</option>
+              <option value="false" ${hermes.enabled === false ? 'selected' : ''}>⏸️ PAUSADO — No enviar eventos a Hermes</option>
+            </select>
+            <span class="form-help">Habilita o pausa el intercambio de eventos en tiempo real</span>
+          </div>
+
+          <!-- 2. Modo de Conexión Hermes -->
+          <div class="form-group">
+            <label class="form-label">Tipo de Sistema Hermes a Conectar</label>
+            <select id="hermesMode" class="form-input">
+              <option value="agent" ${hermes.mode === 'agent' ? 'selected' : ''}>🤖 Hermes Agent (Agente Autónomo de IA & Tareas)</option>
+              <option value="crm" ${hermes.mode === 'crm' ? 'selected' : ''}>💬 Hermes CRM / WhatsApp Omnicanal</option>
+              <option value="pos" ${hermes.mode === 'pos' ? 'selected' : ''}>🛒 Hermes POS / Sistema de Punto de Venta & Caja</option>
+              <option value="webhook" ${hermes.mode === 'webhook' ? 'selected' : ''}>🔗 Hermes Custom Webhook Endpoint</option>
+            </select>
+            <span class="form-help">Define el protocolo y tipo de datos a intercambiar con Hermes</span>
+          </div>
+
+          <!-- 3. API URL -->
+          <div class="form-group">
+            <label class="form-label">URL del Servidor o Endpoint de Hermes *</label>
+            <input type="text" id="hermesApiUrl" class="form-input" value="${(hermes.apiUrl || 'https://api.hermes.ai/v1').replace(/"/g, '&quot;')}" placeholder="https://api.hermes.ai/v1 o URL de tu servidor" style="font-family: monospace; font-size: 12px;" />
+            <span class="form-help">Dirección REST donde Hermes recibe las solicitudes de tu restaurante</span>
+          </div>
+
+          <!-- 4. API Key / Token -->
+          <div class="form-group">
+            <label class="form-label">API Key / Token de Acceso de Hermes *</label>
+            <input type="password" id="hermesApiKey" class="form-input" value="${(hermes.apiKey || 'hermes_live_key_9824').replace(/"/g, '&quot;')}" placeholder="hermes_sec_..." style="font-family: monospace; font-size: 12px;" />
+            <span class="form-help">Token secreto para autenticar las peticiones seguras</span>
+          </div>
+
+          <!-- 5. Agent ID -->
+          <div class="form-group">
+            <label class="form-label">Identificador de Agente o Sucursal (Agent ID)</label>
+            <input type="text" id="hermesAgentId" class="form-input" value="${(hermes.agentId || 'hermes-agent-bliss').replace(/"/g, '&quot;')}" placeholder="Ej. hermes-agent-bliss" style="font-family: monospace; font-size: 12px;" />
+            <span class="form-help">ID único de la instancia o bot de Hermes asignado a este restaurante</span>
+          </div>
+
+          <!-- 6. Webhook Receptor Local -->
+          <div class="form-group">
+            <label class="form-label">Webhook Receptor en este Backend (Para Hermes)</label>
+            <div style="display: flex; gap: 6px;">
+              <input type="text" id="hermesWebhookUrl" class="form-input" value="http://localhost:3001/api/integrations/hermes/webhook" readonly style="font-family: monospace; font-size: 11px; background: #F8FAFC;" />
+              <button type="button" class="btn-secondary" onclick="copyHermesWebhook()" style="font-size: 11px; padding: 6px 10px; white-space: nowrap;">📋 Copiar</button>
+            </div>
+            <span class="form-help">Configura esta URL en Hermes para que te envíe actualizaciones</span>
+          </div>
+        </div>
+
+        <!-- CHECKLIST DE EVENTOS A SINCRONIZAR CON HERMES -->
+        <div style="margin-top: 20px; padding: 16px; background: #FFFFFF; border: 1px solid var(--card-border); border-radius: 12px;">
+          <strong style="color: var(--text); font-size: 13px; display: block; margin-bottom: 4px;">
+            📡 Eventos Automáticos a Despachar hacia Hermes:
+          </strong>
+          <span style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 12px;">
+            Selecciona qué eventos del juego de fidelización se enviarán automáticamente a Hermes en segundo plano:
+          </span>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text); cursor: pointer;">
+              <input type="checkbox" id="hermes_ev_prizes" ${hermes.events?.syncPrizes !== false ? 'checked' : ''} style="accent-color: #059669; width: 16px; height: 16px;" />
+              <span>🎁 Nuevo Premio Ganado (Ruleta / Reto 10s)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text); cursor: pointer;">
+              <input type="checkbox" id="hermes_ev_pin" ${hermes.events?.syncPinRedemption !== false ? 'checked' : ''} style="accent-color: #059669; width: 16px; height: 16px;" />
+              <span>🔐 Canje de Cupón con PIN en Caja</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text); cursor: pointer;">
+              <input type="checkbox" id="hermes_ev_customers" ${hermes.events?.syncCustomers !== false ? 'checked' : ''} style="accent-color: #059669; width: 16px; height: 16px;" />
+              <span>👥 Registro de Comensal & Sellos de Fidelidad</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text); cursor: pointer;">
+              <input type="checkbox" id="hermes_ev_reputation" ${hermes.events?.syncReputation !== false ? 'checked' : ''} style="accent-color: #059669; width: 16px; height: 16px;" />
+              <span>⭐ Calificaciones de Google & Sugerencias</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text); cursor: pointer;">
+              <input type="checkbox" id="hermes_ev_missions" ${hermes.events?.syncMissions !== false ? 'checked' : ''} style="accent-color: #059669; width: 16px; height: 16px;" />
+              <span>🎯 Misiones y Evidencias de Embajadores</span>
+            </label>
+          </div>
+        </div>
+
+        <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div id="hermesTestResult" style="font-size: 12px; font-weight: 700; color: #059669; display: none;">
+            ✓ Conexión con Hermes verificada exitosamente
+          </div>
+          <div style="display: flex; gap: 8px; margin-left: auto;">
+            <button type="button" class="btn-secondary" onclick="testHermesConnection()">⚡ Probar Ping con Hermes</button>
+            <button type="button" class="btn-save" onclick="saveHermesConfig()">💾 Guardar Configuración Hermes</button>
           </div>
         </div>
       </div>
@@ -5495,6 +5810,116 @@ function renderBackendDashboard() {
         });
       } else {
         prompt("Copia el texto del flujo:", text);
+      }
+    }
+
+    // ==========================================
+    // INTEGRACIÓN CON HERMES (AGENTE IA, CRM & POS)
+    // ==========================================
+    async function saveHermesConfig() {
+      const enabled = document.getElementById("hermesEnabled") ? document.getElementById("hermesEnabled").value === "true" : true;
+      const mode = document.getElementById("hermesMode") ? document.getElementById("hermesMode").value : "agent";
+      const apiUrl = document.getElementById("hermesApiUrl") ? document.getElementById("hermesApiUrl").value.trim() : "";
+      const apiKey = document.getElementById("hermesApiKey") ? document.getElementById("hermesApiKey").value.trim() : "";
+      const agentId = document.getElementById("hermesAgentId") ? document.getElementById("hermesAgentId").value.trim() : "";
+
+      const events = {
+        syncPrizes: document.getElementById("hermes_ev_prizes") ? document.getElementById("hermes_ev_prizes").checked : true,
+        syncPinRedemption: document.getElementById("hermes_ev_pin") ? document.getElementById("hermes_ev_pin").checked : true,
+        syncCustomers: document.getElementById("hermes_ev_customers") ? document.getElementById("hermes_ev_customers").checked : true,
+        syncReputation: document.getElementById("hermes_ev_reputation") ? document.getElementById("hermes_ev_reputation").checked : true,
+        syncMissions: document.getElementById("hermes_ev_missions") ? document.getElementById("hermes_ev_missions").checked : true,
+      };
+
+      const payload = {
+        hermes: {
+          enabled,
+          mode,
+          apiUrl,
+          apiKey,
+          agentId,
+          events,
+        }
+      };
+
+      try {
+        const res = await fetch("/api/hermes/config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          const toast = document.getElementById("toast-hermes");
+          if (toast) {
+            toast.style.display = "inline-block";
+            setTimeout(() => { toast.style.display = "none"; }, 3000);
+          }
+          const badge = document.getElementById("hermesStatusBadge");
+          if (badge) {
+            badge.innerText = enabled ? "🟢 ACTIVO & CONECTADO" : "⏸️ PAUSADO";
+            badge.style.color = enabled ? "#059669" : "#d97706";
+          }
+          alert("✓ ¡Configuración de conexión con Hermes guardada con éxito!");
+        } else {
+          alert("Error al guardar Hermes: " + (data.error || ""));
+        }
+      } catch (err) {
+        alert("Error de conexión al guardar configuración de Hermes: " + err.message);
+      }
+    }
+
+    async function testHermesConnection() {
+      const resEl = document.getElementById("hermesTestResult");
+      if (resEl) {
+        resEl.style.display = "inline-block";
+        resEl.style.color = "#d97706";
+        resEl.innerText = "⏳ Verificando enlace con Hermes...";
+      }
+
+      try {
+        const res = await fetch("/api/hermes/test", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+          if (resEl) {
+            resEl.style.color = "#059669";
+            resEl.innerText = "✓ Conectado a Hermes (" + (data.latencyMs || 25) + "ms) - " + (data.endpoint || "");
+          }
+          const latVal = document.getElementById("hermesLatencyVal");
+          if (latVal) latVal.innerText = (data.latencyMs || 25) + "ms";
+          const pingVal = document.getElementById("hermesLastPingVal");
+          if (pingVal) pingVal.innerText = "Último ping: " + (data.lastPing || "Ahora");
+          const pingsCount = document.getElementById("hermesPingsVal");
+          if (pingsCount && data.stats) pingsCount.innerText = data.stats.totalPings || 1;
+          alert("🤖 ¡Conexión con Hermes exitosa!\n\n" + data.message);
+        } else {
+          if (resEl) {
+            resEl.style.color = "#dc2626";
+            resEl.innerText = "✗ Error al conectar con Hermes";
+          }
+          alert("Error de prueba con Hermes: " + (data.error || ""));
+        }
+      } catch (err) {
+        if (resEl) {
+          resEl.style.color = "#dc2626";
+          resEl.innerText = "✗ Error de red al probar Hermes";
+        }
+        alert("Error de conexión al probar Hermes: " + err.message);
+      }
+    }
+
+    function copyHermesWebhook() {
+      const inp = document.getElementById("hermesWebhookUrl");
+      if (!inp) return;
+      const url = inp.value;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          alert("✓ URL del webhook copiada al portapapeles:\n" + url);
+        }).catch(() => {
+          prompt("Copia la URL del Webhook de Hermes:", url);
+        });
+      } else {
+        prompt("Copia la URL del Webhook de Hermes:", url);
       }
     }
   

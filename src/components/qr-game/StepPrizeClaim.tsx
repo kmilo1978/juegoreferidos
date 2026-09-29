@@ -431,10 +431,17 @@ Restaurante: ${clientConfig.brand.name}
             <PinAuthModal
               isOpen={isPinModalOpen}
               onClose={() => setIsPinModalOpen(false)}
+              correctPin="1978"
               onSuccess={() => {
                 onValidateAtCashier();
                 const updated = StampService.addStamp(prize.participantWhatsapp);
                 setStampCard(updated);
+                // Sincronizar en el Backend REST
+                fetch("http://localhost:3001/api/validate-pin", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ uniqueCode: prize.uniqueCode, pin: "1978" }),
+                }).catch(() => {});
                 // Sincronizar en Supabase
                 SupabaseService.validateCashierPin(prize.uniqueCode, updated.currentStamps).catch(() => {});
               }}

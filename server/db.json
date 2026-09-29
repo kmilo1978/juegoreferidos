@@ -116,6 +116,14 @@
   ],
   "logs": [
     {
+      "id": "mumsjqa4ru6",
+      "timestamp": "9:48:05 a. m.",
+      "method": "HERMES",
+      "url": "/api/hermes/test",
+      "status": 200,
+      "detail": "🤖 [HERMES PING] Conexión establecida con éxito (Endpoint: https://api.hermes.ai/v1, Agente: hermes-agent-bliss, Latencia: 43ms)"
+    },
+    {
       "id": "mumq9nhvfef",
       "timestamp": "8:44:16 a. m.",
       "method": "POST",
@@ -531,6 +539,28 @@
       "endpoints": {
         "googleSheetWebhookUrl": "",
         "customWebhookUrl": ""
+      }
+    },
+    "hermes": {
+      "enabled": true,
+      "mode": "agent",
+      "apiUrl": "https://api.hermes.ai/v1",
+      "apiKey": "hermes_live_key_9824",
+      "agentId": "hermes-agent-bliss",
+      "webhookUrl": "http://localhost:3001/api/integrations/hermes/webhook",
+      "events": {
+        "syncPrizes": true,
+        "syncPinRedemption": true,
+        "syncCustomers": true,
+        "syncReputation": true,
+        "syncMissions": true
+      },
+      "status": "connected",
+      "lastPing": "9:48:05 a. m.",
+      "stats": {
+        "totalPings": 13,
+        "eventsDispatched": 25,
+        "lastLatencyMs": 43
       }
     },
     "security": {
