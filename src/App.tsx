@@ -442,114 +442,12 @@ function JuegoQrPage() {
             {currentStep === 3 && (
               <div>
                 {!wonPrize ? (
-                  /* SI AÚN NO HA JUGADO: GIRO DE RULETA O RETO CONFIGURADO */
-                  <div>
-                    {/* 1. MODO RETO DE PRECISIÓN 10 SEGUNDOS */}
-                    {(chosenGameMode === "precision" || (gameConfig?.gameMode === "precision" && chosenGameMode !== "roulette")) && (
-                      <StepPrecisionTimer
-                        prizes={prizes}
-                        participantName={participant?.fullName || "Invitado"}
-                        onPrizeWon={handlePrizeWon}
-                        onExit={() => {
-                          setCurrentStep(4);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                      />
-                    )}
-
-                    {/* 2. MODO RULETA DE LA FORTUNA */}
-                    {(chosenGameMode === "roulette" || (gameConfig?.gameMode === "roulette" && chosenGameMode !== "precision")) && (
-                      <StepRouletteWheel
-                        prizes={prizes}
-                        participantName={participant?.fullName || "Invitado"}
-                        onPrizeWon={handlePrizeWon}
-                      />
-                    )}
-
-                    {/* 3. MODO HÍBRIDO (SI EL DUEÑO LO HABILITA EN BACKEND) */}
-                    {(gameConfig?.gameMode === "hybrid" || gameConfig?.gameMode === "stamps") && !chosenGameMode && (
-                      <div className="max-w-xl mx-auto py-4">
-                        <div className="text-center mb-8">
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 text-xs font-semibold mb-2">
-                            <Sparkles className="h-3.5 w-3.5" />
-                            <span>{t("Experiencia Interactiva en Mesa", "Interactive Table Experience")}</span>
-                          </div>
-                          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-neutral-900 tracking-tight">
-                            {t("¡Elige tu Desafío!", "Choose Your Challenge!")}
-                          </h2>
-                          <p className="text-sm text-neutral-600 mt-2 max-w-md mx-auto">
-                            {t(
-                              "¡Hola " + (participant?.fullName || "Invitado") + "! Selecciona cómo deseas obtener tu beneficio de la casa hoy:",
-                              "Hello " + (participant?.fullName || "Guest") + "! Select how you'd like to get your house reward today:"
-                            )}
-                          </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {/* Opción 1: Ruleta de la Fortuna */}
-                          <button
-                            type="button"
-                            onClick={() => setChosenGameMode("roulette")}
-                            className="group relative p-6 rounded-3xl bg-white border-2 border-neutral-200 hover:border-amber-500 hover:shadow-xl transition-all duration-200 text-left flex flex-col justify-between cursor-pointer"
-                          >
-                            <div>
-                              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-                                🎡
-                              </div>
-                              <h3 className="text-lg font-serif font-bold text-neutral-900 mb-1">
-                                {t("Ruleta de la Fortuna", "Roulette of Fortune")}
-                              </h3>
-                              <p className="text-xs text-neutral-500 leading-relaxed mb-4">
-                                {t(
-                                  "Gira el disco dorado con sonido y animación realista. Emoción instantánea y beneficios directos.",
-                                  "Spin the golden wheel with realistic sound effects. Instant excitement and rewards."
-                                )}
-                              </p>
-                            </div>
-                            <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-700 group-hover:translate-x-1 transition-transform">
-                              <span>{t("Girar Ruleta", "Spin Wheel")}</span>
-                              <span>→</span>
-                            </div>
-                          </button>
-
-                          {/* Opción 2: Reto de Precisión 10s */}
-                          <button
-                            type="button"
-                            onClick={() => setChosenGameMode("precision")}
-                            className="group relative p-6 rounded-3xl bg-white border-2 border-neutral-200 hover:border-amber-500 hover:shadow-xl transition-all duration-200 text-left flex flex-col justify-between cursor-pointer"
-                          >
-                            <div>
-                              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-                                ⏱️
-                              </div>
-                              <h3 className="text-lg font-serif font-bold text-neutral-900 mb-1">
-                                {t("Reto Precisión 10s", "10s Precision Challenge")}
-                              </h3>
-                              <p className="text-xs text-neutral-500 leading-relaxed mb-4">
-                                {t(
-                                  "Pon a prueba tus reflejos en la mesa. Detén el cronómetro exactamente en 10.000s para ganar.",
-                                  "Test your reflexes at the table. Stop the timer at exactly 10.000s to win."
-                                )}
-                              </p>
-                            </div>
-                            <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-700 group-hover:translate-x-1 transition-transform">
-                              <span>{t("Retar Cronómetro", "Challenge Timer")}</span>
-                              <span>→</span>
-                            </div>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* FALLBACK SI NINGUNO COINCIDE */}
-                    {!chosenGameMode && gameConfig?.gameMode !== "precision" && gameConfig?.gameMode !== "roulette" && gameConfig?.gameMode !== "hybrid" && gameConfig?.gameMode !== "stamps" && (
-                      <StepRouletteWheel
-                        prizes={prizes}
-                        participantName={participant?.fullName || "Invitado"}
-                        onPrizeWon={handlePrizeWon}
-                      />
-                    )}
-                  </div>
+                  /* SI AÚN NO HA JUGADO: EL CARRUSEL (RULETA DE LA SUERTE) */
+                  <StepRouletteWheel
+                    prizes={prizes}
+                    participantName={participant?.fullName || "Invitado"}
+                    onPrizeWon={handlePrizeWon}
+                  />
                 ) : (
                   /* SI YA GANÓ: MOSTRAR CUPÓN DE PREMIO Y BOTÓN A CALIFICAR */
                   <div className="space-y-6">
