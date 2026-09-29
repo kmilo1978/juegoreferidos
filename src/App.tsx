@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { LanguageProvider, useLanguage } from "./context/LanguageContext";
 import {
   TableSession,
@@ -27,6 +27,8 @@ import { PinAuthModal } from "./components/qr-game/PinAuthModal";
 import { TableStandModal } from "./components/qr-game/TableStandModal";
 import { MissionsModal } from "./components/qr-game/MissionsModal";
 import { StepMissions } from "./components/qr-game/StepMissions";
+import { PushNotificationPrompt } from "./components/qr-game/PushNotificationPrompt";
+import { KioskCaptivePortalModal } from "./components/qr-game/KioskCaptivePortalModal";
 import { recordPageView, getStoredHistory, saveStoredHistory } from "./lib/analyticsService";
 import { ComposioService } from "./lib/composioService";
 import { OneSignalService } from "./lib/oneSignalService";
@@ -150,6 +152,19 @@ function JuegoQrPage() {
   const [history, setHistory] = useState<WonPrize[]>([]);
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
+  const [isPushModalOpen, setIsPushModalOpen] = useState<boolean>(false);
+  const [isKioskModalOpen, setIsKioskModalOpen] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search);
+      return (
+        p.get("modo") === "wifi" ||
+        p.get("modo") === "kiosko" ||
+        p.get("portal") === "1" ||
+        p.get("wifi") === "1"
+      );
+    }
+    return false;
+  });
   const [isTableStandOpen, setIsTableStandOpen] = useState<boolean>(false);
   const [isMissionsOpen, setIsMissionsOpen] = useState<boolean>(false);
 
@@ -472,6 +487,8 @@ function JuegoQrPage() {
           setCurrentStep(step);
         }}
         onOpenMissions={() => setIsMissionsOpen(true)}
+        onOpenPushPrompt={() => setIsPushModalOpen(true)}
+        onOpenKioskPortal={() => setIsKioskModalOpen(true)}
       />
 
       {/* Contenido principal según el modo seleccionado */}
@@ -688,6 +705,39 @@ function JuegoQrPage() {
       <MissionsModal
         isOpen={isMissionsOpen}
         onClose={() => setIsMissionsOpen(false)}
+        customerName={participant?.fullName || wonPrize?.participantName}
+        customerWhatsapp={participant?.whatsapp || wonPrize?.participantWhatsapp}
+      />
+
+      {/* Modal de Portal Cautivo WiFi & Kiosko */}
+      <KioskCaptivePortalModal
+        isOpen={isKioskModalOpen}
+        onClose={() => setIsKioskModalOpen(false)}
+        onCustomerRegistered={(customerData) => {
+          const newPart: ParticipantData = {
+            fullName: customerData.name,
+            whatsapp: customerData.whatsapp,
+            email: customerData.email || "",
+            tableNumber: session.tableNumber,
+            registeredAt: Date.now(),
+          };
+          setParticipant(newPart);
+          try {
+            sessionStorage.setItem("juego_participant", JSON.stringify(newPart));
+          } catch {}
+          setCurrentStep(3);
+          if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+            setTimeout(() => {
+              setIsPushModalOpen(true);
+            }, 1200);
+          }
+        }}
+      />
+
+      {/* Modal de Solicitud de Notificaciones Web Push VIP */}
+      <PushNotificationPrompt
+        isOpen={isPushModalOpen}
+        onClose={() => setIsPushModalOpen(false)}
         customerName={participant?.fullName || wonPrize?.participantName}
         customerWhatsapp={participant?.whatsapp || wonPrize?.participantWhatsapp}
       />

@@ -1,6 +1,6 @@
-import { TableSession } from "./gameTypes";
+﻿import { TableSession } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
-import { RotateCcw, Sparkles, MessageCircle } from "lucide-react";
+import { RotateCcw, Sparkles, MessageCircle, Wifi, Bell } from "lucide-react";
 import logoHeader from "@/assets/logo-header.png";
 import { clientConfig } from "@/config/clientConfig";
 
@@ -14,6 +14,8 @@ interface GameHeaderProps {
   onOpenTableStand?: () => void;
   onSelectStep?: (step: number) => void;
   onOpenMissions?: () => void;
+  onOpenPushPrompt?: () => void;
+  onOpenKioskPortal?: () => void;
 }
 
 export function GameHeader({
@@ -24,6 +26,8 @@ export function GameHeader({
   onResetSession,
   onSelectStep,
   onOpenMissions,
+  onOpenPushPrompt,
+  onOpenKioskPortal,
 }: GameHeaderProps) {
   const { t } = useLanguage();
 
@@ -70,6 +74,30 @@ export function GameHeader({
             )}
 
             {/* Botón para reiniciar demo desde el principio */}
+            {onOpenKioskPortal && (
+              <button
+                type="button"
+                onClick={onOpenKioskPortal}
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-800 border border-emerald-500/30 text-[10px] sm:text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+                title="Portal Cautivo WiFi & Kiosko"
+              >
+                <Wifi className="h-3 w-3 text-emerald-600" />
+                <span>{t("WiFi VIP", "VIP WiFi")}</span>
+              </button>
+            )}
+
+            {onOpenPushPrompt && (
+              <button
+                type="button"
+                onClick={onOpenPushPrompt}
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 border border-amber-500/30 text-[10px] sm:text-xs font-semibold transition-all shadow-2xs cursor-pointer"
+                title="Notificaciones Web Push"
+              >
+                <Bell className="h-3 w-3 text-amber-700" />
+                <span>{t("Push", "Push")}</span>
+              </button>
+            )}
+
             <button
               onClick={onResetSession}
               type="button"
