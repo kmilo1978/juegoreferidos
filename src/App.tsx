@@ -299,7 +299,8 @@ function JuegoQrPage() {
       saveStoredHistory(updated);
       return updated;
     });
-    setCurrentStep(3);
+    // Avanza de inmediato al Paso 4 (Calificar en Google My Business)
+    setCurrentStep(4);
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     // Actualizar variable de la mesa a PREMIO PENDIENTE
@@ -586,12 +587,13 @@ function JuegoQrPage() {
               </div>
             )}
 
-            {/* PASO 4: CALIFICACIÓN & OPINIÓN */}
+            {/* PASO 4: CALIFICACIÓN & OPINIÓN EN GOOGLE MY BUSINESS */}
             {currentStep === 4 && (
               <div>
                 <StepFeedback
                   initialFeedback={feedback}
                   customerName={participant?.fullName || wonPrize?.participantName}
+                  wonPrize={wonPrize}
                   isStandAlone={false}
                   secondChanceConfig={secondChanceConfig}
                   onUnlockSecondChance={() => {

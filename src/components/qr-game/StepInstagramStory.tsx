@@ -372,40 +372,35 @@ export function StepInstagramStory({
             )}
 
             {/* Navegación WhatsApp */}
-            <div className="pt-4 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 border-t border-border/50">
+            <div className="pt-5 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4">
               <button
                 type="button"
                 onClick={onBack}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-5 text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-gold transition-colors"
               >
-                <ArrowLeft className="h-4 w-4" />
-                <span>{t("Volver a tus datos", "Back to your info")}</span>
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>{t("← Modificar mis datos", "← Edit my info")}</span>
               </button>
 
-              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                <button
-                  type="button"
-                  onClick={() =>
-                    onComplete({
-                      storyGenerated: false,
-                      sharedVia: "skipped",
-                    })
-                  }
-                  className="text-xs text-muted-foreground hover:text-gold transition-colors underline underline-offset-4 py-2 order-2 sm:order-1"
-                >
-                  {t("Omitir y pasar directo a la ruleta ›", "Skip & go directly to roulette ›")}
-                </button>
-
+              {hasSharedWhatsApp || previewUrl ? (
                 <button
                   type="button"
                   onClick={handleNextWhatsApp}
-                  className="btn-solid w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-8 text-xs uppercase tracking-[0.2em] font-medium transition-all shadow-xs order-1 sm:order-2"
+                  className="btn-solid w-full sm:w-auto inline-flex items-center justify-center gap-2.5 py-3.5 px-8 text-xs uppercase tracking-[0.2em] font-bold text-white shadow-md hover:scale-[1.02] active:scale-98 transition-all cursor-pointer bg-gradient-to-r from-emerald-600 to-emerald-700"
                 >
                   <Sparkles className="h-4 w-4 text-white" />
-                  <span>{t("¡Ir a la Ruleta de Premios!", "Go to Prize Roulette!")}</span>
-                  <ArrowRight className="h-4 w-4" />
+                  <span>{t("¡Foto enviada! Girar el Carrusel de Premios ➔", "Photo sent! Spin the Prize Carousel ➔")}</span>
                 </button>
-              </div>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-8 text-xs uppercase tracking-[0.16em] font-medium bg-neutral-200 text-neutral-400 rounded-xl cursor-not-allowed transition-all"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  <span>{t("Envía tu foto para habilitar el Carrusel", "Send photo to enable Carousel")}</span>
+                </button>
+              )}
             </div>
           </div>
         </Reveal>
@@ -633,43 +628,36 @@ export function StepInstagramStory({
                 </div>
               </div>
 
-              {/* Botones de navegación Instagram */}
-              <div className="pt-4 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 border-t border-border/50">
+              {/* Botones de acción Instagram */}
+              <div className="pt-5 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <button
                   type="button"
                   onClick={onBack}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-5 text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-gold transition-colors"
                 >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>{t("Volver a tus datos", "Back to your info")}</span>
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  <span>{t("← Modificar mis datos", "← Edit my info")}</span>
                 </button>
 
-                <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      onComplete({
-                        storyGenerated: false,
-                        sharedVia: "skipped",
-                        instagramHandle: handle.trim() || undefined,
-                      })
-                    }
-                    className="text-xs text-muted-foreground hover:text-gold transition-colors underline underline-offset-4 py-2 order-2 sm:order-1"
-                  >
-                    {t("Omitir Story y pasar directo a la ruleta ›", "Skip Story & go directly to roulette ›")}
-                  </button>
-
+                {previewUrl ? (
                   <button
                     type="submit"
                     onClick={handleNext}
-                    disabled={!previewUrl}
-                    className="btn-solid w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-8 text-xs uppercase tracking-[0.2em] font-medium disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs order-1 sm:order-2"
+                    className="btn-solid w-full sm:w-auto inline-flex items-center justify-center gap-2.5 py-3.5 px-8 text-xs uppercase tracking-[0.2em] font-bold text-white shadow-md hover:scale-[1.02] active:scale-98 transition-all cursor-pointer bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700"
                   >
                     <Sparkles className="h-4 w-4 text-white" />
-                    <span>{t("¡Ir a la Ruleta de Premios!", "Go to Prize Roulette!")}</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <span>{t("¡Historia subida! Girar el Carrusel de Premios ➔", "Story uploaded! Spin the Prize Carousel ➔")}</span>
                   </button>
-                </div>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-8 text-xs uppercase tracking-[0.16em] font-medium bg-neutral-200 text-neutral-400 rounded-xl cursor-not-allowed transition-all"
+                  >
+                    <Camera className="h-4 w-4" />
+                    <span>{t("Sube tu captura para habilitar el Carrusel", "Upload screenshot to enable Carousel")}</span>
+                  </button>
+                )}
               </div>
             </div>
           </Reveal>

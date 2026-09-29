@@ -341,9 +341,9 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
                 <button
                   type="button"
                   onClick={() => wonPrize && onPrizeWon(wonPrize)}
-                  className="btn-solid w-full inline-flex items-center justify-center gap-2 py-3 px-6 text-xs uppercase tracking-[0.2em] font-medium transition-all shadow-xs"
+                  className="btn-solid w-full inline-flex items-center justify-center gap-2.5 py-3.5 px-6 text-xs uppercase tracking-[0.18em] font-bold text-white shadow-md hover:scale-[1.02] active:scale-98 transition-all cursor-pointer bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700"
                 >
-                  <span>{t("Ver mi Código QR & Voucher", "View My QR Code & Voucher")}</span>
+                  <span>⭐ {t("Reclamar y Calificar en Google My Business", "Claim & Rate on Google My Business")}</span>
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </div>

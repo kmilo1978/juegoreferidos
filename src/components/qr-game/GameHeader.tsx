@@ -32,12 +32,12 @@ export function GameHeader({
   const initialSteps = [
     { num: 1, label: t("Tus Datos", "Your Info") },
     { num: 2, label: t("Instagram", "Instagram") },
-    { num: 3, label: t("El Premio", "The Prize") },
-    { num: 4, label: t("Calificación", "Review") },
+    { num: 3, label: t("El Carrusel", "The Carousel") },
+    { num: 4, label: t("Calificar Google", "Rate on Google") },
   ];
 
   const secondChanceSteps = [
-    { num: 5, label: t("2ª Opción: WhatsApp", "2nd Chance: WhatsApp") },
+    { num: 5, label: t("2ª Opción de Ganar", "2nd Chance to Win") },
     { num: 6, label: t("Enviar Captura", "Send Screenshot") },
     { num: 7, label: t("Reto Cronómetro", "Timer Challenge") },
   ];

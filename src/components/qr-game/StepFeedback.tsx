@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FeedbackData } from "./gameTypes";
+import { FeedbackData, SecondChanceConfig, WonPrize } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
 import {
@@ -15,13 +15,13 @@ import {
 import { waLink } from "@/data/site";
 import emblemaDorado from "@/assets/emblema-dorado.png";
 import { clientConfig } from "@/config/clientConfig";
-import { SecondChanceConfig } from "./gameTypes";
 
 interface StepFeedbackProps {
   initialFeedback?: FeedbackData | undefined;
   customerName?: string | undefined;
   isStandAlone?: boolean | undefined;
   secondChanceConfig?: SecondChanceConfig | undefined;
+  wonPrize?: WonPrize | null | undefined;
   onUnlockSecondChance?: (() => void) | undefined;
   onComplete?: ((data: FeedbackData) => void) | undefined;
   onSwitchToGame?: (() => void) | undefined;
@@ -31,6 +31,7 @@ export function StepFeedback({
   initialFeedback,
   customerName = "",
   secondChanceConfig,
+  wonPrize,
   onUnlockSecondChance,
   onComplete,
 }: StepFeedbackProps) {
@@ -171,6 +172,33 @@ export function StepFeedback({
           </p>
         </div>
       </Reveal>
+
+      {/* TARJETA DEL PREMIO GANADO EN EL CARRUSEL */}
+      {wonPrize && (
+        <Reveal delay={40}>
+          <div className="mt-6 max-w-xl mx-auto p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-gold/15 to-amber-500/10 border border-gold/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left shadow-2xs">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-full bg-gold text-white flex items-center justify-center text-xl shrink-0 shadow-xs">
+                🏆
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-amber-800 font-bold">
+                  {t("¡Beneficio del Carrusel Reservado!", "Carousel Benefit Secured!")}
+                </p>
+                <h4 className="text-sm sm:text-base font-serif font-bold text-neutral-900">
+                  {wonPrize.prizeName}
+                </h4>
+                <p className="text-[11px] font-mono text-amber-900/80">
+                  {t("Código:", "Code:")} {wonPrize.uniqueCode}
+                </p>
+              </div>
+            </div>
+            <div className="text-[11px] text-amber-900 bg-white/90 px-3.5 py-1.5 rounded-full border border-gold/40 font-semibold shadow-2xs shrink-0">
+              ⭐ {t("Califícanos en Google y activa la 2ª Opción", "Rate on Google & activate 2nd Chance")}
+            </div>
+          </div>
+        </Reveal>
+      )}
 
       {/* SELECTOR INTERACTIVO DE 5 EMBLEMAS */}
       <Reveal delay={80}>
@@ -373,29 +401,29 @@ export function StepFeedback({
             {/* SEGUNDA OPORTUNIDAD TRAS CALIFICAR EN GOOGLE */}
             {onUnlockSecondChance && secondChanceConfig?.enabled !== false && (
               <div className="pt-6 border-t-2 border-dashed border-amber-500/30 text-center space-y-3 bg-gradient-to-br from-amber-50/70 via-white to-amber-50/50 p-5 sm:p-6 rounded-2xl border border-amber-200/80">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-900 text-xs font-bold">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-                  <span>{t("¡Beneficio Extra Desbloqueado!", "Extra Benefit Unlocked!")}</span>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 text-xs font-bold animate-pulse">
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                  <span>{t("¡Segunda Opción de Ganar Habilitada!", "2nd Chance to Win Enabled!")}</span>
                 </div>
                 <h4 className="text-base sm:text-lg font-serif font-bold text-neutral-900">
-                  {t("¿Quieres una Segunda Oportunidad de Ganar?", "Want a Second Chance to Win?")}
+                  {t("¡Se ha habilitado tu Segunda Opción de Ganar!", "Your 2nd Chance to Win is now Enabled!")}
                 </h4>
                 <p className="text-xs text-neutral-600 font-light max-w-md mx-auto leading-relaxed">
                   {t(
-                    "Comparte tu experiencia en tus Estados de WhatsApp y desbloquea el Reto de Precisión 10s para ganar: ",
-                    "Share your experience on your WhatsApp Statuses and unlock the 10s Precision Challenge to win: "
+                    "Por calificar tu experiencia en Google My Business, ahora tienes una segunda oportunidad de ganar en el Reto de Precisión 10s:",
+                    "For rating your experience on Google My Business, you now have a second chance to win in the 10s Precision Challenge:"
                   )}
                   <strong className="text-amber-800 font-bold block mt-1 text-sm font-serif">
-                    {secondChanceConfig?.prizeName || "Postre Artesanal de Autor Gratis"}
+                    {secondChanceConfig?.prizeName || "Tarta Vasca de Pistacho y Queso"}
                   </strong>
                 </p>
                 <div className="pt-2 flex flex-col items-center">
                   <button
                     type="button"
                     onClick={onUnlockSecondChance}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 py-3.5 px-8 rounded-2xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-xs uppercase tracking-wider font-bold shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-[0.98]"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 py-4 px-10 rounded-2xl bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 hover:from-amber-700 hover:to-orange-600 text-white text-xs uppercase tracking-wider font-bold shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-[0.98]"
                   >
-                    <span>{t("🎁 Desbloquear 2ª Oportunidad ➔", "🎁 Unlock 2nd Chance ➔")}</span>
+                    <span>{t("🎯 JUGAR SEGUNDA OPCIÓN DE GANAR ➔", "🎯 PLAY 2ND CHANCE TO WIN ➔")}</span>
                   </button>
                 </div>
               </div>
