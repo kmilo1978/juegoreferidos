@@ -4,6 +4,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
 import {
   ExternalLink,
+  RotateCcw,
   MessageCircle,
   CheckCircle2,
   Sparkles,
@@ -41,6 +42,7 @@ export function StepFeedback({
   const [name, setName] = useState<string>(customerName);
   const [comment, setComment] = useState<string>(initialFeedback?.comment || "");
   const [hasSentWhatsApp, setHasSentWhatsApp] = useState(false);
+  const [hasSavedSystemOnly, setHasSavedSystemOnly] = useState(false);
   const [googleReviewUrl, setGoogleReviewUrl] = useState<string>(
     clientConfig.channels.googleMapsReviewUrl || "https://g.page/r/CfPSfNSGX8u1EBM/review"
   );
@@ -123,6 +125,29 @@ export function StepFeedback({
     if (val >= 4) {
       setHasClickedGoogle(true);
       window.open(googleReviewUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
+
+  const handleSaveToSystemOnly = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!comment.trim()) return;
+
+    fetch("/api/reputation/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerName: name.trim() || customerName || "Comensal Anónimo",
+        rating: rating || 3,
+        comment: comment.trim(),
+        actionTaken: "dashboard_only",
+      }),
+    }).catch(() => {});
+
+    setHasSavedSystemOnly(true);
+
+    if (onComplete) {
+      onComplete({ rating, comment });
     }
   };
 
@@ -342,31 +367,48 @@ export function StepFeedback({
                 />
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-3.5 px-5 rounded-xl border border-gold/70 bg-white hover:bg-amber-500/5 text-neutral-900 text-xs sm:text-[13px] uppercase tracking-[0.14em] font-medium flex items-center justify-between shadow-2xs hover:shadow-sm transition-all cursor-pointer group active:scale-[0.99]"
-              >
-                <span className="flex items-center gap-2">
-                  <span className="text-base">💬</span>
-                  <span className="text-left font-serif font-medium">
-                    {t(
-                      "ENVIAR SUGERENCIA A NUESTRO WHATSAPP PRIVADO",
-                      "SEND FEEDBACK TO OUR PRIVATE WHATSAPP"
-                    )}
-                  </span>
-                </span>
-                <ArrowRight className="h-4 w-4 text-gold group-hover:translate-x-1 transition-transform shrink-0" />
-              </button>
+              <div className="space-y-3 pt-1">
+                <p className="text-[11px] text-neutral-500 font-medium">
+                  {t("Elige cómo deseas transmitir tu mensaje a la gerencia:", "Choose how you want to convey your message to management:")}
+                </p>
 
-              {hasSentWhatsApp && (
-                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs flex items-center gap-2 animate-fade-in">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                  <span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={handleSaveToSystemOnly}
+                    disabled={!comment.trim()}
+                    className="py-3.5 px-4 rounded-xl border border-neutral-300 bg-neutral-50 hover:bg-neutral-100 disabled:opacity-50 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer"
+                  >
+                    <ShieldCheck className="h-4 w-4 text-neutral-600 shrink-0" />
+                    <span>{t("💾 Guardar en Sistema (Confidencial)", "💾 Save to System (Confidential)")}</span>
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={!comment.trim()}
+                    className="py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                  >
+                    <MessageCircle className="h-4 w-4 shrink-0" />
+                    <span>{t("💬 Enviar a WhatsApp de Gerencia", "💬 Send to Manager WhatsApp")}</span>
+                  </button>
+                </div>
+              </div>
+
+              {(hasSentWhatsApp || hasSavedSystemOnly) && (
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-gold/40 text-neutral-800 text-xs space-y-2 animate-fade-in mt-3">
+                  <div className="flex items-center gap-2 font-bold text-amber-900">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <span>{t("✓ Sugerencia registrada con total prioridad", "✓ Feedback recorded with priority")}</span>
+                  </div>
+                  <p className="text-neutral-600 font-light leading-relaxed">
                     {t(
-                      "✓ ¡Gracias por tu sugerencia! Ha sido enviada a la administración para atender tu caso personalmente.",
-                      "✓ Thank you! Your feedback has been sent to administration to personally assist you."
+                      "Hemos registrado tus observaciones para que la gerencia las revise y tome acciones inmediatas. Agradecemos enormemente tu sinceridad para ayudarnos a ser mejores cada día.",
+                      "We have recorded your notes for management to review and take immediate action. We appreciate your honesty."
                     )}
-                  </span>
+                  </p>
+                  <p className="text-[11px] font-medium text-amber-800">
+                    {t("ℹ️ Para garantizar la atención prioritaria de tu caso, tu visita finaliza aquí y no se activan juegos adicionales.", "ℹ️ To ensure priority care, your session ends here without extra games.")}
+                  </p>
                 </div>
               )}
             </form>
@@ -421,6 +463,17 @@ export function StepFeedback({
                 </span>
                 <ExternalLink className="h-4 w-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
               </button>
+
+              {/* RECORDATORIO CLARO PARA REGRESAR TRAS CALIFICAR EN GOOGLE */}
+              <div className="p-3 rounded-2xl bg-amber-500/10 border border-gold/40 text-xs text-amber-950 flex items-center gap-2.5 shadow-2xs mt-3">
+                <Sparkles className="h-4 w-4 text-gold shrink-0 animate-pulse" />
+                <span className="leading-snug">
+                  {t(
+                    "💡 Recuerda: Publica tu reseña de 5 estrellas en Google y regresa a esta pestaña para desbloquear tu Segunda Oportunidad (Reto 10s).",
+                    "💡 Remember: Post your 5-star review on Google and return to this tab to unlock your 2nd Chance (10s Challenge)."
+                  )}
+                </span>
+              </div>
             </div>
 
             {/* ESTADO INTELIGENTE DE RETORNO TRAS CALIFICAR EN GOOGLE */}
