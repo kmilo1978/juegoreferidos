@@ -161,6 +161,7 @@ export function StepMissions({
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [expandedMission, setExpandedMission] = useState<string | null>(null);
   const [isDemoUnlocked, setIsDemoUnlocked] = useState(false);
+  const [isChallengeOpen, setIsChallengeOpen] = useState(false);
 
   const cleanPhone = (customerWhatsapp || "").replace(/\D/g, "");
   const baseCard = StampService.getCustomerStampCard(cleanPhone);
@@ -396,91 +397,88 @@ export function StepMissions({
         </div>
       </Reveal>
 
-      {/* 4. BANNER DE DESAFÍO EMBAJADOR & SORTEO CENA PARA 2 */}
+      {/* 4. BANNER DE DESAFÍO EMBAJADOR — COLAPSABLE */}
       <Reveal delay={100}>
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#201f23] via-[#1c1b1f] to-[#252329] border-2 border-[#f2be71]/40 p-5 shadow-2xl flex flex-col gap-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#684400]/40 border border-[#f2be71]/40 flex items-center justify-center shrink-0 text-[#f2be71] text-2xl shadow-md">
+        <div className="relative overflow-hidden rounded-2xl bg-[#1c1b1f] border border-[#f2be71]/30 shadow-lg">
+          {/* Cabecera siempre visible — toca para expandir */}
+          <button
+            type="button"
+            onClick={() => setIsChallengeOpen(!isChallengeOpen)}
+            className="w-full p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-[#201f23]/60 transition-colors text-left"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-[#684400]/40 border border-[#f2be71]/40 flex items-center justify-center shrink-0 text-lg">
                 👑
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-label-sm text-[10px] uppercase tracking-wider text-[#f2be71] font-bold bg-[#684400]/30 px-2 py-0.5 rounded-full border border-[#f2be71]/30">
-                    {t("GRAN DESAFÍO EMBAJADOR", "AMBASSADOR CHALLENGE")}
-                  </span>
-                  <span className="text-[10px] text-[#ccc3d8] font-mono">Sorteo Fin de Mes</span>
-                </div>
-                <h3 className="font-headline-sm text-base text-[#e6e1e7] font-bold mt-1">
-                  {t("Premio Asegurado + Sorteo Cena para 2", "Guaranteed Prize + Dinner for 2 Raffle")}
-                </h3>
+              <div className="flex flex-col min-w-0">
+                <span className="text-[10px] uppercase tracking-wider text-[#f2be71] font-bold">
+                  {t("Gran Desafío Embajador", "Ambassador Challenge")}
+                </span>
+                <span className="text-xs font-semibold text-[#e6e1e7] truncate">
+                  {t("Premio Asegurado + Sorteo Cena para 2", "Guaranteed Prize + Dinner for 2")}
+                </span>
               </div>
             </div>
-
-            {/* Botón de prueba rápida demo */}
-            <button
-              type="button"
-              onClick={() => setIsDemoUnlocked(!isDemoUnlocked)}
-              className="btn-dark px-2.5 py-1 rounded-full text-[10px] font-bold shrink-0 cursor-pointer"
-              title="Simular completar todo en modo demo"
-            >
-              {isDemoUnlocked ? "🔄 Reiniciar Demo" : "⚡ Probar Desbloqueo"}
-            </button>
-          </div>
-
-          <p className="font-body-sm text-xs text-[#ccc3d8] leading-relaxed">
-            {t(
-              "Completa las misiones de la casa para asegurar un postre de autor en tu próxima visita y clasificar al gran sorteo mensual.",
-              "Complete missions to secure an artisan dessert on your next visit and enter our exclusive monthly dinner raffle."
-            )}
-          </p>
-
-          {/* Estado de completado vs pendiente */}
-          {isChallengeCompleted ? (
-            <div className="p-4 rounded-2xl bg-[#14231b] border-2 border-emerald-500/60 shadow-lg space-y-3 animate-in fade-in">
-              <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                <span>¡DESAFÍO COMPLETADO! PREMIO ASEGURADO + BOLETO VIP ACTIVO</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div className="bg-[#1b2f24] p-3 rounded-xl border border-emerald-500/30">
-                  <span className="text-[10px] uppercase tracking-wider text-emerald-400 block font-bold">
-                    🎁 Premio Garantizado
-                  </span>
-                  <strong className="text-xs text-white block mt-0.5 font-serif">
-                    Postre de Autor & Bono Regalo Dulce
-                  </strong>
-                  <span className="font-mono text-xs font-bold text-[#f2be71] block mt-1">
-                    Código: #AUTOR-EMBAJADOR-VIP
-                  </span>
-                  <span className="text-[10px] text-emerald-300/80 block mt-0.5">
-                    ✓ Asegurado en mesa para tu próxima visita
-                  </span>
-                </div>
-
-                <div className="bg-[#2a2216] p-3 rounded-xl border border-[#f2be71]/40">
-                  <span className="text-[10px] uppercase tracking-wider text-[#f2be71] block font-bold">
-                    👑 Boleto Sorteo Cena para 2
-                  </span>
-                  <strong className="text-xs text-white block mt-0.5 font-serif">
-                    Cena Degustación de Autor para 2
-                  </strong>
-                  <span className="font-mono text-xs font-bold text-[#f2be71] block mt-1">
-                    {ticketCode}
-                  </span>
-                  <span className="text-[10px] text-[#ffddb1]/80 block mt-0.5">
-                    ✓ Candidato oficial (Sorteo último viernes)
-                  </span>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-[#201f23] p-3 rounded-xl border border-[#363439] flex items-center justify-between text-xs">
-              <span className="text-[#ccc3d8]">Progreso del Desafío:</span>
-              <span className="text-[#f2be71] font-mono font-bold">
-                {submittedMissionIds.size} / {missions.length} misiones enviadas
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-[10px] font-mono text-[#f2be71]">
+                {submittedMissionIds.size}/{missions.length}
               </span>
+              <ChevronDown
+                className={`h-4 w-4 text-[#f2be71] transition-transform duration-200 ${isChallengeOpen ? "rotate-180" : ""}`}
+              />
+            </div>
+          </button>
+
+          {/* Contenido colapsable */}
+          {isChallengeOpen && (
+            <div className="px-4 pb-4 flex flex-col gap-3 border-t border-[#2b292e]">
+              <p className="font-body-sm text-xs text-[#ccc3d8] leading-relaxed pt-3">
+                {t(
+                  "Completa las misiones de la casa para asegurar un postre de autor en tu próxima visita y clasificar al gran sorteo mensual.",
+                  "Complete missions to secure an artisan dessert on your next visit and enter our exclusive monthly dinner raffle."
+                )}
+              </p>
+
+              {/* Estado de completado vs pendiente */}
+              {isChallengeCompleted ? (
+                <div className="p-4 rounded-2xl bg-[#14231b] border-2 border-emerald-500/60 shadow-lg space-y-3 animate-in fade-in">
+                  <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    <span>¡DESAFÍO COMPLETADO! PREMIO ASEGURADO + BOLETO VIP ACTIVO</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="bg-[#1b2f24] p-3 rounded-xl border border-emerald-500/30">
+                      <span className="text-[10px] uppercase tracking-wider text-emerald-400 block font-bold">🎁 Premio Garantizado</span>
+                      <strong className="text-xs text-white block mt-0.5 font-serif">Postre de Autor & Bono Regalo Dulce</strong>
+                      <span className="font-mono text-xs font-bold text-[#f2be71] block mt-1">Código: #AUTOR-EMBAJADOR-VIP</span>
+                      <span className="text-[10px] text-emerald-300/80 block mt-0.5">✓ Asegurado en mesa para tu próxima visita</span>
+                    </div>
+                    <div className="bg-[#2a2216] p-3 rounded-xl border border-[#f2be71]/40">
+                      <span className="text-[10px] uppercase tracking-wider text-[#f2be71] block font-bold">👑 Boleto Sorteo Cena para 2</span>
+                      <strong className="text-xs text-white block mt-0.5 font-serif">Cena Degustación de Autor para 2</strong>
+                      <span className="font-mono text-xs font-bold text-[#f2be71] block mt-1">{ticketCode}</span>
+                      <span className="text-[10px] text-[#ffddb1]/80 block mt-0.5">✓ Candidato oficial (Sorteo último viernes)</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-[#201f23] p-3 rounded-xl border border-[#363439] flex items-center justify-between text-xs">
+                  <span className="text-[#ccc3d8]">Progreso del Desafío:</span>
+                  <span className="text-[#f2be71] font-mono font-bold">
+                    {submittedMissionIds.size} / {missions.length} misiones enviadas
+                  </span>
+                </div>
+              )}
+
+              {/* Botón demo */}
+              <button
+                type="button"
+                onClick={() => setIsDemoUnlocked(!isDemoUnlocked)}
+                className="btn-dark w-full h-9 rounded-xl text-[10px] font-bold cursor-pointer"
+                title="Simular completar todo en modo demo"
+              >
+                {isDemoUnlocked ? "🔄 Reiniciar Demo" : "⚡ Probar Desbloqueo"}
+              </button>
             </div>
           )}
         </div>
