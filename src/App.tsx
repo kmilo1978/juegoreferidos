@@ -497,7 +497,7 @@ function JuegoQrPage() {
       <div className="pointer-events-none fixed top-72 -left-24 w-96 h-96 rounded-full bg-[#8a4fff]/5 blur-3xl" />
 
       {/* Contenido principal del embudo guiado paso a paso */}
-      <main className="flex-1 max-w-lg mx-auto w-full px-3.5 sm:px-6 pt-36 sm:pt-40 pb-safe pb-16 relative z-10">
+      <main className="flex-1 max-w-lg mx-auto w-full px-3.5 sm:px-6 pt-5 sm:pt-6 pb-safe pb-16 relative z-10">
         <div>
           {/* PASO 1: DATOS DEL PARTICIPANTE */}
           {currentStep === 1 && (

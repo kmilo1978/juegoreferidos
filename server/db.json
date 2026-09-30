@@ -134,6 +134,14 @@
   ],
   "logs": [
     {
+      "id": "muo8r9iol3j",
+      "timestamp": "10:09:37 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
       "id": "muo6xgfau4w",
       "timestamp": "9:18:27 a. m.",
       "method": "POST",
@@ -544,21 +552,21 @@
         "active": true
       },
       {
-        "id": "m_whatsapp_community",
-        "category": "Comunidad Exclusiva",
-        "title": "Entrar a la Comunidad de WhatsApp",
-        "rewardStamps": 2,
-        "rewardText": "+2 Sellos VIP",
-        "badge": "COMUNIDAD VIP",
+        "id": "m_whatsapp_status",
+        "category": "Boca a Boca Directo",
+        "title": "Estados de WhatsApp",
+        "rewardStamps": 1,
+        "rewardText": "+1 Sello de Visita",
+        "badge": "WHATSAPP",
         "icon": "💬",
-        "description": "Únete a nuestra comunidad oficial en WhatsApp para acceder a catas privadas, beneficios secretos y eventos antes que nadie.",
+        "description": "Sube una foto de tu pedido a tus Estados de WhatsApp recomendando el local.",
         "rules": [
-          "Toca el enlace oficial para unirte a nuestro canal o comunidad de WhatsApp.",
-          "Permanece en la comunidad para recibir tus accesos y cortesías exclusivas.",
-          "Confirma tu número de teléfono registrado para sumar tus sellos VIP."
+          "Publica una foto de tu postre o café en tus Estados de WhatsApp.",
+          "Escribe una frase recomendando al restaurante.",
+          "Envía el enlace o confirmación de tu estado."
         ],
-        "actionUrl": "https://chat.whatsapp.com/invite",
-        "evidencePlaceholder": "Escribe tu número de WhatsApp registrado",
+        "actionUrl": "https://api.whatsapp.com",
+        "evidencePlaceholder": "https://wa.me/... o confirmación",
         "active": true
       },
       {
@@ -769,10 +777,10 @@
       "capacity": 4,
       "status": "PREMIO_PENDIENTE",
       "currentCustomer": "juan camilo Botero",
-      "currentWhatsapp": "3165212839",
-      "activeSessionId": "SES-MUO8HJD3",
-      "prizeWon": "Postre Artesanal Gratis",
-      "uniqueCode": "TURE-1SLPJ",
+      "currentWhatsapp": "5730053914",
+      "activeSessionId": "SES-MUO9TZLN",
+      "prizeWon": "15% de Descuento",
+      "uniqueCode": "TURE-RI2GO",
       "startedAt": "Ahora",
       "lastActivityAt": "Ahora",
       "qrUrl": "http://localhost:5173/?mesa=1"

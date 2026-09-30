@@ -34,9 +34,9 @@ export function GameHeader({
   const progressPercent = Math.round((currentStep / 8) * 100);
 
   return (
-    <header className="fixed top-0 left-0 right-0 w-full z-50 pt-safe bg-[#0f0e12]/96 backdrop-blur-2xl border-b border-[#2b292e]/80 shadow-[0_8px_32px_rgba(0,0,0,0.65)]">
+    <header className="sticky top-0 left-0 right-0 w-full z-50 pt-safe bg-[#0f0e12]/98 backdrop-blur-2xl border-b border-[#2b292e]/80 shadow-[0_8px_32px_rgba(0,0,0,0.65)]">
       {/* Contenedor con ancho máximo armónico con la app */}
-      <div className="max-w-lg mx-auto w-full px-4 sm:px-6 pt-2 pb-2.5 flex flex-col items-center gap-1.5">
+      <div className="max-w-lg mx-auto w-full px-4 sm:px-6 pt-2 pb-2 flex flex-col items-center gap-1">
         {/* 1. FILA SUPERIOR: MESA, SWITCH ES/EN Y UTILIDADES */}
         <div className="w-full flex items-center justify-between text-xs">
           {/* Indicador de mesa activa */}
@@ -99,24 +99,24 @@ export function GameHeader({
           </div>
         </div>
 
-        {/* 2. EL LOGO EN EL CENTRO CON PROTAGONISMO */}
+        {/* 2. EL LOGO EN EL CENTRO CON PROTAGONISMO COMPACTO */}
         <div className="flex flex-col items-center justify-center py-0.5">
           <div className="relative">
-            <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-gradient-to-tr from-[#684400] via-[#f2be71] to-[#ffddb1] p-0.5 shadow-[0_0_16px_rgba(242,190,113,0.35)]">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-[#684400] via-[#f2be71] to-[#ffddb1] p-0.5 shadow-[0_0_12px_rgba(242,190,113,0.35)]">
               <img
                 src={clientConfig.brand.logoUrl || emblemaDorado}
                 alt={clientConfig.brand.name}
-                className="w-full h-full rounded-full object-contain bg-[#141317] p-1.5"
+                className="w-full h-full rounded-full object-contain bg-[#141317] p-1"
               />
             </div>
           </div>
-          <h1 className="font-headline-sm text-sm sm:text-base font-bold text-[#e6e1e7] tracking-tight mt-1 text-center">
+          <h1 className="font-headline-sm text-xs sm:text-sm font-bold text-[#e6e1e7] tracking-tight mt-0.5 text-center">
             {clientConfig.brand.name}
           </h1>
         </div>
 
         {/* 3. LÍNEA DE TIEMPO DEL EMBUDO (100% GUIADA, SIN SALTOS DE PASO) */}
-        <div className="w-full flex flex-col gap-1.5 pt-0.5 max-w-xs sm:max-w-sm">
+        <div className="w-full flex flex-col gap-1 pt-0 max-w-xs sm:max-w-sm">
           {/* Indicador de Etapa: e.g. "Paso 1/8 · 1. Datos" */}
           <div className="flex items-center justify-between text-xs px-0.5">
             <div className="flex items-center gap-1.5 min-w-0">

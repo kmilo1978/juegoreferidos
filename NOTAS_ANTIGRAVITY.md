@@ -226,5 +226,26 @@
 - Resumen: Fotografía del postre con protagonismo total, paleta dorada 100% respetada sin verdes ni morados extraños, y eliminación de botones duplicados y saturación.
 - Observaciones: Pruebas de compilación aprobadas sin observaciones.
 
+## Nueva sesión
+- Fecha: 2026-09-30 11:15
+- Solicitud: Solución definitiva a la superposición / solapamiento de la cabecera sobre los títulos y contenidos ("se están montando los elementos no deja leer bien").
+- Decisiones clave:
+  - Diagnóstico de Causa Raíz:
+    - La cabecera fija (`fixed top-0`) medía ~175px debido a la combinación de fila de utilidades, logo de marca y línea de tiempo segmentada.
+    - El contenedor `<main>` tenía un padding superior fijo insuficiente (`pt-36` = 144px), provocando que los primeros 31px de cualquier pantalla (como "¡Gira la Ruleta, Juan Camilo Botero!") quedaran ocultos físicamente detrás de la barra negra y la barra dorada de la cabecera.
+  - Corrección Definitiva:
+    1. Se migró `GameHeader.tsx` de `fixed` a `sticky top-0`, integrándolo en el flujo natural del documento HTML. Esto garantiza que el contenido empiece de forma nativa e infalible DEBAJO de la cabecera, haciendo imposible cualquier solapamiento en cualquier dispositivo.
+    2. Se compactó la cabecera para móviles: logo a 40px/44px, interlineado ajustado y reducción de altura total de ~175px a ~115px, recuperando 60px de pantalla útil.
+    3. En `App.tsx`, se ajustó el espaciado superior de `<main>` a `pt-5 sm:pt-6`, manteniendo un respiro visual limpio, holgado y consistente.
+    4. En `index.css`, se actualizó `body` con `overflow-x: clip;` para compatibilidad universal con `position: sticky`.
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 10.13s).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-09-30 11:15
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Cero superposición de elementos, cabecera fluida con 'sticky top-0' y visualización completa y legible de todos los títulos.
+- Observaciones: Pruebas de compilación aprobadas sin observaciones.
+
 
 

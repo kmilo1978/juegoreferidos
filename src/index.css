@@ -70,7 +70,7 @@
     color: #e6e1e7;
     font-family: "Manrope", system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 }
 
