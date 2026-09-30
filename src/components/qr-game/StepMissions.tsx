@@ -488,9 +488,9 @@ export function StepMissions({
           <button
             type="button"
             onClick={handleReferFriend}
-            className="btn-gold w-full py-3 px-4 rounded-2xl font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+            className="w-full h-11 px-4 rounded-xl bg-[#1c1b1f] border border-[#f2be71]/40 hover:border-[#f2be71]/70 hover:bg-[#252429] text-[#f2be71] text-xs font-semibold flex items-center gap-2.5 cursor-pointer transition-all active:scale-98"
           >
-            <Share2 className="h-4 w-4" />
+            <Share2 className="h-3.5 w-3.5 text-[#f2be71] shrink-0" />
             <span>{t("Recomendar a un Amigo por WhatsApp (+3 Sellos)", "Refer a Friend via WhatsApp (+3 Stamps)")}</span>
           </button>
         </div>
