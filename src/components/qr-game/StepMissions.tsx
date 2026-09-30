@@ -22,8 +22,27 @@ import {
 import { StampService } from "@/lib/stampService";
 import { MissionItem } from "./MissionsModal";
 import { clientConfig } from "@/config/clientConfig";
+import { getMissionBrandLogo } from "@/components/shared/BrandLogos";
 
 const DEFAULT_MISSIONS: MissionItem[] = [
+  {
+    id: "m_tripadvisor",
+    category: "Turismo & Gastronomía",
+    title: "Reseña en TripAdvisor",
+    rewardStamps: 3,
+    rewardText: "+3 Sellos VIP",
+    badge: "TOP VIAJEROS",
+    icon: "🦉",
+    description: `Comparte tu opinión en nuestro perfil de TripAdvisor para ayudar a viajeros y comensales a descubrir nuestra propuesta gastronómica.`,
+    rules: [
+      "Abre nuestro perfil oficial en TripAdvisor.",
+      "Califica tu experiencia gastronómica y escribe tu opinión sobre la comida y el servicio.",
+      "Pega aquí el enlace directo a tu reseña publicada o confirmación.",
+    ],
+    actionUrl: clientConfig.channels.tripadvisorReviewUrl || "https://www.tripadvisor.com",
+    evidencePlaceholder: "https://www.tripadvisor.com/ShowUserReviews-...",
+    active: true,
+  },
   {
     id: "m_tiktok",
     category: "Creación de Contenido",
@@ -560,9 +579,9 @@ export function StepMissions({
                   className="p-3.5 sm:p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-[#201f23]/60 transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-2xl p-2 rounded-xl bg-[#201f23] border border-[#2b292e] shrink-0">
-                      {m.icon}
-                    </span>
+                    <div className="w-10 h-10 rounded-xl bg-[#201f23] border border-[#2b292e] flex items-center justify-center shrink-0 shadow-xs">
+                      {getMissionBrandLogo(m.id, "w-6 h-6") || <span className="text-xl">{m.icon}</span>}
+                    </div>
                     <div className="flex flex-col text-left min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="px-2 py-0.5 rounded-full bg-[#684400]/40 text-[#ffddb1] border border-[#f2be71]/30 text-[9px] font-bold">

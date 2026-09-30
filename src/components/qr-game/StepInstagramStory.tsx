@@ -19,6 +19,7 @@ import heroImg from "@/assets/hero-pistacho-cafe.jpg";
 import { clientConfig } from "@/config/clientConfig";
 import { getBrandConfig } from "@/lib/brandService";
 import { waLink } from "@/data/site";
+import { InstagramIcon } from "@/components/shared/BrandLogos";
 
 interface StepInstagramStoryProps {
   participantName: string;
@@ -122,10 +123,13 @@ export function StepInstagramStory({
       {/* Título de la Etapa */}
       <Reveal delay={50}>
         <section className="flex flex-col gap-1.5">
-          <h1 className="font-headline-xl-mobile text-2xl sm:text-3xl text-[#e6e1e7] tracking-tight">
-            {t("Comparte tu Foto en", "Share Your Photo on")}{" "}
-            <span className="text-[#f2be71] italic font-serif">Instagram Stories</span>
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <InstagramIcon className="w-8 h-8 rounded-xl shadow-md shrink-0" />
+            <h1 className="font-headline-xl-mobile text-2xl sm:text-3xl text-[#e6e1e7] tracking-tight">
+              {t("Comparte tu Foto en", "Share Your Photo on")}{" "}
+              <span className="text-[#f2be71] italic font-serif">Instagram Stories</span>
+            </h1>
+          </div>
           <p className="font-body-md text-sm text-[#ccc3d8] leading-relaxed">
             {t(
               "Sube una foto de tu mesa a Instagram Stories con nuestra mención para desbloquear tu giro garantizado en la ruleta de premios.",
@@ -239,7 +243,7 @@ export function StepInstagramStory({
             }}
           >
             <div className="flex items-center gap-3">
-              <Camera className="h-5 w-5" />
+              <InstagramIcon className="h-6 w-6 shrink-0" />
               <div className="flex flex-col text-left">
                 <span className="font-label-lg text-sm font-bold leading-tight">
                   {t("Abrir Instagram Stories", "Open Instagram Stories")}

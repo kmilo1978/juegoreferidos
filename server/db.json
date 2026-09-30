@@ -134,6 +134,14 @@
   ],
   "logs": [
     {
+      "id": "muo6xgfau4w",
+      "timestamp": "9:18:27 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
       "id": "muo6wln6n2r",
       "timestamp": "9:17:47 a. m.",
       "method": "POST",
@@ -445,6 +453,24 @@
     },
     "missions": [
       {
+        "id": "m_tripadvisor",
+        "category": "Turismo & Gastronomía",
+        "title": "Reseña en TripAdvisor",
+        "rewardStamps": 3,
+        "rewardText": "+3 Sellos VIP",
+        "badge": "TOP VIAJEROS",
+        "icon": "🦉",
+        "description": "Comparte tu recomendación en nuestro perfil de TripAdvisor para ayudar a viajeros y comensales a descubrir nuestra propuesta gastronómica.",
+        "rules": [
+          "Abre nuestro perfil oficial en TripAdvisor.",
+          "Califica tu experiencia gastronómica y escribe tu opinión sobre la comida y el servicio.",
+          "Pega aquí el enlace directo a tu reseña publicada o confirmación."
+        ],
+        "actionUrl": "https://www.tripadvisor.com",
+        "evidencePlaceholder": "https://www.tripadvisor.com/ShowUserReviews-...",
+        "active": true
+      },
+      {
         "id": "m_tiktok",
         "category": "Creación de Contenido",
         "title": "Video o Reel en TikTok",
@@ -744,9 +770,9 @@
       "status": "PREMIO_PENDIENTE",
       "currentCustomer": "juan camilo Botero",
       "currentWhatsapp": "3165212839",
-      "activeSessionId": "SES-MUO6W2G5",
-      "prizeWon": "15% de Descuento",
-      "uniqueCode": "TURE-W9DIG",
+      "activeSessionId": "SES-MUO7N7VR",
+      "prizeWon": "20% de Descuento",
+      "uniqueCode": "TURE-0WTKH",
       "startedAt": "Ahora",
       "lastActivityAt": "Ahora",
       "qrUrl": "http://localhost:5173/?mesa=1"

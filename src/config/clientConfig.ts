@@ -33,6 +33,7 @@ export interface ClientConfig {
     instagramProfileUrl: string;
     whatsappNumber: string;         // Con código de país (ej: "573022777295")
     googleMapsReviewUrl: string;    // Enlace directo a reseñas de Google Business
+    tripadvisorReviewUrl?: string;  // Enlace directo a perfil de TripAdvisor
     supportEmail?: string;
     enableWhatsAppPhotoSubmission: boolean; // Si está activo, permite al cliente enviar foto por WhatsApp además de Instagram
     whatsappPhotoMessage?: string;          // Plantilla de mensaje predeterminado para WhatsApp
@@ -116,6 +117,7 @@ export const clientConfig: ClientConfig = {
     instagramProfileUrl: storedBrand?.instagramProfileUrl || "https://www.instagram.com/",
     whatsappNumber: storedBrand?.whatsappNumber || "573000000000",
     googleMapsReviewUrl: storedBrand?.googleMapsReviewUrl || "https://maps.google.com",
+    tripadvisorReviewUrl: storedBrand?.tripadvisorReviewUrl || "https://www.tripadvisor.com",
     supportEmail: storedBrand?.supportEmail || "contacto@turestaurante.com",
     enableWhatsAppPhotoSubmission: storedBrand?.enableWhatsAppPhotoSubmission !== undefined ? storedBrand.enableWhatsAppPhotoSubmission : true,
     whatsappPhotoMessage: storedBrand?.whatsappPhotoMessage || "¡Hola! 📸 Aquí les comparto la foto de mi pedido en la mesa {tableNumber} (Cliente: {participantName}) para validar mi visita y jugar en la Ruleta de Premios.",

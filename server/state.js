@@ -1,4 +1,4 @@
-﻿/**
+/**
  * SERVIDOR BACKEND DEMO - SISTEMA DE FIDELIZACIÓN, SELLOS Y CUPONES
  * Servidor API REST ultraligero con 0 dependencias externas.
  * Ejecutar con: bun server/index.js  (o: node server/index.js)
@@ -97,6 +97,24 @@ const DEFAULT_SETTINGS = {
     whatsappVerificationMessage: "¡Hola! 📸 Te comparto mi captura de estado para participar en la 2ª oportunidad del Reto de Precisión en {restaurante}. Mesa {tableNumber} - Cliente: {participantName}",
   },
   missions: [
+    {
+      id: "m_tripadvisor",
+      category: "Turismo & Gastronomía",
+      title: "Reseña en TripAdvisor",
+      rewardStamps: 3,
+      rewardText: "+3 Sellos VIP",
+      badge: "TOP VIAJEROS",
+      icon: "🦉",
+      description: "Comparte tu recomendación en nuestro perfil de TripAdvisor para ayudar a viajeros y comensales a descubrir nuestra propuesta gastronómica.",
+      rules: [
+        "Abre nuestro perfil oficial en TripAdvisor.",
+        "Califica tu experiencia gastronómica y escribe tu opinión sobre la comida y el servicio.",
+        "Pega aquí el enlace directo a tu reseña publicada o confirmación."
+      ],
+      actionUrl: "https://www.tripadvisor.com",
+      evidencePlaceholder: "https://www.tripadvisor.com/ShowUserReviews-...",
+      active: true,
+    },
     {
       id: "m_tiktok",
       category: "Creación de Contenido",
