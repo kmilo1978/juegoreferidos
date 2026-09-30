@@ -547,7 +547,7 @@ export function renderBackendDashboard() {
 
       <div style="display: flex; gap: 10px; align-items: center;">
         <a href="http://localhost:5173/?modo=kiosko" target="_blank" class="btn-frontend" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; border: none; font-weight: 700; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">
-          🖥️ Abrir Modo Kiosko / Tablet ↗
+          📶 Abrir Portal Cautivo WiFi / Kiosko ↗
         </a>
         <a href="http://localhost:5173" target="_blank" class="btn-frontend">
           📱 Abrir Pantalla del Comensal (Frontend) ➔
@@ -585,8 +585,8 @@ export function renderBackendDashboard() {
             <button type="button" class="nav-tab-btn" data-tab="tab-kiosk" onclick="switchTab('tab-kiosk', this)">
               <span>🖥️</span>
               <div>
-                <div class="tab-title">Modo Kiosko & WiFi</div>
-                <div class="tab-sub">Tótem táctil y portal</div>
+                <div class="tab-title">Portal Cautivo WiFi & Kiosko</div>
+                <div class="tab-sub">Conexión de red & tablet</div>
               </div>
             </button>
             <button type="button" class="nav-tab-btn" data-tab="tab-channels" onclick="switchTab('tab-channels', this)">

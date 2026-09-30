@@ -38,6 +38,15 @@
       "visits": 1,
       "origin": "PORTAL_CAUTIVO_WIFI",
       "connectedAt": "2026-09-29T16:21:29.827Z"
+    },
+    "573001112233": {
+      "fullName": "Comensal Portal Test",
+      "whatsapp": "573001112233",
+      "email": "test@wifi.com",
+      "stamps": 1,
+      "visits": 1,
+      "origin": "PORTAL_CAUTIVO_WIFI",
+      "connectedAt": "2026-09-30T01:42:48.480Z"
     }
   },
   "missionSubmissions": [
@@ -124,6 +133,14 @@
     }
   ],
   "logs": [
+    {
+      "id": "munfwbs5ilu",
+      "timestamp": "8:41:44 p. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
     {
       "id": "mumwdr2folm",
       "timestamp": "11:35:25 a. m.",
@@ -716,12 +733,12 @@
       "name": "Mesa 1",
       "zone": "Salón Principal",
       "capacity": 4,
-      "status": "PREMIO_PENDIENTE",
-      "currentCustomer": "Juan camilo Botero",
-      "currentWhatsapp": "5730053914",
-      "activeSessionId": "SES-MUMWTNRP",
-      "prizeWon": "Bono Dulce Sorpresa",
-      "uniqueCode": "TURE-XBCBZ",
+      "status": "JUGANDO",
+      "currentCustomer": "Invitado en Mesa",
+      "currentWhatsapp": null,
+      "activeSessionId": "SES-M1-1024",
+      "prizeWon": null,
+      "uniqueCode": null,
       "startedAt": "Hace 3 min",
       "lastActivityAt": "Ahora",
       "qrUrl": "http://localhost:5173/?mesa=1"

@@ -82,7 +82,7 @@ export function GameHeader({
                 title="Abrir Pantalla de Kiosko / Portal WiFi para Tablets"
               >
                 <Wifi className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 animate-pulse" />
-                <span>🖥️ {t("Modo Kiosko", "Kiosk Mode")}</span>
+                <span>📶 {t("Portal Cautivo WiFi", "WiFi Captive Portal")}</span>
                 <span className="bg-emerald-600 text-white text-[9px] px-1.5 py-0.2 rounded-full font-mono font-bold">WiFi</span>
               </button>
             )}
