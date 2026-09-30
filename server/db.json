@@ -544,21 +544,21 @@
         "active": true
       },
       {
-        "id": "m_whatsapp_status",
-        "category": "Boca a Boca Directo",
-        "title": "Estados de WhatsApp",
-        "rewardStamps": 1,
-        "rewardText": "+1 Sello de Visita",
-        "badge": "WHATSAPP",
+        "id": "m_whatsapp_community",
+        "category": "Comunidad Exclusiva",
+        "title": "Entrar a la Comunidad de WhatsApp",
+        "rewardStamps": 2,
+        "rewardText": "+2 Sellos VIP",
+        "badge": "COMUNIDAD VIP",
         "icon": "💬",
-        "description": "Sube una foto de tu pedido a tus Estados de WhatsApp recomendando el local.",
+        "description": "Únete a nuestra comunidad oficial en WhatsApp para acceder a catas privadas, beneficios secretos y eventos antes que nadie.",
         "rules": [
-          "Publica una foto de tu postre o café en tus Estados de WhatsApp.",
-          "Escribe una frase recomendando al restaurante.",
-          "Envía el enlace o confirmación de tu estado."
+          "Toca el enlace oficial para unirte a nuestro canal o comunidad de WhatsApp.",
+          "Permanece en la comunidad para recibir tus accesos y cortesías exclusivas.",
+          "Confirma tu número de teléfono registrado para sumar tus sellos VIP."
         ],
-        "actionUrl": "https://api.whatsapp.com",
-        "evidencePlaceholder": "https://wa.me/... o confirmación",
+        "actionUrl": "https://chat.whatsapp.com/invite",
+        "evidencePlaceholder": "Escribe tu número de WhatsApp registrado",
         "active": true
       },
       {

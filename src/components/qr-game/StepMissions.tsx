@@ -18,6 +18,7 @@ import {
   CreditCard,
   Users,
   Award,
+  ArrowLeft,
 } from "lucide-react";
 import { StampService } from "@/lib/stampService";
 import { MissionItem } from "./MissionsModal";
@@ -99,21 +100,21 @@ const DEFAULT_MISSIONS: MissionItem[] = [
     active: true,
   },
   {
-    id: "m_whatsapp_status",
-    category: "Boca a Boca Directo",
-    title: "Publicar en Estados de WhatsApp",
-    rewardStamps: 1,
-    rewardText: "+1 Sello VIP",
-    badge: "WHATSAPP",
+    id: "m_whatsapp_community",
+    category: "Comunidad Exclusiva",
+    title: "Entrar a la Comunidad de WhatsApp",
+    rewardStamps: 2,
+    rewardText: "+2 Sellos VIP",
+    badge: "COMUNIDAD VIP",
     icon: "💬",
-    description: "Sube una foto de tu pedido a tus Estados de WhatsApp recomendando el establecimiento.",
+    description: `Únete a la comunidad oficial de ${clientConfig.brand.name} en WhatsApp para acceder a catas privadas, beneficios secretos y eventos antes que nadie.`,
     rules: [
-      "Publica una foto de tu experiencia en tus Estados de WhatsApp.",
-      `Escribe una frase recomendando a ${clientConfig.brand.name}.`,
-      "Envía la confirmación de tu estado.",
+      "Toca el botón 'Unirme a la Comunidad' para acceder a nuestro canal oficial en WhatsApp.",
+      "Permanece en la comunidad para recibir tus accesos y beneficios exclusivos.",
+      "Confirma tu número registrado para sumar tus sellos VIP.",
     ],
-    actionUrl: "https://api.whatsapp.com",
-    evidencePlaceholder: "Confirmación de estado publicado",
+    actionUrl: clientConfig.channels.whatsappCommunityUrl || "https://chat.whatsapp.com/invite",
+    evidencePlaceholder: "Escribe tu número de WhatsApp registrado",
     active: true,
   },
   {
@@ -139,12 +140,14 @@ const DEFAULT_MISSIONS: MissionItem[] = [
 interface StepMissionsProps {
   customerName?: string | undefined;
   customerWhatsapp?: string | undefined;
+  onBackToStamps?: () => void;
   onResetToStart?: () => void;
 }
 
 export function StepMissions({
   customerName = "Comensal",
   customerWhatsapp = "",
+  onBackToStamps,
   onResetToStart,
 }: StepMissionsProps) {
   const { t } = useLanguage();
@@ -297,101 +300,64 @@ export function StepMissions({
   return (
     <div className="w-full flex flex-col gap-6">
 
-      {/* 2. TARJETA DE 15 SELLOS VIP ESTILO STITCH */}
-      <Reveal delay={50}>
-        <div className="w-full rounded-3xl bg-[#1c1b1f] border border-[#2b292e] p-5 sm:p-6 shadow-2xl flex flex-col gap-4 relative overflow-hidden">
-          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#f2be71]/10 rounded-full blur-3xl pointer-events-none" />
+      {/* 1. ENCABEZADO DE LA ETAPA 8: CENTRO DE MISIONES VIP */}
+      <Reveal delay={0}>
+        <div className="flex flex-col gap-2">
+          {/* Badge superior */}
+          <div className="inline-flex items-center gap-1.5 self-start px-3 py-1 rounded-full bg-[#1c1b1f] border border-[#f2be71]/40 text-[#ffddb1] shadow-xs">
+            <Sparkles className="h-3.5 w-3.5 text-[#f2be71]" />
+            <span className="font-label-sm text-[11px] font-bold tracking-wide">
+              {t("Paso 8 de 8 · Desafíos & Misiones VIP", "Step 8 of 8 · VIP Missions & Challenges")}
+            </span>
+          </div>
 
-          {/* Cabecera del Club VIP */}
-          <div className="flex items-start justify-between">
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="h-4 w-4 text-[#f2be71]" />
-                <span className="font-headline-sm text-sm text-[#e6e1e7] uppercase font-bold tracking-wider">
-                  {brandName} VIP Club
+          <h2 className="font-headline-xl-mobile text-2xl sm:text-3xl text-[#e6e1e7] tracking-tight mt-1">
+            {t("Misiones para Ganar", "Missions to Earn")}{" "}
+            <span className="text-[#f2be71] italic font-serif">
+              {t("+Sellos VIP", "+VIP Stamps")}
+            </span>
+          </h2>
+
+          <p className="font-body-md text-xs sm:text-sm text-[#ccc3d8] leading-relaxed">
+            {t(
+              "¡Acelera tus premios gastronómicos sin esperar a tu próxima visita! Completa estas misiones digitales y suma sellos directamente a tu pasaporte.",
+              "Accelerate your dining rewards without waiting for your next visit! Complete these digital missions and add stamps directly to your passport."
+            )}
+          </p>
+        </div>
+      </Reveal>
+
+      {/* 2. BARRA DE RESUMEN Y ENLACE RÁPIDO A TARJETA DE SELLOS (PASO 7) */}
+      <Reveal delay={50}>
+        <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#363439] p-4 flex items-center justify-between gap-3 shadow-md">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-[#684400]/40 border border-[#f2be71]/30 flex items-center justify-center text-[#f2be71] shrink-0">
+              <Trophy className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-[#e6e1e7] flex items-center gap-1.5 flex-wrap">
+                <span className="truncate">{customerName}</span>
+                <span className="text-[10px] text-[#f2be71] bg-[#684400]/40 px-2 py-0.5 rounded-full border border-[#f2be71]/30 font-bold shrink-0">
+                  {currentStamps} / 15 {t("Sellos", "Stamps")}
                 </span>
               </div>
-              <span className="font-body-sm text-[11px] text-[#ccc3d8] mt-0.5">
-                {customerName} • {customerWhatsapp || "Mesa Activa"}
-              </span>
-            </div>
-            <div className="bg-[#684400]/40 border border-[#f2be71]/30 px-3 py-1 rounded-full flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#f2be71] animate-ping" />
-              <span className="font-label-sm text-xs text-[#f2be71] font-bold">
-                {currentStamps} / 15 {t("Sellos", "Stamps")}
-              </span>
+              <p className="text-[11px] text-[#ccc3d8] truncate">
+                {t("Cada misión aprobada suma sellos a tu tarjeta", "Each approved mission adds stamps to your card")}
+              </p>
             </div>
           </div>
 
-          {/* Cuadrícula de 15 Sellos (3 filas x 5 columnas) */}
-          <div className="grid grid-cols-5 gap-2.5 pt-1">
-            {Array.from({ length: 15 }, (_, i) => i + 1).map((selloNum) => {
-              const isEarned = selloNum <= currentStamps;
-              const isMilestone5 = selloNum === 5;
-              const isMilestone10 = selloNum === 10;
-              const isMilestone15 = selloNum === 15;
-
-              return (
-                <div
-                  key={selloNum}
-                  className={`aspect-square rounded-2xl flex flex-col items-center justify-center relative transition-all ${
-                    isEarned
-                      ? "badge-gold shadow-[0_0_12px_rgba(242,190,113,0.5)] scale-105 font-bold"
-                      : isMilestone15
-                        ? "bg-gradient-to-tr from-[#684400] to-[#3a383d] border border-[#f2be71]/50 text-[#f2be71]"
-                        : isMilestone10
-                          ? "bg-[#2b292e] border border-[#d1bcff]/50 text-[#d1bcff]"
-                          : isMilestone5
-                            ? "bg-[#2b292e] border border-[#f2be71]/50 text-[#f2be71]"
-                            : "bg-[#201f23] border border-[#2b292e] text-[#ccc3d8]/40"
-                  }`}
-                >
-                  {isEarned ? (
-                    <span className="text-sm font-black text-[#121115]">✓</span>
-                  ) : isMilestone15 ? (
-                    <>
-                      <Trophy className="h-4 w-4" />
-                      <span className="text-[7px] font-bold mt-0.5">15 VIP</span>
-                    </>
-                  ) : isMilestone10 ? (
-                    <>
-                      <Gift className="h-4 w-4" />
-                      <span className="text-[8px] font-bold mt-0.5">10</span>
-                    </>
-                  ) : isMilestone5 ? (
-                    <>
-                      <Coffee className="h-4 w-4" />
-                      <span className="text-[8px] font-bold mt-0.5">5</span>
-                    </>
-                  ) : (
-                    <span className="text-xs font-semibold">{selloNum}</span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Resumen del Próximo Hito */}
-          <div className="bg-[#201f23] border border-[#363439] rounded-xl p-3 flex flex-col gap-1.5">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-[#ccc3d8] flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#f2be71]" />
-                <span>
-                  {t("Próxima meta:", "Next reward:")}{" "}
-                  <strong className="text-[#e6e1e7]">{Math.max(1, 5 - (currentStamps % 5))} sellos restantes</strong>
-                </span>
-              </span>
-              <span className="text-[#f2be71] font-bold text-[11px]">
-                {currentStamps < 5 ? "Sello 5: Café Gratis ☕" : currentStamps < 10 ? "Sello 10: Postre Autor 🍰" : "Sello 15: Cena 2P 🏆"}
-              </span>
-            </div>
-            <div className="w-full bg-[#2b292e] h-1.5 rounded-full overflow-hidden">
-              <div
-                className="bg-[#f2be71] h-full rounded-full transition-all duration-500"
-                style={{ width: `${((currentStamps % 5) / 5) * 100 || 20}%` }}
-              />
-            </div>
-          </div>
+          {onBackToStamps && (
+            <button
+              type="button"
+              onClick={onBackToStamps}
+              className="px-3 py-2 rounded-xl bg-[#2b292e] hover:bg-[#363439] border border-[#49454e] text-xs font-bold text-[#f2be71] flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t("Ver Tarjeta (Paso 7)", "View Card (Step 7)")}</span>
+              <span className="sm:hidden">{t("Paso 7", "Step 7")}</span>
+            </button>
+          )}
         </div>
       </Reveal>
 
@@ -691,8 +657,21 @@ export function StepMissions({
             </p>
           </div>
 
-          {onResetToStart && (
+          {onBackToStamps && (
             <div className="w-full pt-2">
+              <button
+                type="button"
+                onClick={onBackToStamps}
+                className="w-full h-12 rounded-2xl bg-[#2b292e] hover:bg-[#363439] border border-[#49454e] font-bold text-xs text-[#e6e1e7] flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-md"
+              >
+                <ArrowLeft className="h-4 w-4 text-[#f2be71]" />
+                <span>{t("← Volver a Mi Tarjeta de Sellos (Paso 7)", "← Back to My Stamps Card (Step 7)")}</span>
+              </button>
+            </div>
+          )}
+
+          {onResetToStart && (
+            <div className="w-full pt-1">
               <button
                 type="button"
                 onClick={onResetToStart}

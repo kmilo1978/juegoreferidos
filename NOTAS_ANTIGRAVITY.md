@@ -174,5 +174,33 @@
 - Resumen: Embudo 100% guiado paso a paso, cabecera limpia y eliminación definitiva de saltos de etapa no autorizados.
 - Observaciones: Pruebas de compilación aprobadas sin advertencias.
 
+## Nueva sesión
+- Fecha: 2026-09-30 10:45
+- Solicitud: Separar Misiones en pantalla 8 independiente de Sellos (Pantalla 7), y en Misiones sustituir 'publicar estados de WhatsApp' por 'entrar a la comunidad de WhatsApp'.
+- Decisiones clave:
+  - Arquitectura UX de 8 pasos lineales estrictos:
+    1. Datos del participante (`StepUserData.tsx`).
+    2. Difusión en Instagram Stories (`StepInstagramStory.tsx`).
+    3. Ruleta gastronómica de premios (`StepRouletteWheel.tsx`).
+    4. Reclamo de voucher y código único (`StepPrizeClaim.tsx`).
+    5. Calificación y reputación en Google / TripAdvisor (`StepFeedback.tsx`).
+    6. Reto de 2ª Oportunidad del cronómetro de precisión (`StepSecondChancePrecision.tsx`).
+    7. Pantalla 7: Pasaporte digital de 15 Sellos VIP (`StepDigitalStamps.tsx`), con cuadrícula de 15 sellos, hitos en sellos 5, 10 y 15, horario feliz de doble sello y botón directo para instalar en pantalla de inicio.
+    8. Pantalla 8: Desafíos & Centro de Misiones VIP (`StepMissions.tsx`), enfocado exclusivamente en misiones de reseñas (TripAdvisor, TikTok, Google Maps con foto, referidos boca a boca, Facebook) y el Desafío Embajador para la Gran Cena para 2.
+  - Cambio en Misión de WhatsApp:
+    - Se sustituyó "Publicar en Estados de WhatsApp" por "Entrar a la Comunidad de WhatsApp" (`m_whatsapp_community`), con enlace al grupo/comunidad VIP oficial para eventos y catas secretas.
+    - Se actualizó de manera consistente en backend (`server/state.js`, `server/db.json`), configuración (`src/config/clientConfig.ts`) y componentes frontend (`StepMissions.tsx`, `MissionsModal.tsx`).
+  - Cabecera y Navegación (`GameHeader.tsx` & `App.tsx`):
+    - Se actualizó el indicador y la barra segmentada a 8 pasos (`Paso X/8` y `grid-cols-8`).
+    - Navegación bidireccional suave y contextual entre el Paso 7 (Sellos) y el Paso 8 (Misiones).
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 10.37s).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-09-30 10:45
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Separación completa de Pantalla 7 (Sellos VIP) y Pantalla 8 (Misiones), actualización a comunidad de WhatsApp y verificación de tipos y compilación 100% exitosa.
+- Observaciones: Pruebas de compilación aprobadas sin observaciones.
+
 
 

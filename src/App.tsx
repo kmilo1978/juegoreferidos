@@ -26,6 +26,7 @@ import { AdminPanelModal } from "./components/qr-game/AdminPanelModal";
 import { PinAuthModal } from "./components/qr-game/PinAuthModal";
 import { TableStandModal } from "./components/qr-game/TableStandModal";
 import { MissionsModal } from "./components/qr-game/MissionsModal";
+import { StepDigitalStamps } from "./components/qr-game/StepDigitalStamps";
 import { StepMissions } from "./components/qr-game/StepMissions";
 import { PushNotificationPrompt } from "./components/qr-game/PushNotificationPrompt";
 import { KioskCaptivePortalModal } from "./components/qr-game/KioskCaptivePortalModal";
@@ -79,7 +80,7 @@ function JuegoQrPage() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const requestedStep = params.get("paso");
-      if (requestedStep && ["1", "2", "3", "4", "5", "6", "7"].includes(requestedStep)) {
+      if (requestedStep && ["1", "2", "3", "4", "5", "6", "7", "8"].includes(requestedStep)) {
         return parseInt(requestedStep, 10);
       }
       if (params.get("juego") === "precision" || params.get("test") === "precision") {
@@ -95,7 +96,7 @@ function JuegoQrPage() {
         const savedStep = sessionStorage.getItem("juego_current_step");
         if (savedStep) {
           const stepNum = parseInt(savedStep, 10);
-          if (stepNum >= 1 && stepNum <= 7) return stepNum;
+          if (stepNum >= 1 && stepNum <= 8) return stepNum;
         }
       } catch {
         // ignore
@@ -628,7 +629,7 @@ function JuegoQrPage() {
                   }}
                 />
 
-                {/* Botón para continuar al Centro de Misiones (Paso 7) */}
+                {/* Botón para continuar a la Tarjeta de Sellos VIP (Paso 7) */}
                 <div className="pt-2 text-center">
                   <button
                     type="button"
@@ -638,19 +639,41 @@ function JuegoQrPage() {
                     }}
                     className="btn-gold inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-xs uppercase tracking-wider font-extrabold transition-all shadow-md cursor-pointer"
                   >
-                    <span>🎯 {t("Ver Misiones & 15 Sellos VIP · Paso 7", "View VIP Missions & 15 Stamps · Step 7")}</span>
+                    <span>☕ {t("Continuar a Tarjeta de 15 Sellos VIP · Paso 7", "Continue to 15 VIP Stamps Card · Step 7")}</span>
                     <span>➔</span>
                   </button>
                 </div>
               </div>
             )}
 
-            {/* PASO 7: MISIONES (CENTRO DE MISIONES Y SELLOS VIP) */}
+            {/* PASO 7: SELLOS VIP (PASAPORTE DE 15 VISITAS) */}
             {currentStep === 7 && (
+              <div>
+                <StepDigitalStamps
+                  customerName={participant?.fullName || wonPrize?.participantName}
+                  customerWhatsapp={participant?.whatsapp || wonPrize?.participantWhatsapp}
+                  onProceedToMissions={() => {
+                    setCurrentStep(8);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  onBackToSecondChance={() => {
+                    setCurrentStep(6);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                />
+              </div>
+            )}
+
+            {/* PASO 8: MISIONES VIP (DESAFÍOS SOCIALES Y EMBAJADOR DE LA CASA) */}
+            {currentStep === 8 && (
               <div>
                 <StepMissions
                   customerName={participant?.fullName || wonPrize?.participantName}
                   customerWhatsapp={participant?.whatsapp || wonPrize?.participantWhatsapp}
+                  onBackToStamps={() => {
+                    setCurrentStep(7);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
                   onResetToStart={handleResetSession}
                 />
               </div>

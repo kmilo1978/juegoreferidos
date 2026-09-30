@@ -26,11 +26,12 @@ export function GameHeader({
     { num: 4, label: t("4. Voucher", "4. Voucher"), short: t("Voucher", "Voucher") },
     { num: 5, label: t("5. Reputación", "5. Review"), short: t("Reseña", "Review") },
     { num: 6, label: t("6. 2ª Oportunidad", "6. 2nd Chance"), short: t("2ª Op.", "2nd Ch.") },
-    { num: 7, label: t("7. Misiones VIP", "7. VIP Hub"), short: t("Misiones", "Missions") },
+    { num: 7, label: t("7. Sellos VIP", "7. VIP Stamps"), short: t("Sellos", "Stamps") },
+    { num: 8, label: t("8. Misiones VIP", "8. VIP Hub"), short: t("Misiones", "Missions") },
   ];
 
   const currentStepObj = gameSteps.find((s) => s.num === currentStep) || gameSteps[0];
-  const progressPercent = Math.round((currentStep / 7) * 100);
+  const progressPercent = Math.round((currentStep / 8) * 100);
 
   return (
     <header className="fixed top-0 left-0 right-0 w-full z-50 pt-safe bg-[#0f0e12]/96 backdrop-blur-2xl border-b border-[#2b292e]/80 shadow-[0_8px_32px_rgba(0,0,0,0.65)]">
@@ -116,11 +117,11 @@ export function GameHeader({
 
         {/* 3. LÍNEA DE TIEMPO DEL EMBUDO (100% GUIADA, SIN SALTOS DE PASO) */}
         <div className="w-full flex flex-col gap-1.5 pt-0.5 max-w-xs sm:max-w-sm">
-          {/* Indicador de Etapa: e.g. "Paso 1/7 · 1. Datos" */}
+          {/* Indicador de Etapa: e.g. "Paso 1/8 · 1. Datos" */}
           <div className="flex items-center justify-between text-xs px-0.5">
             <div className="flex items-center gap-1.5 min-w-0">
               <span className="px-2 py-0.5 rounded-md bg-[#684400]/40 border border-[#f2be71]/30 text-[#f2be71] font-mono font-bold text-[10px]">
-                {currentStep}/7
+                {currentStep}/8
               </span>
               <span className="text-[11px] sm:text-xs font-bold text-[#e6e1e7] truncate">
                 {currentStepObj.label}
@@ -132,8 +133,8 @@ export function GameHeader({
             </span>
           </div>
 
-          {/* BARRA SEGMENTADA DE 7 PASOS: VISUAL E INFORMATIVA */}
-          <div className="grid grid-cols-7 gap-1.5 w-full">
+          {/* BARRA SEGMENTADA DE 8 PASOS: VISUAL E INFORMATIVA */}
+          <div className="grid grid-cols-8 gap-1 w-full">
             {gameSteps.map((s) => {
               const isCompleted = s.num < currentStep;
               const isCurrent = s.num === currentStep;
