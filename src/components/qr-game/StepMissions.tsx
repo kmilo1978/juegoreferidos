@@ -295,25 +295,7 @@ export function StepMissions({
     isDemoUnlocked || (missions.length > 0 && submittedMissionIds.size >= missions.length);
 
   return (
-    <div className="w-full flex flex-col gap-5">
-      {/* 1. BARRA DE PROGRESO DE LA ETAPA */}
-      <Reveal>
-        <section className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#201f23] text-[#f2be71] border border-[#f2be71]/30">
-              <Sparkles className="h-3.5 w-3.5 text-[#f2be71]" />
-              <span className="font-label-sm text-[10px] uppercase tracking-wider font-bold">
-                {t("PASO 7 DE 7 • FIDELIZACIÓN, 15 SELLOS & MISIONES VIP", "STEP 7 OF 7 • VIP LOYALTY & MISSIONS")}
-              </span>
-            </div>
-            <span className="font-label-sm text-[11px] text-[#ccc3d8] font-medium">100% Completado</span>
-          </div>
-
-          <div className="w-full h-1.5 rounded-full bg-[#2b292e] overflow-hidden mt-1">
-            <div className="h-full rounded-full bg-gradient-to-r from-[#d1bcff] via-[#f2be71] to-[#ffddb1] shadow-[0_0_10px_rgba(242,190,113,0.7)] w-full transition-all duration-500" />
-          </div>
-        </section>
-      </Reveal>
+    <div className="w-full flex flex-col gap-6">
 
       {/* 2. TARJETA DE 15 SELLOS VIP ESTILO STITCH */}
       <Reveal delay={50}>
