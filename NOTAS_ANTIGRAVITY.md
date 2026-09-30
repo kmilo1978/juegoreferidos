@@ -132,3 +132,24 @@
 - Resumen: Contraste 100% resuelto en toda la aplicación. Cero textos o iconos blancos sobre fondo dorado.
 - Observaciones: Pruebas de compilación y empaquetado superadas exitosamente.
 
+## Nueva sesión
+- Fecha: 2026-09-30 10:20
+- Solicitud: No separar el banner en 3 líneas y unificar en una sola línea "Experiencia en Sala & Fidelización".
+- Decisiones clave:
+  - Se eliminó la separación forzada que dividía el banner en 3 líneas (el subtítulo de restaurante + el título dividido en 2 renglones debido a un ancho máximo artificial `max-w-[240px]`).
+  - Se unificó en una sola línea horizontal compacta, fluida y elegante:
+    - Indicador visual dorado con punto sutil.
+    - Título completo: "Experiencia en Sala & Fidelización" (`whitespace-nowrap`, `text-xs sm:text-sm`).
+    - Icono circular del regalo a la derecha.
+  - La tarjeta ahora ocupa una altura proporcional (`py-3 px-4`), ahorrando espacio visual en dispositivos móviles y luciendo perfectamente equilibrada.
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 11.08s).
+  - Cambios confirmados y subidos a GitHub en la rama 'main' (commit c7ee825).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-09-30 10:20
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Banner unificado en una sola línea horizontal sin cortes de texto.
+- Observaciones: Pruebas de compilación aprobadas sin observaciones.
+
+
