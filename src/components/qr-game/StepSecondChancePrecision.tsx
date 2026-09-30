@@ -335,42 +335,48 @@ export function StepSecondChancePrecision({
             </div>
           )}
 
-          {/* Botón de Salida hacia Tarjeta de 15 Sellos (Bloqueado hasta jugar) */}
+          {/* Botón de Salida hacia Tarjeta de 15 Sellos (Paso 7) */}
           <div className="w-full pt-4 pb-2">
-            <button
-              type="button"
-              onClick={isGameCompleted ? onExit : undefined}
-              disabled={!isGameCompleted}
-              className={`w-full h-14 py-3 px-6 rounded-2xl text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
-                isGameCompleted
-                  ? "btn-gold shadow-[0_6px_24px_rgba(242,190,113,0.35)] cursor-pointer active:scale-98 hover:brightness-105"
-                  : "bg-[#1c1b1f] border border-[#363439] text-[#737373] opacity-60 cursor-not-allowed"
-              }`}
-            >
-              {!isGameCompleted ? (
-                <>
-                  <Lock className="h-4 w-4 text-[#737373]" />
-                  <span>
-                    {attemptsUsed === 0
-                      ? t("Juega el Reto para Desbloquear el Paso 7", "Play Challenge to Unlock Step 7")
-                      : isRunning
-                        ? t("Cronómetro en marcha...", "Timer running...")
-                        : t(`Completa tus 3 intentos para continuar (${attemptsUsed}/${maxAttempts})`, `Complete your 3 attempts to continue (${attemptsUsed}/${maxAttempts})`)}
-                  </span>
-                </>
-              ) : gameState === "won" ? (
-                <>
-                  <Trophy className="h-4 w-4 text-[#121115]" />
-                  <span>{t("¡Premio Conseguido! Continuar al Paso 7", "Prize Won! Continue to Step 7")}</span>
-                  <ArrowRight className="h-4 w-4 text-[#121115]" />
-                </>
-              ) : (
-                <>
-                  <span>{t("Continuar a Tarjeta de 15 Sellos (Paso 7)", "Continue to 15 Stamps Card (Step 7)")}</span>
-                  <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </button>
+            {(() => {
+              const hasPlayed = attemptsUsed > 0 || gameState === "won" || gameState === "finished";
+              const canProceed = hasPlayed && !isRunning;
+
+              return (
+                <button
+                  type="button"
+                  onClick={canProceed ? onExit : undefined}
+                  disabled={!canProceed}
+                  className={`w-full h-14 py-3 px-6 rounded-2xl text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                    !canProceed
+                      ? "bg-[#1c1b1f] border border-[#363439] text-[#737373] opacity-60 cursor-not-allowed"
+                      : "btn-gold shadow-[0_6px_24px_rgba(242,190,113,0.35)] cursor-pointer active:scale-98 hover:brightness-105"
+                  }`}
+                >
+                  {isRunning ? (
+                    <>
+                      <Lock className="h-4 w-4 text-[#737373]" />
+                      <span>{t("Cronómetro en marcha...", "Timer running...")}</span>
+                    </>
+                  ) : !hasPlayed ? (
+                    <>
+                      <Lock className="h-4 w-4 text-[#737373]" />
+                      <span>{t("Juega 1 intento para Desbloquear Paso 7", "Play 1 attempt to Unlock Step 7")}</span>
+                    </>
+                  ) : gameState === "won" ? (
+                    <>
+                      <Trophy className="h-4 w-4 text-[#121115]" />
+                      <span>{t("¡Premio Conseguido! Continuar al Paso 7", "Prize Won! Continue to Step 7")}</span>
+                      <ArrowRight className="h-4 w-4 text-[#121115]" />
+                    </>
+                  ) : (
+                    <>
+                      <span>{t("Continuar a Tarjeta de 15 Sellos (Paso 7)", "Continue to 15 Stamps Card (Step 7)")}</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
+              );
+            })()}
           </div>
         </div>
       </Reveal>

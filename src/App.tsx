@@ -490,6 +490,10 @@ function JuegoQrPage() {
         currentStep={currentStep}
         onResetSession={handleResetSession}
         onOpenKioskPortal={() => setIsKioskModalOpen(true)}
+        onStepClick={(step) => {
+          setCurrentStep(step);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
       />
 
       {/* Ambient background glow orbs estilo Stitch */}

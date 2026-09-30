@@ -9,6 +9,7 @@ interface GameHeaderProps {
   currentStep: number;
   onResetSession: () => void;
   onOpenKioskPortal?: () => void;
+  onStepClick?: (step: number) => void;
 }
 
 export function GameHeader({
@@ -16,6 +17,7 @@ export function GameHeader({
   currentStep,
   onResetSession,
   onOpenKioskPortal,
+  onStepClick,
 }: GameHeaderProps) {
   const { t, language, setLanguage } = useLanguage();
 
@@ -133,22 +135,24 @@ export function GameHeader({
             </span>
           </div>
 
-          {/* BARRA SEGMENTADA DE 8 PASOS: VISUAL E INFORMATIVA */}
-          <div className="grid grid-cols-8 gap-1 w-full">
+          {/* BARRA SEGMENTADA DE 8 PASOS: NAVEGABLE E INFORMATIVA */}
+          <div className="grid grid-cols-8 gap-1.5 w-full">
             {gameSteps.map((s) => {
               const isCompleted = s.num < currentStep;
               const isCurrent = s.num === currentStep;
 
               return (
-                <div
+                <button
+                  type="button"
                   key={s.num}
-                  title={s.label}
-                  className={`h-1.5 rounded-full transition-all relative ${
+                  onClick={() => onStepClick?.(s.num)}
+                  title={`${s.label} (${s.short})`}
+                  className={`h-2 rounded-full transition-all relative cursor-pointer active:scale-95 ${
                     isCurrent
                       ? "bg-gradient-to-r from-[#d1bcff] via-[#f2be71] to-[#ffddb1] shadow-[0_0_10px_rgba(242,190,113,0.85)] scale-y-125"
                       : isCompleted
-                        ? "bg-[#f2be71]"
-                        : "bg-[#252429]"
+                        ? "bg-[#f2be71] hover:brightness-110"
+                        : "bg-[#252429] hover:bg-[#363439]"
                   }`}
                 />
               );

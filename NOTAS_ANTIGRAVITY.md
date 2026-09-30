@@ -269,3 +269,21 @@
 
 
 
+
+## Nueva sesión
+- Fecha: 2026-09-30 11:35
+- Solicitud: Desbloquear visualización y navegación a Pasos 7 (Sellos VIP) y 8 (Misiones VIP), manteniendo la regla de que el botón de continuar en el Paso 6 solo se active tras haber jugado al menos 1 intento.
+- Decisiones clave:
+  - Navegación directa en cabecera: Los 8 segmentos del timeline en `GameHeader.tsx` ahora son interactivos (`<button>`) y permiten saltar directamente a cualquier paso (especialmente 7 y 8) al hacer clic en ellos, haciendo un scroll suave al inicio.
+  - Flujo equilibrado en Paso 6 (`StepSecondChancePrecision.tsx`):
+    1. Si `attemptsUsed === 0`: el botón de salida está bloqueado con candado ("Juega 1 intento para Desbloquear Paso 7"), garantizando que nadie se salte el juego sin interactuar.
+    2. En cuanto el usuario realiza 1 intento (`attemptsUsed > 0`): el botón se vuelve dorado y activo ("Continuar a Tarjeta de 15 Sellos (Paso 7) ➔"), permitiendo avanzar de inmediato sin obligar a agotar los 3 intentos si desea continuar su recorrido.
+    3. Si gana: se activa con felicitación dorada ("¡Premio Conseguido! Continuar al Paso 7 ➔").
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 13.73s).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-09-30 11:35
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Acceso garantizado a los Pasos 7 y 8 tanto por la barra de navegación superior interactiva como por el botón de avance del Paso 6 tras el primer intento.
+- Observaciones: Build limpio y sin errores.
