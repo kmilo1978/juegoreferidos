@@ -3,7 +3,7 @@ import confetti from "canvas-confetti";
 import { SecondChanceConfig, GamePrize } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
-import { Sparkles, Trophy, RotateCcw, ArrowRight, Play, Square, History } from "lucide-react";
+import { Sparkles, Trophy, RotateCcw, ArrowRight, Play, Square, History, Lock, CheckCircle2 } from "lucide-react";
 import { playVictoryFanfareSound, playDefeatSound, playTactileClickSound } from "@/lib/soundEffects";
 import tartaVascaImg from "@/assets/tarta-vasca.jpg";
 import { clientConfig } from "@/config/clientConfig";
@@ -34,6 +34,8 @@ export function StepSecondChancePrecision({
   const [attemptsUsed, setAttemptsUsed] = useState(0);
   const [gameState, setGameState] = useState<"idle" | "running" | "attempt_failed" | "won" | "finished">("idle");
   const [attemptsHistory, setAttemptsHistory] = useState<number[]>([]);
+
+  const isGameCompleted = gameState === "won" || gameState === "finished" || attemptsUsed >= maxAttempts;
 
   const startTimeRef = useRef<number>(0);
   const timerRafRef = useRef<number | null>(null);
@@ -256,6 +258,20 @@ export function StepSecondChancePrecision({
                     {t("¡DETENER YA!", "STOP NOW!")}
                   </span>
                 </>
+              ) : gameState === "won" ? (
+                <>
+                  <Trophy className="h-9 w-9 mb-1.5 fill-[#121115] text-[#121115]" />
+                  <span className="font-label-lg text-xs font-black uppercase tracking-wider text-center leading-tight text-[#121115]">
+                    {t("¡GANASTE!", "YOU WON!")}
+                  </span>
+                </>
+              ) : gameState === "finished" ? (
+                <>
+                  <CheckCircle2 className="h-9 w-9 mb-1.5 text-[#121115]" />
+                  <span className="font-label-lg text-xs font-black uppercase tracking-wider text-center leading-tight text-[#121115]">
+                    {t("RETO FINALIZADO", "COMPLETED")}
+                  </span>
+                </>
               ) : (
                 <>
                   <Play className="h-9 w-9 mb-1.5 fill-[#121115] text-[#121115] ml-1" />
@@ -285,6 +301,24 @@ export function StepSecondChancePrecision({
             </div>
           )}
 
+          {/* Mensaje de Resultado si Agota Intentos */}
+          {gameState === "finished" && (
+            <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#f2be71]/40 p-4 flex items-start gap-3 shadow-md animate-in zoom-in-95">
+              <Sparkles className="h-6 w-6 text-[#f2be71] shrink-0 mt-0.5" />
+              <div className="flex flex-col text-left">
+                <span className="font-headline-sm text-sm font-bold text-[#ffdcb1]">
+                  {t("¡Completaste tus 3 intentos!", "You completed your 3 attempts!")}
+                </span>
+                <p className="font-body-sm text-xs text-[#ccc3d8] mt-0.5 leading-relaxed">
+                  {t(
+                    "¡Estuviste muy cerca! Ahora continúa al Paso 7 para descubrir tu Tarjeta de 15 Sellos VIP.",
+                    "Great effort! Now continue to Step 7 to discover your 15 VIP Stamps Card."
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Historial de Intentos */}
           {attemptsHistory.length > 0 && (
             <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#363439] px-4 py-3 flex items-center justify-between text-xs text-[#ccc3d8] shadow-sm">
@@ -301,15 +335,41 @@ export function StepSecondChancePrecision({
             </div>
           )}
 
-          {/* Botón Único de Salida hacia Tarjeta de 15 Sellos (Paso 7) */}
+          {/* Botón de Salida hacia Tarjeta de 15 Sellos (Bloqueado hasta jugar) */}
           <div className="w-full pt-4 pb-2">
             <button
               type="button"
-              onClick={onExit}
-              className="btn-gold w-full h-14 py-3 px-6 rounded-2xl text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_6px_24px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer"
+              onClick={isGameCompleted ? onExit : undefined}
+              disabled={!isGameCompleted}
+              className={`w-full h-14 py-3 px-6 rounded-2xl text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                isGameCompleted
+                  ? "btn-gold shadow-[0_6px_24px_rgba(242,190,113,0.35)] cursor-pointer active:scale-98 hover:brightness-105"
+                  : "bg-[#1c1b1f] border border-[#363439] text-[#737373] opacity-60 cursor-not-allowed"
+              }`}
             >
-              <span>{t("Continuar a Tarjeta de 15 Sellos (Paso 7)", "Continue to 15 Stamps Card (Step 7)")}</span>
-              <ArrowRight className="h-4 w-4" />
+              {!isGameCompleted ? (
+                <>
+                  <Lock className="h-4 w-4 text-[#737373]" />
+                  <span>
+                    {attemptsUsed === 0
+                      ? t("Juega el Reto para Desbloquear el Paso 7", "Play Challenge to Unlock Step 7")
+                      : isRunning
+                        ? t("Cronómetro en marcha...", "Timer running...")
+                        : t(`Completa tus 3 intentos para continuar (${attemptsUsed}/${maxAttempts})`, `Complete your 3 attempts to continue (${attemptsUsed}/${maxAttempts})`)}
+                  </span>
+                </>
+              ) : gameState === "won" ? (
+                <>
+                  <Trophy className="h-4 w-4 text-[#121115]" />
+                  <span>{t("¡Premio Conseguido! Continuar al Paso 7", "Prize Won! Continue to Step 7")}</span>
+                  <ArrowRight className="h-4 w-4 text-[#121115]" />
+                </>
+              ) : (
+                <>
+                  <span>{t("Continuar a Tarjeta de 15 Sellos (Paso 7)", "Continue to 15 Stamps Card (Step 7)")}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
             </button>
           </div>
         </div>

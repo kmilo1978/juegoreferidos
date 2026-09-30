@@ -134,6 +134,14 @@
   ],
   "logs": [
     {
+      "id": "muo9v8qpu4j",
+      "timestamp": "10:40:42 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
       "id": "muo8r9iol3j",
       "timestamp": "10:09:37 a. m.",
       "method": "POST",
@@ -778,9 +786,9 @@
       "status": "PREMIO_PENDIENTE",
       "currentCustomer": "juan camilo Botero",
       "currentWhatsapp": "5730053914",
-      "activeSessionId": "SES-MUO9TZLN",
-      "prizeWon": "15% de Descuento",
-      "uniqueCode": "TURE-RI2GO",
+      "activeSessionId": "SES-MUO9YZIH",
+      "prizeWon": "Postre Artesanal de Autor Gratis",
+      "uniqueCode": "TURE-FEXRL",
       "startedAt": "Ahora",
       "lastActivityAt": "Ahora",
       "qrUrl": "http://localhost:5173/?mesa=1"

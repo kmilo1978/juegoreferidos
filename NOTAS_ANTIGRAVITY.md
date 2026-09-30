@@ -247,5 +247,25 @@
 - Resumen: Cero superposición de elementos, cabecera fluida con 'sticky top-0' y visualización completa y legible de todos los títulos.
 - Observaciones: Pruebas de compilación aprobadas sin observaciones.
 
+## Nueva sesión
+- Fecha: 2026-09-30 11:25
+- Solicitud: El botón de continuar en el reto de 2ª oportunidad (Paso 6) debe estar bloqueado/deshabilitado hasta que se juegue el reto ("hasta que no se juegue no se habilita el botón de seguir").
+- Decisiones clave:
+  - Blindaje del botón de avance en `StepSecondChancePrecision.tsx`:
+    1. Antes de jugar (`attemptsUsed === 0`): el botón aparece bloqueado (`disabled={true}`, `opacity-60`, `cursor-not-allowed`, con icono de candado `Lock`) con el mensaje explicativo: *"Juega el Reto para Desbloquear el Paso 7"*. Es imposible saltarse el juego sin participar.
+    2. Durante la partida (`isRunning`): permanece bloqueado con mensaje: *"Cronómetro en marcha..."*.
+    3. Mientras queden intentos (`attemptsUsed > 0 && attemptsUsed < maxAttempts`): muestra el contador de intentos restantes: *"Completa tus 3 intentos para continuar (X/3)"*, asegurando que el comensal viva la experiencia completa.
+    4. Al ganar (`gameState === "won"`): se activa de inmediato en oro radiante: *"¡Premio Conseguido! Continuar al Paso 7 ➔"*.
+    5. Al completar los 3 intentos (`gameState === "finished"`): se activa en oro radiante con mensaje de felicitación y avance al pasaporte de sellos.
+  - Se añadieron estados claros en el botón circular ("¡GANASTE!", "RETO FINALIZADO", "OTRO INTENTO", "INICIAR RETO").
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 5.68s).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-09-30 11:25
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Botón de continuar condicionado al juego efectivo, con retroalimentación visual de candado y habilitación automática al ganar o agotar intentos.
+- Observaciones: Pruebas de compilación superadas sin errores.
+
 
 
