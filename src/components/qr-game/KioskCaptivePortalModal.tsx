@@ -1,7 +1,8 @@
-import { useState } from "react";
+ï»¿import { useState } from "react";
 import { Wifi, Sparkles, CheckCircle2, Maximize, Minimize, X, ShieldCheck, Clock, ArrowRight } from "lucide-react";
 import logoHeader from "@/assets/logo-header.png";
 import { playVictoryFanfareSound } from "../../lib/soundEffects";
+import { clientConfig } from "@/config/clientConfig";
 
 interface KioskCaptivePortalModalProps {
   isOpen: boolean;
@@ -45,7 +46,7 @@ export function KioskCaptivePortalModal({
     }
 
     if (cleanPhone.length < 7) {
-      setError("Por favor ingresa un número de WhatsApp válido");
+      setError("Por favor ingresa un nï¿½mero de WhatsApp vï¿½lido");
       return;
     }
 
@@ -71,7 +72,7 @@ export function KioskCaptivePortalModal({
       playVictoryFanfareSound();
       setConnected(true);
 
-      // 2. Registrar en la sesión de la aplicación
+      // 2. Registrar en la sesiï¿½n de la aplicaciï¿½n
       onCustomerRegistered({
         name: name.trim(),
         whatsapp: cleanPhone,
@@ -124,17 +125,17 @@ export function KioskCaptivePortalModal({
             <div className="space-y-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200">
                 <Wifi className="w-3.5 h-3.5" />
-                WiFi VIP Conectado con Éxito
+                WiFi VIP Conectado con ï¿½xito
               </span>
               <h3 className="text-2xl font-serif font-bold text-neutral-900">
-                ¡Bienvenido a Bliss Soul, {name}!
+                ï¿½Bienvenido a Bliss Soul, {name}!
               </h3>
               <p className="text-xs sm:text-sm text-neutral-600 max-w-sm mx-auto">
-                Tu acceso a internet de alta velocidad está activo por <strong>{sessionMinutes} minutos</strong> y has ganado tu primer sello de cortesía.
+                Tu acceso a internet de alta velocidad estï¿½ activo por <strong>{sessionMinutes} minutos</strong> y has ganado tu primer sello de cortesï¿½a.
               </p>
             </div>
 
-            {/* Tarjeta de estado de sesión */}
+            {/* Tarjeta de estado de sesiï¿½n */}
             <div className="grid grid-cols-2 gap-3 bg-[#fbf8f3] p-4 rounded-2xl border border-[#ecdcc3] text-left">
               <div className="space-y-0.5">
                 <div className="flex items-center gap-1.5 text-xs text-neutral-500">
@@ -166,18 +167,18 @@ export function KioskCaptivePortalModal({
             <div className="text-center space-y-2 pt-2">
               <img
                 src={logoHeader}
-                alt="Bliss Soul Logo"
+                alt={clientConfig.brand.name}
                 className="h-14 sm:h-16 mx-auto object-contain drop-shadow-sm"
               />
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-[#8e6e22] text-xs font-semibold border border-amber-200">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                Red WiFi: Bliss Soul - Clientes VIP
+                Red WiFi: {clientConfig.brand.name} - Clientes VIP
               </div>
               <h3 className="text-xl sm:text-2xl font-serif font-bold text-neutral-900">
                 Portal de Acceso WiFi & Kiosko
               </h3>
               <p className="text-xs text-neutral-600 max-w-sm mx-auto">
-                Conéctate gratis al internet de la cafetería y acumula sellos digitales en cada visita.
+                Conï¿½ctate gratis al internet de la cafeterï¿½a y acumula sellos digitales en cada visita.
               </p>
             </div>
 
@@ -190,7 +191,7 @@ export function KioskCaptivePortalModal({
                 <input
                   type="text"
                   required
-                  placeholder="Ej: Carlos Gómez"
+                  placeholder="Ej: Carlos Gï¿½mez"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-[#8e6e22] text-sm bg-white"
@@ -218,7 +219,7 @@ export function KioskCaptivePortalModal({
 
               <div>
                 <label className="block text-xs font-medium text-neutral-700 mb-1">
-                  Correo Electrónico (Opcional):
+                  Correo Electrï¿½nico (Opcional):
                 </label>
                 <input
                   type="email"
@@ -256,10 +257,10 @@ export function KioskCaptivePortalModal({
               </div>
             </form>
 
-            {/* Garantía de privacidad */}
+            {/* Garantï¿½a de privacidad */}
             <div className="flex items-center justify-center gap-1.5 text-[11px] text-neutral-500 pt-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Navegación segura y privada encriptada. Términos aceptados al conectar.</span>
+              <span>Navegaciï¿½n segura y privada encriptada. Tï¿½rminos aceptados al conectar.</span>
             </div>
           </div>
         )}

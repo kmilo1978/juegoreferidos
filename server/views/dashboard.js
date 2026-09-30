@@ -1357,7 +1357,7 @@ export function renderBackendDashboard() {
           </div>
           <div class="quick-guide-item">
             <strong>📶 Portal Cautivo WiFi VIP</strong>
-            <span>Al conectarse a la red WiFi del restaurante ("Bliss Soul - Clientes VIP"), esta pantalla se abre automáticamente en sus teléfonos.</span>
+            <span>Al conectarse a la red WiFi del restaurante ("${s.brand.name} - Clientes VIP"), esta pantalla se abre automáticamente en sus teléfonos.</span>
           </div>
           <div class="quick-guide-item">
             <strong>⚡ Registro en 10 Segundos</strong>
@@ -1379,8 +1379,8 @@ export function renderBackendDashboard() {
         </div>
         <div class="stat-card">
           <span class="stat-title">Red WiFi Configurada</span>
-          <span class="stat-value" style="color: var(--accent); font-size: 18px;">Bliss Soul VIP</span>
-          <span class="stat-sub">SSID: Bliss Soul - Clientes VIP</span>
+          <span class="stat-value" style="color: var(--accent); font-size: 18px;">${s.brand.name}</span>
+          <span class="stat-sub">SSID: ${s.brand.name} - Clientes VIP</span>
         </div>
         <div class="stat-card">
           <span class="stat-title">Tiempo de Sesión WiFi</span>
@@ -1502,7 +1502,7 @@ export function renderBackendDashboard() {
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
           <div class="form-group">
             <label class="form-label">📸 Usuario Oficial de Instagram (Canal Principal):</label>
-            <input type="text" id="chan-ig" class="form-input" value="${s.channels.instagramHandle || '@blisssoulbakery'}" placeholder="@tu_restaurante" />
+            <input type="text" id="chan-ig" class="form-input" value="${s.channels.instagramHandle || '@tu_restaurante'}" placeholder="@tu_restaurante" />
             <span class="form-help">Mención obligatoria sugerida a los comensales en su Story.</span>
           </div>
 
@@ -1843,7 +1843,7 @@ export function renderBackendDashboard() {
           <!-- 8. Mensaje para Estados de WhatsApp -->
           <div class="form-group" style="grid-column: 1 / -1;">
             <label class="form-label">Frase Sugerida para el Estado de WhatsApp del Cliente</label>
-            <input type="text" id="scWhatsappStatusText" class="form-input" value="${(sc.whatsappStatusText || '¡Disfrutando de una tarde increíble en Bliss Soul Bakery & Café! ☕🍰 Les recomiendo probar sus postres artesanales. 10/10 ✨').replace(/"/g, '&quot;')}" placeholder="Texto que copiará el cliente para su Estado" />
+            <input type="text" id="scWhatsappStatusText" class="form-input" value="${(sc.whatsappStatusText || '¡Disfrutando de una experiencia increíble en ${s.brand.name}! ☕🍰 Se los recomiendo. 10/10 ✨').replace(/"/g, '&quot;')}" placeholder="Texto que copiará el cliente para su Estado" />
             <span class="form-help">Mensaje predeterminado que viraliza tu marca en las historias de WhatsApp de los comensales</span>
           </div>
         </div>
@@ -2242,7 +2242,7 @@ export function renderBackendDashboard() {
           <span>Guía Rápida: Conexión del Backend con Hermes (Agente IA, CRM & POS)</span>
         </div>
         <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
-          Conecta el ecosistema de Bliss Soul con Hermes para sincronizar en tiempo real cupones, comensales, pedidos y validaciones con agentes inteligentes o plataformas de gestión.
+          Conecta el ecosistema de tu restaurante con Hermes para sincronizar en tiempo real cupones, comensales, pedidos y validaciones con agentes inteligentes o plataformas de gestión.
         </div>
         <div class="quick-guide-grid">
           <div class="quick-guide-item">
@@ -2354,7 +2354,7 @@ export function renderBackendDashboard() {
           <!-- 5. Agent ID -->
           <div class="form-group">
             <label class="form-label">Identificador de Agente o Sucursal (Agent ID)</label>
-            <input type="text" id="hermesAgentId" class="form-input" value="${(hermes.agentId || 'hermes-agent-bliss').replace(/"/g, '&quot;')}" placeholder="Ej. hermes-agent-bliss" style="font-family: monospace; font-size: 12px;" />
+            <input type="text" id="hermesAgentId" class="form-input" value="${(hermes.agentId || 'hermes-agent-pos').replace(/"/g, '&quot;')}" placeholder="Ej. hermes-agent-pos" style="font-family: monospace; font-size: 12px;" />
             <span class="form-help">ID único de la instancia o bot de Hermes asignado a este restaurante</span>
           </div>
 
@@ -3872,7 +3872,7 @@ export function renderBackendDashboard() {
       var prizeImageSize = document.getElementById('scPrizeImageSize') ? document.getElementById('scPrizeImageSize').value : 'medium';
       var maxAttempts = document.getElementById('scMaxAttempts') ? parseInt(document.getElementById('scMaxAttempts').value, 10) : 3;
       var difficulty = document.getElementById('scDifficulty') ? document.getElementById('scDifficulty').value : 'medio';
-      var whatsappStatusText = document.getElementById('scWhatsappStatusText') ? document.getElementById('scWhatsappStatusText').value.trim() : "¡Disfrutando de una tarde increíble en Bliss Soul Bakery & Café! ☕🍰 Les recomiendo probar sus postres artesanales. 10/10 ✨";
+      var whatsappStatusText = document.getElementById('scWhatsappStatusText') ? document.getElementById('scWhatsappStatusText').value.trim() : "¡Disfrutando de una experiencia increíble en ${s.brand.name}! ☕🍰 Se los recomiendo. 10/10 ✨";
 
       var toleranceMs = difficulty === 'facil' ? 80 : difficulty === 'dificil' ? 15 : 40;
 

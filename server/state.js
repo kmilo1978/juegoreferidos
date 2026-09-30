@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SERVIDOR BACKEND DEMO - SISTEMA DE FIDELIZACIÓN, SELLOS Y CUPONES
  * Servidor API REST ultraligero con 0 dependencias externas.
  * Ejecutar con: bun server/index.js  (o: node server/index.js)
@@ -40,7 +40,7 @@ const DEFAULT_TABLES = Array.from({ length: 10 }, (_, i) => {
 
 const DEFAULT_SETTINGS = {
   brand: {
-    name: "Bliss Soul Bakery & Café",
+    name: "Tu Restaurante & Café",
     tagline: "Sabores inolvidables, momentos que alegran el día.",
     taglineEn: "Unforgettable flavors, moments that brighten your day.",
     logoUrl: "/src/assets/logo-header.png",
@@ -50,7 +50,7 @@ const DEFAULT_SETTINGS = {
     backgroundColor: "#fcfaf7",
   },
   channels: {
-    instagramHandle: "@blisssoulbakery",
+    instagramHandle: "@turestaurante",
     enableWhatsAppPhoto: true,
     whatsappNumber: "573022777295",
     whatsappPhotoMessage: "¡Hola! 📸 Aquí les comparto la foto de mi pedido en la mesa {tableNumber} (Cliente: {participantName}) para validar mi visita y jugar en la Ruleta de Premios.",
@@ -93,7 +93,7 @@ const DEFAULT_SETTINGS = {
     difficulty: "medio",
     toleranceMs: 40,
     shareChannels: ["instagram", "whatsapp"], // canales disponibles para compartir
-    whatsappStatusText: "¡Disfrutando de una tarde increíble en Bliss Soul Bakery & Café! ☕🍰 Les recomiendo probar sus postres artesanales. 10/10 ✨",
+    whatsappStatusText: "¡Disfrutando de una experiencia increíble en {restaurante}! ☕🍰 Se los recomiendo. 10/10 ✨",
     whatsappVerificationMessage: "¡Hola! 📸 Te comparto mi captura de estado para participar en la 2ª oportunidad del Reto de Precisión en {restaurante}. Mesa {tableNumber} - Cliente: {participantName}",
   },
   missions: [
@@ -105,10 +105,10 @@ const DEFAULT_SETTINGS = {
       rewardText: "+3 Sellos de Visita",
       badge: "VIRAL",
       icon: "🎵",
-      description: "Comparte un video corto disfrutando tu café o postre favorito de Bliss Soul.",
+      description: "Comparte un video corto disfrutando tu experiencia favorita en el restaurante.",
       rules: [
         "Publica un video público en TikTok.",
-        "Menciona a @blisssoulbakery en la descripción o usa la etiqueta de ubicación.",
+        "Menciona a @turestaurante en la descripción o usa la etiqueta de ubicación.",
         "Muestra tu experiencia real con el producto o en el local.",
         "Mantén el video público de forma permanente."
       ],
@@ -163,7 +163,7 @@ const DEFAULT_SETTINGS = {
       description: "Sube una foto de tu pedido a tus Estados de WhatsApp recomendando el local.",
       rules: [
         "Publica una foto de tu postre o café en tus Estados de WhatsApp.",
-        "Escribe una frase recomendando a Bliss Soul Bakery.",
+        "Escribe una frase recomendando al restaurante.",
         "Envía el enlace o confirmación de tu estado."
       ],
       actionUrl: "https://api.whatsapp.com",
@@ -202,7 +202,7 @@ const DEFAULT_SETTINGS = {
         "Recibe antes que nadie promociones relámpago, recetas de autor y regalos.",
         "Pega tu número de WhatsApp para confirmar tu ingreso y sumar tus sellos.",
       ],
-      actionUrl: "https://chat.whatsapp.com/BlissSoulVIPCommunity",
+      actionUrl: "https://chat.whatsapp.com/ComunidadVIPRestaurante",
       evidencePlaceholder: "Tu número de WhatsApp o confirmación de ingreso al grupo",
       active: true,
     },
@@ -216,7 +216,7 @@ const DEFAULT_SETTINGS = {
       icon: "🌐",
       description: "Comparte tu opinión y calificación en nuestro perfil de Microsoft Bing Places para ayudarnos a posicionar en búsquedas.",
       rules: [
-        "Abre el perfil de Bliss Soul Bakery en Bing Maps o Microsoft Search.",
+        "Abre el perfil de nuestro restaurante en Bing Maps o Microsoft Search.",
         "Califica con estrellas y comparte tu producto o postre favorito.",
         "Pega el enlace de tu reseña o confirmación para sumar tus sellos.",
       ],
@@ -257,7 +257,7 @@ const DEFAULT_SETTINGS = {
     mode: "agent", // "agent" | "crm" | "pos" | "webhook"
     apiUrl: "https://api.hermes.ai/v1",
     apiKey: "hermes_live_key_9824",
-    agentId: "hermes-agent-bliss",
+    agentId: "hermes-agent-pos",
     webhookUrl: "http://localhost:3001/api/integrations/hermes/webhook",
     events: {
       syncPrizes: true,

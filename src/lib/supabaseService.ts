@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ============================================================================
  * SERVICIO DE INTEGRACIÓN CON SUPABASE (BASE DE DATOS POSTGRESQL EN LA NUBE)
  * ============================================================================
@@ -180,7 +180,7 @@ export class SupabaseService {
     const config = getSupabaseConfig();
     const table = config.tableName || "cupones_sellos";
     return `-- =======================================================
--- TABLA DE FIDELIZACIÓN Y CUPONES BLISS SOUL BAKERY
+-- TABLA DE FIDELIZACIÓN Y CUPONES DEL RESTAURANTE
 -- Copia este código y ejecútalo en: Supabase -> SQL Editor -> Run
 -- =======================================================
 

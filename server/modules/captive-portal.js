@@ -1,4 +1,4 @@
-import { db, DEFAULT_TABLES, DEFAULT_SETTINGS, saveDb, logRequest } from "../state.js";
+﻿import { db, DEFAULT_TABLES, DEFAULT_SETTINGS, saveDb, logRequest } from "../state.js";
 
 export function handleCaptivePortal(req, res, pathname, url) {
   // 1. ESTADO Y CONFIGURACI�N DEL PORTAL CAUTIVO / KIOSKO (/api/portal/status)
@@ -8,7 +8,7 @@ export function handleCaptivePortal(req, res, pathname, url) {
     res.end(JSON.stringify({
       success: true,
       portalName: brand.name,
-      wifiSSID: "Bliss Soul - Clientes VIP",
+      wifiSSID: `${brand.name || "Restaurante"} - Clientes VIP`,
       logoUrl: brand.logoUrl,
       welcomeMessage: brand.tagline,
       tablesAvailable: (db.tables || DEFAULT_TABLES).filter(t => t.status === "DISPONIBLE").length,
@@ -56,7 +56,7 @@ export function handleCaptivePortal(req, res, pathname, url) {
           sessionMinutes: 120,
           customer: db.customers[cleanWhatsapp],
           stamps: db.customers[cleanWhatsapp].stamps,
-          welcomeMessage: "�Bienvenido a Bliss Soul! Disfruta de tu conexi�n de alta velocidad.",
+          welcomeMessage: "¡Bienvenido a nuestro restaurante! Disfruta de tu conexión de alta velocidad.",
         }));
       } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
