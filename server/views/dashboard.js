@@ -1,4 +1,4 @@
-﻿import { db, DEFAULT_TABLES, PORT } from "../state.js";
+import { db, DEFAULT_TABLES, PORT } from "../state.js";
 
 export function renderBackendDashboard() {
   const s = db.settings;
@@ -4638,7 +4638,7 @@ export function renderBackendDashboard() {
       if (!inp) return;
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(inp.value).then(() => {
-          alert("✓ Enlace del Kiosko copiado al portapapeles:\n" + inp.value);
+          alert("✓ Enlace del Kiosko copiado: " + inp.value);
         }).catch(() => {
           prompt("Copia el enlace del Kiosko:", inp.value);
         });
