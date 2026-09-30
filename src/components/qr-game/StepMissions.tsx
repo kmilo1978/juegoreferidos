@@ -159,7 +159,7 @@ export function StepMissions({
   const [submittingMissionId, setSubmittingMissionId] = useState<string | null>(null);
   const [successMissionId, setSuccessMissionId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [expandedMission, setExpandedMission] = useState<string | null>(DEFAULT_MISSIONS[0].id);
+  const [expandedMission, setExpandedMission] = useState<string | null>(null);
   const [isDemoUnlocked, setIsDemoUnlocked] = useState(false);
 
   const cleanPhone = (customerWhatsapp || "").replace(/\D/g, "");
