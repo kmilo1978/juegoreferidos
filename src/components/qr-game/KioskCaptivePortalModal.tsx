@@ -1,6 +1,6 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Wifi, Sparkles, CheckCircle2, Maximize, Minimize, X, ShieldCheck, Clock, ArrowRight } from "lucide-react";
-import logoHeader from "@/assets/logo-header.png";
+import emblemaDorado from "@/assets/emblema-dorado.png";
 import { playVictoryFanfareSound } from "../../lib/soundEffects";
 import { clientConfig } from "@/config/clientConfig";
 
@@ -166,7 +166,7 @@ export function KioskCaptivePortalModal({
             {/* Encabezado con Logo */}
             <div className="text-center space-y-2 pt-2">
               <img
-                src={logoHeader}
+                src={clientConfig.brand.logoUrl || emblemaDorado}
                 alt={clientConfig.brand.name}
                 className="h-14 sm:h-16 mx-auto object-contain drop-shadow-sm"
               />

@@ -77,7 +77,6 @@ export interface ClientConfig {
   };
 }
 
-import logoHeader from "@/assets/logo-header.png";
 import emblemaDorado from "@/assets/emblema-dorado.png";
 
 // Obtener datos personalizados si el usuario los configuró desde el panel de control
@@ -100,7 +99,7 @@ export const clientConfig: ClientConfig = {
     name: storedBrand?.name || "Tu Restaurante & Café",
     tagline: storedBrand?.tagline || "Sabores inolvidables, momentos que alegran el día.",
     taglineEn: storedBrand?.taglineEn || "Unforgettable flavors, moments that brighten your day.",
-    logoUrl: storedBrand?.logoUrl || logoHeader,
+    logoUrl: storedBrand?.logoUrl || emblemaDorado,
     emblemUrl: storedBrand?.emblemUrl || emblemaDorado,
     currency: storedBrand?.currency || "COP",
   },

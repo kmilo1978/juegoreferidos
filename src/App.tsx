@@ -504,7 +504,7 @@ function JuegoQrPage() {
       <div className="pointer-events-none fixed top-72 -left-24 w-96 h-96 rounded-full bg-[#8a4fff]/5 blur-3xl" />
 
       {/* Contenido principal según el modo seleccionado */}
-      <main className="flex-1 max-w-lg mx-auto w-full px-4 sm:px-6 pt-28 pb-16 relative z-10">
+      <main className="flex-1 max-w-lg mx-auto w-full px-3.5 sm:px-6 pt-24 sm:pt-28 pb-safe pb-16 relative z-10">
         {activeMode === "feedback" ? (
           /* MODO DIRECTO: Solo calificar visita (Feedback inteligente) */
           <div>
