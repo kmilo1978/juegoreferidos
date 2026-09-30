@@ -46,11 +46,18 @@ export function StepInstagramStory({
   const [copiedMention, setCopiedMention] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  // Handle del usuario (se muestra en el sticker del mockup)
+  const [userHandle, setUserHandle] = useState(initialEvidence?.instagramHandle?.startsWith("@tu") ? "" : (initialEvidence?.instagramHandle || ""));
+
+  // Bloqueo del botón: solo se habilita al realizar UNA acción
+  const [hasActed, setHasActed] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleCopyMention = () => {
     navigator.clipboard?.writeText(instaHandle);
     setCopiedMention(true);
+    setHasActed(true);
     setTimeout(() => setCopiedMention(false), 3000);
   };
 
@@ -67,18 +74,21 @@ export function StepInstagramStory({
     reader.onload = (ev) => {
       setPreviewUrl(ev.target?.result as string);
       setUploadError(null);
+      setHasActed(true);
     };
     reader.readAsDataURL(file);
   };
 
   const handleShareWhatsApp = () => {
     const phone = (brand.whatsappNumber || clientConfig.channels.whatsappNumber || "").replace(/\D/g, "");
-    const msg = `¡Hola! 📸 Les comparto la foto de mi pedido en la ${tableNumber} (Cliente: ${participantName}) para validar mi visita y girar la Ruleta.`;
+    const handle = userHandle.trim() || "sin usuario";
+    const msg = `¡Hola! 📸 Les comparto la foto de mi pedido en la ${tableNumber} (Cliente: ${participantName}, Instagram: ${handle}) para validar mi visita y girar la Ruleta.`;
     if (phone) {
       window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
     } else {
       window.open(waLink(msg), "_blank", "noopener,noreferrer");
     }
+    setHasActed(true);
   };
 
   const handleProceedToRoulette = () => {
@@ -86,7 +96,7 @@ export function StepInstagramStory({
       storyGenerated: true,
       screenshotFileUrl: previewUrl,
       sharedVia: "instagram",
-      instagramHandle: instaHandle,
+      instagramHandle: userHandle.trim() || instaHandle,
     });
   };
 
@@ -103,7 +113,7 @@ export function StepInstagramStory({
 
       {/* Título de la Etapa */}
       <Reveal delay={50}>
-        <section className="flex flex-col gap-1.5">
+        <section className="flex flex-col gap-3">
           <div className="flex items-center gap-2.5">
             <InstagramIcon className="w-8 h-8 rounded-xl shadow-md shrink-0" />
             <h1 className="font-headline-xl-mobile text-2xl sm:text-3xl text-[#e6e1e7] tracking-tight">
@@ -117,6 +127,32 @@ export function StepInstagramStory({
               "Post a photo on Instagram Stories tagging us to unlock your spin on the prize wheel."
             )}
           </p>
+
+          {/* Campo para ingresar usuario o hashtag propio */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-bold text-[#ccc3d8] uppercase tracking-wider">
+              {t("Tu usuario o hashtag de Instagram", "Your Instagram handle or hashtag")}
+            </label>
+            <div className="relative flex items-center">
+              <span className="absolute left-3.5 text-[#f2be71] text-sm font-bold select-none">@</span>
+              <input
+                type="text"
+                value={userHandle.replace(/^@/, "")}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/^@/, "");
+                  setUserHandle(val ? `@${val}` : "");
+                }}
+                placeholder={t("tuusuario o #hashtag", "yourusername or #hashtag")}
+                className="w-full pl-8 pr-4 py-3 rounded-xl bg-[#1c1b1f] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] text-sm placeholder:text-[#4a4455] transition-colors"
+              />
+              {userHandle && (
+                <span className="absolute right-3 text-[#10b981] text-xs font-bold shrink-0">✓</span>
+              )}
+            </div>
+            <p className="text-[10px] text-[#4a4455]">
+              {t("Aparecerá en el sticker de tu story y se envía al equipo para validar.", "Will appear in your story sticker and sent to our team for validation.")}
+            </p>
+          </div>
         </section>
       </Reveal>
 
@@ -158,7 +194,7 @@ export function StepInstagramStory({
 
             {/* Stickers Flotantes Interactivos */}
             <div className="absolute inset-x-3 top-16 flex flex-col gap-2 z-10">
-              {/* Sticker de Mención con Toque para Copiar */}
+              {/* Sticker de Mención del restaurante — toque para copiar */}
               <button
                 type="button"
                 onClick={handleCopyMention}
@@ -172,6 +208,14 @@ export function StepInstagramStory({
                   <Copy className="h-3.5 w-3.5 text-[#f2be71]" />
                 )}
               </button>
+
+              {/* Sticker del handle del usuario (aparece cuando escribe su usuario) */}
+              {userHandle && (
+                <div className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f2be71]/20 backdrop-blur-md border border-[#f2be71]/50 shadow-lg animate-in fade-in">
+                  <span className="text-[10px] font-bold text-[#ffddb1] tracking-wide">{userHandle}</span>
+                  <span className="text-[#f2be71] text-[10px]">📲</span>
+                </div>
+              )}
 
               {/* Sticker de Ubicación */}
               <div className="self-start flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#201f23]/80 backdrop-blur-md border border-[#363439]">
@@ -217,7 +261,7 @@ export function StepInstagramStory({
             href="https://instagram.com"
             target="_blank"
             rel="noopener noreferrer"
-            onClick={handleCopyMention}
+            onClick={() => { handleCopyMention(); setHasActed(true); }}
             className="relative overflow-hidden w-full h-14 rounded-full shadow-[0_8px_24px_rgba(253,29,29,0.3)] active:scale-98 transition-all flex items-center justify-between px-6 text-white cursor-pointer hover:brightness-110"
             style={{
               background: "linear-gradient(135deg, #833AB4 0%, #FD1D1D 50%, #FCB045 100%)",
@@ -277,11 +321,25 @@ export function StepInstagramStory({
           <div className="pt-2 flex flex-col gap-2">
             <button
               type="button"
-              onClick={handleProceedToRoulette}
-              className="w-full h-13 py-3 px-6 rounded-full btn-gold text-sm flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
+              onClick={hasActed ? handleProceedToRoulette : undefined}
+              disabled={!hasActed}
+              className={`w-full h-14 py-3 px-6 rounded-full text-sm flex items-center justify-center gap-2 transition-all ${
+                hasActed
+                  ? "btn-gold shadow-[0_8px_20px_rgba(242,190,113,0.35)] active:scale-98 cursor-pointer hover:brightness-105"
+                  : "bg-[#1c1b1f] border border-[#363439] text-[#737373] opacity-60 cursor-not-allowed"
+              }`}
             >
-              <span>{t("¡Listo, ir a Girar la Ruleta!", "Ready, go spin the wheel!")}</span>
-              <ArrowRight className="h-4 w-4" />
+              {hasActed ? (
+                <>
+                  <span>{t("¡Listo, ir a Girar la Ruleta!", "Ready, go spin the wheel!")}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  <span>🔒</span>
+                  <span>{t("Abre Instagram o envía foto para continuar", "Open Instagram or send photo to continue")}</span>
+                </>
+              )}
             </button>
 
             <div className="flex items-center justify-center gap-1.5 text-center text-[#ccc3d8]">
