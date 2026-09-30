@@ -4,17 +4,15 @@ import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
 import {
   ExternalLink,
-  RotateCcw,
   MessageCircle,
-  CheckCircle2,
   Sparkles,
   ArrowRight,
   Star,
   ShieldCheck,
   Send,
+  Trophy,
 } from "lucide-react";
 import { waLink } from "@/data/site";
-import emblemaDorado from "@/assets/emblema-dorado.png";
 import { clientConfig } from "@/config/clientConfig";
 
 interface StepFeedbackProps {
@@ -37,533 +35,271 @@ export function StepFeedback({
   onComplete,
 }: StepFeedbackProps) {
   const { t } = useLanguage();
-  const [rating, setRating] = useState<number>(initialFeedback?.rating || 0);
+  const [rating, setRating] = useState<number>(initialFeedback?.rating || 5);
   const [hoveredRating, setHoveredRating] = useState<number>(0);
-  const [name, setName] = useState<string>(customerName);
   const [comment, setComment] = useState<string>(initialFeedback?.comment || "");
-  const [hasSentWhatsApp, setHasSentWhatsApp] = useState(false);
-  const [hasSavedSystemOnly, setHasSavedSystemOnly] = useState(false);
+  const [hasSentPrivate, setHasSentPrivate] = useState(false);
+  const [hasClickedGoogle, setHasClickedGoogle] = useState(false);
+
   const [googleReviewUrl, setGoogleReviewUrl] = useState<string>(
-    clientConfig.channels.googleMapsReviewUrl || "https://g.page/r/CfPSfNSGX8u1EBM/review"
+    clientConfig.channels.googleMapsReviewUrl || "https://maps.google.com"
   );
   const [whatsappPrivate, setWhatsappPrivate] = useState<string>(
     clientConfig.channels.whatsappNumber || "573000000000"
   );
 
-  // Sincronizar configuración del Embudo de Reputación desde el Backend
   useEffect(() => {
     fetch("/api/reputation")
       .then((res) => res.json())
       .then((data) => {
-        if (data && data.success && data.config) {
-          if (data.config.googleBusinessUrl) {
-            setGoogleReviewUrl(data.config.googleBusinessUrl);
-          }
-          if (data.config.whatsappPrivateNumber) {
-            setWhatsappPrivate(data.config.whatsappPrivateNumber);
-          }
+        if (data?.success && data?.config) {
+          if (data.config.googleBusinessUrl) setGoogleReviewUrl(data.config.googleBusinessUrl);
+          if (data.config.whatsappPrivateNumber) setWhatsappPrivate(data.config.whatsappPrivateNumber);
         }
       })
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    if (customerName && !name) {
-      setName(customerName);
-    }
-  }, [customerName]);
-
   const ratingLabels: Record<number, string> = {
-    1: t("1 DE 5 · EXPERIENCIA DEFICIENTE", "1 OUT OF 5 · POOR EXPERIENCE"),
-    2: t("2 DE 5 · POR DEBAJO DE LO ESPERADO", "2 OUT OF 5 · BELOW EXPECTATIONS"),
-    3: t("3 DE 5 · ACEPTABLE · HAY ASPECTOS POR MEJORAR", "3 OUT OF 5 · FAIR · ROOM TO IMPROVE"),
-    4: t("4 DE 5 · MUY BUENA EXPERIENCIA", "4 OUT OF 5 · VERY GOOD EXPERIENCE"),
-    5: t("5 DE 5 · ¡EXTRAORDINARIA! · INOLVIDABLE", "5 OUT OF 5 · EXTRAORDINARY · UNFORGETTABLE"),
+    1: t("1 DE 5 • EXPERIENCIA DEFICIENTE", "1 OUT OF 5 • POOR EXPERIENCE"),
+    2: t("2 DE 5 • POR DEBAJO DE LO ESPERADO", "2 OUT OF 5 • BELOW EXPECTATIONS"),
+    3: t("3 DE 5 • ACEPTABLE • ASPECTOS POR MEJORAR", "3 OUT OF 5 • FAIR • ROOM TO IMPROVE"),
+    4: t("4 DE 5 • MUY BUENA EXPERIENCIA", "4 OUT OF 5 • VERY GOOD EXPERIENCE"),
+    5: t("5 DE 5 • ¡EXTRAORDINARIA! • INOLVIDABLE", "5 OUT OF 5 • EXTRAORDINARY • UNFORGETTABLE"),
   };
 
-  const [hasClickedGoogle, setHasClickedGoogle] = useState(false);
-  const [hasReturnedToTab, setHasReturnedToTab] = useState(false);
+  const isPositive = (rating || 5) >= 4;
 
-  // Detectar cuándo el comensal vuelve de la app de Google Maps / pestaña de Google
-  useEffect(() => {
-    const onVisibilityChange = () => {
-      if (document.visibilityState === "visible" && hasClickedGoogle) {
-        setHasReturnedToTab(true);
-      }
-    };
-    const onFocus = () => {
-      if (hasClickedGoogle) {
-        setHasReturnedToTab(true);
-      }
-    };
-    document.addEventListener("visibilitychange", onVisibilityChange);
-    window.addEventListener("focus", onFocus);
-    return () => {
-      document.removeEventListener("visibilitychange", onVisibilityChange);
-      window.removeEventListener("focus", onFocus);
-    };
-  }, [hasClickedGoogle]);
-
-  const handleSelectRating = (val: number) => {
-    setRating(val);
+  const handleSendPrivateFeedback = () => {
+    const brandName = clientConfig.brand.name;
+    const msg = `⚠️ *Feedback Confidencial en Mesa*\nCliente: ${customerName || "Comensal"}\nCalificación: ${rating} / 5 ⭐\nComentario: "${comment || "Sin comentarios adicionales"}"\n\nPor favor atender directamente al cliente en sala.`;
+    const cleanPhone = whatsappPrivate.replace(/\D/g, "");
+    if (cleanPhone) {
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+    } else {
+      window.open(waLink(msg), "_blank", "noopener,noreferrer");
+    }
+    setHasSentPrivate(true);
     if (onComplete) {
-      onComplete({ rating: val, comment });
-    }
-
-    // Registrar en el backend
-    fetch("/api/reputation/feedback", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customerName: name || customerName || "Comensal",
-        rating: val,
-        actionTaken: val >= 4 ? "google" : "whatsapp",
-      }),
-    }).catch(() => {});
-
-    // Si es 4 o 5 estrellas, abrimos Google My Business automáticamente
-    if (val >= 4) {
-      setHasClickedGoogle(true);
-      window.open(googleReviewUrl, "_blank", "noopener,noreferrer");
+      onComplete({
+        rating,
+        comment,
+        createdAt: Date.now(),
+        customerName,
+      });
     }
   };
 
-
-  const handleSaveToSystemOnly = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!comment.trim()) return;
-
-    fetch("/api/reputation/feedback", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customerName: name.trim() || customerName || "Comensal Anónimo",
-        rating: rating || 3,
-        comment: comment.trim(),
-        actionTaken: "dashboard_only",
-      }),
-    }).catch(() => {});
-
-    setHasSavedSystemOnly(true);
-
-    if (onComplete) {
-      onComplete({ rating, comment });
-    }
-  };
-
-  const handleSendWhatsAppSuggestion = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!comment.trim()) return;
-
-    // Registrar feedback completo en el backend
-    fetch("/api/reputation/feedback", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customerName: name.trim() || customerName || "Comensal",
-        rating: rating || 3,
-        comment: comment.trim(),
-        actionTaken: "whatsapp",
-      }),
-    }).catch(() => {});
-
-    const stars = "★".repeat(rating || 3);
-    const clientSignature = name.trim() ? `\nDe: ${name.trim()}` : "";
-    const msg = `Hola Administración de Bliss Soul Bakery,\nEstuve de visita y califiqué mi experiencia con ${rating}/5 (${stars}).${clientSignature}\n\nSugerencia privada para mejorar:\n"${comment.trim()}"`;
-
-    window.open(waLink(msg, whatsappPrivate), "_blank", "noopener,noreferrer");
-    setHasSentWhatsApp(true);
-
-    if (onComplete) {
-      onComplete({ rating, comment });
-    }
-  };
-
-  const handleOpenGoogleDirectly = () => {
+  const handleGoogleClick = () => {
     setHasClickedGoogle(true);
     window.open(googleReviewUrl, "_blank", "noopener,noreferrer");
-    fetch("/api/reputation/feedback", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customerName: name || customerName || "Comensal",
-        rating: rating || 5,
-        actionTaken: "google",
-      }),
-    }).catch(() => {});
+    if (onComplete) {
+      onComplete({
+        rating,
+        comment,
+        createdAt: Date.now(),
+        customerName,
+      });
+    }
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-6 text-left">
+    <div className="w-full flex flex-col gap-5">
+      {/* Barra de progreso Stitch */}
       <Reveal>
-        <div>
-          {/* LÍNEA Y SECCIÓN: — TU EXPERIENCIA */}
-          <div className="flex items-center gap-2 mb-2.5">
-            <span className="h-0.5 w-6 bg-gold" />
-            <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-gold font-bold">
-              {t("Tu Experiencia", "Your Experience")}
-            </span>
+        <section className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#201f23] text-[#f2be71] border border-[#f2be71]/30">
+              <Sparkles className="h-3.5 w-3.5 text-[#f2be71]" />
+              <span className="font-label-sm text-[10px] uppercase tracking-wider font-bold">
+                {t("PASO 5 DE 7 • EMBUDO DE REPUTACIÓN", "STEP 5 OF 7 • REPUTATION FUNNEL")}
+              </span>
+            </div>
+            <span className="font-label-sm text-[11px] text-[#ccc3d8] font-medium">71% Completado</span>
           </div>
 
-          {/* TÍTULO PRINCIPAL SERIF */}
-          <h2 className="font-serif text-2xl sm:text-4xl text-neutral-900 font-normal tracking-tight leading-snug">
-            {t(
-              "Tu opinión es esencial y nos ayuda a mejorar.",
-              "Your opinion is essential and helps us improve."
-            )}
-          </h2>
-
-          {/* SUBTÍTULO DESCRIPTIVO */}
-          <p className="mt-3 text-xs sm:text-sm text-neutral-600 font-light leading-relaxed max-w-xl">
-            {t(
-              "En Bliss Soul Bakery cada visita busca ser una pausa serena e inolvidable. ¿Cómo fue tu experiencia hoy? Califica con nuestros emblemas:",
-              "At Bliss Soul Bakery every visit seeks to be a serene and unforgettable pause. How was your experience today? Rate with our emblems:"
-            )}
-          </p>
-        </div>
+          <div className="w-full h-1.5 rounded-full bg-[#2b292e] overflow-hidden mt-1">
+            <div className="h-full rounded-full bg-[#f2be71] shadow-[0_0_10px_rgba(242,190,113,0.7)] w-[71%] transition-all duration-500" />
+          </div>
+        </section>
       </Reveal>
 
-      {/* TARJETA DEL PREMIO GANADO EN EL CARRUSEL */}
-      {wonPrize && (
-        <Reveal delay={40}>
-          <div className="mt-6 max-w-xl mx-auto p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-gold/15 to-amber-500/10 border border-gold/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left shadow-2xs">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-gold text-white flex items-center justify-center text-xl shrink-0 shadow-xs">
-                🏆
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest text-amber-800 font-bold">
-                  {t("¡Beneficio del Carrusel Reservado!", "Carousel Benefit Secured!")}
-                </p>
-                <h4 className="text-sm sm:text-base font-serif font-bold text-neutral-900">
-                  {wonPrize.prizeName}
-                </h4>
-                <p className="text-[11px] font-mono text-amber-900/80">
-                  {t("Código:", "Code:")} {wonPrize.uniqueCode}
-                </p>
-              </div>
-            </div>
-            <div className="text-[11px] text-amber-900 bg-white/90 px-3.5 py-1.5 rounded-full border border-gold/40 font-semibold shadow-2xs shrink-0">
-              ⭐ {t("Califícanos en Google y activa la 2ª Opción", "Rate on Google & activate 2nd Chance")}
-            </div>
-          </div>
-        </Reveal>
-      )}
+      {/* Selector de 5 Estrellas Interactivo estilo Stitch */}
+      <Reveal delay={50}>
+        <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#2b292e] p-5 shadow-xl flex flex-col items-center text-center gap-3">
+          <span className="font-label-sm text-[10px] uppercase tracking-wider text-[#f2be71] font-bold">
+            {t("¿Cómo calificarías tu experiencia hoy?", "How was your experience today?")}
+          </span>
 
-      {/* SELECTOR INTERACTIVO DE 5 EMBLEMAS */}
-      <Reveal delay={80}>
-        <div className="mt-8 flex flex-col items-center">
-          <div
-            className="flex items-center justify-center gap-3 sm:gap-6"
-            role="radiogroup"
-            aria-label={t("Califica tu experiencia", "Rate your experience")}
-          >
-            {[1, 2, 3, 4, 5].map((val) => {
-              const isHighlighted = val <= (hoveredRating || rating);
+          {/* 5 Botones de Estrellas con Brillo Dorado */}
+          <div className="flex items-center justify-center gap-2 py-1">
+            {[1, 2, 3, 4, 5].map((starVal) => {
+              const activeVal = hoveredRating || rating;
+              const isFilled = starVal <= activeVal;
               return (
                 <button
-                  key={val}
+                  key={starVal}
                   type="button"
-                  onClick={() => handleSelectRating(val)}
-                  onMouseEnter={() => setHoveredRating(val)}
+                  onClick={() => setRating(starVal)}
+                  onMouseEnter={() => setHoveredRating(starVal)}
                   onMouseLeave={() => setHoveredRating(0)}
-                  className="group flex flex-col items-center p-1.5 sm:p-2 focus:outline-hidden cursor-pointer bg-transparent transition-transform hover:scale-110 active:scale-95"
-                  aria-label={`${val} de 5 puntos`}
+                  className="w-11 h-11 flex items-center justify-center rounded-full text-[#f2be71] hover:scale-115 active:scale-95 transition-all cursor-pointer"
                 >
-                  <img
-                    src={emblemaDorado}
-                    alt=""
-                    aria-hidden="true"
-                    className={`h-10 sm:h-12 w-auto object-contain transition-all duration-300 pointer-events-none ${
-                      isHighlighted
-                        ? "brightness-100 drop-shadow-[0_2px_12px_rgba(162,126,44,0.45)] scale-110"
-                        : "brightness-0 opacity-25 group-hover:opacity-60"
+                  <Star
+                    className={`h-8 w-8 transition-transform ${
+                      isFilled
+                        ? "fill-[#f2be71] text-[#f2be71] drop-shadow-[0_0_8px_rgba(242,190,113,0.6)]"
+                        : "text-[#4a4455] fill-transparent"
                     }`}
                   />
-                  <span
-                    className={`mt-2 text-xs tracking-wider transition-colors font-mono ${
-                      isHighlighted ? "text-gold font-bold" : "text-neutral-400"
-                    }`}
-                  >
-                    {val}
-                  </span>
                 </button>
               );
             })}
           </div>
 
-          {/* LEYENDA INFORMATIVA BAJO LOS EMBLEMAS */}
-          <p className="mt-4 h-6 text-[11px] sm:text-xs uppercase tracking-widest transition-all text-center">
-            {hoveredRating || rating ? (
-              <span className="text-gold font-bold">
-                {ratingLabels[hoveredRating || rating]}
-              </span>
-            ) : (
-              <span className="text-neutral-400 font-medium tracking-[0.2em]">
-                {t("HAZ CLIC EN UN EMBLEMA PARA CALIFICAR", "CLICK AN EMBLEM TO RATE")}
-              </span>
-            )}
-          </p>
+          <span className="font-label-md text-xs text-[#ffddb1] font-bold tracking-wide">
+            {ratingLabels[rating] || ratingLabels[5]}
+          </span>
         </div>
       </Reveal>
 
-      {/* CASO 1: 1 A 3 ESTRELLAS -> FILTRO DE CONTENCIÓN A WHATSAPP PRIVADO */}
-      {rating > 0 && rating <= 3 && (
-        <Reveal delay={120}>
-          <div className="mt-8 rounded-2xl border border-neutral-200 bg-white p-6 sm:p-8 text-left shadow-xs animate-fade-in">
-            {/* Encabezado con icono circular de mensaje */}
-            <div className="flex items-center gap-3.5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-gold border border-gold/30 text-lg shadow-2xs">
-                💬
+      {/* RAMA A: CALIFICACIÓN POSITIVA (4 O 5 ESTRELLAS) -> GOOGLE MAPS */}
+      {isPositive && (
+        <Reveal delay={100}>
+          <div className="w-full rounded-2xl bg-gradient-to-b from-[#201f23] to-[#1c1b1f] border border-[#f2be71]/30 p-5 shadow-xl flex flex-col gap-4 relative overflow-hidden">
+            <div className="absolute -top-16 -right-16 w-36 h-36 bg-[#f2be71]/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col gap-0.5">
+                <div className="inline-flex items-center gap-1 text-[#f2be71] font-label-sm text-[10px] uppercase font-bold tracking-wider">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>{t("Experiencia Superior", "Top Tier Experience")}</span>
+                </div>
+                <h2 className="font-headline-sm text-lg text-[#e6e1e7] font-bold">
+                  {t("¡Nos alegra que hayas disfrutado!", "We're thrilled you enjoyed it!")}
+                </h2>
               </div>
-              <div>
-                <h3 className="font-serif text-base sm:text-lg text-neutral-900 font-medium">
-                  {t("Queremos escucharte y aprender de ti", "We want to listen and learn from you")}
-                </h3>
-                <p className="text-xs text-neutral-500 font-light mt-0.5">
-                  {t(
-                    "Tu mensaje llegará directamente a la administración para atenderlo",
-                    "Your message will reach administration directly to take care of it"
-                  )}
-                </p>
-              </div>
+              <span className="w-9 h-9 rounded-full bg-[#684400]/50 border border-[#f2be71]/30 flex items-center justify-center text-[#f2be71] text-base shrink-0">
+                🎉
+              </span>
             </div>
 
-            {/* Línea divisoria sutil */}
-            <div className="border-b border-neutral-100 my-4" />
-
-            <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed mb-5">
+            <p className="font-body-sm text-xs text-[#ccc3d8] leading-relaxed">
               {t(
-                "Lamentamos profundamente que tu visita no haya sido del todo perfecta. Tu opinión sincera nos ayuda a corregir detalles y seguir mejorando cada día:",
-                "We deeply regret that your visit wasn't completely perfect. Your honest feedback helps us correct details and improve every day:"
+                "Tu respaldo en Google Maps ayuda a otros amantes del buen comer a descubrir nuestra propuesta gastronómica.",
+                "Your review on Google Maps helps other food lovers discover our dining experience."
               )}
             </p>
 
-            <form onSubmit={handleSendWhatsAppSuggestion} className="space-y-4">
-              <div>
-                <label className="block text-[10px] sm:text-[11px] uppercase tracking-wider text-neutral-500 font-semibold mb-1.5">
-                  {t("TU NOMBRE (OPCIONAL)", "YOUR NAME (OPTIONAL)")}
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Ej. María Gómez"
-                  className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-hidden focus:ring-2 focus:ring-gold/50 transition-all placeholder:text-neutral-400"
-                />
+            {/* Tarjeta Oficial Google Maps */}
+            <div className="bg-[#2b292e]/80 border border-[#363439] rounded-xl p-3.5 flex items-center gap-3 shadow-md">
+              <div className="w-9 h-9 rounded-full bg-[#0f0e12] flex items-center justify-center shrink-0 shadow-inner">
+                {/* Logo G oficial */}
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
+                </svg>
               </div>
-
-              <div>
-                <label className="block text-[10px] sm:text-[11px] uppercase tracking-wider text-neutral-500 font-semibold mb-1.5">
-                  {t("¿QUÉ PODEMOS MEJORAR? *", "WHAT CAN WE IMPROVE? *")}
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder="Cuéntanos qué sucedió con total confianza (atención, producto, tiempo de espera)..."
-                  className="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-neutral-200 bg-white text-neutral-900 focus:outline-hidden focus:ring-2 focus:ring-gold/50 transition-all resize-none placeholder:text-neutral-400"
-                />
-              </div>
-
-              <div className="space-y-3 pt-1">
-                <p className="text-[11px] text-neutral-500 font-medium">
-                  {t("Elige cómo deseas transmitir tu mensaje a la gerencia:", "Choose how you want to convey your message to management:")}
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={handleSaveToSystemOnly}
-                    disabled={!comment.trim()}
-                    className="py-3.5 px-4 rounded-xl border border-neutral-300 bg-neutral-50 hover:bg-neutral-100 disabled:opacity-50 text-neutral-800 text-xs font-semibold flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer"
-                  >
-                    <ShieldCheck className="h-4 w-4 text-neutral-600 shrink-0" />
-                    <span>{t("💾 Guardar en Sistema (Confidencial)", "💾 Save to System (Confidential)")}</span>
-                  </button>
-
-                  <button
-                    type="submit"
-                    disabled={!comment.trim()}
-                    className="py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
-                  >
-                    <MessageCircle className="h-4 w-4 shrink-0" />
-                    <span>{t("💬 Enviar a WhatsApp de Gerencia", "💬 Send to Manager WhatsApp")}</span>
-                  </button>
-                </div>
-              </div>
-
-              {(hasSentWhatsApp || hasSavedSystemOnly) && (
-                <div className="p-4 rounded-2xl bg-amber-500/10 border border-gold/40 text-neutral-800 text-xs space-y-2 animate-fade-in mt-3">
-                  <div className="flex items-center gap-2 font-bold text-amber-900">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                    <span>{t("✓ Sugerencia registrada con total prioridad", "✓ Feedback recorded with priority")}</span>
-                  </div>
-                  <p className="text-neutral-600 font-light leading-relaxed">
-                    {t(
-                      "Hemos registrado tus observaciones para que la gerencia las revise y tome acciones inmediatas. Agradecemos enormemente tu sinceridad para ayudarnos a ser mejores cada día.",
-                      "We have recorded your notes for management to review and take immediate action. We appreciate your honesty."
-                    )}
-                  </p>
-                  <p className="text-[11px] font-medium text-amber-800">
-                    {t("ℹ️ Para garantizar la atención prioritaria de tu caso, tu visita finaliza aquí y no se activan juegos adicionales.", "ℹ️ To ensure priority care, your session ends here without extra games.")}
-                  </p>
-                </div>
-              )}
-            </form>
-          </div>
-        </Reveal>
-      )}
-
-      {/* CASO 2: 4 A 5 ESTRELLAS -> REDIRECCIÓN A GOOGLE MY BUSINESS & 2ª OPORTUNIDAD */}
-      {rating >= 4 && (
-        <Reveal delay={120}>
-          <div className="mt-8 rounded-2xl border border-gold/40 bg-white p-6 sm:p-8 text-left shadow-sm animate-fade-in space-y-6">
-            {/* Encabezado con estrella dorada */}
-            <div>
-              <div className="flex items-center gap-3.5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold/15 text-gold border border-gold/30 shadow-2xs">
-                  <Star className="h-5 w-5 fill-gold text-gold" />
-                </div>
-                <div>
-                  <h3 className="font-serif text-base sm:text-lg text-neutral-900 font-medium">
-                    {t("¡Nos alegra profundamente saberlo!", "We are truly delighted to hear that!")}
-                  </h3>
-                  <p className="text-xs text-neutral-500 font-light mt-0.5">
-                    {t(
-                      "Tu reseña en Google My Business nos ayuda a seguir creciendo",
-                      "Your Google My Business review helps us continue to grow"
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              {/* Línea divisoria */}
-              <div className="border-b border-neutral-100 my-4" />
-
-              <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed mb-5">
-                {t(
-                  "Tu recomendación es el mayor impulso para todo nuestro equipo. Tu reseña en Google ayuda a que más amantes del buen café y la repostería artesanal nos conozcan:",
-                  "Your recommendation is the greatest boost for our team. Your Google review helps more lovers of good coffee and artisan pastry discover us:"
-                )}
-              </p>
-
-              {/* Botón directo a Google My Business */}
-              <button
-                type="button"
-                onClick={handleOpenGoogleDirectly}
-                className="w-full py-3.5 px-5 rounded-xl bg-gold hover:bg-gold/90 active:scale-[0.99] text-white text-xs sm:text-[13px] uppercase tracking-[0.14em] font-semibold flex items-center justify-between shadow-md hover:shadow-lg transition-all cursor-pointer group"
-              >
-                <span className="flex items-center gap-2">
-                  <Star className="h-4 w-4 fill-white text-white shrink-0" />
-                  <span className="text-left font-serif">
-                    {t("ESCRIBIR RESEÑA EN GOOGLE MY BUSINESS", "WRITE REVIEW ON GOOGLE MY BUSINESS")}
-                  </span>
+              <div className="flex flex-col text-left">
+                <span className="font-label-md text-xs font-bold text-[#e6e1e7]">
+                  {t("Reseña Verificada Google Maps", "Verified Google Maps Review")}
                 </span>
-                <ExternalLink className="h-4 w-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-
-              {/* RECORDATORIO CLARO PARA REGRESAR TRAS CALIFICAR EN GOOGLE */}
-              <div className="p-3 rounded-2xl bg-amber-500/10 border border-gold/40 text-xs text-amber-950 flex items-center gap-2.5 shadow-2xs mt-3">
-                <Sparkles className="h-4 w-4 text-gold shrink-0 animate-pulse" />
-                <span className="leading-snug">
-                  {t(
-                    "💡 Recuerda: Publica tu reseña de 5 estrellas en Google y regresa a esta pestaña para desbloquear tu Segunda Oportunidad (Reto 10s).",
-                    "💡 Remember: Post your 5-star review on Google and return to this tab to unlock your 2nd Chance (10s Challenge)."
-                  )}
+                <span className="font-label-sm text-[11px] text-[#f2be71] font-semibold">
+                  ★★★★★ <span className="text-[#ccc3d8] font-normal">{t("Recomendado", "Recommended")}</span>
                 </span>
               </div>
             </div>
 
-            {/* ESTADO INTELIGENTE DE RETORNO TRAS CALIFICAR EN GOOGLE */}
-            {onUnlockSecondChance && secondChanceConfig?.enabled !== false && (
-              <div className="pt-6 border-t-2 border-dashed border-amber-500/30 text-center space-y-4">
-                {hasReturnedToTab ? (
-                  /* ESTADO 1: EL CLIENTE YA REGRESÓ DE GOOGLE MAPS */
-                  <div className="bg-gradient-to-br from-amber-500/15 via-gold/10 to-amber-500/5 p-6 sm:p-7 rounded-3xl border-2 border-gold shadow-lg animate-fade-in space-y-3.5">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-800 text-xs font-bold animate-bounce">
-                      <span>🎉</span>
-                      <span>{t("¡Bienvenido de vuelta a tu mesa!", "Welcome back to your table!")}</span>
-                    </div>
+            {/* Botón Principal para Abrir Google Maps */}
+            <button
+              type="button"
+              onClick={handleGoogleClick}
+              className="w-full h-13 py-3 px-6 rounded-full bg-gradient-to-r from-[#8a4fff] to-[#d1bcff] text-[#141317] font-bold text-sm flex items-center justify-center gap-2 shadow-[0_4px_24px_rgba(138,79,255,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
+            >
+              <span>{t("Publicar Reseña en Google Maps", "Publish Review on Google Maps")}</span>
+              <ExternalLink className="h-4 w-4" />
+            </button>
 
-                    <h4 className="text-lg sm:text-xl font-serif font-bold text-neutral-900">
-                      {t("¡Tu 2ª Oportunidad está 100% Desbloqueada!", "Your 2nd Chance is 100% Unlocked!")}
-                    </h4>
-
-                    <p className="text-xs sm:text-sm text-neutral-600 font-light max-w-md mx-auto leading-relaxed">
-                      {t(
-                        "Muchísimas gracias por tu reseña en Google. Tu turno en el Reto del Cronómetro de 10s está listo para que te lleves la:",
-                        "Thank you so much for your Google review. Your turn in the 10s Precision Challenge is ready to win the:"
-                      )}
-                      <strong className="text-amber-800 font-bold block mt-1 text-sm font-serif">
-                        {secondChanceConfig?.prizeName || "Tarta Vasca de Pistacho y Queso"}
-                      </strong>
-                    </p>
-
-                    <div className="pt-2 flex justify-center">
-                      <button
-                        type="button"
-                        onClick={onUnlockSecondChance}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 py-4 px-10 rounded-2xl bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 hover:from-amber-700 hover:to-orange-600 text-white text-xs sm:text-sm uppercase tracking-wider font-bold shadow-xl hover:shadow-2xl transition-all cursor-pointer animate-pulse active:scale-[0.98]"
-                      >
-                        <span>{t("🎯 JUGAR SEGUNDA OPCIÓN AHORA (PASO 6) ➔", "🎯 PLAY 2ND CHANCE NOW (STEP 6) ➔")}</span>
-                      </button>
-                    </div>
-                  </div>
-                ) : hasClickedGoogle ? (
-                  /* ESTADO 2: EL CLIENTE ACABA DE TOCAR GOOGLE (ESPERANDO REGRESO) */
-                  <div className="bg-amber-50/90 p-5 sm:p-6 rounded-2xl border-2 border-dashed border-amber-400 shadow-sm space-y-3">
-                    <div className="flex items-center justify-center gap-2 text-amber-900 text-xs font-bold uppercase tracking-wider">
-                      <span className="h-2.5 w-2.5 rounded-full bg-amber-500 animate-ping" />
-                      <span>{t("🌟 Abriendo Google Maps... Te esperamos en mesa", "🌟 Opening Google Maps... Waiting for you")}</span>
-                    </div>
-
-                    <p className="text-xs text-neutral-600 max-w-md mx-auto leading-relaxed">
-                      {t(
-                        "Publica tu reseña y vuelve a esta pantalla. Si la app no te detectó automáticamente, presiona el botón abajo:",
-                        "Publish your review and return to this screen. If the app didn't auto-detect, tap below:"
-                      )}
-                    </p>
-
-                    <div className="pt-1 flex justify-center">
-                      <button
-                        type="button"
-                        onClick={onUnlockSecondChance}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-8 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs uppercase tracking-wider font-bold shadow-md transition-all cursor-pointer"
-                      >
-                        <span>{t("✅ ¡Listo, ya califiqué! ➔ Ir al Paso 6", "✅ Done, I reviewed! ➔ Go to Step 6")}</span>
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  /* ESTADO 3: INCENTIVO INICIAL PARA CALIFICAR */
-                  <div className="bg-gradient-to-br from-amber-50/70 via-white to-amber-50/50 p-5 sm:p-6 rounded-2xl border border-amber-200/80 space-y-2.5">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 text-xs font-bold">
-                      <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
-                      <span>{t("Incentivo Exclusivo en Mesa", "Exclusive Table Incentive")}</span>
-                    </div>
-
-                    <h4 className="text-sm sm:text-base font-serif font-bold text-neutral-900">
-                      {t("¡Tu reseña en Google desbloquea tu 2ª Oportunidad!", "Your Google review unlocks your 2nd Chance!")}
-                    </h4>
-
-                    <p className="text-xs text-neutral-600 font-light max-w-md mx-auto leading-relaxed">
-                      {t(
-                        "Al calificar tu visita en Google, el sistema te habilitará de inmediato el Reto del Cronómetro de 10s para ganarte una porción de:",
-                        "By reviewing your visit on Google, you immediately unlock the 10s Timer Challenge to win a portion of:"
-                      )}
-                      <strong className="text-amber-800 font-bold block mt-0.5 text-xs font-serif">
-                        {secondChanceConfig?.prizeName || "Tarta Vasca de Pistacho y Queso"}
-                      </strong>
-                    </p>
-                  </div>
-                )}
+            {hasClickedGoogle && (
+              <div className="p-3 rounded-xl bg-[#2b292e] border border-[#f2be71]/30 flex items-center gap-2.5 text-xs text-[#ffddb1]">
+                <Sparkles className="h-4 w-4 text-[#f2be71] shrink-0" />
+                <span>{t("¡Gracias por tu reseña! Tu 2ª Oportunidad ha sido desbloqueada.", "Thanks for your review! Your 2nd Chance is unlocked.")}</span>
               </div>
             )}
           </div>
         </Reveal>
       )}
+
+      {/* RAMA B: FEEDBACK PRIVADO (1 A 3 ESTRELLAS) -> ESCALACIÓN WHATSAPP */}
+      {!isPositive && (
+        <Reveal delay={100}>
+          <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#ffb4ab]/40 p-5 shadow-xl flex flex-col gap-4 relative overflow-hidden">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col gap-0.5">
+                <div className="inline-flex items-center gap-1 text-[#ffb4a3] font-label-sm text-[10px] uppercase font-bold tracking-wider">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  <span>{t("Canal Directo de Calidad", "Direct Quality Channel")}</span>
+                </div>
+                <h2 className="font-headline-sm text-lg text-[#e6e1e7] font-bold">
+                  {t("Lamentamos no haber alcanzado la perfección", "We're sorry we didn't meet perfection")}
+                </h2>
+              </div>
+              <span className="w-9 h-9 rounded-full bg-[#2b292e] flex items-center justify-center text-[#ffb4a3] text-base shrink-0">
+                🛡️
+              </span>
+            </div>
+
+            <p className="font-body-sm text-xs text-[#ccc3d8] leading-relaxed">
+              {t(
+                "Deseamos escuchar tu opinión honesta para compensar tu experiencia y corregirlo inmediatamente en sala.",
+                "We want to hear your feedback directly to compensate you and resolve this right away."
+              )}
+            </p>
+
+            <textarea
+              rows={3}
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder={t("Cuéntanos qué podemos mejorar en tu mesa...", "Tell us what we can improve...")}
+              className="w-full rounded-xl bg-[#0f0e12] border border-[#363439] text-[#e6e1e7] text-xs p-3.5 focus:border-[#f2be71] focus:outline-none transition-all placeholder:text-[#958da1]"
+            />
+
+            <button
+              type="button"
+              onClick={handleSendPrivateFeedback}
+              className="w-full h-12 rounded-full bg-[#c1553d] hover:bg-[#d8654c] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all cursor-pointer"
+            >
+              <Send className="h-4 w-4" />
+              <span>{t("Enviar Feedback Confidencial a Gerencia", "Send Confidential Feedback to Manager")}</span>
+            </button>
+
+            {hasSentPrivate && (
+              <p className="text-xs text-[#10b981] text-center font-medium">
+                {t("✓ Mensaje enviado confidencialmente.", "✓ Message sent confidentially.")}
+              </p>
+            )}
+          </div>
+        </Reveal>
+      )}
+
+      {/* Botón para pasar a la 2ª Oportunidad (Reto 10.00s) */}
+      <Reveal delay={150}>
+        <div className="pt-2 flex flex-col gap-2">
+          {onUnlockSecondChance && (
+            <button
+              type="button"
+              onClick={onUnlockSecondChance}
+              className="w-full h-13 py-3 px-6 rounded-full bg-gradient-to-r from-[#f2be71] via-[#ffdcb1] to-[#f2be71] text-[#141317] font-bold text-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
+            >
+              <Trophy className="h-4 w-4" />
+              <span>{t("Continuar a la 2ª Oportunidad (Reto 10.00s)", "Continue to 2nd Chance (10.00s Challenge)")}</span>
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </Reveal>
     </div>
   );
 }

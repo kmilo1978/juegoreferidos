@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { LanguageProvider, useLanguage } from "./context/LanguageContext";
 import {
   TableSession,
@@ -483,7 +483,7 @@ function JuegoQrPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fcfaf7] text-neutral-900 flex flex-col selection:bg-amber-600/20 selection:text-amber-800">
+    <div className="min-h-screen bg-[#141317] text-[#e6e1e7] flex flex-col selection:bg-[#f2be71]/30 selection:text-[#f2be71]">
       {/* Cabecera dinámica de la experiencia */}
       <GameHeader
         session={session}
@@ -499,8 +499,12 @@ function JuegoQrPage() {
         onOpenKioskPortal={() => setIsKioskModalOpen(true)}
       />
 
+      {/* Ambient background glow orbs estilo Stitch */}
+      <div className="pointer-events-none fixed -top-10 -right-20 w-80 h-80 rounded-full bg-[#f2be71]/5 blur-3xl" />
+      <div className="pointer-events-none fixed top-72 -left-24 w-96 h-96 rounded-full bg-[#8a4fff]/5 blur-3xl" />
+
       {/* Contenido principal según el modo seleccionado */}
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8 md:py-12">
+      <main className="flex-1 max-w-lg mx-auto w-full px-4 sm:px-6 pt-28 pb-16 relative z-10">
         {activeMode === "feedback" ? (
           /* MODO DIRECTO: Solo calificar visita (Feedback inteligente) */
           <div>

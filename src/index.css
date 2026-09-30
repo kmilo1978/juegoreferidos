@@ -1,43 +1,185 @@
 @import "tailwindcss";
 
 @theme {
-  --color-gold: var(--gold, #a27e2c);
-  --color-gold-light: var(--gold-light, #d1b374);
-  --color-ink: var(--ink, #1e1b18);
-  --color-bg-cream: var(--bg-cream, #fcfaf7);
+  --color-gold: #f2be71;
+  --color-gold-light: #ffddb1;
+  --color-ink: #1e1b18;
+  --color-bg-cream: #141317;
+
+  /* Stitch Luxury Theme Palette */
+  --color-surface: #141317;
+  --color-surface-dim: #141317;
+  --color-surface-bright: #3a383d;
+  --color-surface-container-lowest: #0f0e12;
+  --color-surface-container-low: #1c1b1f;
+  --color-surface-container: #201f23;
+  --color-surface-container-high: #2b292e;
+  --color-surface-container-highest: #363439;
+  --color-surface-variant: #363439;
+
+  --color-on-surface: #e6e1e7;
+  --color-on-surface-variant: #ccc3d8;
+  --color-outline: #958da1;
+  --color-outline-variant: #4a4455;
+
+  --color-primary: #d1bcff;
+  --color-on-primary: #3d008f;
+  --color-primary-container: #8a4fff;
+  --color-on-primary-container: #ffffff;
+  --color-primary-fixed: #eaddff;
+  --color-primary-fixed-dim: #d1bcff;
+
+  --color-secondary: #f2be71;
+  --color-on-secondary: #442b00;
+  --color-secondary-container: #684400;
+  --color-on-secondary-container: #e6b367;
+  --color-secondary-fixed: #ffddb1;
+  --color-secondary-fixed-dim: #f2be71;
+
+  --color-tertiary: #ffb4a3;
+  --color-tertiary-container: #c1553d;
+  --color-tertiary-fixed: #ffdad2;
+
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+
+  /* Stitch Spacing */
+  --spacing-margin: 1.25rem;
+  --spacing-gutter: 1rem;
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 1.5rem;
+  --spacing-space-xl: 2rem;
+
+  /* Stitch Fonts */
+  --font-headline: "Epilogue", sans-serif;
+  --font-body: "Manrope", sans-serif;
 }
 
 @layer base {
   :root {
-    --gold: #a27e2c;
-    --gold-light: #d1b374;
-    --ink: #1e1b18;
-    --bg-cream: #fcfaf7;
+    --gold: #f2be71;
+    --gold-light: #ffddb1;
+    --ink: #e6e1e7;
+    --bg-cream: #141317;
   }
 
   body {
-    background-color: var(--bg-cream);
-    color: var(--ink);
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #141317;
+    color: #e6e1e7;
+    font-family: "Manrope", system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
 }
 
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Tipografías de Stitch */
+.font-headline-xl {
+  font-family: "Epilogue", sans-serif;
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.font-headline-xl-mobile {
+  font-family: "Epilogue", sans-serif;
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.font-headline-lg {
+  font-family: "Epilogue", sans-serif;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.font-headline-md {
+  font-family: "Epilogue", sans-serif;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.font-headline-sm {
+  font-family: "Epilogue", sans-serif;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 500;
+}
+
+.font-body-lg {
+  font-family: "Manrope", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.font-body-md {
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.font-body-sm {
+  font-family: "Manrope", sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+}
+
+.font-label-lg {
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.font-label-md {
+  font-family: "Manrope", sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.font-label-sm {
+  font-family: "Manrope", sans-serif;
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
 .font-display {
-  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+  font-family: "Epilogue", Georgia, serif;
 }
 
 .btn-solid {
-  background-color: var(--gold, #a27e2c);
-  color: #ffffff;
-  border-radius: 0.75rem;
-  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #f2be71 0%, #b88330 100%);
+  color: #141317;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+  font-weight: 700;
 }
 
 .btn-solid:hover {
-  filter: brightness(0.9);
-  box-shadow: 0 4px 14px rgba(162, 126, 44, 0.35);
+  filter: brightness(1.1);
+  box-shadow: 0 4px 18px rgba(242, 190, 113, 0.45);
 }
 
 .clip-pointer {

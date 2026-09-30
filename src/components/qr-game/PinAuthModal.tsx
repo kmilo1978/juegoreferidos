@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Lock, Delete, RefreshCw, KeyRound } from "lucide-react";
-import { verifyCashierPin, getActiveCashierPin, generateNewCashierPin } from "../../lib/tableSecurityService";
+import { Lock, Delete, KeyRound, X, Sparkles, Check } from "lucide-react";
+import { verifyCashierPin, getActiveCashierPin } from "../../lib/tableSecurityService";
 
 interface PinAuthModalProps {
   isOpen: boolean;
@@ -17,7 +17,7 @@ export function PinAuthModal({
 }: PinAuthModalProps) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
-  const [activeShiftPin, setActiveShiftPin] = useState(() => getActiveCashierPin());
+  const [activeShiftPin] = useState(() => getActiveCashierPin());
 
   if (!isOpen) return null;
 
@@ -43,9 +43,11 @@ export function PinAuthModal({
 
     if (nextPin.length === 4) {
       if (verifyCashierPin(nextPin)) {
-        onSuccess();
-        onClose();
-        setPin("");
+        setTimeout(() => {
+          onSuccess();
+          onClose();
+          setPin("");
+        }, 200);
       } else {
         setError(true);
         setTimeout(() => setPin(""), 600);
@@ -53,121 +55,118 @@ export function PinAuthModal({
     }
   };
 
-  const handleRotatePin = () => {
-    const newPin = generateNewCashierPin();
-    setActiveShiftPin(newPin);
-  };
-
   const handleDelete = () => setPin((prev) => prev.slice(0, -1));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-fade-in">
-      <div className="w-full max-w-sm rounded-3xl bg-neutral-900 border-2 border-amber-500/40 p-6 text-center text-white shadow-2xl space-y-4">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40">
-          <Lock className="h-6 w-6" />
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-amber-400">
-            Uso Exclusivo del Personal / Caja
-          </h3>
-          <p className="text-xs text-white/70 mt-1">
-            Valida el premio del cliente ingresando el PIN autorizado:
-          </p>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#0f0e12]/85 backdrop-blur-md p-0 sm:p-4 animate-in fade-in">
+      <div className="w-full max-w-sm rounded-t-3xl sm:rounded-3xl bg-[#1c1b1f] border-t sm:border border-[#2b292e] p-6 shadow-2xl space-y-4">
+        {/* Handle superior de arrastre móvil */}
+        <div className="w-12 h-1 rounded-full bg-[#363439] mx-auto sm:hidden" />
+
+        {/* Cabecera con Candado y botón Cerrar */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-[#684400]/40 border border-[#f2be71]/40 flex items-center justify-center text-[#f2be71] shrink-0">
+              <Lock className="h-5 w-5" />
+            </div>
+            <div className="flex flex-col text-left">
+              <h3 className="font-headline-sm text-sm text-[#e6e1e7] font-bold">
+                Uso Exclusivo Personal / Caja
+              </h3>
+              <p className="font-body-sm text-[11px] text-[#ccc3d8]">
+                Ingresa el PIN autorizado para validar:
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-[#2b292e] flex items-center justify-center text-[#ccc3d8] hover:text-white transition-colors cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
 
-        {/* TARJETA VISIBLE DESTACADA CON EL PIN DE AUTORIZACIÓN */}
-        <div className="bg-amber-500/15 border-2 border-amber-500/40 rounded-2xl p-3.5 my-2 shadow-inner">
-          <div className="flex items-center justify-center gap-1.5 text-amber-400 text-xs font-bold uppercase tracking-wider mb-1.5">
-            <KeyRound className="h-4 w-4 text-amber-400" />
-            <span>PIN de Validación</span>
-          </div>
-          <div className="flex items-center justify-center gap-3">
-            <span className="font-mono text-3xl font-black text-white tracking-[0.25em] bg-black/60 px-4 py-1.5 rounded-xl border border-amber-500/40 shadow-sm">
+        {/* Tarjeta de PIN Activo estilo Stitch */}
+        <div className="w-full rounded-2xl bg-gradient-to-r from-[#684400]/30 via-[#201f23] to-[#2b292e] border border-[#f2be71]/30 p-3.5 flex items-center justify-between shadow-[0_4px_24px_rgba(242,190,113,0.1)]">
+          <div className="flex flex-col text-left">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <span className="w-2 h-2 rounded-full bg-[#f2be71] animate-ping" />
+              <span className="font-label-sm text-[10px] text-[#f2be71] uppercase font-bold tracking-widest">
+                PIN de Turno Activo
+              </span>
+            </div>
+            <span className="font-headline-md text-2xl text-[#ffddb1] tracking-widest font-mono font-bold leading-none">
               {displayPin}
             </span>
-            <button
-              type="button"
-              onClick={() => handleAutoFill(displayPin)}
-              className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-950 font-black text-xs transition-all shadow-md active:scale-95 cursor-pointer flex items-center gap-1"
-            >
-              <span>⚡ Usar PIN</span>
-            </button>
+            <span className="font-body-sm text-[10px] text-[#ccc3d8] mt-1">Caja Salón • Turno Activo</span>
           </div>
-          <p className="text-[11px] text-white/70 mt-2 font-medium">
-            Toca <strong className="text-amber-300">⚡ Usar PIN</strong> o digita los 4 números en el teclado:
-          </p>
+
+          <button
+            type="button"
+            onClick={() => handleAutoFill(displayPin)}
+            className="h-9 px-3.5 rounded-full bg-[#f2be71] text-[#141317] font-label-md text-xs font-bold flex items-center gap-1 shadow-md hover:brightness-105 active:scale-95 transition-transform cursor-pointer"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>Usar PIN</span>
+          </button>
         </div>
 
-        {/* Indicadores de 4 dígitos */}
-        <div className="flex justify-center gap-3 py-1">
-          {[0, 1, 2, 3].map((idx) => (
-            <div
-              key={idx}
-              className={`h-4 w-4 rounded-full border-2 transition-all ${
-                pin.length > idx
-                  ? "bg-amber-400 border-amber-400 scale-110 shadow-xs"
-                  : error
-                    ? "border-red-500 bg-red-500/20"
-                    : "border-white/30 bg-transparent"
-              }`}
-            />
-          ))}
+        {/* 4 Indicadores Circulares Luminosos */}
+        <div className="flex flex-col items-center gap-1 py-1">
+          <div className={`flex items-center justify-center gap-4 py-2 ${error ? "animate-shake" : ""}`}>
+            {[0, 1, 2, 3].map((idx) => {
+              const isFilled = pin.length > idx;
+              return (
+                <div
+                  key={idx}
+                  className={`w-3.5 h-3.5 rounded-full transition-all duration-200 ${
+                    isFilled
+                      ? "bg-[#f2be71] shadow-[0_0_12px_rgba(242,190,113,0.9)] scale-110"
+                      : "bg-[#2b292e] border border-[#363439]"
+                  }`}
+                />
+              );
+            })}
+          </div>
+          <span className="font-label-sm text-[11px] text-[#ccc3d8]">
+            {error ? "PIN incorrecto, intenta de nuevo" : `Ingresando dígito ${Math.min(pin.length + 1, 4)} de 4`}
+          </span>
         </div>
 
-        {error && (
-          <p className="text-[11px] text-red-400 font-medium">
-            PIN incorrecto. Intenta con {displayPin}.
-          </p>
-        )}
-
-        {/* Teclado numérico táctil */}
-        <div className="grid grid-cols-3 gap-2.5 pt-1">
-          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
+        {/* Teclado Táctil Numérico 3x4 estilo Stitch */}
+        <div className="grid grid-cols-3 gap-2 pt-1">
+          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
             <button
-              key={num}
+              key={digit}
               type="button"
-              onClick={() => handleDigit(num)}
-              className="h-11 rounded-xl bg-white/10 hover:bg-amber-400 hover:text-neutral-950 font-mono text-lg font-bold transition-all active:scale-95 cursor-pointer"
+              onClick={() => handleDigit(digit)}
+              className="h-12 rounded-xl bg-[#201f23] hover:bg-[#2b292e] text-[#e6e1e7] font-bold text-lg border border-[#2b292e] shadow-sm active:scale-95 transition-all cursor-pointer"
             >
-              {num}
+              {digit}
             </button>
           ))}
           <button
             type="button"
-            onClick={onClose}
-            className="h-11 rounded-xl bg-white/5 hover:bg-white/15 text-xs text-white/70 transition-all font-medium cursor-pointer"
+            onClick={handleDelete}
+            className="h-12 rounded-xl bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] flex items-center justify-center border border-[#2b292e] shadow-sm active:scale-95 transition-all cursor-pointer"
           >
-            Cancelar
+            <Delete className="h-5 w-5" />
           </button>
           <button
             type="button"
             onClick={() => handleDigit("0")}
-            className="h-11 rounded-xl bg-white/10 hover:bg-amber-400 hover:text-neutral-950 font-mono text-lg font-bold transition-all active:scale-95 cursor-pointer"
+            className="h-12 rounded-xl bg-[#201f23] hover:bg-[#2b292e] text-[#e6e1e7] font-bold text-lg border border-[#2b292e] shadow-sm active:scale-95 transition-all cursor-pointer"
           >
             0
           </button>
           <button
             type="button"
-            onClick={handleDelete}
-            className="h-11 rounded-xl bg-white/5 hover:bg-red-500/20 text-white flex items-center justify-center transition-all cursor-pointer"
+            onClick={() => handleAutoFill(displayPin)}
+            className="h-12 rounded-xl bg-[#684400]/50 hover:bg-[#684400]/70 text-[#f2be71] flex items-center justify-center font-bold text-xs border border-[#f2be71]/40 shadow-sm active:scale-95 transition-all cursor-pointer"
           >
-            <Delete className="h-5 w-5" />
+            <Check className="h-5 w-5" />
           </button>
-        </div>
-
-        {/* Herramienta de rotación de PIN para el personal */}
-        <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-white/50">
-          <button
-            type="button"
-            onClick={handleRotatePin}
-            className="hover:text-amber-400 flex items-center gap-1 transition-colors cursor-pointer"
-          >
-            <RefreshCw className="h-3 w-3" />
-            <span>Rotar PIN ({activeShiftPin})</span>
-          </button>
-          <span className="font-mono text-emerald-400 font-bold bg-emerald-500/20 px-2 py-0.5 rounded">
-            Cajero: {activeShiftPin}
-          </span>
         </div>
       </div>
     </div>

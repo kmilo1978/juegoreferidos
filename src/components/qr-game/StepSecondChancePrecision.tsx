@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import confetti from "canvas-confetti";
-import { SecondChanceConfig, WonPrize, GamePrize } from "./gameTypes";
+import { SecondChanceConfig, GamePrize } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
-import { Sparkles, Trophy, RotateCcw, CheckCircle2, ArrowRight } from "lucide-react";
+import { Sparkles, Trophy, RotateCcw, ArrowRight, Play, Square, History } from "lucide-react";
 import { playVictoryFanfareSound, playDefeatSound, playTactileClickSound } from "@/lib/soundEffects";
 import tartaVascaImg from "@/assets/tarta-vasca.jpg";
 import { clientConfig } from "@/config/clientConfig";
@@ -20,8 +20,6 @@ interface StepSecondChancePrecisionProps {
 export function StepSecondChancePrecision({
   secondChanceConfig,
   participantName = "Invitado",
-  tableNumber = "Mesa 1",
-  participantWhatsapp = "",
   onPrizeWon,
   onExit,
 }: StepSecondChancePrecisionProps) {
@@ -35,25 +33,11 @@ export function StepSecondChancePrecision({
   const [elapsedTime, setElapsedTime] = useState(0);
   const [attemptsUsed, setAttemptsUsed] = useState(0);
   const [gameState, setGameState] = useState<"idle" | "running" | "attempt_failed" | "won" | "finished">("idle");
-  const [differenceMs, setDifferenceMs] = useState<number | null>(null);
+  const [attemptsHistory, setAttemptsHistory] = useState<number[]>([]);
 
   const startTimeRef = useRef<number>(0);
   const timerRafRef = useRef<number | null>(null);
 
-  // Obtener imagen del premio
-  const prizeImage = secondChanceConfig.prizeImageUrl?.includes("tarta-vasca")
-    ? tartaVascaImg
-    : secondChanceConfig.prizeImageUrl || tartaVascaImg;
-
-  // Altura de la foto según tamaño configurado en backend
-  const imageHeightClass =
-    secondChanceConfig.prizeImageSize === "small"
-      ? "h-28 sm:h-32"
-      : secondChanceConfig.prizeImageSize === "large"
-      ? "h-60 sm:h-72"
-      : "h-40 sm:h-48";
-
-  // Limpiar timer si el componente se desmonta
   useEffect(() => {
     return () => {
       if (timerRafRef.current) cancelAnimationFrame(timerRafRef.current);
@@ -63,7 +47,6 @@ export function StepSecondChancePrecision({
   const handleStartTimer = () => {
     playTactileClickSound();
     setElapsedTime(0);
-    setDifferenceMs(null);
     setGameState("running");
     setIsRunning(true);
     startTimeRef.current = performance.now();
@@ -72,12 +55,10 @@ export function StepSecondChancePrecision({
       const elapsedSec = (currentTime - startTimeRef.current) / 1000;
       setElapsedTime(elapsedSec);
 
-      // Límite de seguridad: 14 segundos
       if (elapsedSec >= 14.0) {
         handleStopTimer(14.0);
         return;
       }
-
       timerRafRef.current = requestAnimationFrame(loop);
     };
 
@@ -97,247 +78,245 @@ export function StepSecondChancePrecision({
     const finalElapsed = forcedElapsed ?? (performance.now() - startTimeRef.current) / 1000;
     setElapsedTime(finalElapsed);
 
+    const currentAttempts = attemptsUsed + 1;
+    setAttemptsUsed(currentAttempts);
+    setAttemptsHistory((prev) => [finalElapsed, ...prev]);
+
     const diffSeconds = Math.abs(finalElapsed - targetTime);
     const diffMs = Math.round(diffSeconds * 1000);
-    setDifferenceMs(diffMs);
 
-    const newAttempts = attemptsUsed + 1;
-    setAttemptsUsed(newAttempts);
-
-    // ¿Ganó el reto de precisión?
     if (diffMs <= toleranceMs) {
-      // ¡VICTORIA!
       setGameState("won");
       playVictoryFanfareSound();
-
-      // Confeti doble de celebración
-      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-      setTimeout(() => {
-        confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
-      }, 300);
-
-      // Notificar al padre para registrar premio de 2ª oportunidad
-      const prizeObj: GamePrize = {
-        id: `sc-${Date.now()}`,
-        name: `🎁 2ª Oportunidad: ${secondChanceConfig.prizeName}`,
-        nameEn: `🎁 2nd Chance: ${secondChanceConfig.prizeName}`,
-        type: "free_item",
-        value: secondChanceConfig.prizeValue || secondChanceConfig.prizeName,
-        probability: 100,
-        color: "#10b981",
-        textColor: "#ffffff",
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ["#f2be71", "#ffdcb1", "#10b981", "#ffffff"],
+      });
+      onPrizeWon({
+        id: "second-chance-precision-reward",
+        name: secondChanceConfig.prizeName || "Postre de Autor Especial",
+        nameEn: "Chef Signature Dessert",
+        value: 18000,
+        probability: 1,
+        color: "#f2be71",
+        textColor: "#141317",
         active: true,
-        terms: secondChanceConfig.claimTerms || "Válido con la captura de Estado de WhatsApp enviada. Canjeable en mesa o caja.",
-        termsEn: secondChanceConfig.claimTerms || "Valid with WhatsApp Status screenshot sent. Redeemable at table or cashier.",
-      };
-
-      onPrizeWon(prizeObj);
+      });
     } else {
-      // Intento fallido
-      playDefeatSound();
-      if (newAttempts < maxAttempts) {
-        setGameState("attempt_failed");
-      } else {
+      if (currentAttempts >= maxAttempts) {
         setGameState("finished");
+        playDefeatSound();
+      } else {
+        setGameState("attempt_failed");
+        playDefeatSound();
       }
     }
   };
 
-  const remainingAttempts = Math.max(0, maxAttempts - attemptsUsed);
+  const formatSecondsMain = (sec: number) => {
+    const s = Math.floor(sec);
+    return s.toString().padStart(2, "0");
+  };
+
+  const formatMs = (sec: number) => {
+    const ms = Math.floor((sec % 1) * 100);
+    return "." + ms.toString().padStart(2, "0");
+  };
 
   return (
-    <div className="max-w-xl mx-auto py-4 sm:py-6">
+    <div className="w-full flex flex-col gap-5">
+      {/* Barra de progreso Stitch */}
       <Reveal>
-        <div className="text-center space-y-2 mb-6">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-800 text-xs font-bold tracking-wide">
-            <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-            <span>{t("Reto de Precisión · 2ª Oportunidad", "Precision Challenge · 2nd Chance")}</span>
+        <section className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#201f23] text-[#f2be71] border border-[#f2be71]/30">
+              <Sparkles className="h-3.5 w-3.5 text-[#f2be71]" />
+              <span className="font-label-sm text-[10px] uppercase tracking-wider font-bold">
+                {t("PASO 6 DE 7 • SEGUNDA OPORTUNIDAD", "STEP 6 OF 7 • 2ND CHANCE")}
+              </span>
+            </div>
+            <span className="font-label-sm text-[11px] text-[#ccc3d8] font-medium">85% Completado</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-neutral-900 tracking-tight">
-            {t("Frena exactamente en 10.000s", "Stop at exactly 10.000s")}
-          </h2>
-
-          <p className="text-xs sm:text-sm text-neutral-600 max-w-md mx-auto">
-            {t(
-              "¡Hola " + participantName + "! Presiona Iniciar y luego Frena cuando el cronómetro marque exactamente 10 segundos.",
-              "Hello " + participantName + "! Press Start and Stop when the timer marks exactly 10 seconds."
-            )}
-          </p>
-        </div>
+          <div className="w-full h-1.5 rounded-full bg-[#2b292e] overflow-hidden mt-1">
+            <div className="h-full rounded-full bg-[#f2be71] shadow-[0_0_10px_rgba(242,190,113,0.7)] w-[85%] transition-all duration-500" />
+          </div>
+        </section>
       </Reveal>
 
-      {/* TARJETA DEL PREMIO LIMPIA Y DESTACADA */}
-      <Reveal delay={80}>
-        <div className="rounded-3xl border-2 border-amber-500/30 bg-white shadow-lg overflow-hidden mb-6">
-          {/* Foto del Premio con Altura Dinámica */}
-          <div className={`w-full ${imageHeightClass} relative bg-neutral-900 overflow-hidden`}>
+      {/* Tarjeta de Premio en Juego */}
+      <Reveal delay={50}>
+        <div className="relative w-full rounded-2xl bg-[#1c1b1f] border border-[#2b292e] p-3.5 flex gap-3.5 items-center shadow-xl overflow-hidden">
+          <div className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-[#0f0e12] border border-[#363439]">
             <img
-              src={prizeImage}
-              alt={secondChanceConfig.prizeName}
+              src={tartaVascaImg}
+              alt="Premio en Juego"
               className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = tartaVascaImg;
-              }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-black/20" />
-
-            {/* Badge de Intentos Flotante */}
-            <div className="absolute top-3 right-3 bg-white/90 backdrop-blur text-neutral-900 text-[11px] font-bold px-3 py-1 rounded-full shadow-sm">
-              <span>{t("Oportunidades:", "Attempts:")} </span>
-              <strong className="text-amber-700">{remainingAttempts} {t("restantes", "left")}</strong>
-            </div>
-
-            {/* Título sobre la imagen */}
-            <div className="absolute bottom-3 left-4 right-4 text-white">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-300">
-                  {t("🏆 Tu Premio Si Ganas", "🏆 Your Prize If You Win")}
-                </span>
-                {secondChanceConfig.prizeValue && (
-                  <span className="px-2 py-0.5 rounded-full bg-amber-400 text-neutral-950 text-[10px] font-black shadow-sm">
-                    {secondChanceConfig.prizeValue}
-                  </span>
-                )}
-              </div>
-              <h3 className="text-lg sm:text-xl font-serif font-bold drop-shadow-md">
-                {secondChanceConfig.prizeName}
-              </h3>
-            </div>
           </div>
-
-          <div className="p-4 sm:p-5 bg-neutral-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs border-t border-neutral-100">
-            <div>
-              <p className="text-neutral-700 font-medium">
-                {secondChanceConfig.prizeDescription}
-              </p>
-              {secondChanceConfig.claimTerms && (
-                <p className="text-[11px] text-neutral-400 mt-0.5">
-                  {secondChanceConfig.claimTerms}
-                </p>
-              )}
+          <div className="flex flex-col min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-1 mb-0.5">
+              <span className="font-label-sm text-[10px] text-[#f2be71] uppercase font-bold tracking-wider">
+                {t("Premio en juego", "Prize in play")}
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-[#684400]/60 text-[#ffddb1] font-label-sm text-[10px] font-bold">
+                {t("Cortesía de la Casa", "Complimentary")}
+              </span>
             </div>
-            <span className="shrink-0 text-[10px] font-mono text-neutral-500 bg-white px-2.5 py-1 rounded-full border border-neutral-200">
-              Margen: ±{toleranceMs}ms
-            </span>
+            <h2 className="font-headline-sm text-sm text-[#e6e1e7] font-bold truncate">
+              {secondChanceConfig.prizeName || "Postre de Autor o Cóctel"}
+            </h2>
+            <p className="font-body-sm text-xs text-[#ccc3d8] truncate">
+              {t("Válido de inmediato si clavas 10.00s", "Valid instantly if you hit 10.00s")}
+            </p>
           </div>
         </div>
       </Reveal>
 
-      {/* VISOR DEL CRONÓMETRO DIGITAL */}
-      <Reveal delay={120}>
-        <div className="rounded-3xl border border-neutral-200 bg-white p-6 sm:p-8 shadow-sm text-center space-y-6">
-          {/* Display Digital con Glow Dorado */}
-          <div className="relative py-6 px-4 rounded-3xl bg-neutral-950 border border-neutral-800 shadow-inner">
-            <div className="text-[10px] font-mono uppercase tracking-widest text-amber-400/80 mb-1">
-              OBJETIVO: 10.000s
+      {/* Consola Digital OLED de Milisegundos estilo Stitch */}
+      <Reveal delay={100}>
+        <div className="flex flex-col items-center gap-4">
+          {/* Badge de Objetivo Exacto e Intentos */}
+          <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#2b292e] px-4 py-2.5 flex items-center justify-between shadow-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-[#684400]/40 flex items-center justify-center text-[#f2be71]">
+                🎯
+              </div>
+              <div className="flex flex-col">
+                <span className="font-label-sm text-[10px] text-[#f2be71] font-bold uppercase tracking-wider">
+                  {t("Objetivo Exacto: 10.00s", "Exact Target: 10.00s")}
+                </span>
+                <span className="font-body-sm text-[11px] text-[#ccc3d8]">
+                  {t(`Margen ganador: ±${toleranceMs}ms`, `Win margin: ±${toleranceMs}ms`)}
+                </span>
+              </div>
             </div>
 
-            <div className="font-mono text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-wider text-amber-400 drop-shadow-[0_0_20px_rgba(245,158,11,0.4)]">
-              {elapsedTime.toFixed(3)}
-              <span className="text-xl sm:text-2xl text-amber-400/60 ml-1">s</span>
-            </div>
-
-            {/* Barra de progreso visual hacia 10s */}
-            <div className="w-full h-1.5 bg-neutral-800 rounded-full mt-4 overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-amber-600 to-amber-400 transition-all duration-75"
-                style={{ width: `${Math.min(100, (elapsedTime / targetTime) * 100)}%` }}
-              />
+            {/* Contador de orbes de intentos */}
+            <div className="flex flex-col items-end">
+              <span className="font-label-sm text-[10px] text-[#ccc3d8] uppercase font-semibold">
+                {t("Intentos", "Attempts")}
+              </span>
+              <div className="flex items-center gap-1.5 mt-1">
+                {[1, 2, 3].map((idx) => (
+                  <span
+                    key={idx}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${
+                      idx <= maxAttempts - attemptsUsed
+                        ? "bg-[#f2be71] shadow-[0_0_8px_rgba(242,190,113,0.8)]"
+                        : "bg-[#2b292e]"
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Mensajes de Feedback por Intento */}
-          {gameState === "attempt_failed" && differenceMs !== null && (
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-center animate-fade-in space-y-1">
-              <p className="text-xs font-bold text-amber-900">
-                {t(
-                  `¡Muy cerca! Estuviste a solo ${differenceMs} milisegundos.`,
-                  `So close! You were just ${differenceMs} milliseconds away.`
-                )}
-              </p>
-              <p className="text-[11px] text-amber-700">
-                {t(
-                  `Te quedan ${remainingAttempts} intento(s). ¡Concéntrate y prueba de nuevo!`,
-                  `You have ${remainingAttempts} attempt(s) left. Focus and try again!`
-                )}
-              </p>
+          {/* Consola Digital OLED */}
+          <div className="w-full rounded-2xl bg-[#0f0e12] border border-[#2b292e] p-6 flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
+            <div className="flex items-center gap-1.5 mb-2 z-10">
+              <span className={`w-2 h-2 rounded-full ${isRunning ? "bg-[#10b981] animate-ping" : "bg-[#f2be71]"}`} />
+              <span className="font-label-sm text-[10px] text-[#f2be71] tracking-widest uppercase font-bold">
+                {isRunning ? t("CRONÓMETRO CORRIENDO...", "RUNNING...") : t("LISTO PARA EL TOQUE", "READY TO TAP")}
+              </span>
             </div>
-          )}
 
-          {/* Estado VICTORIA */}
-          {gameState === "won" && (
-            <div className="p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-500/40 text-center animate-fade-in space-y-2">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md mx-auto">
-                <Trophy className="h-6 w-6" />
-              </div>
-              <h4 className="text-lg font-serif font-bold text-emerald-950">
-                {t("¡FELICITACIONES, GANASTE!", "CONGRATULATIONS, YOU WON!")}
-              </h4>
-              <p className="text-xs text-emerald-800">
-                {t(
-                  `Frenaste en ${elapsedTime.toFixed(3)}s (diferencia de solo ${differenceMs}ms). ¡El ${secondChanceConfig.prizeName} es tuyo!`,
-                  `You stopped at ${elapsedTime.toFixed(3)}s (only ${differenceMs}ms diff). The ${secondChanceConfig.prizeName} is yours!`
-                )}
-              </p>
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={onExit}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer"
-                >
-                  <span>{t("Ver Mi Cupón Ganador ➔", "View My Winning Voucher ➔")}</span>
-                </button>
-              </div>
+            {/* Dígitos Gigantes Monospace LCD */}
+            <div className="relative z-10 flex items-baseline font-mono tracking-tight my-1">
+              <span className="text-5xl sm:text-6xl font-black text-white font-mono drop-shadow-[0_0_12px_rgba(255,255,255,0.2)]">
+                {formatSecondsMain(elapsedTime)}
+              </span>
+              <span className="text-3xl sm:text-4xl font-black text-[#d1bcff] font-mono ml-0.5 drop-shadow-[0_0_12px_rgba(209,188,255,0.4)]">
+                {formatMs(elapsedTime)}
+              </span>
             </div>
-          )}
 
-          {/* Estado DERROTA (agotó todos los intentos) */}
-          {gameState === "finished" && (
-            <div className="p-5 rounded-2xl bg-neutral-100 border border-neutral-200 text-center animate-fade-in space-y-2">
-              <p className="text-sm font-bold text-neutral-800">
-                {t("¡Gran esfuerzo!", "Great effort!")}
-              </p>
-              <p className="text-xs text-neutral-600 leading-relaxed max-w-sm mx-auto">
-                {t(
-                  `Estuviste muy cerca de los 10.000s exactos. En tu próxima visita en ${clientConfig.brand.name} tendrás una nueva oportunidad de ganar.`,
-                  `You were very close to 10.000s. On your next visit to ${clientConfig.brand.name} you'll have a new chance to win.`
-                )}
-              </p>
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={onExit}
-                  className="w-full py-3 px-6 rounded-2xl bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
-                >
-                  <span>{t("Finalizar y Volver ➔", "Finish and Return ➔")}</span>
-                </button>
-              </div>
-            </div>
-          )}
+            <p className="text-xs text-[#ccc3d8] mt-1 z-10">
+              {t("Toca para iniciar • Vuelve a tocar para frenar en 10.00s", "Tap to start • Tap again to stop at 10.00s")}
+            </p>
+          </div>
 
-          {/* Botón Principal de Acción */}
-          {gameState !== "won" && gameState !== "finished" && (
-            <div className="pt-2">
-              {!isRunning ? (
-                <button
-                  type="button"
-                  onClick={handleStartTimer}
-                  className="w-full py-5 px-8 rounded-2xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-serif font-bold text-lg tracking-wide shadow-xl hover:shadow-2xl transition-all cursor-pointer active:scale-[0.98]"
-                >
-                  <span>{attemptsUsed === 0 ? t("▶ INICIAR RETO", "▶ START CHALLENGE") : t("🔄 REINTENTAR RETO", "🔄 RETRY CHALLENGE")}</span>
-                </button>
+          {/* Gran Botón Táctil de Empuje con Radar Circular estilo Stitch */}
+          <div className="relative my-4 flex items-center justify-center">
+            {isRunning && (
+              <div className="absolute w-44 h-44 rounded-full bg-[#10b981]/20 animate-ping pointer-events-none opacity-40" />
+            )}
+
+            <button
+              type="button"
+              onClick={isRunning ? () => handleStopTimer() : handleStartTimer}
+              disabled={gameState === "won" || gameState === "finished"}
+              className={`relative z-20 w-36 h-36 rounded-full flex flex-col items-center justify-center p-3 active:scale-95 transition-all cursor-pointer shadow-2xl ${
+                isRunning
+                  ? "bg-gradient-to-b from-[#e11d48] to-[#9f1239] text-white shadow-[0_12px_32px_rgba(225,29,72,0.45)]"
+                  : "bg-gradient-to-b from-[#10b981] to-[#047857] text-white shadow-[0_12px_32px_rgba(16,185,129,0.45)]"
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              {isRunning ? (
+                <>
+                  <Square className="h-8 w-8 mb-1 fill-white" />
+                  <span className="font-label-lg text-xs font-bold uppercase tracking-wider">
+                    {t("DETENER", "STOP")}
+                  </span>
+                </>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => handleStopTimer()}
-                  className="w-full py-6 px-8 rounded-2xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-serif font-bold text-xl tracking-wider shadow-2xl transition-all cursor-pointer animate-pulse active:scale-95"
-                >
-                  <span>⏹ ¡FRENAR AHORA!</span>
-                </button>
+                <>
+                  <Play className="h-8 w-8 mb-1 fill-white ml-1" />
+                  <span className="font-label-lg text-xs font-bold uppercase tracking-wider text-center leading-tight">
+                    {gameState === "attempt_failed" ? t("OTRO INTENTO", "TRY AGAIN") : t("INICIAR RETO", "START CHALLENGE")}
+                  </span>
+                </>
               )}
+            </button>
+          </div>
+
+          {/* Mensajes de Resultado */}
+          {gameState === "won" && (
+            <div className="w-full rounded-2xl bg-[#684400]/40 border border-[#f2be71] p-4 flex items-start gap-3 shadow-md animate-in zoom-in-95">
+              <Trophy className="h-6 w-6 text-[#f2be71] shrink-0 mt-0.5" />
+              <div className="flex flex-col text-left">
+                <span className="font-headline-sm text-sm font-bold text-[#ffddb1]">
+                  {t("¡PREMIO CONSEGUIDO!", "PRIZE WON!")}
+                </span>
+                <p className="font-body-sm text-xs text-[#e6e1e7] mt-0.5">
+                  {t(
+                    `¡Marcaste ${elapsedTime.toFixed(2)}s! Distancia menor a ${toleranceMs}ms. El mesero aplicará tu premio.`,
+                    `You hit ${elapsedTime.toFixed(2)}s! Winner range achieved.`
+                  )}
+                </p>
+              </div>
             </div>
           )}
+
+          {/* Historial de Intentos */}
+          {attemptsHistory.length > 0 && (
+            <div className="w-full rounded-xl bg-[#1c1b1f] border border-[#2b292e] px-4 py-2 flex items-center justify-between text-xs text-[#ccc3d8]">
+              <div className="flex items-center gap-1.5">
+                <History className="h-3.5 w-3.5 text-[#f2be71]" />
+                <span>
+                  {t("Última marca:", "Last mark:")}{" "}
+                  <strong className="text-[#e6e1e7] font-mono">{attemptsHistory[0]?.toFixed(2)}s</strong>
+                </span>
+              </div>
+              <span className="text-[#f2be71] font-semibold">
+                {t(`Quedan ${Math.max(0, maxAttempts - attemptsUsed)} intentos`, `${Math.max(0, maxAttempts - attemptsUsed)} attempts left`)}
+              </span>
+            </div>
+          )}
+
+          {/* Botón hacia Misiones VIP (Paso 7) */}
+          <div className="w-full pt-2">
+            <button
+              type="button"
+              onClick={onExit}
+              className="w-full h-13 py-3 px-6 rounded-full bg-gradient-to-r from-[#f2be71] via-[#ffdcb1] to-[#f2be71] text-[#141317] font-bold text-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
+            >
+              <span>{t("Continuar a Fidelización & Sellos (Paso 7)", "Continue to Loyalty & Stamps (Step 7)")}</span>
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </Reveal>
     </div>

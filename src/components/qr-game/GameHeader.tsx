@@ -1,6 +1,6 @@
-﻿import { TableSession } from "./gameTypes";
+import { TableSession } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
-import { RotateCcw, Sparkles, MessageCircle, Wifi, Bell } from "lucide-react";
+import { RotateCcw, Sparkles, MessageCircle, Wifi, Bell, ShieldCheck } from "lucide-react";
 import logoHeader from "@/assets/logo-header.png";
 import { clientConfig } from "@/config/clientConfig";
 
@@ -29,168 +29,167 @@ export function GameHeader({
   onOpenPushPrompt,
   onOpenKioskPortal,
 }: GameHeaderProps) {
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
 
   const gameSteps = [
-    { num: 1, label: t("Datos", "Info") },
-    { num: 2, label: t("Instagram / Redes", "Instagram") },
-    { num: 3, label: t("Carrusel", "Carousel") },
-    { num: 4, label: t("Premio & Sellos", "Prize & Stamps") },
-    { num: 5, label: t("Calificar", "Rate") },
-    { num: 6, label: t("2� Oportunidad", "2nd Chance") },
-    { num: 7, label: t("Misiones", "Missions") },
+    { num: 1, label: t("1. Datos", "1. Info") },
+    { num: 2, label: t("2. Redes", "2. Social") },
+    { num: 3, label: t("3. Ruleta", "3. Wheel") },
+    { num: 4, label: t("4. Voucher", "4. Voucher") },
+    { num: 5, label: t("5. Reputación", "5. Review") },
+    { num: 6, label: t("6. 2ª Oportunidad", "6. 2nd Chance") },
+    { num: 7, label: t("7. Misiones VIP", "7. VIP Hub") },
   ];
 
-  const isDebug = typeof window !== "undefined" && window.location.search.includes("debug=1");
-
   return (
-    <header className="border-b border-gold/20 bg-background/95 backdrop-blur sticky top-0 z-30 shadow-xs">
-      <div className="shell py-3">
-        {/* Barra superior limpia orientada al comensal (sin ruido backend) */}
-        <div className="flex items-center justify-between gap-3 text-xs pb-2 border-b border-border/40">
+    <header className="fixed top-0 w-full z-50 pt-safe bg-[#0f0e12]/85 backdrop-blur-xl border-b border-[#2b292e] shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2.5">
+        {/* Barra superior de estado y accesos rápidos */}
+        <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#2b292e]/60 text-xs">
           <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-semibold tracking-wide text-foreground">
-              {session.tableNumber}
-            </span>
-            <span className="text-muted-foreground/40">�</span>
-            <span className="text-muted-foreground font-light">
-              {t("Cortes�a de la Casa", "Complimentary House Treat")}
+            {/* Chip de Mesa En Vivo estilo Stitch */}
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#201f23] border border-[#f2be71]/30 shadow-[0_0_12px_rgba(242,190,113,0.15)]">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f2be71] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f2be71]"></span>
+              </span>
+              <span className="font-label-sm text-[11px] text-[#f2be71] tracking-wider uppercase font-bold whitespace-nowrap">
+                {session.tableNumber} • EN VIVO
+              </span>
+            </div>
+
+            <span className="hidden sm:inline text-xs text-[#ccc3d8]/60">•</span>
+            <span className="hidden sm:inline text-xs text-[#ccc3d8]">
+              {t("Cortesía asegurada para tu mesa", "Complimentary treat guaranteed")}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            {onOpenMissions && (
-              <button
-                type="button"
-                onClick={onOpenMissions}
-                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold/15 hover:bg-gold/25 text-gold border border-gold/40 text-[10px] sm:text-xs font-semibold transition-all shadow-2xs cursor-pointer"
-                title={t("Misiones Gourmet � Gana sellos extras", "Gourmet Missions � Earn extra stamps")}
-              >
-                <span>??</span>
-                <span className="font-semibold">{t("Misiones", "Missions")}</span>
-                <span className="bg-gold text-white text-[9px] px-1.5 py-0.2 rounded-full font-mono">+Sellos</span>
-              </button>
-            )}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Idioma ES / EN */}
+            <button
+              type="button"
+              onClick={() => setLanguage(language === "es" ? "en" : "es")}
+              className="h-8 px-2.5 rounded-full bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] text-[11px] text-[#ccc3d8] flex items-center gap-1 transition-colors cursor-pointer"
+              title="Cambiar idioma / Switch language"
+            >
+              <span className={language === "es" ? "text-[#f2be71] font-bold" : "text-[#ccc3d8]"}>ES</span>
+              <span>/</span>
+              <span className={language === "en" ? "text-[#f2be71] font-bold" : "text-[#ccc3d8]"}>EN</span>
+            </button>
 
-            {/* Bot�n para reiniciar demo desde el principio */}
+            {/* Portal Cautivo WiFi Kiosko */}
             {onOpenKioskPortal && (
               <button
                 type="button"
                 onClick={onOpenKioskPortal}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-800 dark:text-emerald-300 border border-emerald-500/40 text-[11px] sm:text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#047857]/20 hover:bg-[#047857]/30 text-[#10b981] border border-[#10b981]/40 text-[11px] font-bold transition-all shadow-xs cursor-pointer active:scale-95"
                 title="Abrir Pantalla de Kiosko / Portal WiFi para Tablets"
               >
-                <Wifi className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 animate-pulse" />
-                <span>📶 {t("Portal Cautivo WiFi", "WiFi Captive Portal")}</span>
-                <span className="bg-emerald-600 text-white text-[9px] px-1.5 py-0.2 rounded-full font-mono font-bold">WiFi</span>
+                <Wifi className="h-3.5 w-3.5 animate-pulse text-[#10b981]" />
+                <span className="hidden xs:inline">WiFi</span>
               </button>
             )}
 
-            {onOpenPushPrompt && (
+            {/* Misiones VIP */}
+            {onOpenMissions && (
               <button
                 type="button"
-                onClick={onOpenPushPrompt}
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 border border-amber-500/30 text-[10px] sm:text-xs font-semibold transition-all shadow-2xs cursor-pointer"
-                title="Notificaciones Web Push"
+                onClick={onOpenMissions}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#8a4fff]/20 hover:bg-[#8a4fff]/30 text-[#d1bcff] border border-[#8a4fff]/40 text-[11px] font-semibold transition-all cursor-pointer"
+                title="Ver Misiones y Sellos VIP"
               >
-                <Bell className="h-3 w-3 text-amber-700" />
-                <span>{t("Push", "Push")}</span>
+                <span>⭐</span>
+                <span className="hidden xs:inline">{t("Misiones", "Missions")}</span>
               </button>
             )}
 
+            {/* Reiniciar Demo */}
             <button
               onClick={onResetSession}
               type="button"
-              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium text-muted-foreground hover:text-foreground bg-muted/60 hover:bg-muted border border-border/60 transition-all cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium text-[#ccc3d8] hover:text-[#f2be71] bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] transition-all cursor-pointer"
               title="Reiniciar la demo al Paso 1 (Tus Datos)"
             >
-              <RotateCcw className="h-3 w-3 text-gold" />
-              <span>{t("Reiniciar Demo", "Reset Demo")}</span>
+              <RotateCcw className="h-3 w-3 text-[#f2be71]" />
+              <span className="hidden sm:inline">{t("Reiniciar", "Reset")}</span>
             </button>
           </div>
         </div>
 
-        {/* Marca y Selector de Modo o Stepper */}
-        <div className="pt-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+        {/* Marca de cabecera y Stepper de etapas */}
+        <div className="pt-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2.5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
               <img
                 src={clientConfig.brand.logoUrl || logoHeader}
                 alt={clientConfig.brand.name}
-                className="h-9 w-auto object-contain brightness-0 invert-0"
+                className="h-8 w-auto object-contain brightness-110"
               />
-              <div className="border-l border-gold/30 pl-3">
-                <p className="text-[10px] uppercase tracking-[0.24em] text-gold font-semibold">
-                  {session.tableNumber.includes("Domicilio")
-                    ? t("Experiencia en Casa", "At Home Experience")
-                    : t("Experiencia en Mesa", "Table Experience")}
+              <div className="border-l border-[#f2be71]/30 pl-2.5">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#f2be71] font-bold">
+                  {clientConfig.brand.name}
                 </p>
-                <p className="text-xs font-serif text-foreground/80">
-                  {t("Juego de Premios & Gratitud", "Prize Game & Hospitality")}
+                <p className="text-[11px] font-sans text-[#ccc3d8]/80 leading-tight">
+                  {t("Experiencia Gastronómica & Fidelización", "Fine Dining Loyalty Experience")}
                 </p>
               </div>
             </div>
 
-            {/* P�ldoras para alternar entre Juego y Solo Feedback */}
-            <div className="flex items-center p-1 bg-muted/60 rounded-xl border border-border/70 text-xs">
+            {/* Alternar Juego / Feedback */}
+            <div className="flex items-center p-0.5 bg-[#201f23] rounded-full border border-[#363439] text-xs">
               <button
                 type="button"
                 onClick={() => onChangeMode("game")}
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all font-medium ${
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] transition-all font-medium ${
                   activeMode === "game"
-                    ? "bg-card text-gold font-semibold shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-gradient-to-r from-[#f2be71] to-[#ffddb1] text-[#141317] font-bold shadow-xs"
+                    : "text-[#ccc3d8] hover:text-white"
                 }`}
               >
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>{t("Juego de Premios", "Prize Game")}</span>
+                <Sparkles className="h-3 w-3" />
+                <span>{t("Juego", "Game")}</span>
               </button>
               <button
                 type="button"
                 onClick={() => onChangeMode("feedback")}
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all font-medium ${
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] transition-all font-medium ${
                   activeMode === "feedback"
-                    ? "bg-card text-gold font-semibold shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-gradient-to-r from-[#f2be71] to-[#ffddb1] text-[#141317] font-bold shadow-xs"
+                    : "text-[#ccc3d8] hover:text-white"
                 }`}
               >
-                <MessageCircle className="h-3.5 w-3.5" />
-                <span>{t("Solo Calificar", "Rate Only")}</span>
+                <MessageCircle className="h-3 w-3" />
+                <span>{t("Calificar", "Rate")}</span>
               </button>
             </div>
           </div>
 
-          {/* Stepper horizontal si est� en modo Juego */}
+          {/* Stepper Horizontal de 7 Etapas */}
           {activeMode === "game" && (
-            <div className="flex items-center justify-between sm:justify-end gap-1 sm:gap-2">
+            <div className="flex items-center justify-between sm:justify-end gap-1 overflow-x-auto py-0.5 no-scrollbar">
               {gameSteps.map((s) => {
                 const isCompleted = s.num < currentStep;
                 const isCurrent = s.num === currentStep;
 
                 return (
-                  <div key={s.num} className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => onSelectStep && onSelectStep(s.num)}
-                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer hover:scale-105 ${
-                        isCurrent
-                          ? "bg-gold text-white shadow-xs font-semibold ring-2 ring-gold/40"
-                          : isCompleted
-                            ? "bg-gold/15 text-gold border border-gold/30 hover:bg-gold/25"
-                            : "bg-muted/60 text-muted-foreground/80 border border-transparent hover:bg-muted"
-                      }`}
-                      title={`Ir al Paso ${s.num}: ${s.label}`}
-                    >
-                      <span className="h-4 w-4 rounded-full flex items-center justify-center text-[10px] bg-black/10">
-                        {isCompleted ? "?" : s.num}
-                      </span>
-                      <span className="hidden md:inline">{s.label}</span>
-                    </button>
-                    {s.num < gameSteps.length && (
-                      <span className="text-muted-foreground/30 text-[10px]">�</span>
-                    )}
-                  </div>
+                  <button
+                    key={s.num}
+                    type="button"
+                    onClick={() => onSelectStep && onSelectStep(s.num)}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer whitespace-nowrap ${
+                      isCurrent
+                        ? "bg-[#f2be71] text-[#141317] font-bold shadow-[0_0_12px_rgba(242,190,113,0.4)] scale-105"
+                        : isCompleted
+                          ? "bg-[#201f23] text-[#f2be71] border border-[#f2be71]/40 hover:bg-[#2b292e]"
+                          : "bg-[#1c1b1f] text-[#ccc3d8]/60 border border-transparent hover:text-[#e6e1e7]"
+                    }`}
+                    title={`Paso ${s.num}: ${s.label}`}
+                  >
+                    <span className="h-3.5 w-3.5 rounded-full flex items-center justify-center text-[9px] bg-black/20">
+                      {isCompleted ? "✓" : s.num}
+                    </span>
+                    <span className="hidden md:inline">{s.label.split(".")[1]}</span>
+                  </button>
                 );
               })}
             </div>

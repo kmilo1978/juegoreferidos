@@ -3,7 +3,7 @@ import { GamePrize, DEFAULT_PRIZES } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
 import confetti from "canvas-confetti";
-import { Sparkles, Trophy, ArrowRight } from "lucide-react";
+import { Sparkles, ArrowRight, Trophy } from "lucide-react";
 import emblemaDorado from "@/assets/emblema-dorado.png";
 import { playRouletteTickSound, playVictoryFanfareSound } from "../../lib/soundEffects";
 import { clientConfig } from "@/config/clientConfig";
@@ -21,62 +21,35 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
   const [hasSpun, setHasSpun] = useState(false);
   const [wonPrize, setWonPrize] = useState<GamePrize | null>(null);
   const [rotationAngle, setRotationAngle] = useState(0);
-  const [countdown, setCountdown] = useState(10);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // Solo consideramos premios activos
   const activePrizes = prizes.filter((p) => p.active);
   const numSegments = activePrizes.length;
   const segmentAngle = 360 / numSegments;
 
-  // Dibujar la ruleta visual en Canvas de alta resolución
+  // Dibujar la ruleta con colores Obsidian y Dorado Luxor de Stitch
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const size = 520;
+    const size = 480;
     canvas.width = size;
     canvas.height = size;
-
     const center = size / 2;
-    const radius = size / 2 - 24;
+    const radius = size / 2 - 20;
 
     ctx.clearRect(0, 0, size, size);
 
-    // 1. Sombra exterior
-    ctx.save();
-    ctx.shadowColor = "rgba(162, 126, 44, 0.25)";
-    ctx.shadowBlur = 25;
-    ctx.shadowOffsetY = 8;
+    // Fondo base del plato
     ctx.beginPath();
-    ctx.arc(center, center, radius + 12, 0, 2 * Math.PI);
-    ctx.fillStyle = "#ffffff";
-    ctx.fill();
-    ctx.restore();
-
-    // 2. Anillo exterior dorado Luxor con textura biselada
-    const goldGrad = ctx.createLinearGradient(0, 0, size, size);
-    goldGrad.addColorStop(0, "#d1b374");
-    goldGrad.addColorStop(0.25, "#a27e2c");
-    goldGrad.addColorStop(0.5, "#f7edd0");
-    goldGrad.addColorStop(0.75, "#8c6b22");
-    goldGrad.addColorStop(1, "#c49f48");
-
-    ctx.beginPath();
-    ctx.arc(center, center, radius + 12, 0, 2 * Math.PI);
-    ctx.fillStyle = goldGrad;
+    ctx.arc(center, center, radius + 10, 0, 2 * Math.PI);
+    ctx.fillStyle = "#0f0e12";
     ctx.fill();
 
-    // Aro interior de contraste
-    ctx.beginPath();
-    ctx.arc(center, center, radius + 2, 0, 2 * Math.PI);
-    ctx.fillStyle = "#1e1b18";
-    ctx.fill();
-
-    // 3. Dibujar los segmentos de cada premio
+    // Dibujar sectores
     activePrizes.forEach((prize, index) => {
       const startAngle = ((index * segmentAngle - 90) * Math.PI) / 180;
       const endAngle = (((index + 1) * segmentAngle - 90) * Math.PI) / 180;
@@ -86,76 +59,60 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
       ctx.moveTo(center, center);
       ctx.arc(center, center, radius, startAngle, endAngle);
       ctx.closePath();
-      ctx.fillStyle = prize.color;
+
+      // Paleta alterna Obsidian y Dorado Luxor
+      if (index % 2 === 0) {
+        const goldGrad = ctx.createLinearGradient(0, 0, size, size);
+        goldGrad.addColorStop(0, "#f2be71");
+        goldGrad.addColorStop(1, "#b88330");
+        ctx.fillStyle = goldGrad;
+      } else {
+        const darkGrad = ctx.createLinearGradient(0, 0, size, size);
+        darkGrad.addColorStop(0, "#24202a");
+        darkGrad.addColorStop(1, "#141317");
+        ctx.fillStyle = darkGrad;
+      }
       ctx.fill();
 
-      // Separador dorado fino entre sectores
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = "rgba(209, 179, 116, 0.4)";
+      // Línea divisoria
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = "rgba(255, 221, 177, 0.35)";
       ctx.stroke();
       ctx.restore();
 
-      // Dibujar texto del premio orientado radialmente
+      // Texto de premio
       ctx.save();
       ctx.translate(center, center);
       ctx.rotate(((index * segmentAngle + segmentAngle / 2 - 90) * Math.PI) / 180);
       ctx.textAlign = "right";
-      ctx.fillStyle = prize.textColor;
-      ctx.font = "bold 13px sans-serif";
+      ctx.fillStyle = index % 2 === 0 ? "#291800" : "#ffdcb1";
+      ctx.font = "bold 12px 'Manrope', sans-serif";
 
-      // Texto en dos líneas para nombres largos
       const label = lang === "en" ? prize.nameEn : prize.name;
       const words = label.split(" ");
       if (words.length > 2) {
-        ctx.fillText(words.slice(0, 2).join(" "), radius - 30, -5);
-        ctx.font = "11px sans-serif";
-        ctx.fillText(words.slice(2).join(" "), radius - 30, 12);
+        ctx.fillText(words.slice(0, 2).join(" "), radius - 26, -4);
+        ctx.font = "10px 'Manrope', sans-serif";
+        ctx.fillText(words.slice(2).join(" "), radius - 26, 10);
       } else {
-        ctx.fillText(label, radius - 30, 4);
+        ctx.fillText(label, radius - 26, 4);
       }
-
       ctx.restore();
     });
 
-    // 4. Clavijas doradas decorativas en el perímetro
+    // Clavijas perimetrales
     for (let i = 0; i < numSegments * 2; i++) {
       const angle = (i * (360 / (numSegments * 2)) * Math.PI) / 180;
-      const pinX = center + (radius + 7) * Math.cos(angle);
-      const pinY = center + (radius + 7) * Math.sin(angle);
+      const pinX = center + (radius + 4) * Math.cos(angle);
+      const pinY = center + (radius + 4) * Math.sin(angle);
 
       ctx.beginPath();
-      ctx.arc(pinX, pinY, 3.5, 0, 2 * Math.PI);
-      ctx.fillStyle = "#ffffff";
+      ctx.arc(pinX, pinY, 2.5, 0, 2 * Math.PI);
+      ctx.fillStyle = "#ffddb1";
       ctx.fill();
-      ctx.lineWidth = 1.5;
-      ctx.strokeStyle = "#a27e2c";
-      ctx.stroke();
     }
-
-    // 5. Medallón central dorado
-    ctx.save();
-    ctx.shadowColor = "rgba(0, 0, 0, 0.35)";
-    ctx.shadowBlur = 12;
-    ctx.beginPath();
-    ctx.arc(center, center, 44, 0, 2 * Math.PI);
-    ctx.fillStyle = goldGrad;
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = "#ffffff";
-    ctx.stroke();
-    ctx.restore();
-
-    // 6. Isotipo o emblema en el centro del medallón
-    const img = new Image();
-    img.src = clientConfig.brand.emblemUrl || emblemaDorado;
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      const emblemSize = 42;
-      ctx.drawImage(img, center - emblemSize / 2, center - emblemSize / 2, emblemSize, emblemSize);
-    };
   }, [activePrizes, numSegments, segmentAngle, lang]);
 
-  // Selección ponderada de premio según probabilidad configurada
   const chooseWeightedPrize = (): { prize: GamePrize; index: number } => {
     const totalProb = activePrizes.reduce((sum, p) => sum + p.probability, 0);
     const rand = Math.random() * totalProb;
@@ -174,181 +131,186 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
     return { prize: fallback, index: 0 };
   };
 
-  // Disparo de confeti dorado de celebración
   const fireConfetti = () => {
     const duration = 2.5 * 1000;
     const end = Date.now() + duration;
-
-    const colors = ["#a27e2c", "#d1b374", "#ffffff", "#f5e6c8", "#594314"];
+    const colors = ["#f2be71", "#ffdcb1", "#ffffff", "#8a4fff", "#d1bcff"];
 
     (function frame() {
       confetti({
-        particleCount: 4,
+        particleCount: 5,
         angle: 60,
         spread: 55,
         origin: { x: 0.1, y: 0.7 },
         colors,
       });
       confetti({
-        particleCount: 4,
+        particleCount: 5,
         angle: 120,
         spread: 55,
         origin: { x: 0.9, y: 0.7 },
         colors,
       });
-
       if (Date.now() < end) {
         requestAnimationFrame(frame);
       }
     })();
   };
 
-  // Girar la ruleta
   const handleSpin = () => {
     if (isSpinning || hasSpun) return;
 
     setIsSpinning(true);
-    setCountdown(5);
 
-    // Tics de sonido mecánicos durante el giro
     const tickInterval = setInterval(() => {
       playRouletteTickSound();
     }, 120);
 
-    const countdownInterval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(countdownInterval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
     const { prize, index } = chooseWeightedPrize();
-
     const targetCenterAngle = index * segmentAngle + segmentAngle / 2;
-    const extraSpins = 360 * 7; // 7 vueltas completas
+    const extraSpins = 360 * 7;
     const finalAngle = extraSpins + (360 - targetCenterAngle);
 
     setRotationAngle(finalAngle);
 
-    // Esperar al fin de la animación exactamente 5.2 segundos
     setTimeout(() => {
       clearInterval(tickInterval);
-      clearInterval(countdownInterval);
       setIsSpinning(false);
       setHasSpun(true);
       setWonPrize(prize);
       playVictoryFanfareSound();
       fireConfetti();
-    }, 5200);
+    }, 5000);
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-8">
+    <div className="w-full flex flex-col gap-5">
+      {/* Barra de progreso Stitch */}
       <Reveal>
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <span className="h-px w-6 bg-gold" />
-            <span className="text-xs uppercase tracking-[0.24em] text-gold font-medium">
-              {t("Paso 3 · La Ruleta", "Step 3 · The Roulette")}
-            </span>
-            <span className="h-px w-6 bg-gold" />
+        <section className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#201f23] text-[#f2be71] border border-[#f2be71]/30">
+              <Sparkles className="h-3.5 w-3.5 text-[#f2be71]" />
+              <span className="font-label-sm text-[10px] uppercase tracking-wider font-bold">
+                {t("PASO 3 DE 7 • RULETA DE LA SUERTE", "STEP 3 OF 7 • LUCKY WHEEL")}
+              </span>
+            </div>
+            <span className="font-label-sm text-[11px] text-[#ccc3d8] font-medium">42% Completado</span>
           </div>
 
-          <h2 className="font-display text-2xl sm:text-3xl text-foreground font-normal tracking-tight">
-            {t("¡Es hora de jugar!", "It's time to play!")}
-          </h2>
-
-          <p className="mt-2 text-sm text-muted-foreground font-light max-w-md mx-auto">
-            {t(
-              `Gira la ruleta exclusiva de ${clientConfig.brand.name} para descubrir tu premio especial, ${participantName}.`,
-              `Spin the exclusive ${clientConfig.brand.name} roulette to unveil your special prize, ${participantName}.`,
-            )}
-          </p>
-        </div>
+          <div className="w-full h-1.5 rounded-full bg-[#2b292e] overflow-hidden mt-1">
+            <div className="h-full rounded-full bg-[#f2be71] shadow-[0_0_10px_rgba(242,190,113,0.7)] w-[42%] transition-all duration-500" />
+          </div>
+        </section>
       </Reveal>
 
-      {/* Contenedor de la Ruleta */}
+      {/* Título de la Ruleta */}
+      <Reveal delay={50}>
+        <section className="text-center flex flex-col gap-1">
+          <h1 className="font-headline-xl-mobile text-2xl sm:text-3xl text-[#e6e1e7] tracking-tight">
+            {t("¡Gira la Ruleta,", "Spin the Wheel,")}{" "}
+            <span className="text-[#f2be71] italic font-serif">{participantName}</span>!
+          </h1>
+          <p className="font-body-md text-sm text-[#ccc3d8] leading-relaxed max-w-md mx-auto">
+            {t(
+              "Toca el botón central dorado para descubrir tu beneficio de cortesía para tu mesa.",
+              "Tap the center gold button to reveal your complimentary dining treat."
+            )}
+          </p>
+        </section>
+      </Reveal>
+
+      {/* Ruleta Gamificada de Lujo estilo Stitch */}
       <Reveal delay={100}>
-        <div className="mt-8 flex flex-col items-center">
-          <div className="relative w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] flex items-center justify-center select-none">
-            {/* Puntero Indicador Dorado Fijo en el borde superior en aguja triangular limpia */}
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)]">
-              <svg width="28" height="36" viewBox="0 0 28 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14 36L1.00962 4.5L26.9904 4.5L14 36Z" fill="url(#goldNeedleGrad)" stroke="#ffffff" strokeWidth="1.5" />
-                <circle cx="14" cy="9" r="4" fill="#ffffff" stroke="#a27e2c" strokeWidth="1.5" />
-                <defs>
-                  <linearGradient id="goldNeedleGrad" x1="14" y1="0" x2="14" y2="36" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#f7edd0" />
-                    <stop offset="0.4" stopColor="#a27e2c" />
-                    <stop offset="1" stopColor="#594314" />
-                  </linearGradient>
-                </defs>
-              </svg>
+        <div className="flex flex-col items-center">
+          <div className="relative w-[310px] h-[310px] sm:w-[360px] sm:h-[360px] flex items-center justify-center select-none">
+            {/* Puntero Indicador Superior Dorado con flapper */}
+            <div className="absolute -top-3 z-30 flex flex-col items-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)]">
+              <div
+                className="w-5 h-7 bg-gradient-to-b from-[#ffddb1] via-[#f2be71] to-[#684400] rounded-t-sm shadow-md clip-pointer"
+                style={{ clipPath: "polygon(50% 100%, 0% 0%, 100% 0%)" }}
+              />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#ffddb1] -mt-6 shadow-[0_0_6px_rgba(255,221,177,0.9)]" />
             </div>
 
-            {/* Canvas giratorio con aceleración por hardware GPU */}
-            <div
-              style={{
-                transform: `translate3d(0, 0, 0) rotate(${rotationAngle}deg)`,
-                transition: isSpinning
-                  ? "transform 5.2s cubic-bezier(0.12, 0.98, 0.22, 1.0)"
-                  : "none",
-                willChange: "transform",
-              }}
-              className="w-full h-full flex items-center justify-center"
-            >
-              <canvas ref={canvasRef} className="w-full h-full object-contain rounded-full shadow-2xl" />
+            {/* Anillo exterior biselado con gradiente Stitch */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#ffddb1] via-[#684400] to-[#f2be71] shadow-[0_12px_36px_rgba(0,0,0,0.8)] p-2">
+              <div className="relative w-full h-full rounded-full bg-[#0f0e12] p-1 shadow-inner flex items-center justify-center">
+                <div className="w-full h-full rounded-full bg-gradient-to-tr from-[#684400]/60 via-[#ffddb1]/40 to-[#f2be71]/80 p-1 flex items-center justify-center shadow-lg">
+                  {/* Canvas giratorio */}
+                  <div
+                    style={{
+                      transform: `rotate(${rotationAngle}deg)`,
+                      transition: isSpinning
+                        ? "transform 5.0s cubic-bezier(0.15, 0.98, 0.25, 1.0)"
+                        : "none",
+                      willChange: "transform",
+                    }}
+                    className="w-full h-full rounded-full relative flex items-center justify-center"
+                  >
+                    <canvas ref={canvasRef} className="w-full h-full rounded-full block" />
+                  </div>
+
+                  {/* Botón Central Dorado Metálico */}
+                  <button
+                    type="button"
+                    onClick={handleSpin}
+                    disabled={isSpinning || hasSpun}
+                    className="absolute z-20 w-24 h-24 rounded-full bg-gradient-to-tr from-[#684400] via-[#ffddb1] to-[#f2be71] p-1 shadow-[0_8px_20px_rgba(0,0,0,0.7),0_0_16px_rgba(242,190,113,0.5)] active:scale-95 transition-transform flex items-center justify-center cursor-pointer group disabled:cursor-not-allowed"
+                  >
+                    <div className="w-full h-full rounded-full bg-[#0f0e12] flex flex-col items-center justify-center p-1 relative overflow-hidden shadow-inner">
+                      <div className="absolute inset-0 bg-gradient-to-b from-[#f2be71]/20 to-transparent pointer-events-none" />
+                      <Sparkles className="h-4 w-4 text-[#f2be71] animate-pulse" />
+                      <span className="font-headline-sm text-[11px] leading-tight text-center font-bold tracking-wider text-[#f2be71] uppercase mt-0.5">
+                        {isSpinning ? t("GIRANDO...", "SPINNING...") : hasSpun ? t("LISTO", "DONE") : t("GIRAR\nAHORA", "SPIN\nNOW")}
+                      </span>
+                    </div>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Botón de Giro o Resultado */}
-          <div className="mt-8 w-full max-w-sm text-center">
-            {!hasSpun ? (
+          {/* Banner de Ganador Reciente en Vivo */}
+          <div className="w-full max-w-sm mt-4 p-2.5 rounded-full bg-[#1c1b1f] border border-[#2b292e] flex items-center gap-2.5 shadow-sm">
+            <div className="w-7 h-7 rounded-full bg-[#684400]/60 flex items-center justify-center shrink-0 text-[#f2be71]">
+              <Trophy className="h-3.5 w-3.5" />
+            </div>
+            <div className="flex items-center gap-1.5 text-xs truncate">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#f2be71] animate-ping" />
+              <span className="font-bold text-[#f2be71] uppercase text-[10px]">Mesa 2:</span>
+              <span className="text-[#e6e1e7] truncate">Ganó Postre de Autor 🍰</span>
+            </div>
+          </div>
+
+          {/* Tarjeta de Victoria al terminar el giro */}
+          {wonPrize && (
+            <div className="w-full mt-5 rounded-2xl bg-gradient-to-b from-[#2a2215] to-[#1c1b1f] border border-[#f2be71]/40 p-5 shadow-2xl text-center flex flex-col items-center gap-3 animate-in zoom-in-95">
+              <div className="w-12 h-12 rounded-full bg-[#f2be71] text-[#141317] flex items-center justify-center shadow-[0_0_16px_rgba(242,190,113,0.6)]">
+                <Trophy className="h-6 w-6" />
+              </div>
+              <span className="font-label-sm text-[11px] uppercase tracking-wider text-[#f2be71] font-bold">
+                {t("¡PREMIO DESBLOQUEADO!", "PRIZE UNLOCKED!")}
+              </span>
+              <h3 className="font-headline-lg text-xl sm:text-2xl text-[#ffddb1] font-bold">
+                {lang === "en" ? wonPrize.nameEn : wonPrize.name}
+              </h3>
+              <p className="font-body-sm text-xs text-[#ccc3d8] max-w-xs">
+                {t(
+                  "Tu beneficio ha sido asignado a tu mesa. Avanza para reclamar tu voucher digital y tu código único.",
+                  "Your treat has been assigned. Continue to get your voucher and unique code."
+                )}
+              </p>
               <button
                 type="button"
-                onClick={handleSpin}
-                disabled={isSpinning}
-                className="btn-solid w-full inline-flex items-center justify-center gap-2.5 py-3.5 px-8 text-xs uppercase tracking-[0.24em] font-semibold text-white transition-all shadow-md disabled:opacity-60 disabled:cursor-wait"
+                onClick={() => onPrizeWon(wonPrize)}
+                className="w-full h-12 rounded-full bg-gradient-to-r from-[#f2be71] via-[#ffdcb1] to-[#f2be71] text-[#141317] font-bold text-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
               >
-                <Sparkles className="h-4 w-4" />
-                <span>
-                  {isSpinning
-                    ? `${t("Girando con emoción...", "Spinning with excitement...")} (${countdown}s)`
-                    : t("¡Girar Ruleta de la Suerte!", "Spin Lucky Roulette!")}
-                </span>
+                <span>{t("Ver mi Voucher de Premio", "View My Prize Voucher")}</span>
+                <ArrowRight className="h-4 w-4" />
               </button>
-            ) : (
-              /* Tarjeta de Anuncio Inmediato y Avance al Voucher */
-              <div className="rounded-2xl border border-gold/50 bg-gold/10 p-6 text-center shadow-md animate-fade-in space-y-4">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gold text-white shadow-sm">
-                  <Trophy className="h-6 w-6" />
-                </div>
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-gold font-semibold">
-                    {t("¡Felicitaciones!", "Congratulations!")}
-                  </p>
-                  <h3 className="font-display text-xl sm:text-2xl text-foreground mt-1">
-                    {lang === "en" ? wonPrize?.nameEn : wonPrize?.name}
-                  </h3>
-                  <p className="mt-1 text-xs text-muted-foreground font-light">
-                    {lang === "en" ? wonPrize?.termsEn : wonPrize?.terms}
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => wonPrize && onPrizeWon(wonPrize)}
-                  className="btn-solid w-full inline-flex items-center justify-center gap-2.5 py-3.5 px-6 text-xs uppercase tracking-[0.18em] font-bold text-white shadow-md hover:scale-[1.02] active:scale-98 transition-all cursor-pointer bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700"
-                >
-                  <span>🏆 {t("Ver mi Premio y Código Único · Paso 4", "View My Prize & Code · Step 4")}</span>
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </Reveal>
     </div>
