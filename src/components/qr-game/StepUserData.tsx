@@ -99,18 +99,16 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
             )}
           </p>
 
-          {/* Banner de Ambiente Gastronómico de la Mesa */}
-          <div className="relative w-full h-20 rounded-2xl overflow-hidden mt-2 bg-[#0f0e12] border border-[#2b292e] shadow-md flex items-center justify-between p-4">
-            <div className="relative z-10 flex flex-col max-w-[240px]">
-              <span className="font-label-sm text-[10px] uppercase tracking-wider text-[#f2be71] font-bold">
-                {clientConfig.brand.name}
-              </span>
-              <span className="font-headline-sm text-sm text-[#e6e1e7] leading-tight mt-0.5 font-bold">
+          {/* Banner de Ambiente Gastronómico de la Mesa en una sola línea */}
+          <div className="relative w-full rounded-2xl overflow-hidden mt-2 bg-gradient-to-r from-[#1c1b1f] to-[#0f0e12] border border-[#2b292e] shadow-md flex items-center justify-between px-4 py-3">
+            <div className="relative z-10 flex items-center gap-2 min-w-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#f2be71] shrink-0" />
+              <span className="font-headline-sm text-xs sm:text-sm font-bold text-[#e6e1e7] tracking-tight whitespace-nowrap">
                 {t("Experiencia en Sala & Fidelización", "Boutique Table Experience")}
               </span>
             </div>
-            <div className="relative z-10 w-10 h-10 rounded-full bg-[#2b292e]/90 border border-[#f2be71]/30 flex items-center justify-center text-[#f2be71] shadow-md">
-              <Gift className="h-5 w-5" />
+            <div className="relative z-10 w-9 h-9 rounded-full bg-[#2b292e]/90 border border-[#f2be71]/30 flex items-center justify-center text-[#f2be71] shadow-md shrink-0 ml-2">
+              <Gift className="h-4.5 w-4.5" />
             </div>
           </div>
         </section>
