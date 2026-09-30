@@ -89,3 +89,20 @@
 - Resultado: Aprobado (Score: 10/10)
 - Resumen: Cabecera con logo central de alto protagonismo, switch ES/EN arriba, línea de tiempo más corta y simetría total con el ancho de la aplicación.
 - Observaciones: Pruebas de compilación superadas sin advertencias.
+
+## Nueva sesión
+- Fecha: 2026-09-30 10:00
+- Solicitud: Eliminar la duplicación de 2 líneas de tiempo simultáneas y otorgar mayor espacio y aire visual a la pantalla para evitar que se vea saturada.
+- Decisiones clave:
+  - Se identificó y erradicó la segunda barra de progreso redundante presente en el interior de cada una de las 7 etapas ('StepUserData.tsx', 'StepInstagramStory.tsx', 'StepRouletteWheel.tsx', 'StepPrizeClaim.tsx', 'StepFeedback.tsx', 'StepSecondChancePrecision.tsx', 'StepMissions.tsx').
+  - Se estableció la línea de tiempo de 7 segmentos de la cabecera ('GameHeader.tsx') como la única fuente oficial de progreso visual del juego.
+  - Se incrementó el espaciado y separación vertical en 'GameHeader.tsx' (padding y márgenes holgados) y en 'App.tsx' ('pt-44 sm:pt-48'), permitiendo que el contenido de cada etapa respire con total naturalidad sin competir con la cabecera.
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 11.55s).
+  - Cambios confirmados y subidos a GitHub en la rama 'main' (commit 0b68d4c).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-09-30 10:00
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Interfaz limpia y desahogada con una sola línea de tiempo centralizada y espaciado armónico.
+- Observaciones: Pruebas de compilación superadas sin advertencias.
