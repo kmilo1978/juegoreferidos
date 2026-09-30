@@ -1,31 +1,20 @@
 import { TableSession } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
-import { RotateCcw, Sparkles, MessageCircle, Wifi } from "lucide-react";
+import { RotateCcw, Wifi } from "lucide-react";
 import emblemaDorado from "@/assets/emblema-dorado.png";
 import { clientConfig } from "@/config/clientConfig";
 
 interface GameHeaderProps {
   session: TableSession;
   currentStep: number;
-  activeMode: "game" | "feedback";
-  onChangeMode: (mode: "game" | "feedback") => void;
-  onOpenAdmin?: () => void;
   onResetSession: () => void;
-  onOpenTableStand?: () => void;
-  onSelectStep?: (step: number) => void;
-  onOpenMissions?: () => void;
-  onOpenPushPrompt?: () => void;
   onOpenKioskPortal?: () => void;
 }
 
 export function GameHeader({
   session,
   currentStep,
-  activeMode,
-  onChangeMode,
   onResetSession,
-  onSelectStep,
-  onOpenMissions,
   onOpenKioskPortal,
 }: GameHeaderProps) {
   const { t, language, setLanguage } = useLanguage();
@@ -41,13 +30,14 @@ export function GameHeader({
   ];
 
   const currentStepObj = gameSteps.find((s) => s.num === currentStep) || gameSteps[0];
+  const progressPercent = Math.round((currentStep / 7) * 100);
 
   return (
     <header className="fixed top-0 left-0 right-0 w-full z-50 pt-safe bg-[#0f0e12]/96 backdrop-blur-2xl border-b border-[#2b292e]/80 shadow-[0_8px_32px_rgba(0,0,0,0.65)]">
-      {/* Contenedor exactamente del mismo ancho (grosor) de la aplicación */}
-      <div className="max-w-lg mx-auto w-full px-4 sm:px-6 pt-2.5 pb-3 flex flex-col items-center gap-2">
-        {/* 1. ARRIBA DEL LOGO: SWITCH ESPAÑOL / INGLÉS Y UTILIDADES CON AIRE */}
-        <div className="w-full flex items-center justify-between text-xs pb-0.5">
+      {/* Contenedor con ancho máximo armónico con la app */}
+      <div className="max-w-lg mx-auto w-full px-4 sm:px-6 pt-2 pb-2.5 flex flex-col items-center gap-1.5">
+        {/* 1. FILA SUPERIOR: MESA, SWITCH ES/EN Y UTILIDADES */}
+        <div className="w-full flex items-center justify-between text-xs">
           {/* Indicador de mesa activa */}
           <div className="flex items-center gap-1.5">
             <span className="relative flex h-2 w-2">
@@ -59,7 +49,7 @@ export function GameHeader({
             </span>
           </div>
 
-          {/* Switch de Idioma ES / EN centrado arriba del logo con espaciado limpio */}
+          {/* Switch de Idioma ES / EN */}
           <div className="flex items-center bg-[#201f23] p-0.5 rounded-full border border-[#363439] shadow-inner">
             <button
               type="button"
@@ -108,10 +98,10 @@ export function GameHeader({
           </div>
         </div>
 
-        {/* 2. EL LOGO EN EL CENTRO Y CON MÁS PROTAGONISMO */}
-        <div className="flex flex-col items-center justify-center py-1">
+        {/* 2. EL LOGO EN EL CENTRO CON PROTAGONISMO */}
+        <div className="flex flex-col items-center justify-center py-0.5">
           <div className="relative">
-            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-[#684400] via-[#f2be71] to-[#ffddb1] p-0.5 shadow-[0_0_20px_rgba(242,190,113,0.35)]">
+            <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-gradient-to-tr from-[#684400] via-[#f2be71] to-[#ffddb1] p-0.5 shadow-[0_0_16px_rgba(242,190,113,0.35)]">
               <img
                 src={clientConfig.brand.logoUrl || emblemaDorado}
                 alt={clientConfig.brand.name}
@@ -119,95 +109,50 @@ export function GameHeader({
               />
             </div>
           </div>
-          <h1 className="font-headline-sm text-sm sm:text-base font-bold text-[#e6e1e7] tracking-tight mt-1.5 text-center">
+          <h1 className="font-headline-sm text-sm sm:text-base font-bold text-[#e6e1e7] tracking-tight mt-1 text-center">
             {clientConfig.brand.name}
           </h1>
         </div>
 
-        {/* 3. MISIONES Y LÍNEA DE TIEMPO ÚNICA (DEL MISMO ANCHO DE LA APP, ESPACIOSA Y LIMPIA) */}
-        <div className="w-full flex flex-col gap-2 pt-0.5">
-          {/* Fila de Controles: Misiones, Etapa y Modo con buen margen */}
-          <div className="flex items-center justify-between gap-2">
-            {/* Botón Misiones [+Sellos] */}
-            {onOpenMissions && (
-              <button
-                type="button"
-                onClick={onOpenMissions}
-                className="h-7.5 inline-flex items-center gap-1.5 px-3 rounded-full bg-[#8a4fff]/25 hover:bg-[#8a4fff]/40 text-[#d1bcff] border border-[#8a4fff]/50 text-[11px] font-bold transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
-                title="Ver Misiones y Sellos VIP"
-              >
-                <span>🎯</span>
-                <span className="font-bold">{t("Misiones", "Missions")}</span>
-                <span className="badge-gold text-[9px] px-1.5 py-0.5 rounded-full font-black tracking-wide">
-                  +Sellos
-                </span>
-              </button>
-            )}
-
-            {/* Texto de la etapa actual */}
+        {/* 3. LÍNEA DE TIEMPO DEL EMBUDO (100% GUIADA, SIN SALTOS DE PASO) */}
+        <div className="w-full flex flex-col gap-1.5 pt-0.5 max-w-xs sm:max-w-sm">
+          {/* Indicador de Etapa: e.g. "Paso 1/7 · 1. Datos" */}
+          <div className="flex items-center justify-between text-xs px-0.5">
             <div className="flex items-center gap-1.5 min-w-0">
               <span className="px-2 py-0.5 rounded-md bg-[#684400]/40 border border-[#f2be71]/30 text-[#f2be71] font-mono font-bold text-[10px]">
                 {currentStep}/7
               </span>
-              <span className="text-[11px] sm:text-xs font-bold text-[#e6e1e7] truncate max-w-[120px] sm:max-w-none">
+              <span className="text-[11px] sm:text-xs font-bold text-[#e6e1e7] truncate">
                 {currentStepObj.label}
               </span>
             </div>
 
-            {/* Selector de Modo: Juego / Calificar */}
-            <div className="flex items-center p-0.5 bg-[#201f23] rounded-full border border-[#363439] shrink-0">
-              <button
-                type="button"
-                onClick={() => onChangeMode("game")}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] transition-all font-bold cursor-pointer ${
-                  activeMode === "game"
-                    ? "pill-gold"
-                    : "text-[#ccc3d8] hover:text-white"
-                }`}
-              >
-                <Sparkles className="h-2.5 w-2.5" />
-                <span>{t("Juego", "Game")}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => onChangeMode("feedback")}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] transition-all font-bold cursor-pointer ${
-                  activeMode === "feedback"
-                    ? "pill-gold"
-                    : "text-[#ccc3d8] hover:text-white"
-                }`}
-              >
-                <MessageCircle className="h-2.5 w-2.5" />
-                <span>{t("Calificar", "Rate")}</span>
-              </button>
-            </div>
+            <span className="text-[10px] text-[#ccc3d8] font-mono font-medium">
+              {progressPercent}%
+            </span>
           </div>
 
-          {/* ÚNICA LÍNEA DE TIEMPO DEL SISTEMA: MÁS CORTA, CENTRADA Y ELEGANTE */}
-          {activeMode === "game" && (
-            <div className="w-full max-w-xs sm:max-w-sm mx-auto grid grid-cols-7 gap-1.5 pt-1">
-              {gameSteps.map((s) => {
-                const isCompleted = s.num < currentStep;
-                const isCurrent = s.num === currentStep;
+          {/* BARRA SEGMENTADA DE 7 PASOS: VISUAL E INFORMATIVA */}
+          <div className="grid grid-cols-7 gap-1.5 w-full">
+            {gameSteps.map((s) => {
+              const isCompleted = s.num < currentStep;
+              const isCurrent = s.num === currentStep;
 
-                return (
-                  <button
-                    key={s.num}
-                    type="button"
-                    onClick={() => onSelectStep && onSelectStep(s.num)}
-                    title={s.label}
-                    className={`h-2 rounded-full transition-all cursor-pointer relative ${
-                      isCurrent
-                        ? "bg-gradient-to-r from-[#d1bcff] via-[#f2be71] to-[#ffddb1] shadow-[0_0_10px_rgba(242,190,113,0.85)] scale-y-110"
-                        : isCompleted
-                          ? "bg-[#f2be71] hover:brightness-110"
-                          : "bg-[#252429] hover:bg-[#363439]"
-                    }`}
-                  />
-                );
-              })}
-            </div>
-          )}
+              return (
+                <div
+                  key={s.num}
+                  title={s.label}
+                  className={`h-1.5 rounded-full transition-all relative ${
+                    isCurrent
+                      ? "bg-gradient-to-r from-[#d1bcff] via-[#f2be71] to-[#ffddb1] shadow-[0_0_10px_rgba(242,190,113,0.85)] scale-y-125"
+                      : isCompleted
+                        ? "bg-[#f2be71]"
+                        : "bg-[#252429]"
+                  }`}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
     </header>

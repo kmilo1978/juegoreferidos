@@ -71,8 +71,7 @@ function createInitialSession(tableNum = getInitialTable()): TableSession {
 function JuegoQrPage() {
   const { t } = useLanguage();
 
-  // Modo activo: 'game' (jugar primero) o 'feedback' (solo calificar)
-  const [activeMode, setActiveMode] = useState<"game" | "feedback">("game");
+
 
   // Estados del juego
   const [session, setSession] = useState<TableSession>(() => createInitialSession());
@@ -484,18 +483,11 @@ function JuegoQrPage() {
 
   return (
     <div className="min-h-screen bg-[#141317] text-[#e6e1e7] flex flex-col selection:bg-[#f2be71]/30 selection:text-[#f2be71]">
-      {/* Cabecera dinámica de la experiencia */}
+      {/* Cabecera guiada paso a paso */}
       <GameHeader
         session={session}
         currentStep={currentStep}
-        activeMode={activeMode}
-        onChangeMode={setActiveMode}
         onResetSession={handleResetSession}
-        onSelectStep={(step) => {
-          setCurrentStep(step);
-        }}
-        onOpenMissions={() => setIsMissionsOpen(true)}
-        onOpenPushPrompt={() => setIsPushModalOpen(true)}
         onOpenKioskPortal={() => setIsKioskModalOpen(true)}
       />
 
@@ -503,85 +495,63 @@ function JuegoQrPage() {
       <div className="pointer-events-none fixed -top-10 -right-20 w-80 h-80 rounded-full bg-[#f2be71]/5 blur-3xl" />
       <div className="pointer-events-none fixed top-72 -left-24 w-96 h-96 rounded-full bg-[#8a4fff]/5 blur-3xl" />
 
-      {/* Contenido principal según el modo seleccionado */}
-      <main className="flex-1 max-w-lg mx-auto w-full px-3.5 sm:px-6 pt-44 sm:pt-48 pb-safe pb-16 relative z-10">
-        {activeMode === "feedback" ? (
-          /* MODO DIRECTO: Solo calificar visita (Feedback inteligente) */
-          <div>
-            <StepFeedback
-              initialFeedback={feedback}
-              customerName={participant?.fullName}
-              isStandAlone={true}
-              onComplete={(fb) => setFeedback(fb)}
-              onSwitchToGame={() => setActiveMode("game")}
-            />
-          </div>
-        ) : (
-          /* MODO JUEGO: Datos del comensal -> El Desafío Elegido en Backend -> Reclamo de Premio -> Calificación */
-          <div>
-            {/* PASO 1: DATOS DEL PARTICIPANTE */}
-            {currentStep === 1 && (
-              <div>
-                <StepUserData
-                  initialData={participant}
-                  onBack={() => setActiveMode("feedback")}
-                  onComplete={handleUserDataComplete}
-                />
-              </div>
-            )}
+      {/* Contenido principal del embudo guiado paso a paso */}
+      <main className="flex-1 max-w-lg mx-auto w-full px-3.5 sm:px-6 pt-36 sm:pt-40 pb-safe pb-16 relative z-10">
+        <div>
+          {/* PASO 1: DATOS DEL PARTICIPANTE */}
+          {currentStep === 1 && (
+            <div>
+              <StepUserData
+                initialData={participant}
+                onComplete={handleUserDataComplete}
+              />
+            </div>
+          )}
 
-            {/* PASO 2: INSTAGRAM Y REDES SOCIALES */}
-            {currentStep === 2 && (
-              <div>
-                <StepInstagramStory
-                  participantName={participant?.fullName || "Cliente de la Casa"}
-                  tableNumber={session.tableNumber}
-                  initialEvidence={instagramEvidence}
-                  onBack={() => {
-                    setCurrentStep(1);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  onComplete={handleInstagramComplete}
-                />
-              </div>
-            )}
+          {/* PASO 2: INSTAGRAM Y REDES SOCIALES */}
+          {currentStep === 2 && (
+            <div>
+              <StepInstagramStory
+                participantName={participant?.fullName || "Cliente de la Casa"}
+                tableNumber={session.tableNumber}
+                initialEvidence={instagramEvidence}
+                onBack={() => {
+                  setCurrentStep(1);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                onComplete={handleInstagramComplete}
+              />
+            </div>
+          )}
 
-            {/* PASO 3: EL CARRUSEL (RULETA DE LA SUERTE) */}
-            {currentStep === 3 && (
-              <div>
-                <StepRouletteWheel
-                  prizes={prizes}
-                  participantName={participant?.fullName || "Invitado"}
-                  onPrizeWon={handlePrizeWon}
-                />
-              </div>
-            )}
+          {/* PASO 3: EL CARRUSEL (RULETA DE LA SUERTE) */}
+          {currentStep === 3 && (
+            <div>
+              <StepRouletteWheel
+                prizes={prizes}
+                participantName={participant?.fullName || "Invitado"}
+                onPrizeWon={handlePrizeWon}
+              />
+            </div>
+          )}
 
-            {/* PASO 4: PREMIO + CÓDIGO (VOUCHER Y CÓDIGO ÚNICO) */}
-            {currentStep === 4 && (
-              <div>
-                {wonPrize ? (
-                  <div className="space-y-6">
-                    <StepPrizeClaim
-                      prize={wonPrize}
-                      onValidateAtCashier={handleOpenValidatePin}
-                      secondChanceConfig={secondChanceConfig}
-                      onUnlockSecondChance={() => {
-                        setCurrentStep(6);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      onOpenMissions={() => {
-                        setCurrentStep(7);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      onProceedToFeedback={() => {
-                        setCurrentStep(5);
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                    />
+          {/* PASO 4: PREMIO + CÓDIGO (VOUCHER Y CÓDIGO ÚNICO) */}
+          {currentStep === 4 && (
+            <div>
+              {wonPrize ? (
+                <div className="space-y-6">
+                  <StepPrizeClaim
+                    prize={wonPrize}
+                    onValidateAtCashier={handleOpenValidatePin}
+                    secondChanceConfig={secondChanceConfig}
+                    onProceedToFeedback={() => {
+                      setCurrentStep(5);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  />
 
-                    {/* Atajo para modo desarrollo / prueba de ruleta */}
-                    <div className="text-center pt-2 flex flex-wrap justify-center gap-3">
+                  {/* Atajo para modo desarrollo / prueba de ruleta */}
+                  <div className="text-center pt-2 flex flex-wrap justify-center gap-3">
                       <button
                         type="button"
                         onClick={() => {
@@ -666,16 +636,16 @@ function JuegoQrPage() {
                       setCurrentStep(7);
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500/20 via-gold/30 to-amber-500/20 hover:from-amber-500/30 hover:to-amber-500/30 border border-gold/50 text-foreground text-xs uppercase tracking-wider font-bold transition-all shadow-xs cursor-pointer"
+                    className="btn-gold inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-xs uppercase tracking-wider font-extrabold transition-all shadow-md cursor-pointer"
                   >
-                    <span>🎯 {t("Ver Misiones Gourmet · Paso 7", "View Gourmet Missions · Step 7")}</span>
+                    <span>🎯 {t("Ver Misiones & 15 Sellos VIP · Paso 7", "View VIP Missions & 15 Stamps · Step 7")}</span>
                     <span>➔</span>
                   </button>
                 </div>
               </div>
             )}
 
-            {/* PASO 7: MISIONES (CENTRO DE MISIONES ESTILO SCREPY) */}
+            {/* PASO 7: MISIONES (CENTRO DE MISIONES Y SELLOS VIP) */}
             {currentStep === 7 && (
               <div>
                 <StepMissions
@@ -686,7 +656,6 @@ function JuegoQrPage() {
               </div>
             )}
           </div>
-        )}
       </main>
 
       {/* Modal del Teclado PIN para el Cajero o Mesero */}

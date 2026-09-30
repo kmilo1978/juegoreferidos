@@ -152,7 +152,7 @@ export function StepPrizeClaim({
       {/* Acciones para Continuar el Embudo */}
       <Reveal delay={100}>
         <div className="flex flex-col gap-2.5">
-          {/* Botón hacia el Paso 5: Calificación & Reputación */}
+          {/* Botón Principal hacia el Paso 5: Calificación & Reputación */}
           {onProceedToFeedback && (
             <button
               type="button"
@@ -161,30 +161,6 @@ export function StepPrizeClaim({
             >
               <span>{t("Calificar Visita & Desbloquear 2ª Oportunidad", "Rate Visit & Unlock 2nd Chance")}</span>
               <ArrowRight className="h-4 w-4" />
-            </button>
-          )}
-
-          {/* Botón hacia la 2ª Oportunidad directa */}
-          {onUnlockSecondChance && (
-            <button
-              type="button"
-              onClick={onUnlockSecondChance}
-              className="w-full h-12 rounded-full btn-outline-gold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
-            >
-              <Trophy className="h-4 w-4 text-[#f2be71]" />
-              <span>{t("Probar Reto de Precisión 10.00s (2ª Oportunidad)", "Try 10.00s Precision Challenge (2nd Chance)")}</span>
-            </button>
-          )}
-
-          {/* Botón hacia Misiones VIP */}
-          {onOpenMissions && (
-            <button
-              type="button"
-              onClick={onOpenMissions}
-              className="w-full h-12 rounded-full btn-outline-gold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
-            >
-              <span>🎯</span>
-              <span>{t("Ver Centro de Misiones & 15 Sellos VIP", "View VIP Missions & 15 Stamps Hub")}</span>
             </button>
           )}
 
