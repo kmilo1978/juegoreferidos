@@ -31,8 +31,9 @@ export function StepDigitalStamps({
   onBackToSecondChance,
 }: StepDigitalStampsProps) {
   const { t } = useLanguage();
+  const cleanPhone = (customerWhatsapp || "").replace(/\D/g, "");
   const [stampCard, setStampCard] = useState<StampCardState>(() =>
-    StampService.getCard()
+    StampService.getCustomerStampCard(cleanPhone)
   );
   const [selectedReward, setSelectedReward] = useState<StampReward | null>(null);
   const [showAllCatalog, setShowAllCatalog] = useState(false);
@@ -46,9 +47,9 @@ export function StepDigitalStamps({
 
   useEffect(() => {
     // Sincronizar estado de sellos desde la base de datos o servicio local
-    const card = StampService.getCard();
+    const card = StampService.getCustomerStampCard(cleanPhone);
     setStampCard(card);
-  }, []);
+  }, [cleanPhone]);
 
   return (
     <div className="w-full max-w-lg mx-auto flex flex-col gap-5 text-left">

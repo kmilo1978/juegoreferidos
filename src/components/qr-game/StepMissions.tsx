@@ -197,10 +197,14 @@ export function StepMissions({
           if (data && typeof data.stamps === "number") {
             const count = Math.max(data.stamps, 3);
             setSyncedStamps(count);
-            StampService.saveCustomerStampCard(cleanPhone, {
-              ...baseCard,
-              currentStamps: count,
-            });
+            // Actualizar localStorage con el conteo del servidor
+            try {
+              const key = `juegoreferidos_stamps_${cleanPhone}`;
+              const existing = JSON.parse(localStorage.getItem(key) || "{}");
+              localStorage.setItem(key, JSON.stringify({ ...existing, currentStamps: count }));
+            } catch {
+              // ignorar errores de localStorage
+            }
           }
         })
         .catch(() => {});
