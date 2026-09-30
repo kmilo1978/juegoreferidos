@@ -69,3 +69,23 @@
 - Resultado: Aprobado (Score: 10/10)
 - Resumen: Logos reales e iconos oficiales integrados en todas las misiones, TripAdvisor añadido como misión prioritaria.
 - Observaciones: Pruebas de compilación y servidor superadas con éxito.
+
+## Nueva sesión
+- Fecha: 2026-09-30 09:53
+- Solicitud: Reorganización estética de la cabecera: logo en el centro y con más protagonismo, switch de idioma (ES/EN) ubicado arriba del logo, línea de tiempo más corta y todo alineado al mismo grosor/ancho de la aplicación.
+- Decisiones clave:
+  - Se reestructuró 'GameHeader.tsx' en 3 niveles perfectamente simétricos:
+    1. Barra superior de utilidades: Switch de idioma 'ES / EN' centrado arriba del logo, acompañado del chip de mesa en vivo y botón de reinicio.
+    2. Zona central de identidad: Emblema gastronómico dorado ampliado a 56px de diámetro con aro de brillo dorado y nombre del restaurante en tipografía destacada y centrada.
+    3. Fila de acción y línea de tiempo corta: Botón de Misiones VIP '+Sellos', título de la etapa activa y selector 'Juego/Calificar'.
+    4. Línea de tiempo segmentada compactada ('max-w-xs sm:max-w-sm mx-auto') ubicada debajo del logo, guardando exactamente la misma anchura que el contenedor de la aplicación.
+  - Se ajustó el espaciado superior en 'App.tsx' ('pt-36 sm:pt-40') para una integración visual fluida sin solapamientos.
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 6.51s).
+  - Cambios confirmados y subidos a GitHub en la rama 'main' (commit 1a7caa6).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-09-30 09:53
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Cabecera con logo central de alto protagonismo, switch ES/EN arriba, línea de tiempo más corta y simetría total con el ancho de la aplicación.
+- Observaciones: Pruebas de compilación superadas sin advertencias.
