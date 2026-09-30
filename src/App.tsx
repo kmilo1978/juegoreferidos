@@ -156,11 +156,19 @@ function JuegoQrPage() {
   const [isKioskModalOpen, setIsKioskModalOpen] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       const p = new URLSearchParams(window.location.search);
+      const path = window.location.pathname.toLowerCase();
       return (
         p.get("modo") === "wifi" ||
         p.get("modo") === "kiosko" ||
+        p.get("modo") === "kiosk" ||
+        p.get("kiosko") === "1" ||
+        p.get("kiosk") === "1" ||
+        p.has("kiosko") ||
+        p.has("kiosk") ||
         p.get("portal") === "1" ||
-        p.get("wifi") === "1"
+        p.get("wifi") === "1" ||
+        path.includes("kiosko") ||
+        path.includes("kiosk")
       );
     }
     return false;

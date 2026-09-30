@@ -1,4 +1,4 @@
-import { TableSession } from "./gameTypes";
+Ôªøimport { TableSession } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { RotateCcw, Sparkles, MessageCircle, Wifi, Bell } from "lucide-react";
 import logoHeader from "@/assets/logo-header.png";
@@ -37,7 +37,7 @@ export function GameHeader({
     { num: 3, label: t("Carrusel", "Carousel") },
     { num: 4, label: t("Premio & Sellos", "Prize & Stamps") },
     { num: 5, label: t("Calificar", "Rate") },
-    { num: 6, label: t("2™ Oportunidad", "2nd Chance") },
+    { num: 6, label: t("2ÔøΩ Oportunidad", "2nd Chance") },
     { num: 7, label: t("Misiones", "Missions") },
   ];
 
@@ -53,9 +53,9 @@ export function GameHeader({
             <span className="font-semibold tracking-wide text-foreground">
               {session.tableNumber}
             </span>
-            <span className="text-muted-foreground/40">∑</span>
+            <span className="text-muted-foreground/40">ÔøΩ</span>
             <span className="text-muted-foreground font-light">
-              {t("CortesÌa de la Casa", "Complimentary House Treat")}
+              {t("CortesÔøΩa de la Casa", "Complimentary House Treat")}
             </span>
           </div>
 
@@ -65,7 +65,7 @@ export function GameHeader({
                 type="button"
                 onClick={onOpenMissions}
                 className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold/15 hover:bg-gold/25 text-gold border border-gold/40 text-[10px] sm:text-xs font-semibold transition-all shadow-2xs cursor-pointer"
-                title={t("Misiones Gourmet ∑ Gana sellos extras", "Gourmet Missions ∑ Earn extra stamps")}
+                title={t("Misiones Gourmet ÔøΩ Gana sellos extras", "Gourmet Missions ÔøΩ Earn extra stamps")}
               >
                 <span>??</span>
                 <span className="font-semibold">{t("Misiones", "Missions")}</span>
@@ -73,16 +73,17 @@ export function GameHeader({
               </button>
             )}
 
-            {/* BotÛn para reiniciar demo desde el principio */}
+            {/* BotÔøΩn para reiniciar demo desde el principio */}
             {onOpenKioskPortal && (
               <button
                 type="button"
                 onClick={onOpenKioskPortal}
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-800 border border-emerald-500/30 text-[10px] sm:text-xs font-semibold transition-all shadow-2xs cursor-pointer"
-                title="Portal Cautivo WiFi & Kiosko"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-800 dark:text-emerald-300 border border-emerald-500/40 text-[11px] sm:text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+                title="Abrir Pantalla de Kiosko / Portal WiFi para Tablets"
               >
-                <Wifi className="h-3 w-3 text-emerald-600" />
-                <span>{t("WiFi VIP", "VIP WiFi")}</span>
+                <Wifi className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 animate-pulse" />
+                <span>üñ•Ô∏è {t("Modo Kiosko", "Kiosk Mode")}</span>
+                <span className="bg-emerald-600 text-white text-[9px] px-1.5 py-0.2 rounded-full font-mono font-bold">WiFi</span>
               </button>
             )}
 
@@ -131,7 +132,7 @@ export function GameHeader({
               </div>
             </div>
 
-            {/* PÌldoras para alternar entre Juego y Solo Feedback */}
+            {/* PÔøΩldoras para alternar entre Juego y Solo Feedback */}
             <div className="flex items-center p-1 bg-muted/60 rounded-xl border border-border/70 text-xs">
               <button
                 type="button"
@@ -160,7 +161,7 @@ export function GameHeader({
             </div>
           </div>
 
-          {/* Stepper horizontal si est· en modo Juego */}
+          {/* Stepper horizontal si estÔøΩ en modo Juego */}
           {activeMode === "game" && (
             <div className="flex items-center justify-between sm:justify-end gap-1 sm:gap-2">
               {gameSteps.map((s) => {
@@ -187,7 +188,7 @@ export function GameHeader({
                       <span className="hidden md:inline">{s.label}</span>
                     </button>
                     {s.num < gameSteps.length && (
-                      <span className="text-muted-foreground/30 text-[10px]">õ</span>
+                      <span className="text-muted-foreground/30 text-[10px]">ÔøΩ</span>
                     )}
                   </div>
                 );

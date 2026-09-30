@@ -1,4 +1,4 @@
-import { db, DEFAULT_TABLES, PORT } from "../state.js";
+﻿import { db, DEFAULT_TABLES, PORT } from "../state.js";
 
 export function renderBackendDashboard() {
   const s = db.settings;
@@ -33,6 +33,8 @@ export function renderBackendDashboard() {
   const activeContestWinner = contestWinners.length > 0 ? contestWinners[0] : null;
   const repConfig = s.reputation || DEFAULT_SETTINGS.reputation;
   const repFeedbacks = db.reputationFeedbacks || [];
+  const kioskCustomers = Object.values(db.customers || {}).filter(c => c.origin === 'PORTAL_CAUTIVO_WIFI' || (c.notes && c.notes.includes('Kiosko')));
+  const kioskCount = kioskCustomers.length;
   const repTotal = repFeedbacks.length;
   const repGoogleCount = repFeedbacks.filter((f) => f.actionTaken === "google" || f.rating >= (repConfig.minRatingForGoogle || 4)).length;
   const repWhatsappCount = repFeedbacks.filter((f) => f.actionTaken === "whatsapp" || f.rating < (repConfig.minRatingForGoogle || 4)).length;
@@ -544,6 +546,9 @@ export function renderBackendDashboard() {
       </div>
 
       <div style="display: flex; gap: 10px; align-items: center;">
+        <a href="http://localhost:5173/?modo=kiosko" target="_blank" class="btn-frontend" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; border: none; font-weight: 700; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">
+          🖥️ Abrir Modo Kiosko / Tablet ↗
+        </a>
         <a href="http://localhost:5173" target="_blank" class="btn-frontend">
           📱 Abrir Pantalla del Comensal (Frontend) ➔
         </a>
@@ -575,6 +580,13 @@ export function renderBackendDashboard() {
               <div>
                 <div class="tab-title">10 Mesas en Vivo</div>
                 <div class="tab-sub">Monitoreo & configuración</div>
+              </div>
+            </button>
+            <button type="button" class="nav-tab-btn" data-tab="tab-kiosk" onclick="switchTab('tab-kiosk', this)">
+              <span>🖥️</span>
+              <div>
+                <div class="tab-title">Modo Kiosko & WiFi</div>
+                <div class="tab-sub">Tótem táctil y portal</div>
               </div>
             </button>
             <button type="button" class="nav-tab-btn" data-tab="tab-channels" onclick="switchTab('tab-channels', this)">
@@ -1324,6 +1336,153 @@ export function renderBackendDashboard() {
       </div>
     </div>
   
+
+    <!-- ========================================================================= -->
+    <!-- TAB: MODO KIOSKO DIGITAL & PORTAL CAUTIVO WIFI (TABLET / TÓTEM / WIFI)    -->
+    <!-- ========================================================================= -->
+    <div id="tab-kiosk" class="tab-content">
+      <!-- GUÍA RÁPIDA -->
+      <div class="quick-guide-box">
+        <div class="quick-guide-header">
+          <span>🖥️</span>
+          <span>Guía Rápida: Modo Kiosko Digital, Tótem Táctil & Portal Cautivo WiFi</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+          Esta función convierte cualquier tablet, iPad, tótem o computadora en un punto de autoservicio para el comensal. También actúa como portal cautivo cuando los clientes se conectan a tu red WiFi.
+        </div>
+        <div class="quick-guide-grid">
+          <div class="quick-guide-item">
+            <strong>🖥️ Pantalla para Tablets o iPads</strong>
+            <span>Fija una tablet en la barra, mostrador o entrada. Cuenta con botón de "Pantalla Completa" para evitar que los clientes salgan del navegador.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>📶 Portal Cautivo WiFi VIP</strong>
+            <span>Al conectarse a la red WiFi del restaurante ("Bliss Soul - Clientes VIP"), esta pantalla se abre automáticamente en sus teléfonos.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>⚡ Registro en 10 Segundos</strong>
+            <span>El comensal solo ingresa su Nombre y WhatsApp. Recibe de inmediato su primer sello de fidelidad y pasa a jugar la ruleta.</span>
+          </div>
+          <div class="quick-guide-item">
+            <strong>🔔 Activación de Notificaciones Push</strong>
+            <span>Al conectarse desde el Kiosko, se le ofrece recibir cupones y promociones exclusivas directamente en su teléfono.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESTADÍSTICAS Y ACCESO RÁPIDO -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-title">Estado del Kiosko / Portal</span>
+          <span class="stat-value" style="color: var(--success);">🟢 EN LÍNEA</span>
+          <span class="stat-sub">Servicio activo en puerto local</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Red WiFi Configurada</span>
+          <span class="stat-value" style="color: var(--accent); font-size: 18px;">Bliss Soul VIP</span>
+          <span class="stat-sub">SSID: Bliss Soul - Clientes VIP</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Tiempo de Sesión WiFi</span>
+          <span class="stat-value" style="color: var(--info);">120 Min</span>
+          <span class="stat-sub">Navegación libre por visita</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Clientes por Kiosko / WiFi</span>
+          <span class="stat-value" style="color: #8b5cf6;">${kioskCount}</span>
+          <span class="stat-sub">Comensales registrados por este canal</span>
+        </div>
+      </div>
+
+      <!-- PANEL PRINCIPAL DE ACCESO AL KIOSKO -->
+      <div class="panel" style="border: 2px solid var(--accent); background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%); margin-bottom: 24px;">
+        <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div class="panel-title" style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 24px;">🚀</span>
+              <span style="font-weight: 800; font-size: 16px; color: var(--text);">Acceso Directo al Modo Kiosko en Vivo</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+              Abre el modo kiosko en tu navegador o copia el enlace para configurarlo en una tablet o iPad en tu local.
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <a href="http://localhost:5173/?modo=kiosko" target="_blank" class="btn-primary" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; text-decoration: none; padding: 10px 20px; border-radius: 9999px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);">
+              🖥️ Abrir Kiosko en Vivo en Nueva Pestaña ↗
+            </a>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 14px;">
+          <div style="background: #FFFFFF; padding: 16px; border-radius: 12px; border: 1px solid var(--card-border);">
+            <strong style="font-size: 13px; color: var(--text); display: block; margin-bottom: 6px;">
+              🔗 Enlace Directo para Tablets / Navegadores:
+            </strong>
+            <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+              <input type="text" id="kioskUrlInput" class="form-input" value="http://localhost:5173/?modo=kiosko" readonly style="font-family: monospace; font-size: 12px; background: #F8FAFC;" />
+              <button type="button" class="btn-secondary" onclick="copyKioskUrl()" style="white-space: nowrap; font-size: 11px;">📋 Copiar</button>
+            </div>
+            <span style="font-size: 11px; color: var(--text-muted);">
+              Cualquiera de estos parámetros funciona: <code>?modo=kiosko</code>, <code>?modo=wifi</code> o <code>?kiosko=1</code>.
+            </span>
+          </div>
+
+          <div style="background: #FFFFFF; padding: 16px; border-radius: 12px; border: 1px solid var(--card-border);">
+            <strong style="font-size: 13px; color: var(--text); display: block; margin-bottom: 6px;">
+              💡 Cómo Fijar en un iPad o Tablet (Modo Kiosko Real):
+            </strong>
+            <ul style="font-size: 11.5px; color: var(--text-muted); line-height: 1.6; margin: 0; padding-left: 18px;">
+              <li><strong>En iPad / Safari:</strong> Abre la URL, toca <em>Compartir</em> y selecciona <em>"Agregar a la pantalla de inicio"</em>.</li>
+              <li><strong>En Android / Chrome:</strong> Toca los 3 puntos del navegador y elige <em>"Instalar aplicación"</em> o <em>"Agregar a pantalla principal"</em>.</li>
+              <li><strong>Pantalla Completa:</strong> Toca el botón <strong>⛶</strong> en la esquina superior de la ventana del kiosko.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORIAL DE CLIENTES DEL KIOSKO -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>📥 Clientes Registrados desde Kiosko & Portal WiFi</span>
+            <span style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #059669; padding: 2px 8px; border-radius: 9999px; font-weight: 700;">
+              ${kioskCount} registros
+            </span>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="data-table" style="width: 100%;">
+            <thead>
+              <tr>
+                <th>Comensal</th>
+                <th>WhatsApp</th>
+                <th>Sellos Acreditados</th>
+                <th>Fecha de Conexión</th>
+                <th>Canal de Origen</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${kioskCustomers.length === 0 ? `
+                <tr>
+                  <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                    🖥️ Aún no hay comensales registrados desde el Kiosko o WiFi. Puedes probar abriendo el enlace <strong>http://localhost:5173/?modo=kiosko</strong> y registrarte para ver cómo aparece aquí.
+                  </td>
+                </tr>
+              ` : kioskCustomers.map(c => `
+                <tr>
+                  <td><strong>${c.fullName || 'Invitado'}</strong></td>
+                  <td><code>${c.whatsapp}</code></td>
+                  <td><span style="color: #059669; font-weight: 800;">${c.stamps || 1} sellos</span></td>
+                  <td>${c.connectedAt ? new Date(c.connectedAt).toLocaleString('es-CO') : 'Reciente'}</td>
+                  <td><span style="font-size: 10px; background: rgba(16, 185, 129, 0.15); color: #059669; padding: 2px 8px; border-radius: 6px; font-weight: 700;">KIOSKO / WIFI</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 <div id="tab-channels" class="tab-content">
       <div class="panel">
         <div class="panel-header">
@@ -4474,6 +4633,19 @@ export function renderBackendDashboard() {
       }
     }
   
+    function copyKioskUrl() {
+      const inp = document.getElementById("kioskUrlInput");
+      if (!inp) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(inp.value).then(() => {
+          alert("✓ Enlace del Kiosko copiado al portapapeles:\n" + inp.value);
+        }).catch(() => {
+          prompt("Copia el enlace del Kiosko:", inp.value);
+        });
+      } else {
+        prompt("Copia el enlace del Kiosko:", inp.value);
+      }
+    }
 </script>
 </body>
 </html>`;

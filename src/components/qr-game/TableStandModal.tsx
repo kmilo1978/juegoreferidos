@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { X, Printer, Sparkles, QrCode, ShieldCheck, RefreshCw } from "lucide-react";
 import { clientConfig } from "../../config/clientConfig";
 import { GoldenQRCode } from "./GoldenQRCode";
@@ -11,7 +11,7 @@ interface TableStandModalProps {
 
 export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
   const [selectedTable, setSelectedTable] = useState<string>("1");
-  const [locationType, setLocationType] = useState<"table" | "caja" | "domicilio">("table");
+  const [locationType, setLocationType] = useState<"table" | "caja" | "domicilio" | "kiosko">("table");
   const [tableToken, setTableToken] = useState<string>(() => getTableSecurityToken("1"));
 
   if (!isOpen) return null;
@@ -88,6 +88,9 @@ export function TableStandModal({ isOpen, onClose }: TableStandModalProps) {
                       Mesa {num}
                     </option>
                   ))}
+                </optgroup>
+                <optgroup label="Tótems & Pantallas">
+                  <option value="kiosko">🖥️ Kiosko Digital / Tablet de Entrada / WiFi VIP</option>
                 </optgroup>
                 <optgroup label="Puntos de Pago / Caja">
                   <option value="caja">Punto de Pago / Caja Central</option>
