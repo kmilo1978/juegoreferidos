@@ -106,3 +106,29 @@
 - Resultado: Aprobado (Score: 10/10)
 - Resumen: Interfaz limpia y desahogada con una sola línea de tiempo centralizada y espaciado armónico.
 - Observaciones: Pruebas de compilación superadas sin advertencias.
+
+## Nueva sesión
+- Fecha: 2026-09-30 10:15
+- Solicitud: Revisar y solucionar el contraste de color porque el texto y los iconos dentro del fondo dorado no se leían (texto blanco o claro sobre dorado).
+- Decisiones clave:
+  - Diagnóstico de causa raíz: El botón activo de selección de modo ("Juego" / "Calificar"), el switch de idioma ("ES" / "EN"), los checkboxes y los badges de sellos usaban degradados o fondos dorados, pero al heredar del cuerpo (`color: #e6e1e7`) o usar clases Tailwind arbitrarias que no tenían directiva `!important` en sus hijos, los textos e iconos SVG se renderizaban en blanco o gris claro sobre el fondo dorado claro, reduciendo el contraste a niveles ilegibles (1.3:1).
+  - Se crearon y reforzaron en `src/index.css` las clases de contraste máximo absoluto:
+    - `.btn-gold`, `.btn-solid`, `.gold-solid`, `.badge-gold`, `.pill-gold` junto con todos sus descendientes (`*`, `span`, `p`, `strong`, `b`).
+    - Se aplicó forzosamente `color: #121115 !important`, `-webkit-text-fill-color: #121115 !important` y `stroke: #121115 !important` para todos los iconos vectoriales SVG de Lucide React.
+  - Se actualizaron todos los componentes afectados:
+    1. `GameHeader.tsx`: El botón de modo activo ahora usa `.pill-gold` y el switch de idioma y el badge `+Sellos` usan `.badge-gold`, mostrando texto e iconos en negro obsidiana puro y nítido.
+    2. `StepUserData.tsx`: Checkboxes de términos y habeas data con fondo dorado y checkmark `✓` negro `#121115`.
+    3. `StepRouletteWheel.tsx`: Icono del trofeo en la tarjeta de victoria con fondo dorado e icono en negro obsidiana.
+    4. `StepMissions.tsx`: Casillas de sellos ganados con fondo dorado y checkmark `✓` negro `#121115`.
+    5. `PinAuthModal.tsx`: Botón "Usar PIN" con texto e icono de destellos en negro obsidiana.
+    6. `DigitalStampCard.tsx`: Botón "Ver Misiones" corregido de `text-white` a `.btn-gold` con texto negro.
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 10.67s).
+  - Cambios confirmados y subidos a GitHub en la rama 'main' (commit 1aefc37).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-09-30 10:15
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Contraste 100% resuelto en toda la aplicación. Cero textos o iconos blancos sobre fondo dorado.
+- Observaciones: Pruebas de compilación y empaquetado superadas exitosamente.
+
