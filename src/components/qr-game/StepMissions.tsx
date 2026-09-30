@@ -336,7 +336,7 @@ export function StepMissions({
                   key={selloNum}
                   className={`aspect-square rounded-2xl flex flex-col items-center justify-center relative transition-all ${
                     isEarned
-                      ? "bg-gradient-to-br from-[#f2be71] to-[#b88330] text-[#121115] shadow-[0_0_12px_rgba(242,190,113,0.5)] scale-105 font-bold"
+                      ? "badge-gold shadow-[0_0_12px_rgba(242,190,113,0.5)] scale-105 font-bold"
                       : isMilestone15
                         ? "bg-gradient-to-tr from-[#684400] to-[#3a383d] border border-[#f2be71]/50 text-[#f2be71]"
                         : isMilestone10
@@ -347,7 +347,7 @@ export function StepMissions({
                   }`}
                 >
                   {isEarned ? (
-                    <span className="text-sm font-black">✓</span>
+                    <span className="text-sm font-black text-[#121115]">✓</span>
                   ) : isMilestone15 ? (
                     <>
                       <Trophy className="h-4 w-4" />

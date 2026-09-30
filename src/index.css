@@ -182,7 +182,33 @@
   box-shadow: 0 4px 18px rgba(242, 190, 113, 0.45);
 }
 
-/* Botones de Alto Contraste 100% Legibles (Sin texto blanco sobre fondo claro) */
+/* ========================================================
+ * REGLA DE ORO DE CONTRASTE: 100% LEGIBILIDAD OBSIDIANA SOBRE DORADO
+ * Cualquier fondo dorado DEBE tener texto, iconos y bordes en negro obsidiana (#121115).
+ * Cero letras blancas, grises o difusas sobre fondos claros o dorados.
+ * ======================================================== */
+.btn-gold,
+.btn-gold *,
+.btn-solid,
+.btn-solid *,
+.gold-solid,
+.gold-solid *,
+.badge-gold,
+.badge-gold *,
+.pill-gold,
+.pill-gold * {
+  color: #121115 !important;
+  -webkit-text-fill-color: #121115 !important;
+}
+
+.btn-gold svg,
+.btn-solid svg,
+.gold-solid svg,
+.badge-gold svg,
+.pill-gold svg {
+  stroke: #121115 !important;
+}
+
 .btn-gold {
   background: linear-gradient(135deg, #f2be71 0%, #ffdcb1 50%, #f2be71 100%) !important;
   color: #121115 !important;
@@ -190,10 +216,67 @@
   border: 1px solid rgba(255, 221, 177, 0.7) !important;
 }
 
+.btn-gold:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 20px rgba(242, 190, 113, 0.45);
+}
+
 .btn-gold span,
 .btn-gold svg,
-.btn-gold p {
+.btn-gold p,
+.btn-gold strong,
+.btn-gold b {
   color: #121115 !important;
+  stroke: #121115 !important;
+  font-weight: 800 !important;
+}
+
+.gold-solid {
+  background: #f2be71 !important;
+  color: #121115 !important;
+  font-weight: 800 !important;
+}
+
+.gold-solid span,
+.gold-solid svg,
+.gold-solid p,
+.gold-solid strong,
+.gold-solid b {
+  color: #121115 !important;
+  stroke: #121115 !important;
+  font-weight: 800 !important;
+}
+
+.badge-gold {
+  background: #f2be71 !important;
+  color: #121115 !important;
+  font-weight: 900 !important;
+}
+
+.badge-gold span,
+.badge-gold svg,
+.badge-gold p,
+.badge-gold strong,
+.badge-gold b {
+  color: #121115 !important;
+  stroke: #121115 !important;
+  font-weight: 900 !important;
+}
+
+.pill-gold {
+  background: linear-gradient(135deg, #f2be71 0%, #ffdcb1 100%) !important;
+  color: #121115 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+}
+
+.pill-gold span,
+.pill-gold svg,
+.pill-gold p,
+.pill-gold strong,
+.pill-gold b {
+  color: #121115 !important;
+  stroke: #121115 !important;
   font-weight: 800 !important;
 }
 

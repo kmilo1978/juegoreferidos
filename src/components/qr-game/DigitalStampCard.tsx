@@ -106,9 +106,9 @@ export function DigitalStampCard({
             <button
               type="button"
               onClick={onOpenMissions}
-              className="shrink-0 px-3 py-1.5 rounded-xl bg-gold hover:bg-gold/90 text-white font-bold text-[10px] uppercase tracking-wider transition-all cursor-pointer shadow-xs"
+              className="shrink-0 px-3 py-1.5 rounded-xl btn-gold font-black text-[10px] uppercase tracking-wider transition-all cursor-pointer shadow-xs"
             >
-              {t("Ver Misiones", "Missions")} →
+              <span>{t("Ver Misiones", "Missions")} →</span>
             </button>
           </div>
         )}

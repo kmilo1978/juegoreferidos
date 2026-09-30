@@ -268,7 +268,7 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
           {/* Tarjeta de Victoria al terminar el giro */}
           {wonPrize && (
             <div className="w-full mt-5 rounded-2xl bg-gradient-to-b from-[#2a2215] to-[#1c1b1f] border border-[#f2be71]/40 p-5 shadow-2xl text-center flex flex-col items-center gap-3 animate-in zoom-in-95">
-              <div className="w-12 h-12 rounded-full bg-[#f2be71] text-[#141317] flex items-center justify-center shadow-[0_0_16px_rgba(242,190,113,0.6)]">
+              <div className="w-12 h-12 rounded-full badge-gold flex items-center justify-center shadow-[0_0_16px_rgba(242,190,113,0.6)]">
                 <Trophy className="h-6 w-6" />
               </div>
               <span className="font-label-sm text-[11px] uppercase tracking-wider text-[#f2be71] font-bold">

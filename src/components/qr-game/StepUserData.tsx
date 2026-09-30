@@ -230,11 +230,11 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
               <div
                 className={`mt-0.5 w-5 h-5 rounded-md flex items-center justify-center transition-all ${
                   consentData
-                    ? "bg-[#f2be71] text-[#141317]"
+                    ? "badge-gold"
                     : "bg-[#0f0e12] border border-[#363439]"
                 }`}
               >
-                {consentData && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                {consentData && <Check className="h-3.5 w-3.5 stroke-[3] text-[#121115]" />}
               </div>
               <span className="font-body-sm text-xs text-[#ccc3d8] leading-tight">
                 {t(
@@ -256,11 +256,11 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
               <div
                 className={`mt-0.5 w-5 h-5 rounded-md flex items-center justify-center transition-all ${
                   consentMarketing
-                    ? "bg-[#f2be71] text-[#141317]"
+                    ? "badge-gold"
                     : "bg-[#0f0e12] border border-[#363439]"
                 }`}
               >
-                {consentMarketing && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                {consentMarketing && <Check className="h-3.5 w-3.5 stroke-[3] text-[#121115]" />}
               </div>
               <span className="font-body-sm text-xs text-[#e6e1e7] leading-tight">
                 {t(

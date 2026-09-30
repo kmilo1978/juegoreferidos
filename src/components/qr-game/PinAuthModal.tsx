@@ -105,7 +105,7 @@ export function PinAuthModal({
           <button
             type="button"
             onClick={() => handleAutoFill(displayPin)}
-            className="h-9 px-3.5 rounded-full bg-[#f2be71] text-[#141317] font-label-md text-xs font-bold flex items-center gap-1 shadow-md hover:brightness-105 active:scale-95 transition-transform cursor-pointer"
+            className="h-9 px-3.5 rounded-full badge-gold font-label-md text-xs font-bold flex items-center gap-1 shadow-md hover:brightness-105 active:scale-95 transition-transform cursor-pointer"
           >
             <Sparkles className="h-3.5 w-3.5" />
             <span>Usar PIN</span>

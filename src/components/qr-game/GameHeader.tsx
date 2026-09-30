@@ -64,9 +64,9 @@ export function GameHeader({
             <button
               type="button"
               onClick={() => setLanguage("es")}
-              className={`px-3 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+              className={`px-3 py-0.5 rounded-full text-[10px] font-black transition-all cursor-pointer ${
                 language === "es"
-                  ? "bg-[#f2be71] text-[#121115] shadow-xs"
+                  ? "badge-gold shadow-xs"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -75,9 +75,9 @@ export function GameHeader({
             <button
               type="button"
               onClick={() => setLanguage("en")}
-              className={`px-3 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+              className={`px-3 py-0.5 rounded-full text-[10px] font-black transition-all cursor-pointer ${
                 language === "en"
-                  ? "bg-[#f2be71] text-[#121115] shadow-xs"
+                  ? "badge-gold shadow-xs"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -138,7 +138,7 @@ export function GameHeader({
               >
                 <span>🎯</span>
                 <span className="font-bold">{t("Misiones", "Missions")}</span>
-                <span className="bg-[#f2be71] text-[#121115] text-[9px] px-1.5 py-0.2 rounded-full font-black">
+                <span className="badge-gold text-[9px] px-1.5 py-0.5 rounded-full font-black tracking-wide">
                   +Sellos
                 </span>
               </button>
@@ -159,9 +159,9 @@ export function GameHeader({
               <button
                 type="button"
                 onClick={() => onChangeMode("game")}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] transition-all font-medium cursor-pointer ${
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] transition-all font-bold cursor-pointer ${
                   activeMode === "game"
-                    ? "bg-gradient-to-r from-[#f2be71] to-[#ffddb1] text-[#141317] font-bold shadow-xs"
+                    ? "pill-gold"
                     : "text-[#ccc3d8] hover:text-white"
                 }`}
               >
@@ -171,9 +171,9 @@ export function GameHeader({
               <button
                 type="button"
                 onClick={() => onChangeMode("feedback")}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] transition-all font-medium cursor-pointer ${
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] transition-all font-bold cursor-pointer ${
                   activeMode === "feedback"
-                    ? "bg-gradient-to-r from-[#f2be71] to-[#ffddb1] text-[#141317] font-bold shadow-xs"
+                    ? "pill-gold"
                     : "text-[#ccc3d8] hover:text-white"
                 }`}
               >
