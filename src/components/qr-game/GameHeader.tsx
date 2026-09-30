@@ -37,12 +37,12 @@ export function GameHeader({
 
   return (
     <header className="sticky top-0 left-0 right-0 w-full z-50 pt-safe bg-[#0f0e12]/98 backdrop-blur-2xl border-b border-[#2b292e]/80 shadow-[0_8px_32px_rgba(0,0,0,0.65)]">
-      {/* Contenedor con ancho máximo armónico con la app */}
-      <div className="max-w-lg mx-auto w-full px-4 sm:px-6 pt-2 pb-2 flex flex-col items-center gap-1">
-        {/* 1. FILA SUPERIOR: MESA, SWITCH ES/EN Y UTILIDADES */}
-        <div className="w-full flex items-center justify-between text-xs">
-          {/* Indicador de mesa activa */}
-          <div className="flex items-center gap-1.5">
+      <div className="max-w-lg mx-auto w-full px-5 sm:px-6 pt-3 pb-4 flex flex-col items-center gap-3">
+
+        {/* 1. FILA SUPERIOR: MESA · IDIOMA · BOTONES */}
+        <div className="w-full flex items-center justify-between">
+          {/* Mesa activa */}
+          <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f2be71] opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f2be71]"></span>
@@ -52,15 +52,13 @@ export function GameHeader({
             </span>
           </div>
 
-          {/* Switch de Idioma ES / EN */}
+          {/* Switch ES / EN */}
           <div className="flex items-center bg-[#201f23] p-0.5 rounded-full border border-[#363439] shadow-inner">
             <button
               type="button"
               onClick={() => setLanguage("es")}
               className={`px-3 py-0.5 rounded-full text-[10px] font-black transition-all cursor-pointer ${
-                language === "es"
-                  ? "badge-gold shadow-xs"
-                  : "text-[#ccc3d8] hover:text-white"
+                language === "es" ? "badge-gold shadow-xs" : "text-[#ccc3d8] hover:text-white"
               }`}
             >
               ES
@@ -69,22 +67,20 @@ export function GameHeader({
               type="button"
               onClick={() => setLanguage("en")}
               className={`px-3 py-0.5 rounded-full text-[10px] font-black transition-all cursor-pointer ${
-                language === "en"
-                  ? "badge-gold shadow-xs"
-                  : "text-[#ccc3d8] hover:text-white"
+                language === "en" ? "badge-gold shadow-xs" : "text-[#ccc3d8] hover:text-white"
               }`}
             >
               EN
             </button>
           </div>
 
-          {/* Acciones auxiliares (WiFi + Reiniciar) */}
-          <div className="flex items-center gap-1.5">
+          {/* Acciones auxiliares */}
+          <div className="flex items-center gap-2">
             {onOpenKioskPortal && (
               <button
                 type="button"
                 onClick={onOpenKioskPortal}
-                className="h-7 w-7 rounded-full bg-[#047857]/20 text-[#10b981] border border-[#10b981]/40 flex items-center justify-center text-[10px] cursor-pointer hover:bg-[#047857]/30 transition-colors"
+                className="h-7 w-7 rounded-full bg-[#047857]/20 text-[#10b981] border border-[#10b981]/40 flex items-center justify-center cursor-pointer hover:bg-[#047857]/30 transition-colors"
                 title="WiFi Kiosko"
               >
                 <Wifi className="h-3.5 w-3.5 animate-pulse" />
@@ -101,55 +97,51 @@ export function GameHeader({
           </div>
         </div>
 
-        {/* 2. EL LOGO EN EL CENTRO CON PROTAGONISMO COMPACTO */}
-        <div className="flex flex-col items-center justify-center py-0.5">
-          <div className="relative">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-tr from-[#684400] via-[#f2be71] to-[#ffddb1] p-0.5 shadow-[0_0_12px_rgba(242,190,113,0.35)]">
-              <img
-                src={clientConfig.brand.logoUrl || emblemaDorado}
-                alt={clientConfig.brand.name}
-                className="w-full h-full rounded-full object-contain bg-[#141317] p-1"
-              />
-            </div>
+        {/* 2. LOGO + NOMBRE DE MARCA */}
+        <div className="flex flex-col items-center gap-1.5">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#684400] via-[#f2be71] to-[#ffddb1] p-0.5 shadow-[0_0_16px_rgba(242,190,113,0.45)]">
+            <img
+              src={clientConfig.brand.logoUrl || emblemaDorado}
+              alt={clientConfig.brand.name}
+              className="w-full h-full rounded-full object-contain bg-[#141317] p-1"
+            />
           </div>
-          <h1 className="font-headline-sm text-xs sm:text-sm font-bold text-[#e6e1e7] tracking-tight mt-0.5 text-center">
+          <h1 className="font-headline-sm text-xs sm:text-sm font-bold text-[#e6e1e7] tracking-tight text-center">
             {clientConfig.brand.name}
           </h1>
         </div>
 
-        {/* 3. LÍNEA DE TIEMPO DEL EMBUDO (100% GUIADA, SIN SALTOS DE PASO) */}
-        <div className="w-full flex flex-col gap-1 pt-0 max-w-xs sm:max-w-sm">
-          {/* Indicador de Etapa: e.g. "Paso 1/8 · 1. Datos" */}
-          <div className="flex items-center justify-between text-xs px-0.5">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="px-2 py-0.5 rounded-md bg-[#684400]/40 border border-[#f2be71]/30 text-[#f2be71] font-mono font-bold text-[10px]">
+        {/* 3. INDICADOR DE PASO + BARRA DE PROGRESO */}
+        <div className="w-full flex flex-col gap-2 max-w-xs sm:max-w-sm">
+          {/* Etiqueta del paso actual */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="px-2 py-0.5 rounded-md bg-[#684400]/40 border border-[#f2be71]/30 text-[#f2be71] font-mono font-bold text-[10px] shrink-0">
                 {currentStep}/8
               </span>
-              <span className="text-[11px] sm:text-xs font-bold text-[#e6e1e7] truncate">
+              <span className="text-[11px] sm:text-xs font-semibold text-[#e6e1e7] truncate">
                 {currentStepObj.label}
               </span>
             </div>
-
-            <span className="text-[10px] text-[#ccc3d8] font-mono font-medium">
+            <span className="text-[10px] text-[#ccc3d8] font-mono font-medium shrink-0 ml-2">
               {progressPercent}%
             </span>
           </div>
 
-          {/* BARRA SEGMENTADA DE 8 PASOS: NAVEGABLE E INFORMATIVA */}
+          {/* Barra segmentada de 8 pasos — cada una es un botón táctil */}
           <div className="grid grid-cols-8 gap-1.5 w-full">
             {gameSteps.map((s) => {
               const isCompleted = s.num < currentStep;
               const isCurrent = s.num === currentStep;
-
               return (
                 <button
                   type="button"
                   key={s.num}
                   onClick={() => onStepClick?.(s.num)}
-                  title={`${s.label} (${s.short})`}
-                  className={`h-2 rounded-full transition-all relative cursor-pointer active:scale-95 ${
+                  title={`${s.label}`}
+                  className={`h-2.5 rounded-full transition-all cursor-pointer active:scale-95 ${
                     isCurrent
-                      ? "bg-gradient-to-r from-[#d1bcff] via-[#f2be71] to-[#ffddb1] shadow-[0_0_10px_rgba(242,190,113,0.85)] scale-y-125"
+                      ? "bg-gradient-to-r from-[#d1bcff] via-[#f2be71] to-[#ffddb1] shadow-[0_0_10px_rgba(242,190,113,0.85)] scale-y-110"
                       : isCompleted
                         ? "bg-[#f2be71] hover:brightness-110"
                         : "bg-[#252429] hover:bg-[#363439]"
@@ -159,6 +151,7 @@ export function GameHeader({
             })}
           </div>
         </div>
+
       </div>
     </header>
   );
