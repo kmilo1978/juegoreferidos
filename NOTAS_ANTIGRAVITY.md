@@ -152,4 +152,27 @@
 - Resumen: Banner unificado en una sola línea horizontal sin cortes de texto.
 - Observaciones: Pruebas de compilación aprobadas sin observaciones.
 
+## Nueva sesión
+- Fecha: 2026-09-30 10:30
+- Solicitud: Análisis e implementación UX: eliminar el botón de Misiones y el switch de Juego/Calificar de la cabecera porque duplican la sección 7 y rompen la secuencia progresiva paso a paso, eliminando cualquier botón o salto que permita saltarse etapas.
+- Decisiones clave:
+  - Rediseño estratégico de la cabecera (`GameHeader.tsx`):
+    1. Se retiró el botón flotante `[🎯 Misiones +Sellos]` de la cabecera, evitando fugas de atención y duplicidad con el Paso 7.
+    2. Se retiró el selector `[Juego | Calificar]`, integrando la calificación de forma natural en el Paso 5 del recorrido.
+    3. Se transformó la barra segmentada de 7 pasos en un indicador puramente visual e informativo (estilo historias de Instagram), eliminando la posibilidad de hacer clic para saltar etapas arbitrariamente.
+    4. Se optimizó la altura de la cabecera a 95px, otorgando mayor desahogo y espacio vertical al contenido principal.
+  - Blindaje del embudo en pantallas internas:
+    - En `StepPrizeClaim.tsx` (Paso 4): Se eliminaron los botones secundarios que permitían saltar directamente al Paso 6 o 7, asegurando que el cliente avance obligatoriamente al Paso 5 (Calificación en Google Maps / TripAdvisor / Feedback).
+    - En `App.tsx`: Se eliminó la bifurcación condicional innecesaria, estableciendo una progresión lineal estricta y armónica: Datos (1) ➔ Redes (2) ➔ Ruleta (3) ➔ Voucher (4) ➔ Calificación (5) ➔ 2ª Oportunidad (6) ➔ Misiones VIP y 15 Sellos (7).
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 9.21s).
+  - Cambios confirmados y subidos a GitHub en la rama 'main' (commit be4e57e).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-09-30 10:30
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Embudo 100% guiado paso a paso, cabecera limpia y eliminación definitiva de saltos de etapa no autorizados.
+- Observaciones: Pruebas de compilación aprobadas sin advertencias.
+
+
 
