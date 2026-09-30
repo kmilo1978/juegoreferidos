@@ -43,66 +43,97 @@ export function GameHeader({
   const currentStepObj = gameSteps.find((s) => s.num === currentStep) || gameSteps[0];
 
   return (
-    <header className="fixed top-0 left-0 right-0 w-full z-50 pt-safe bg-[#0f0e12]/92 backdrop-blur-xl border-b border-[#2b292e] shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
-      <div className="max-w-lg md:max-w-4xl mx-auto px-3.5 sm:px-6 py-2">
-        {/* FILA 1: MARCA, MESA Y ACCIONES RÁPIDAS (MOBILE OPTIMIZED) */}
-        <div className="flex items-center justify-between gap-2">
-          {/* Identidad de Marca & Mesa Activa */}
-          <div className="flex items-center gap-2 min-w-0">
-            <img
-              src={clientConfig.brand.logoUrl || emblemaDorado}
-              alt={clientConfig.brand.name}
-              className="h-7 w-7 rounded-full object-contain shrink-0 ring-1 ring-[#f2be71]/40 p-0.5 bg-[#201f23]"
-            />
-            <div className="flex flex-col min-w-0">
-              <span className="text-xs font-bold text-[#e6e1e7] truncate tracking-tight leading-tight">
-                {clientConfig.brand.name}
-              </span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="relative flex h-1.5 w-1.5 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f2be71] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#f2be71]"></span>
-                </span>
-                <span className="font-mono text-[9px] uppercase tracking-wider text-[#f2be71] font-bold">
-                  {session.tableNumber}
-                </span>
-              </div>
-            </div>
+    <header className="fixed top-0 left-0 right-0 w-full z-50 pt-safe bg-[#0f0e12]/95 backdrop-blur-xl border-b border-[#2b292e] shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
+      {/* Contenedor exactamente del mismo ancho (grosor) de la aplicación */}
+      <div className="max-w-lg mx-auto w-full px-4 py-2 flex flex-col items-center">
+        {/* 1. ARRIBA DEL LOGO: SWITCH ESPAÑOL / INGLÉS Y UTILIDADES */}
+        <div className="w-full flex items-center justify-between text-xs pb-1">
+          {/* Indicador de mesa activa */}
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f2be71] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f2be71]"></span>
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#f2be71] font-bold">
+              {session.tableNumber}
+            </span>
           </div>
 
-          {/* Acciones Rápidas del Comensal */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            {/* Idioma ES / EN */}
+          {/* Switch de Idioma ES / EN centrado arriba del logo */}
+          <div className="flex items-center bg-[#201f23] p-0.5 rounded-full border border-[#363439] shadow-inner">
             <button
               type="button"
-              onClick={() => setLanguage(language === "es" ? "en" : "es")}
-              className="h-7 px-2 rounded-full bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] text-[10px] text-[#ccc3d8] flex items-center gap-0.5 transition-colors cursor-pointer"
-              title="Cambiar idioma / Switch language"
+              onClick={() => setLanguage("es")}
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+                language === "es"
+                  ? "bg-[#f2be71] text-[#121115] shadow-xs"
+                  : "text-[#ccc3d8] hover:text-white"
+              }`}
             >
-              <span className={language === "es" ? "text-[#f2be71] font-bold" : "text-[#ccc3d8]"}>ES</span>
-              <span className="text-[8px] text-[#ccc3d8]/40">/</span>
-              <span className={language === "en" ? "text-[#f2be71] font-bold" : "text-[#ccc3d8]"}>EN</span>
+              ES
             </button>
+            <button
+              type="button"
+              onClick={() => setLanguage("en")}
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+                language === "en"
+                  ? "bg-[#f2be71] text-[#121115] shadow-xs"
+                  : "text-[#ccc3d8] hover:text-white"
+              }`}
+            >
+              EN
+            </button>
+          </div>
 
-            {/* Portal Cautivo WiFi Kiosko (si está activo) */}
+          {/* Acciones auxiliares (WiFi + Reiniciar) */}
+          <div className="flex items-center gap-1.5">
             {onOpenKioskPortal && (
               <button
                 type="button"
                 onClick={onOpenKioskPortal}
-                className="h-7 px-2 rounded-full bg-[#047857]/20 hover:bg-[#047857]/30 text-[#10b981] border border-[#10b981]/40 text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer"
-                title="WiFi VIP Kiosko"
+                className="h-6 w-6 rounded-full bg-[#047857]/20 text-[#10b981] border border-[#10b981]/40 flex items-center justify-center text-[10px] cursor-pointer"
+                title="WiFi Kiosko"
               >
-                <Wifi className="h-3 w-3 animate-pulse text-[#10b981]" />
-                <span className="hidden xs:inline">WiFi</span>
+                <Wifi className="h-3 w-3 animate-pulse" />
               </button>
             )}
+            <button
+              type="button"
+              onClick={onResetSession}
+              className="h-6 w-6 rounded-full bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[#f2be71] border border-[#363439] flex items-center justify-center transition-all cursor-pointer"
+              title="Reiniciar Demo al Paso 1"
+            >
+              <RotateCcw className="h-3 w-3" />
+            </button>
+          </div>
+        </div>
 
-            {/* Botón Misiones VIP con Badge Destacado */}
+        {/* 2. EL LOGO EN EL CENTRO Y CON MÁS PROTAGONISMO */}
+        <div className="flex flex-col items-center justify-center py-1">
+          <div className="relative">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-[#684400] via-[#f2be71] to-[#ffddb1] p-0.5 shadow-[0_0_16px_rgba(242,190,113,0.35)]">
+              <img
+                src={clientConfig.brand.logoUrl || emblemaDorado}
+                alt={clientConfig.brand.name}
+                className="w-full h-full rounded-full object-contain bg-[#141317] p-1.5"
+              />
+            </div>
+          </div>
+          <h1 className="font-headline-sm text-sm sm:text-base font-bold text-[#e6e1e7] tracking-tight mt-1 text-center">
+            {clientConfig.brand.name}
+          </h1>
+        </div>
+
+        {/* 3. MISIONES Y LÍNEA DE TIEMPO MÁS CORTA (DEL MISMO GROSOR/ANCHO DE LA APP) */}
+        <div className="w-full pt-1 flex flex-col gap-1.5">
+          {/* Fila de Controles: Misiones, Etapa y Modo */}
+          <div className="flex items-center justify-between gap-2">
+            {/* Botón Misiones [+Sellos] */}
             {onOpenMissions && (
               <button
                 type="button"
                 onClick={onOpenMissions}
-                className="h-7 inline-flex items-center gap-1 px-2.5 rounded-full bg-[#8a4fff]/25 hover:bg-[#8a4fff]/40 text-[#d1bcff] border border-[#8a4fff]/50 text-[11px] font-bold transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+                className="h-7 inline-flex items-center gap-1 px-2.5 rounded-full bg-[#8a4fff]/25 hover:bg-[#8a4fff]/40 text-[#d1bcff] border border-[#8a4fff]/50 text-[10px] sm:text-[11px] font-bold transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
                 title="Ver Misiones y Sellos VIP"
               >
                 <span>🎯</span>
@@ -113,27 +144,12 @@ export function GameHeader({
               </button>
             )}
 
-            {/* Reiniciar Demo (Icono Compacto) */}
-            <button
-              onClick={onResetSession}
-              type="button"
-              className="h-7 w-7 rounded-full text-[#ccc3d8] hover:text-[#f2be71] bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] flex items-center justify-center transition-all cursor-pointer"
-              title="Reiniciar la demo al Paso 1"
-            >
-              <RotateCcw className="h-3 w-3 text-[#f2be71]" />
-            </button>
-          </div>
-        </div>
-
-        {/* FILA 2: INDICADOR DE ETAPA Y BARRA SEGMENTADA (100% RESPONSIVE, CERO SCROLLBAR) */}
-        <div className="pt-2 flex flex-col gap-1.5">
-          <div className="flex items-center justify-between text-xs">
             {/* Texto de la etapa actual */}
             <div className="flex items-center gap-1.5 min-w-0">
               <span className="px-1.5 py-0.5 rounded-md bg-[#684400]/40 border border-[#f2be71]/30 text-[#f2be71] font-mono font-bold text-[10px]">
                 {currentStep}/7
               </span>
-              <span className="text-[11px] font-bold text-[#e6e1e7] truncate">
+              <span className="text-[11px] font-bold text-[#e6e1e7] truncate max-w-[130px] sm:max-w-none">
                 {currentStepObj.label}
               </span>
             </div>
@@ -167,9 +183,9 @@ export function GameHeader({
             </div>
           </div>
 
-          {/* BARRA SEGMENTADA DE 7 PASOS (SIN SCROLL HORIZONTAL) */}
+          {/* LÍNEA DE TIEMPO DEBAJO, MÁS CORTA Y DEL MISMO GROSOR/ANCHO */}
           {activeMode === "game" && (
-            <div className="grid grid-cols-7 gap-1 w-full pt-0.5">
+            <div className="w-full max-w-xs sm:max-w-sm mx-auto grid grid-cols-7 gap-1 pt-0.5">
               {gameSteps.map((s) => {
                 const isCompleted = s.num < currentStep;
                 const isCurrent = s.num === currentStep;
