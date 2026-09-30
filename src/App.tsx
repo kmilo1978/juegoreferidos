@@ -614,7 +614,7 @@ function JuegoQrPage() {
 
             {/* PASO 6: SEGUNDA OPORTUNIDAD (RETO DEL CRONÓMETRO DE PRECISIÓN 10S) */}
             {currentStep === 6 && (
-              <div className="space-y-6">
+              <div>
                 <StepSecondChancePrecision
                   secondChanceConfig={secondChanceConfig}
                   participantName={participant?.fullName || wonPrize?.participantName}
@@ -628,21 +628,6 @@ function JuegoQrPage() {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 />
-
-                {/* Botón para continuar a la Tarjeta de Sellos VIP (Paso 7) */}
-                <div className="pt-2 text-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCurrentStep(7);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className="btn-gold inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-xs uppercase tracking-wider font-extrabold transition-all shadow-md cursor-pointer"
-                  >
-                    <span>☕ {t("Continuar a Tarjeta de 15 Sellos VIP · Paso 7", "Continue to 15 VIP Stamps Card · Step 7")}</span>
-                    <span>➔</span>
-                  </button>
-                </div>
               </div>
             )}
 

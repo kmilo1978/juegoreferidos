@@ -128,46 +128,59 @@ export function StepSecondChancePrecision({
   return (
     <div className="w-full flex flex-col gap-6">
 
-      {/* Tarjeta de Premio en Juego */}
-      <Reveal delay={50}>
-        <div className="relative w-full rounded-2xl bg-[#1c1b1f] border border-[#2b292e] p-3.5 flex gap-3.5 items-center shadow-xl overflow-hidden">
-          <div className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-[#0f0e12] border border-[#363439]">
+      {/* 1. HERO CARD DEL PREMIO CON MÁXIMO PROTAGONISMO */}
+      <Reveal delay={30}>
+        <div className="relative w-full rounded-3xl overflow-hidden bg-[#1c1b1f] border border-[#f2be71]/35 shadow-2xl">
+          {/* Fotografía Gastronómica Principal - Altura e Impacto */}
+          <div className="relative w-full h-52 sm:h-64 overflow-hidden bg-[#0a090c]">
             <img
               src={tartaVascaImg}
-              alt="Premio en Juego"
-              className="w-full h-full object-cover"
+              alt={secondChanceConfig.prizeName || "Postre de Autor"}
+              className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
             />
-          </div>
-          <div className="flex flex-col min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-1 mb-0.5">
-              <span className="font-label-sm text-[10px] text-[#f2be71] uppercase font-bold tracking-wider">
-                {t("Premio en juego", "Prize in play")}
-              </span>
-              <span className="px-2 py-0.5 rounded-full bg-[#684400]/60 text-[#ffddb1] font-label-sm text-[10px] font-bold">
-                {t("Cortesía de la Casa", "Complimentary")}
+            {/* Gradiente oscuro sutil para garantizar contraste y elegancia gastronómica */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#1c1b1f] via-[#1c1b1f]/30 to-black/25" />
+
+            {/* Badge Flotante Superior: Cortesía de la Casa */}
+            <div className="absolute top-4 left-4 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#141317]/90 backdrop-blur-md border border-[#f2be71]/50 text-[#f2be71] shadow-xl">
+              <Sparkles className="h-4 w-4 text-[#f2be71]" />
+              <span className="font-label-sm text-[11px] sm:text-xs font-black uppercase tracking-wider">
+                {t("Premio en Juego · Cortesía", "Prize in Play · Compliments")}
               </span>
             </div>
-            <h2 className="font-headline-sm text-sm text-[#e6e1e7] font-bold truncate">
-              {secondChanceConfig.prizeName || "Postre de Autor o Cóctel"}
+
+            {/* Badge de Hito / Reto */}
+            <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-[#684400]/90 backdrop-blur-md border border-[#f2be71]/50 text-[#ffdcb1] font-mono text-xs font-bold shadow-lg">
+              🎯 10.00s
+            </div>
+          </div>
+
+          {/* Información del Premio - Espaciosa y Limpia */}
+          <div className="p-5 sm:p-6 flex flex-col gap-2">
+            <h2 className="font-headline-sm text-xl sm:text-2xl font-bold text-[#fcfaf7] tracking-tight">
+              {secondChanceConfig.prizeName || "Postre Artesanal de Autor Gratis"}
             </h2>
-            <p className="font-body-sm text-xs text-[#ccc3d8] truncate">
-              {t("Válido de inmediato si clavas 10.00s", "Valid instantly if you hit 10.00s")}
+            <p className="font-body-sm text-xs sm:text-sm text-[#ccc3d8] leading-relaxed">
+              {t(
+                "¡Tu segunda oportunidad en sala! Si clavas el cronómetro exactamente en 10.00 segundos, nuestro equipo te sirve este postre de inmediato para disfrutar en tu mesa.",
+                "Your second chance at the table! Stop the timer at exactly 10.00 seconds and this signature dessert is served directly to your table."
+              )}
             </p>
           </div>
         </div>
       </Reveal>
 
-      {/* Consola Digital OLED de Milisegundos estilo Stitch */}
-      <Reveal delay={100}>
-        <div className="flex flex-col items-center gap-4">
+      {/* 2. CONSOLA DE PRECISIÓN Y RETO TÁCTIL */}
+      <Reveal delay={80}>
+        <div className="flex flex-col items-center gap-5">
           {/* Badge de Objetivo Exacto e Intentos */}
-          <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#2b292e] px-4 py-2.5 flex items-center justify-between shadow-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-[#684400]/40 flex items-center justify-center text-[#f2be71]">
+          <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#363439] p-4 flex items-center justify-between shadow-md">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#684400]/50 border border-[#f2be71]/30 flex items-center justify-center text-lg text-[#f2be71] shadow-xs">
                 🎯
               </div>
               <div className="flex flex-col">
-                <span className="font-label-sm text-[10px] text-[#f2be71] font-bold uppercase tracking-wider">
+                <span className="font-label-sm text-xs text-[#f2be71] font-bold uppercase tracking-wider">
                   {t("Objetivo Exacto: 10.00s", "Exact Target: 10.00s")}
                 </span>
                 <span className="font-body-sm text-[11px] text-[#ccc3d8]">
@@ -176,19 +189,19 @@ export function StepSecondChancePrecision({
               </div>
             </div>
 
-            {/* Contador de orbes de intentos */}
+            {/* Contador de orbes de intentos en Dorado */}
             <div className="flex flex-col items-end">
-              <span className="font-label-sm text-[10px] text-[#ccc3d8] uppercase font-semibold">
+              <span className="font-label-sm text-[10px] text-[#ccc3d8] uppercase font-bold tracking-wider">
                 {t("Intentos", "Attempts")}
               </span>
-              <div className="flex items-center gap-1.5 mt-1">
+              <div className="flex items-center gap-2 mt-1.5">
                 {[1, 2, 3].map((idx) => (
                   <span
                     key={idx}
-                    className={`w-2.5 h-2.5 rounded-full transition-all ${
+                    className={`w-3 h-3 rounded-full transition-all ${
                       idx <= maxAttempts - attemptsUsed
-                        ? "bg-[#f2be71] shadow-[0_0_8px_rgba(242,190,113,0.8)]"
-                        : "bg-[#2b292e]"
+                        ? "bg-[#f2be71] shadow-[0_0_10px_rgba(242,190,113,0.85)] scale-110"
+                        : "bg-[#2b292e] border border-[#363439]"
                     }`}
                   />
                 ))}
@@ -196,57 +209,57 @@ export function StepSecondChancePrecision({
             </div>
           </div>
 
-          {/* Consola Digital OLED */}
-          <div className="w-full rounded-2xl bg-[#0f0e12] border border-[#2b292e] p-6 flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
-            <div className="flex items-center gap-1.5 mb-2 z-10">
-              <span className={`w-2 h-2 rounded-full ${isRunning ? "bg-[#10b981] animate-ping" : "bg-[#f2be71]"}`} />
-              <span className="font-label-sm text-[10px] text-[#f2be71] tracking-widest uppercase font-bold">
+          {/* Consola Digital OLED estilo Alta Relojería */}
+          <div className="w-full rounded-3xl bg-[#0a090c] border border-[#f2be71]/30 p-6 sm:p-7 flex flex-col items-center justify-center shadow-[inset_0_2px_12px_rgba(0,0,0,0.8)] relative overflow-hidden">
+            <div className="flex items-center gap-2 mb-2 z-10">
+              <span className={`w-2.5 h-2.5 rounded-full ${isRunning ? "bg-[#f2be71] animate-ping" : "bg-[#f2be71]"}`} />
+              <span className="font-label-sm text-xs text-[#ffdcb1] tracking-widest uppercase font-bold">
                 {isRunning ? t("CRONÓMETRO CORRIENDO...", "RUNNING...") : t("LISTO PARA EL TOQUE", "READY TO TAP")}
               </span>
             </div>
 
-            {/* Dígitos Gigantes Monospace LCD */}
-            <div className="relative z-10 flex items-baseline font-mono tracking-tight my-1">
-              <span className="text-5xl sm:text-6xl font-black text-white font-mono drop-shadow-[0_0_12px_rgba(255,255,255,0.2)]">
+            {/* Dígitos Gigantes: Segundos en Blanco Luminoso y Centésimas en Oro Puro */}
+            <div className="relative z-10 flex items-baseline font-mono tracking-tight my-2">
+              <span className="text-6xl sm:text-7xl font-black text-white font-mono drop-shadow-[0_0_20px_rgba(255,255,255,0.35)]">
                 {formatSecondsMain(elapsedTime)}
               </span>
-              <span className="text-3xl sm:text-4xl font-black text-[#d1bcff] font-mono ml-0.5 drop-shadow-[0_0_12px_rgba(209,188,255,0.4)]">
+              <span className="text-4xl sm:text-5xl font-black text-[#f2be71] font-mono ml-0.5 drop-shadow-[0_0_20px_rgba(242,190,113,0.6)]">
                 {formatMs(elapsedTime)}
               </span>
             </div>
 
-            <p className="text-xs text-[#ccc3d8] mt-1 z-10">
-              {t("Toca para iniciar • Vuelve a tocar para frenar en 10.00s", "Tap to start • Tap again to stop at 10.00s")}
+            <p className="text-xs text-[#ccc3d8] mt-1 z-10 text-center">
+              {t("Toca el botón para iniciar • Toca de nuevo para frenar en 10.00s", "Tap to start • Tap again to stop at 10.00s")}
             </p>
           </div>
 
-          {/* Gran Botón Táctil de Empuje con Radar Circular estilo Stitch */}
+          {/* Botón Táctil de Empuje en Oro Radiante de la Casa */}
           <div className="relative my-4 flex items-center justify-center">
             {isRunning && (
-              <div className="absolute w-44 h-44 rounded-full bg-[#10b981]/20 animate-ping pointer-events-none opacity-40" />
+              <div className="absolute w-48 h-48 rounded-full bg-[#f2be71]/25 animate-ping pointer-events-none opacity-50" />
             )}
 
             <button
               type="button"
               onClick={isRunning ? () => handleStopTimer() : handleStartTimer}
               disabled={gameState === "won" || gameState === "finished"}
-              className={`relative z-20 w-36 h-36 rounded-full flex flex-col items-center justify-center p-3 active:scale-95 transition-all cursor-pointer shadow-2xl ${
+              className={`relative z-20 w-40 h-40 rounded-full flex flex-col items-center justify-center p-3 active:scale-95 transition-all cursor-pointer shadow-2xl ${
                 isRunning
-                  ? "bg-gradient-to-b from-[#e11d48] to-[#9f1239] text-white shadow-[0_12px_32px_rgba(225,29,72,0.45)]"
-                  : "bg-gradient-to-b from-[#10b981] to-[#047857] text-white shadow-[0_12px_32px_rgba(16,185,129,0.45)]"
+                  ? "bg-gradient-to-b from-[#ff8c42] via-[#e65100] to-[#991b1b] text-white shadow-[0_12px_40px_rgba(230,81,0,0.55)] border-2 border-[#ffedd5]/50 animate-pulse"
+                  : "bg-gradient-to-b from-[#ffe5b4] via-[#f2be71] to-[#b87e24] text-[#121115] shadow-[0_12px_40px_rgba(242,190,113,0.5)] border-2 border-[#fff2df]/60 hover:brightness-105"
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {isRunning ? (
                 <>
-                  <Square className="h-8 w-8 mb-1 fill-white" />
-                  <span className="font-label-lg text-xs font-bold uppercase tracking-wider">
-                    {t("DETENER", "STOP")}
+                  <Square className="h-9 w-9 mb-1.5 fill-white text-white" />
+                  <span className="font-label-lg text-xs font-black uppercase tracking-wider">
+                    {t("¡DETENER YA!", "STOP NOW!")}
                   </span>
                 </>
               ) : (
                 <>
-                  <Play className="h-8 w-8 mb-1 fill-white ml-1" />
-                  <span className="font-label-lg text-xs font-bold uppercase tracking-wider text-center leading-tight">
+                  <Play className="h-9 w-9 mb-1.5 fill-[#121115] text-[#121115] ml-1" />
+                  <span className="font-label-lg text-xs font-black uppercase tracking-wider text-center leading-tight text-[#121115]">
                     {gameState === "attempt_failed" ? t("OTRO INTENTO", "TRY AGAIN") : t("INICIAR RETO", "START CHALLENGE")}
                   </span>
                 </>
@@ -254,18 +267,18 @@ export function StepSecondChancePrecision({
             </button>
           </div>
 
-          {/* Mensajes de Resultado */}
+          {/* Mensajes de Resultado si Gana */}
           {gameState === "won" && (
-            <div className="w-full rounded-2xl bg-[#684400]/40 border border-[#f2be71] p-4 flex items-start gap-3 shadow-md animate-in zoom-in-95">
-              <Trophy className="h-6 w-6 text-[#f2be71] shrink-0 mt-0.5" />
+            <div className="w-full rounded-2xl bg-[#684400]/40 border-2 border-[#f2be71] p-4 flex items-start gap-3 shadow-xl animate-in zoom-in-95">
+              <Trophy className="h-7 w-7 text-[#f2be71] shrink-0 mt-0.5" />
               <div className="flex flex-col text-left">
-                <span className="font-headline-sm text-sm font-bold text-[#ffddb1]">
+                <span className="font-headline-sm text-base font-bold text-[#ffdcb1]">
                   {t("¡PREMIO CONSEGUIDO!", "PRIZE WON!")}
                 </span>
-                <p className="font-body-sm text-xs text-[#e6e1e7] mt-0.5">
+                <p className="font-body-sm text-xs text-[#e6e1e7] mt-0.5 leading-relaxed">
                   {t(
-                    `¡Marcaste ${elapsedTime.toFixed(2)}s! Distancia menor a ${toleranceMs}ms. El mesero aplicará tu premio.`,
-                    `You hit ${elapsedTime.toFixed(2)}s! Winner range achieved.`
+                    `¡Marcaste ${elapsedTime.toFixed(2)}s! Distancia menor a ${toleranceMs}ms. El mesero aplicará tu cortesía de inmediato en mesa.`,
+                    `You hit ${elapsedTime.toFixed(2)}s! Winner range achieved. Your server will apply it now.`
                   )}
                 </p>
               </div>
@@ -274,28 +287,28 @@ export function StepSecondChancePrecision({
 
           {/* Historial de Intentos */}
           {attemptsHistory.length > 0 && (
-            <div className="w-full rounded-xl bg-[#1c1b1f] border border-[#2b292e] px-4 py-2 flex items-center justify-between text-xs text-[#ccc3d8]">
-              <div className="flex items-center gap-1.5">
-                <History className="h-3.5 w-3.5 text-[#f2be71]" />
+            <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#363439] px-4 py-3 flex items-center justify-between text-xs text-[#ccc3d8] shadow-sm">
+              <div className="flex items-center gap-2">
+                <History className="h-4 w-4 text-[#f2be71]" />
                 <span>
                   {t("Última marca:", "Last mark:")}{" "}
-                  <strong className="text-[#e6e1e7] font-mono">{attemptsHistory[0]?.toFixed(2)}s</strong>
+                  <strong className="text-[#fcfaf7] font-mono text-sm">{attemptsHistory[0]?.toFixed(2)}s</strong>
                 </span>
               </div>
-              <span className="text-[#f2be71] font-semibold">
+              <span className="text-[#f2be71] font-bold text-xs">
                 {t(`Quedan ${Math.max(0, maxAttempts - attemptsUsed)} intentos`, `${Math.max(0, maxAttempts - attemptsUsed)} attempts left`)}
               </span>
             </div>
           )}
 
-          {/* Botón hacia Misiones VIP (Paso 7) */}
-          <div className="w-full pt-2">
+          {/* Botón Único de Salida hacia Tarjeta de 15 Sellos (Paso 7) */}
+          <div className="w-full pt-4 pb-2">
             <button
               type="button"
               onClick={onExit}
-              className="w-full h-13 py-3 px-6 rounded-full btn-gold text-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
+              className="btn-gold w-full h-14 py-3 px-6 rounded-2xl text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_6px_24px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer"
             >
-              <span>{t("Continuar a Fidelización & Sellos (Paso 7)", "Continue to Loyalty & Stamps (Step 7)")}</span>
+              <span>{t("Continuar a Tarjeta de 15 Sellos (Paso 7)", "Continue to 15 Stamps Card (Step 7)")}</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
