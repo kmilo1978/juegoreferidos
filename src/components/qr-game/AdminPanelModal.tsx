@@ -2684,7 +2684,7 @@ Presenta este código al momento de pagar:
                           type="text"
                           value={brandConfig.name}
                           onChange={(e) => handleBrandChange("name", e.target.value)}
-                          placeholder="Ej: Bliss Soul Bakery & Café"
+                          placeholder="Ej: Bistro Gastronómico & Café"
                           className="w-full p-2.5 rounded-xl border border-border bg-card font-medium text-foreground text-xs focus:border-gold outline-hidden"
                         />
                       </div>

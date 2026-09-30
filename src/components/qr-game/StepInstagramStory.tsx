@@ -293,7 +293,7 @@ export function StepInstagramStory({
             <button
               type="button"
               onClick={handleProceedToRoulette}
-              className="w-full h-13 py-3 px-6 rounded-full bg-gradient-to-r from-[#f2be71] via-[#ffdcb1] to-[#f2be71] text-[#141317] font-label-lg text-sm font-bold flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
+              className="w-full h-13 py-3 px-6 rounded-full btn-gold text-sm flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
             >
               <span>{t("¡Listo, ir a Girar la Ruleta!", "Ready, go spin the wheel!")}</span>
               <ArrowRight className="h-4 w-4" />

@@ -134,6 +134,14 @@
   ],
   "logs": [
     {
+      "id": "muo6wln6n2r",
+      "timestamp": "9:17:47 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
       "id": "munfwbs5ilu",
       "timestamp": "8:41:44 p. m.",
       "method": "POST",
@@ -733,13 +741,13 @@
       "name": "Mesa 1",
       "zone": "Salón Principal",
       "capacity": 4,
-      "status": "JUGANDO",
-      "currentCustomer": "Invitado en Mesa",
-      "currentWhatsapp": null,
-      "activeSessionId": "SES-M1-1024",
-      "prizeWon": null,
-      "uniqueCode": null,
-      "startedAt": "Hace 3 min",
+      "status": "PREMIO_PENDIENTE",
+      "currentCustomer": "juan camilo Botero",
+      "currentWhatsapp": "3165212839",
+      "activeSessionId": "SES-MUO6W2G5",
+      "prizeWon": "15% de Descuento",
+      "uniqueCode": "TURE-W9DIG",
+      "startedAt": "Ahora",
       "lastActivityAt": "Ahora",
       "qrUrl": "http://localhost:5173/?mesa=1"
     },

@@ -589,20 +589,20 @@ function JuegoQrPage() {
                           sessionStorage.removeItem("juego_won_prize");
                           setCurrentStep(3);
                         }}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-border text-xs text-muted-foreground hover:text-gold hover:border-gold transition-all cursor-pointer shadow-2xs"
+                        className="btn-dark inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs transition-all cursor-pointer shadow-md active:scale-95"
                       >
-                        <RotateCcw className="h-3.5 w-3.5 text-gold" />
-                        <span>{t("🔄 Girar de Nuevo (Modo Demo)", "🔄 Spin Again (Demo Mode)")}</span>
+                        <RotateCcw className="h-3.5 w-3.5 text-[#f2be71]" />
+                        <span className="font-semibold">{t("🔄 Girar de Nuevo (Modo Demo)", "🔄 Spin Again (Demo Mode)")}</span>
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-12 bg-white rounded-2xl border border-gold/30 p-8 shadow-xs">
-                    <h3 className="font-display text-xl text-foreground mb-2">
+                  <div className="text-center py-10 bg-[#1c1b1f] rounded-2xl border border-[#f2be71]/30 p-6 sm:p-8 shadow-xl">
+                    <h3 className="font-headline-sm text-xl text-[#ffddb1] font-bold mb-2">
                       {t("¡Aún no has descubierto tu premio!", "You haven't unveiled your prize yet!")}
                     </h3>
-                    <p className="text-sm text-muted-foreground mb-6">
-                      {t("Gira el Carrusel de la Suerte en el Paso 3 para descubrir tu beneficio exclusivo.", "Spin the Lucky Carousel in Step 3 to discover your exclusive treat.")}
+                    <p className="text-sm text-[#ccc3d8] mb-6 max-w-sm mx-auto">
+                      {t("Gira la Ruleta en el Paso 3 para descubrir tu beneficio exclusivo.", "Spin the Roulette in Step 3 to discover your exclusive treat.")}
                     </p>
                     <button
                       type="button"
@@ -610,9 +610,9 @@ function JuegoQrPage() {
                         setCurrentStep(3);
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
-                      className="btn-solid inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs uppercase tracking-wider font-bold text-white shadow-md cursor-pointer"
+                      className="btn-gold inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer active:scale-95"
                     >
-                      <span>🎡 {t("Ir al Carrusel (Paso 3)", "Go to Carousel (Step 3)")}</span>
+                      <span>🎡 {t("Ir a la Ruleta (Paso 3)", "Go to Roulette (Step 3)")}</span>
                     </button>
                   </div>
                 )}

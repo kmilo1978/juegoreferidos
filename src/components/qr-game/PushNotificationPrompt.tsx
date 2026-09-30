@@ -1,3 +1,4 @@
+import { clientConfig } from "@/config/clientConfig";
 import { useState, useEffect } from "react";
 import { Bell, BellRing, CheckCircle2, Sparkles, X, Coffee, ShieldCheck } from "lucide-react";
 import { playVictoryFanfareSound } from "../../lib/soundEffects";
@@ -56,7 +57,7 @@ export function PushNotificationPrompt({
         playVictoryFanfareSound();
         setSuccess(true);
 
-        // Generar o recuperar token simulado / real de suscripción
+        // Generar o recuperar token simulado / real de suscripciï¿½n
         let pushEndpoint = "https://fcm.googleapis.com/fcm/send/device_" + Date.now();
         if ("serviceWorker" in navigator) {
           try {
@@ -83,10 +84,10 @@ export function PushNotificationPrompt({
           console.warn("[Push] Backend local no disponible para registrar suscriptor:", backendErr);
         }
 
-        // Enviar notificación local de bienvenida
+        // Enviar notificaciï¿½n local de bienvenida
         try {
-          new Notification("? ¡Bienvenido a Bliss Soul VIP!", {
-            body: `Hola ${customerName || "Invitado"}, tus notificaciones están activas. Te avisaremos cuando tu orden esté lista.`,
+          new Notification(`ðŸŽ‰ Â¡Bienvenido a ${clientConfig.brand.name} VIP!`, {
+            body: `Hola ${customerName || "Invitado"}, tus notificaciones estÃ¡n activas. Te avisaremos cuando tu orden estÃ¡ lista.`,
             icon: "/assets/emblema-dorado.png",
           });
         } catch {}
@@ -126,14 +127,14 @@ export function PushNotificationPrompt({
               <CheckCircle2 className="w-10 h-10 animate-bounce" />
             </div>
             <h3 className="text-xl font-serif font-bold text-neutral-900">
-              ¡Notificaciones VIP Activadas!
+              ï¿½Notificaciones VIP Activadas!
             </h3>
             <p className="text-sm text-neutral-600 max-w-xs mx-auto">
-              Te avisaremos en tu pantalla cuando tu café o postre esté listo y cuando tengamos beneficios exclusivos.
+              Te avisaremos en tu pantalla cuando tu cafï¿½ o postre estï¿½ listo y cuando tengamos beneficios exclusivos.
             </p>
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 text-xs font-medium border border-amber-200">
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              Suscripción vinculada exitosamente
+              Suscripciï¿½n vinculada exitosamente
             </div>
           </div>
         ) : (
@@ -144,13 +145,13 @@ export function PushNotificationPrompt({
                 <BellRing className="w-7 h-7 animate-pulse" />
               </div>
               <span className="inline-block text-[11px] uppercase tracking-wider font-semibold text-[#8e6e22] bg-[#fbf5eb] px-3 py-0.5 rounded-full border border-[#ecdcc3]">
-                Club VIP Bliss Soul
+                Club VIP {clientConfig.brand.name}
               </span>
               <h3 className="text-xl font-serif font-bold text-neutral-900 leading-snug">
-                ¿Deseas recibir avisos de tu pedido y promociones?
+Â¿Deseas recibir avisos de tu pedido y promociones?
               </h3>
               <p className="text-xs text-neutral-600">
-                Mantente al día sin descargar ninguna app pesada, directamente en tu navegador.
+                Mantente al dï¿½a sin descargar ninguna app pesada, directamente en tu navegador.
               </p>
             </div>
 
@@ -159,13 +160,13 @@ export function PushNotificationPrompt({
               <div className="flex items-start gap-2.5">
                 <Coffee className="w-4 h-4 text-[#8e6e22] shrink-0 mt-0.5" />
                 <span>
-                  <strong>Aviso de mesa y barra:</strong> Te notificamos cuando tu bebida de autor o tarta esté servida.
+                  <strong>Aviso de mesa y barra:</strong> Te notificamos cuando tu bebida de autor o tarta estï¿½ servida.
                 </span>
               </div>
               <div className="flex items-start gap-2.5">
                 <Sparkles className="w-4 h-4 text-[#8e6e22] shrink-0 mt-0.5" />
                 <span>
-                  <strong>Beneficios 2x1 y Sellos Dobles:</strong> Acceso a días de doble sello en tu tarjeta digital.
+                  <strong>Beneficios 2x1 y Sellos Dobles:</strong> Acceso a dï¿½as de doble sello en tu tarjeta digital.
                 </span>
               </div>
               <div className="flex items-start gap-2.5">
@@ -182,12 +183,12 @@ export function PushNotificationPrompt({
               </div>
             )}
 
-            {/* Botones de acción */}
+            {/* Botones de acciï¿½n */}
             <div className="space-y-2 pt-1">
               <button
                 onClick={handleRequestPermission}
                 disabled={loading}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#8e6e22] via-[#b38e35] to-[#8e6e22] text-white font-medium text-sm shadow-md hover:brightness-105 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="btn-gold w-full py-3 px-4 rounded-xl font-medium text-sm shadow-md hover:brightness-105 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -197,7 +198,7 @@ export function PushNotificationPrompt({
                 ) : (
                   <>
                     <Bell className="w-4 h-4" />
-                    ¡Sí, Activar Notificaciones VIP!
+Â¡SÃ­, Activar Notificaciones VIP!
                   </>
                 )}
               </button>
@@ -206,7 +207,7 @@ export function PushNotificationPrompt({
                 onClick={onClose}
                 className="w-full py-2.5 px-4 rounded-xl bg-transparent hover:bg-neutral-100 text-neutral-500 hover:text-neutral-800 text-xs font-medium transition-colors cursor-pointer"
               >
-                Quizás más tarde
+                QuizÃ¡s mÃ¡s tarde
               </button>
             </div>
           </div>

@@ -182,6 +182,62 @@
   box-shadow: 0 4px 18px rgba(242, 190, 113, 0.45);
 }
 
+/* Botones de Alto Contraste 100% Legibles (Sin texto blanco sobre fondo claro) */
+.btn-gold {
+  background: linear-gradient(135deg, #f2be71 0%, #ffdcb1 50%, #f2be71 100%) !important;
+  color: #121115 !important;
+  font-weight: 800 !important;
+  border: 1px solid rgba(255, 221, 177, 0.7) !important;
+}
+
+.btn-gold span,
+.btn-gold svg,
+.btn-gold p {
+  color: #121115 !important;
+  font-weight: 800 !important;
+}
+
+.btn-purple {
+  background: linear-gradient(135deg, #7c3aed 0%, #8a4fff 50%, #9333ea 100%) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  border: 1px solid rgba(209, 188, 255, 0.5) !important;
+}
+
+.btn-purple span,
+.btn-purple svg,
+.btn-purple p {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+.btn-outline-gold {
+  background: #1c1b1f !important;
+  border: 1px solid rgba(242, 190, 113, 0.45) !important;
+  color: #f2be71 !important;
+  font-weight: 700 !important;
+}
+
+.btn-outline-gold span,
+.btn-outline-gold svg,
+.btn-outline-gold p {
+  color: #f2be71 !important;
+}
+
+.btn-dark {
+  background: #201f23 !important;
+  border: 1px solid #363439 !important;
+  color: #f2be71 !important;
+  font-weight: 600 !important;
+}
+
+.btn-dark span,
+.btn-dark svg,
+.btn-dark p {
+  color: #f2be71 !important;
+}
+
 .clip-pointer {
   clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
 }
+

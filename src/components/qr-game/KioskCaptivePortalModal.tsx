@@ -125,13 +125,13 @@ export function KioskCaptivePortalModal({
             <div className="space-y-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200">
                 <Wifi className="w-3.5 h-3.5" />
-                WiFi VIP Conectado con �xito
+                WiFi VIP Conectado con Éxito
               </span>
               <h3 className="text-2xl font-serif font-bold text-neutral-900">
-                �Bienvenido a Bliss Soul, {name}!
+                ¡Bienvenido a {clientConfig.brand.name}, {name}!
               </h3>
               <p className="text-xs sm:text-sm text-neutral-600 max-w-sm mx-auto">
-                Tu acceso a internet de alta velocidad est� activo por <strong>{sessionMinutes} minutos</strong> y has ganado tu primer sello de cortes�a.
+                Tu acceso a internet de alta velocidad está activo por <strong>{sessionMinutes} minutos</strong> y has ganado tu primer sello de cortesía.
               </p>
             </div>
 

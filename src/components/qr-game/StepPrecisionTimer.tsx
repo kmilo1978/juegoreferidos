@@ -208,7 +208,7 @@ export function StepPrecisionTimer({
           <div className="relative w-full h-48 sm:h-56 overflow-hidden">
             <img
               src={tartaVascaImg}
-              alt="Bliss Soul Alta Pastelería"
+              alt={clientConfig.brand.name}
               className="w-full h-full object-cover brightness-95 scale-105 transition-transform duration-1000"
             />
             {/* Gradientes de superposición de lujo */}
@@ -479,7 +479,7 @@ export function StepPrecisionTimer({
                 <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 max-w-md mx-auto text-left space-y-2">
                   <div className="flex items-center gap-2 text-neutral-800 font-bold text-xs">
                     <HeartHandshake className="w-4 h-4 text-amber-600 shrink-0" />
-                    <span>Agradecemos tu visita a Bliss Soul</span>
+                    <span>Agradecemos tu visita a {clientConfig.brand.name}</span>
                   </div>
                   <p className="text-[11px] text-neutral-500 leading-relaxed font-light">
                     Para mantener la exclusividad de nuestros premios, se permite un único turno de juego por mesa/visita. ¡Te esperamos pronto para volver a intentarlo!

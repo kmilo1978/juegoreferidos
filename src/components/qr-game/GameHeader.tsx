@@ -90,16 +90,19 @@ export function GameHeader({
               </button>
             )}
 
-            {/* Misiones VIP */}
+            {/* Misiones VIP siempre visible con badge */}
             {onOpenMissions && (
               <button
                 type="button"
                 onClick={onOpenMissions}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#8a4fff]/20 hover:bg-[#8a4fff]/30 text-[#d1bcff] border border-[#8a4fff]/40 text-[11px] font-semibold transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-[#8a4fff]/25 hover:bg-[#8a4fff]/40 text-[#d1bcff] border border-[#8a4fff]/50 text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
                 title="Ver Misiones y Sellos VIP"
               >
-                <span>⭐</span>
-                <span className="hidden xs:inline">{t("Misiones", "Missions")}</span>
+                <span>🎯</span>
+                <span className="font-bold">{t("Misiones", "Missions")}</span>
+                <span className="bg-[#f2be71] text-[#121115] text-[9px] px-1.5 py-0.2 rounded-full font-black">
+                  +Sellos
+                </span>
               </button>
             )}
 

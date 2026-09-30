@@ -1,3 +1,4 @@
+import { clientConfig } from "@/config/clientConfig";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import {
@@ -38,10 +39,10 @@ const DEFAULT_MISSIONS: MissionItem[] = [
     rewardText: "+3 Sellos de Visita",
     badge: "VIRAL TOP",
     icon: "🎵",
-    description: "Comparte un video corto disfrutando tu café o postre favorito de Bliss Soul.",
+    description: "Comparte un video corto disfrutando tu café o postre favorito de ${clientConfig.brand.name}.",
     rules: [
       "Publica un video público en TikTok.",
-      "Menciona a @blisssoulbakery en la descripción o usa la etiqueta de ubicación.",
+      "Menciona a ${clientConfig.channels.instagramHandle || '@nuestrolocal'} en la descripción o usa la etiqueta de ubicación.",
       "Muestra tu experiencia real con el producto o en el local.",
       "Mantén el video público de forma permanente.",
     ],
@@ -96,7 +97,7 @@ const DEFAULT_MISSIONS: MissionItem[] = [
     description: "Sube una foto de tu pedido a tus Estados de WhatsApp recomendando el local.",
     rules: [
       "Publica una foto de tu postre o café en tus Estados de WhatsApp.",
-      "Escribe una frase recomendando a Bliss Soul Bakery.",
+      "Escribe una frase recomendando a ${clientConfig.brand.name}.",
       "Envía el enlace o confirmación de tu estado.",
     ],
     actionUrl: "https://api.whatsapp.com",
@@ -135,7 +136,7 @@ const DEFAULT_MISSIONS: MissionItem[] = [
       "Recibe antes que nadie promociones relámpago, recetas de autor y regalos.",
       "Pega tu número de WhatsApp para confirmar tu ingreso y sumar tus sellos.",
     ],
-    actionUrl: "https://chat.whatsapp.com/BlissSoulVIPCommunity",
+    actionUrl: "https://chat.whatsapp.com/VIPCommunity",
     evidencePlaceholder: "Tu número de WhatsApp o confirmación de ingreso al grupo",
     active: true,
   },
@@ -149,7 +150,7 @@ const DEFAULT_MISSIONS: MissionItem[] = [
     icon: "🌐",
     description: "Comparte tu opinión y calificación en nuestro perfil de Microsoft Bing Places para ayudarnos a posicionar en búsquedas.",
     rules: [
-      "Abre el perfil de Bliss Soul Bakery en Bing Maps o Microsoft Search.",
+      "Abre el perfil de ${clientConfig.brand.name} en Bing Maps o Microsoft Search.",
       "Califica con estrellas y comparte tu producto o postre favorito.",
       "Pega el enlace de tu reseña o confirmación para sumar tus sellos.",
     ],
@@ -514,7 +515,7 @@ export function MissionsModal({
                           <button
                             type="button"
                             onClick={() => handleOpenTask(m.actionUrl)}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs shadow-md transition-all cursor-pointer active:scale-95"
+                            className="btn-dark inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer active:scale-95"
                           >
                             <ExternalLink className="h-3.5 w-3.5" />
                             <span>{t("Abrir tarea", "Open task")}</span>
@@ -540,7 +541,7 @@ export function MissionsModal({
                               type="button"
                               disabled={isSubmitting}
                               onClick={() => handleSubmitForReview(m)}
-                              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-fuchsia-500 hover:opacity-95 text-white font-bold text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer disabled:opacity-50 shrink-0 text-center"
+                              className="btn-gold px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer disabled:opacity-50 shrink-0 text-center"
                             >
                               {isSubmitting ? (
                                 <span>{t("Enviando...", "Submitting...")}</span>
@@ -574,7 +575,7 @@ export function MissionsModal({
 
         {/* PIE DE PÁGINA */}
         <div className="p-3.5 bg-[#161c28] border-t border-slate-800 text-center text-[11px] text-slate-400">
-          Bliss Soul VIP Club · {t("Los sellos se acreditan automáticamente tras la aprobación", "Stamps are credited automatically upon approval")}
+          ${clientConfig.brand.name} VIP Club · {t("Los sellos se acreditan automáticamente tras la aprobación", "Stamps are credited automatically upon approval")}
         </div>
       </div>
     </div>

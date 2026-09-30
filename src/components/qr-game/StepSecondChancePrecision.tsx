@@ -311,7 +311,7 @@ export function StepSecondChancePrecision({
             <button
               type="button"
               onClick={onExit}
-              className="w-full h-13 py-3 px-6 rounded-full bg-gradient-to-r from-[#f2be71] via-[#ffdcb1] to-[#f2be71] text-[#141317] font-bold text-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
+              className="w-full h-13 py-3 px-6 rounded-full btn-gold text-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
             >
               <span>{t("Continuar a Fidelización & Sellos (Paso 7)", "Continue to Loyalty & Stamps (Step 7)")}</span>
               <ArrowRight className="h-4 w-4" />

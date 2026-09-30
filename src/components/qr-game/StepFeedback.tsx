@@ -216,7 +216,7 @@ export function StepFeedback({
             <button
               type="button"
               onClick={handleGoogleClick}
-              className="w-full h-13 py-3 px-6 rounded-full bg-gradient-to-r from-[#8a4fff] to-[#d1bcff] text-[#141317] font-bold text-sm flex items-center justify-center gap-2 shadow-[0_4px_24px_rgba(138,79,255,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
+              className="w-full h-13 py-3 px-6 rounded-full btn-purple text-sm font-bold flex items-center justify-center gap-2 shadow-[0_4px_24px_rgba(138,79,255,0.4)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
             >
               <span>{t("Publicar Reseña en Google Maps", "Publish Review on Google Maps")}</span>
               <ExternalLink className="h-4 w-4" />
@@ -291,7 +291,7 @@ export function StepFeedback({
             <button
               type="button"
               onClick={onUnlockSecondChance}
-              className="w-full h-13 py-3 px-6 rounded-full bg-gradient-to-r from-[#f2be71] via-[#ffdcb1] to-[#f2be71] text-[#141317] font-bold text-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
+              className="w-full h-13 py-3 px-6 rounded-full btn-gold text-sm font-bold flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
             >
               <Trophy className="h-4 w-4" />
               <span>{t("Continuar a la 2ª Oportunidad (Reto 10.00s)", "Continue to 2nd Chance (10.00s Challenge)")}</span>

@@ -150,10 +150,10 @@ export function StepPrizeClaim({
               type="button"
               onClick={onValidateAtCashier}
               disabled={isUsed}
-              className={`w-full h-12 rounded-full font-label-lg text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer ${
+              className={`w-full h-12 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer ${
                 isUsed
                   ? "bg-[#047857]/40 text-[#10b981] border border-[#10b981]/40"
-                  : "bg-gradient-to-r from-[#8a4fff] to-[#d1bcff] text-[#141317] hover:brightness-105 active:scale-95 shadow-[0_4px_20px_rgba(138,79,255,0.35)]"
+                  : "btn-purple hover:brightness-105 active:scale-95 shadow-[0_4px_20px_rgba(138,79,255,0.4)]"
               }`}
             >
               <Lock className="h-4 w-4" />
@@ -175,7 +175,7 @@ export function StepPrizeClaim({
             <button
               type="button"
               onClick={onProceedToFeedback}
-              className="w-full h-13 py-3 px-6 rounded-full bg-gradient-to-r from-[#f2be71] via-[#ffdcb1] to-[#f2be71] text-[#141317] font-bold text-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
+              className="w-full h-13 py-3 px-6 rounded-full btn-gold text-sm flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(242,190,113,0.35)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
             >
               <span>{t("Calificar Visita & Desbloquear 2ª Oportunidad", "Rate Visit & Unlock 2nd Chance")}</span>
               <ArrowRight className="h-4 w-4" />
@@ -187,7 +187,7 @@ export function StepPrizeClaim({
             <button
               type="button"
               onClick={onUnlockSecondChance}
-              className="w-full h-12 rounded-full bg-[#1c1b1f] hover:bg-[#201f23] border border-[#f2be71]/30 text-[#f2be71] font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full h-12 rounded-full btn-outline-gold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
             >
               <Trophy className="h-4 w-4 text-[#f2be71]" />
               <span>{t("Probar Reto de Precisión 10.00s (2ª Oportunidad)", "Try 10.00s Precision Challenge (2nd Chance)")}</span>
@@ -199,9 +199,9 @@ export function StepPrizeClaim({
             <button
               type="button"
               onClick={onOpenMissions}
-              className="w-full h-11 rounded-full bg-[#1c1b1f] hover:bg-[#201f23] border border-[#363439] text-[#ccc3d8] hover:text-white font-medium text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full h-12 rounded-full btn-outline-gold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
             >
-              <span>⭐</span>
+              <span>🎯</span>
               <span>{t("Ver Centro de Misiones & 15 Sellos VIP", "View VIP Missions & 15 Stamps Hub")}</span>
             </button>
           )}

@@ -301,7 +301,7 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
           <div className="flex flex-col gap-2 pt-1">
             <button
               type="submit"
-              className="w-full h-13 py-3 px-6 rounded-full bg-gradient-to-r from-[#f2be71] via-[#ffdcb1] to-[#f2be71] text-[#141317] font-label-lg text-sm font-bold flex items-center justify-center gap-2 shadow-[0_4px_24px_rgba(242,190,113,0.35)] active:scale-[0.98] transition-all cursor-pointer hover:brightness-105"
+              className="w-full h-13 py-3 px-6 rounded-full btn-gold text-sm flex items-center justify-center gap-2 shadow-[0_4px_24px_rgba(242,190,113,0.35)] active:scale-[0.98] transition-all cursor-pointer hover:brightness-105"
             >
               <span>{t("Continuar a Instagram Stories", "Continue to Instagram Stories")}</span>
               <ArrowRight className="h-4 w-4" />

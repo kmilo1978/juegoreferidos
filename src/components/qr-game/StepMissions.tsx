@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
 import {
@@ -8,16 +8,114 @@ import {
   ExternalLink,
   Send,
   Star,
+  Clock,
   RotateCcw,
   Coffee,
-  Wine,
   Gift,
   ChevronDown,
   ChevronUp,
+  Share2,
+  CreditCard,
+  Users,
+  Award,
 } from "lucide-react";
 import { StampService } from "@/lib/stampService";
 import { MissionItem } from "./MissionsModal";
 import { clientConfig } from "@/config/clientConfig";
+
+const DEFAULT_MISSIONS: MissionItem[] = [
+  {
+    id: "m_tiktok",
+    category: "Creación de Contenido",
+    title: "Video o Reel en Redes",
+    rewardStamps: 3,
+    rewardText: "+3 Sellos VIP",
+    badge: "VIRAL TOP",
+    icon: "🎵",
+    description: `Comparte un video corto disfrutando tu plato o bebida favorita en ${clientConfig.brand.name}.`,
+    rules: [
+      "Publica un video público en TikTok o Instagram Reels.",
+      `Menciona la cuenta oficial ${clientConfig.channels.instagramHandle || "@nuestrolocal"} o etiqueta la ubicación.`,
+      "Muestra tu experiencia real en la mesa.",
+      "Mantén la publicación en modo público.",
+    ],
+    actionUrl: "https://www.tiktok.com",
+    evidencePlaceholder: "https://www.tiktok.com/@tu_usuario/video/...",
+    active: true,
+  },
+  {
+    id: "m_google_photo",
+    category: "Reseñas con Fotografía",
+    title: "Foto & Reseña en Google Maps",
+    rewardStamps: 2,
+    rewardText: "+2 Sellos VIP",
+    badge: "ALTA DEMANDA",
+    icon: "📸",
+    description: "Sube una fotografía de tu mesa a Google Maps acompañando tu opinión 5 estrellas.",
+    rules: [
+      "Abre nuestro perfil oficial en Google Maps.",
+      "Califica tu experiencia y sube al menos una foto de tu plato o mesa.",
+      "Pega aquí el enlace de tu reseña publicada.",
+    ],
+    actionUrl: clientConfig.channels.googleMapsReviewUrl || "https://maps.google.com",
+    evidencePlaceholder: "https://maps.app.goo.gl/... o confirmación",
+    active: true,
+  },
+  {
+    id: "m_referrals",
+    category: "Embajador de la Casa",
+    title: "Invitar a un Amigo por WhatsApp",
+    rewardStamps: 3,
+    rewardText: "+3 Sellos VIP",
+    badge: "BOCA A BOCA",
+    icon: "🤝",
+    description: "Recomienda nuestro local a un amigo o familiar compartiendo tu enlace exclusivo.",
+    rules: [
+      "Toca el botón 'Recomendar por WhatsApp' y envía la invitación con tu código.",
+      "Tu invitado recibirá una cortesía sorpresa cuando nos visite.",
+      "Pega tu número o confirmación para validar tus sellos.",
+    ],
+    actionUrl: "https://api.whatsapp.com",
+    evidencePlaceholder: "Confirmación de envío o nombres de tus invitados",
+    active: true,
+  },
+  {
+    id: "m_whatsapp_status",
+    category: "Boca a Boca Directo",
+    title: "Publicar en Estados de WhatsApp",
+    rewardStamps: 1,
+    rewardText: "+1 Sello VIP",
+    badge: "WHATSAPP",
+    icon: "💬",
+    description: "Sube una foto de tu pedido a tus Estados de WhatsApp recomendando el establecimiento.",
+    rules: [
+      "Publica una foto de tu experiencia en tus Estados de WhatsApp.",
+      `Escribe una frase recomendando a ${clientConfig.brand.name}.`,
+      "Envía la confirmación de tu estado.",
+    ],
+    actionUrl: "https://api.whatsapp.com",
+    evidencePlaceholder: "Confirmación de estado publicado",
+    active: true,
+  },
+  {
+    id: "m_facebook",
+    category: "Comunidad",
+    title: "Recomendación en Facebook",
+    rewardStamps: 1,
+    rewardText: "+1 Sello VIP",
+    badge: "COMUNIDAD",
+    icon: "👥",
+    description: "Recomienda nuestra página oficial o haz check-in en el local con una foto.",
+    rules: [
+      "Deja una recomendación positiva en la página de Facebook o haz check-in.",
+      "Comparte una foto de tu pedido.",
+      "Asegúrate de que la publicación esté en modo público.",
+    ],
+    actionUrl: "https://www.facebook.com",
+    evidencePlaceholder: "https://www.facebook.com/tu_publicacion/...",
+    active: true,
+  },
+];
 
 interface StepMissionsProps {
   customerName?: string | undefined;
@@ -33,74 +131,153 @@ export function StepMissions({
   const { t } = useLanguage();
   const brandName = clientConfig.brand.name;
 
-  const [stampCard] = useState(() => StampService.getCustomerStampCard(customerWhatsapp));
-  const currentStamps = Math.min(stampCard.currentStamps || 3, 15);
+  const [missions, setMissions] = useState<MissionItem[]>(DEFAULT_MISSIONS);
+  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [missionUrls, setMissionUrls] = useState<Record<string, string>>({});
+  const [submittingMissionId, setSubmittingMissionId] = useState<string | null>(null);
+  const [successMissionId, setSuccessMissionId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [expandedMission, setExpandedMission] = useState<string | null>(DEFAULT_MISSIONS[0].id);
+  const [isDemoUnlocked, setIsDemoUnlocked] = useState(false);
 
-  const missions: MissionItem[] = [
-    {
-      id: "m_tiktok",
-      category: t("Creación de Contenido", "Content Creation"),
-      title: t("Video o Reel en Redes", "Video or Reel on Social"),
-      rewardStamps: 3,
-      rewardText: "+3 Sellos VIP",
-      badge: "VIRAL TOP",
-      icon: "🎵",
-      description: t(
-        `Comparte un video corto disfrutando tu plato favorito en ${brandName}.`,
-        `Share a short clip enjoying your meal at ${brandName}.`
-      ),
-      rules: [
-        t("Publica un video público en TikTok o Instagram Reels.", "Post a public video on TikTok or Reels."),
-        t(`Menciona la cuenta oficial de ${brandName}.`, `Tag ${brandName}'s official handle.`),
-      ],
-      actionUrl: "https://www.tiktok.com",
-      active: true,
-    },
-    {
-      id: "m_google_photo",
-      category: t("Reseña con Fotografía", "Photo Review"),
-      title: t("Foto en Google Maps", "Photo on Google Maps"),
-      rewardStamps: 2,
-      rewardText: "+2 Sellos VIP",
-      badge: "ALTA DEMANDA",
-      icon: "📸",
-      description: t(
-        "Sube una foto de tu mesa a Google Maps acompañando tu opinión.",
-        "Add a photo of your table on Google Maps with your review."
-      ),
-      rules: [
-        t("Adjunta al menos 1 fotografía de tu mesa.", "Attach at least 1 photo of your dining."),
-        t("Menciona tu plato o bebida preferida.", "Mention your favorite dish or drink."),
-      ],
-      actionUrl: "https://maps.google.com",
-      active: true,
-    },
-    {
-      id: "m_referrals",
-      category: t("Referidos Gastronómicos", "Dining Referrals"),
-      title: t("Invita a un Amigo en Mesa", "Invite a Friend to Dine"),
-      rewardStamps: 2,
-      rewardText: "+2 Sellos VIP",
-      badge: "RECOMENDADO",
-      icon: "👥",
-      description: t(
-        "Comparte tu enlace de recomendación con un amigo que nos visite.",
-        "Share your referral link with a friend who visits us."
-      ),
-      rules: [
-        t("Envía la invitación a tus contactos gastronómicos.", "Send invitation to food lovers."),
-        t("Cuando tu amigo escanee en mesa, ambos suman sellos.", "When your friend scans at table, both earn stamps."),
-      ],
-      actionUrl: "https://api.whatsapp.com",
-      active: true,
-    },
-  ];
+  const cleanPhone = (customerWhatsapp || "").replace(/\D/g, "");
+  const baseCard = StampService.getCustomerStampCard(cleanPhone);
+  const [syncedStamps, setSyncedStamps] = useState<number>(() => Math.max(baseCard.currentStamps || 3, 3));
 
-  const [expandedMission, setExpandedMission] = useState<string | null>(null);
+  // Cargar misiones dinámicas desde el backend
+  const loadMissionsData = () => {
+    fetch("/api/missions")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.success) {
+          if (Array.isArray(data.missions) && data.missions.length > 0) {
+            const activeOnly = data.missions.filter((m: MissionItem) => m.active !== false);
+            setMissions(activeOnly.length > 0 ? activeOnly : data.missions);
+          }
+          if (Array.isArray(data.submissions)) {
+            setSubmissions(data.submissions);
+          }
+        }
+      })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    loadMissionsData();
+  }, []);
+
+  // Sincronizar sellos con el servidor
+  useEffect(() => {
+    if (cleanPhone) {
+      fetch(`/api/stamps/${cleanPhone}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && typeof data.stamps === "number") {
+            const count = Math.max(data.stamps, 3);
+            setSyncedStamps(count);
+            StampService.saveCustomerStampCard(cleanPhone, {
+              ...baseCard,
+              currentStamps: count,
+            });
+          }
+        })
+        .catch(() => {});
+    }
+  }, [cleanPhone]);
+
+  const currentStamps = Math.min(syncedStamps, 15);
+
+  const mySubmissions = submissions.filter(
+    (s) => !cleanPhone || s.customerWhatsapp === cleanPhone
+  );
+  const myPendingSubmissions = mySubmissions.filter((s) => s.status === "PENDIENTE");
+  const pendingStamps = myPendingSubmissions.reduce(
+    (acc, cur) => acc + (cur.rewardStamps || 1),
+    0
+  );
+
+  const totalAvailableStamps = missions.reduce(
+    (acc, m) => acc + (m.rewardStamps || 1),
+    0
+  );
+
+  const submittedMissionIds = new Set(mySubmissions.map((s) => s.missionId));
+  const ticketCode = `#CENA2-${cleanPhone ? cleanPhone.slice(-4) : "7791"}-VIP`;
+
+  const handleUrlChange = (missionId: string, val: string) => {
+    setMissionUrls((prev) => ({ ...prev, [missionId]: val }));
+    setErrorMessage("");
+  };
+
+  const handleOpenTask = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleReferFriend = () => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const inviteMessage = `¡Hola! Te recomiendo mucho visitar *${brandName}* 🍽️✨\n\nEl ambiente y la comida son espectaculares. Además, cuando vayas a visitarlos y te sientes en tu mesa, puedes escanear el QR y participar en su Ruleta de Premios:\n👉 ${origin}?ref=${encodeURIComponent(customerName || "Amigo")}\n\n¡Vamos juntos o visítalos hoy, te va a encantar!`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(inviteMessage)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleSubmitForReview = async (mission: MissionItem) => {
+    const url = (missionUrls[mission.id] || "").trim();
+    if (!url) {
+      setErrorMessage(
+        t(
+          "Por favor escribe o pega la URL o confirmación antes de enviar a revisión.",
+          "Please enter or paste the URL or confirmation before submitting for review."
+        )
+      );
+      return;
+    }
+
+    setSubmittingMissionId(mission.id);
+    setErrorMessage("");
+
+    try {
+      const res = await fetch("/api/missions/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          missionId: mission.id,
+          missionTitle: mission.title,
+          rewardStamps: mission.rewardStamps,
+          customerName: customerName || "Comensal VIP",
+          customerWhatsapp: cleanPhone || "573000000000",
+          evidenceUrl: url,
+        }),
+      });
+
+      const data = await res.json();
+      if (data && data.success) {
+        setSuccessMissionId(mission.id);
+        setMissionUrls((prev) => ({ ...prev, [mission.id]: "" }));
+        loadMissionsData();
+        setTimeout(() => {
+          setSuccessMissionId(null);
+        }, 5000);
+      } else {
+        setErrorMessage(
+          data?.message ||
+            t("Hubo un error al enviar la misión. Intenta nuevamente.", "Error submitting mission. Please try again.")
+        );
+      }
+    } catch {
+      setErrorMessage(
+        t("No fue posible conectar con el servidor. Verifica tu conexión.", "Could not connect to server. Check connection.")
+      );
+    } finally {
+      setSubmittingMissionId(null);
+    }
+  };
+
+  const isChallengeCompleted =
+    isDemoUnlocked || (missions.length > 0 && submittedMissionIds.size >= missions.length);
 
   return (
     <div className="w-full flex flex-col gap-5">
-      {/* Barra de progreso Stitch */}
+      {/* 1. BARRA DE PROGRESO DE LA ETAPA */}
       <Reveal>
         <section className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
@@ -119,7 +296,7 @@ export function StepMissions({
         </section>
       </Reveal>
 
-      {/* Tarjeta de 15 Sellos VIP estilo Stitch */}
+      {/* 2. TARJETA DE 15 SELLOS VIP ESTILO STITCH */}
       <Reveal delay={50}>
         <div className="w-full rounded-3xl bg-[#1c1b1f] border border-[#2b292e] p-5 sm:p-6 shadow-2xl flex flex-col gap-4 relative overflow-hidden">
           <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#f2be71]/10 rounded-full blur-3xl pointer-events-none" />
@@ -156,9 +333,9 @@ export function StepMissions({
               return (
                 <div
                   key={selloNum}
-                  className={`aspect-square rounded-full flex flex-col items-center justify-center relative transition-all ${
+                  className={`aspect-square rounded-2xl flex flex-col items-center justify-center relative transition-all ${
                     isEarned
-                      ? "bg-gradient-to-br from-[#f2be71] to-[#b88330] text-[#141317] shadow-[0_0_12px_rgba(242,190,113,0.5)] scale-105"
+                      ? "bg-gradient-to-br from-[#f2be71] to-[#b88330] text-[#121115] shadow-[0_0_12px_rgba(242,190,113,0.5)] scale-105 font-bold"
                       : isMilestone15
                         ? "bg-gradient-to-tr from-[#684400] to-[#3a383d] border border-[#f2be71]/50 text-[#f2be71]"
                         : isMilestone10
@@ -217,64 +394,193 @@ export function StepMissions({
         </div>
       </Reveal>
 
-      {/* Banner de Desafío Embajador estilo Stitch */}
-      <Reveal delay={100}>
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#201f23] to-[#1c1b1f] border border-[#f2be71]/30 p-4 shadow-xl flex items-start gap-3">
-          <div className="w-12 h-12 rounded-full bg-[#684400]/40 border border-[#f2be71]/40 flex items-center justify-center shrink-0 text-[#f2be71]">
-            <Trophy className="h-6 w-6" />
+      {/* 3. RESUMEN DE ESTADÍSTICAS (GANADOS, EN REVISIÓN, DISPONIBLES) */}
+      <Reveal delay={80}>
+        <div className="grid grid-cols-3 gap-2.5">
+          <div className="rounded-2xl bg-[#1c1b1f] border border-[#2b292e] p-3 text-center flex flex-col items-center justify-center">
+            <span className="text-[10px] text-[#ccc3d8] uppercase font-bold tracking-wider">
+              {t("Ganados", "Earned")}
+            </span>
+            <span className="text-xl font-black text-[#f2be71] mt-0.5 font-mono">{currentStamps}</span>
+            <span className="text-[9px] text-[#ccc3d8]/70 mt-0.5">en tarjeta</span>
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <span className="font-label-sm text-[10px] uppercase tracking-wider text-[#f2be71] font-bold">
-                {t("Desafío Embajador", "Ambassador Challenge")}
-              </span>
-              <span className="bg-[#684400]/50 border border-[#f2be71]/30 text-[#ffddb1] text-[10px] px-2 py-0.5 rounded-full font-bold">
-                1 Boleto VIP
-              </span>
-            </div>
-            <h3 className="font-headline-sm text-sm text-[#e6e1e7] font-bold mt-0.5">
-              {t("Cena Degustación para 2 Personas", "Chef Tasting Dinner for 2")}
-            </h3>
-            <p className="font-body-sm text-xs text-[#ccc3d8] mt-1">
-              {t(
-                "Completa misiones para sumar participaciones al gran sorteo exclusivo de fin de mes.",
-                "Complete missions to earn entries into our exclusive monthly grand prize."
-              )}
-            </p>
+
+          <div className="rounded-2xl bg-[#1c1b1f] border border-[#2b292e] p-3 text-center flex flex-col items-center justify-center">
+            <span className="text-[10px] text-[#ccc3d8] uppercase font-bold tracking-wider">
+              {t("Revisión", "Review")}
+            </span>
+            <span className="text-xl font-black text-[#ffddb1] mt-0.5 font-mono">
+              {pendingStamps > 0 ? `+${pendingStamps}` : "0"}
+            </span>
+            <span className="text-[9px] text-[#ccc3d8]/70 mt-0.5">&lt; 24 horas</span>
+          </div>
+
+          <div className="rounded-2xl bg-[#1c1b1f] border border-[#2b292e] p-3 text-center flex flex-col items-center justify-center">
+            <span className="text-[10px] text-[#ccc3d8] uppercase font-bold tracking-wider">
+              {t("Disponibles", "Available")}
+            </span>
+            <span className="text-xl font-black text-emerald-400 mt-0.5 font-mono">+{totalAvailableStamps}</span>
+            <span className="text-[9px] text-[#ccc3d8]/70 mt-0.5">misiones</span>
           </div>
         </div>
       </Reveal>
 
-      {/* Lista de Misiones VIP */}
+      {/* 4. BANNER DE DESAFÍO EMBAJADOR & SORTEO CENA PARA 2 */}
+      <Reveal delay={100}>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#201f23] via-[#1c1b1f] to-[#252329] border-2 border-[#f2be71]/40 p-5 shadow-2xl flex flex-col gap-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#684400]/40 border border-[#f2be71]/40 flex items-center justify-center shrink-0 text-[#f2be71] text-2xl shadow-md">
+                👑
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-label-sm text-[10px] uppercase tracking-wider text-[#f2be71] font-bold bg-[#684400]/30 px-2 py-0.5 rounded-full border border-[#f2be71]/30">
+                    {t("GRAN DESAFÍO EMBAJADOR", "AMBASSADOR CHALLENGE")}
+                  </span>
+                  <span className="text-[10px] text-[#ccc3d8] font-mono">Sorteo Fin de Mes</span>
+                </div>
+                <h3 className="font-headline-sm text-base text-[#e6e1e7] font-bold mt-1">
+                  {t("Premio Asegurado + Sorteo Cena para 2", "Guaranteed Prize + Dinner for 2 Raffle")}
+                </h3>
+              </div>
+            </div>
+
+            {/* Botón de prueba rápida demo */}
+            <button
+              type="button"
+              onClick={() => setIsDemoUnlocked(!isDemoUnlocked)}
+              className="btn-dark px-2.5 py-1 rounded-full text-[10px] font-bold shrink-0 cursor-pointer"
+              title="Simular completar todo en modo demo"
+            >
+              {isDemoUnlocked ? "🔄 Reiniciar Demo" : "⚡ Probar Desbloqueo"}
+            </button>
+          </div>
+
+          <p className="font-body-sm text-xs text-[#ccc3d8] leading-relaxed">
+            {t(
+              "Completa las misiones de la casa para asegurar un postre de autor en tu próxima visita y clasificar al gran sorteo mensual.",
+              "Complete missions to secure an artisan dessert on your next visit and enter our exclusive monthly dinner raffle."
+            )}
+          </p>
+
+          {/* Estado de completado vs pendiente */}
+          {isChallengeCompleted ? (
+            <div className="p-4 rounded-2xl bg-[#14231b] border-2 border-emerald-500/60 shadow-lg space-y-3 animate-in fade-in">
+              <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                <span>¡DESAFÍO COMPLETADO! PREMIO ASEGURADO + BOLETO VIP ACTIVO</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="bg-[#1b2f24] p-3 rounded-xl border border-emerald-500/30">
+                  <span className="text-[10px] uppercase tracking-wider text-emerald-400 block font-bold">
+                    🎁 Premio Garantizado
+                  </span>
+                  <strong className="text-xs text-white block mt-0.5 font-serif">
+                    Postre de Autor & Bono Regalo Dulce
+                  </strong>
+                  <span className="font-mono text-xs font-bold text-[#f2be71] block mt-1">
+                    Código: #AUTOR-EMBAJADOR-VIP
+                  </span>
+                  <span className="text-[10px] text-emerald-300/80 block mt-0.5">
+                    ✓ Asegurado en mesa para tu próxima visita
+                  </span>
+                </div>
+
+                <div className="bg-[#2a2216] p-3 rounded-xl border border-[#f2be71]/40">
+                  <span className="text-[10px] uppercase tracking-wider text-[#f2be71] block font-bold">
+                    👑 Boleto Sorteo Cena para 2
+                  </span>
+                  <strong className="text-xs text-white block mt-0.5 font-serif">
+                    Cena Degustación de Autor para 2
+                  </strong>
+                  <span className="font-mono text-xs font-bold text-[#f2be71] block mt-1">
+                    {ticketCode}
+                  </span>
+                  <span className="text-[10px] text-[#ffddb1]/80 block mt-0.5">
+                    ✓ Candidato oficial (Sorteo último viernes)
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-[#201f23] p-3 rounded-xl border border-[#363439] flex items-center justify-between text-xs">
+              <span className="text-[#ccc3d8]">Progreso del Desafío:</span>
+              <span className="text-[#f2be71] font-mono font-bold">
+                {submittedMissionIds.size} / {missions.length} misiones enviadas
+              </span>
+            </div>
+          )}
+
+          {/* Botón WhatsApp para invitar amigos con mensaje pre-armado */}
+          <button
+            type="button"
+            onClick={handleReferFriend}
+            className="btn-gold w-full py-3 px-4 rounded-2xl font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+          >
+            <Share2 className="h-4 w-4" />
+            <span>{t("Recomendar a un Amigo por WhatsApp (+3 Sellos)", "Refer a Friend via WhatsApp (+3 Stamps)")}</span>
+          </button>
+        </div>
+      </Reveal>
+
+      {/* 5. MENSAJES DE ERROR */}
+      {errorMessage && (
+        <div className="p-3.5 rounded-2xl bg-red-950/40 border border-red-500/50 text-red-300 text-xs text-center font-medium animate-in fade-in">
+          ⚠️ {errorMessage}
+        </div>
+      )}
+
+      {/* 6. LISTADO COMPLETO E INTERACTIVO DE MISIONES */}
       <Reveal delay={150}>
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between px-1">
             <span className="font-label-sm text-xs text-[#e6e1e7] uppercase font-bold tracking-wider">
-              {t("Misiones para Ganar Sellos Extra", "Missions to Earn Extra Stamps")}
+              {t("Misiones Activas para Ganar Sellos", "Active Missions to Earn Stamps")}
             </span>
-            <span className="text-[10px] text-[#ccc3d8]">Gana sin esperar tu próxima visita</span>
+            <span className="text-[11px] text-[#ccc3d8]">{missions.length} disponibles hoy</span>
           </div>
 
           {missions.map((m) => {
             const isExpanded = expandedMission === m.id;
+            const isSubmitting = submittingMissionId === m.id;
+            const isSuccess = successMissionId === m.id;
+            const isAlreadySubmitted = submittedMissionIds.has(m.id);
+            const currentUrl = missionUrls[m.id] || "";
+
             return (
               <div
                 key={m.id}
-                className="rounded-2xl bg-[#1c1b1f] border border-[#2b292e] p-3.5 flex flex-col gap-2 transition-all shadow-sm"
+                className="rounded-2xl bg-[#1c1b1f] border border-[#2b292e] hover:border-[#f2be71]/40 transition-all overflow-hidden shadow-sm"
               >
+                {/* Cabecera de la misión */}
                 <div
                   onClick={() => setExpandedMission(isExpanded ? null : m.id)}
-                  className="flex items-center justify-between cursor-pointer"
+                  className="p-3.5 sm:p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-[#201f23]/60 transition-colors"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xl">{m.icon}</span>
-                    <div className="flex flex-col text-left">
-                      <span className="text-xs font-bold text-[#e6e1e7]">{m.title}</span>
-                      <span className="text-[10px] text-[#ccc3d8]">{m.category}</span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-2xl p-2 rounded-xl bg-[#201f23] border border-[#2b292e] shrink-0">
+                      {m.icon}
+                    </span>
+                    <div className="flex flex-col text-left min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="px-2 py-0.5 rounded-full bg-[#684400]/40 text-[#ffddb1] border border-[#f2be71]/30 text-[9px] font-bold">
+                          {m.badge}
+                        </span>
+                        <span className="text-[10px] text-[#ccc3d8] hidden sm:inline">{m.category}</span>
+                        {isAlreadySubmitted && (
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-500/40 text-[9px] font-bold">
+                            ✓ Enviada
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs sm:text-sm font-bold text-[#e6e1e7] mt-0.5 truncate">{m.title}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-full bg-[#684400]/40 text-[#ffddb1] border border-[#f2be71]/30 text-[10px] font-bold">
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="px-2.5 py-1 rounded-full bg-[#684400]/50 text-[#f2be71] border border-[#f2be71]/40 text-[10px] font-bold font-mono">
                       {m.rewardText}
                     </span>
                     {isExpanded ? (
@@ -285,23 +591,78 @@ export function StepMissions({
                   </div>
                 </div>
 
+                {/* Cuerpo expandido con formulario de evidencia */}
                 {isExpanded && (
-                  <div className="pt-2 border-t border-[#2b292e] flex flex-col gap-2 text-xs animate-in fade-in">
-                    <p className="text-[#ccc3d8]">{m.description}</p>
-                    <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-[#ccc3d8]/80">
-                      {m.rules.map((r, idx) => (
-                        <li key={idx}>{r}</li>
-                      ))}
-                    </ul>
-                    <a
-                      href={m.actionUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-1 self-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f2be71] text-[#141317] font-bold text-xs shadow-sm hover:brightness-105"
-                    >
-                      <span>{t("Realizar Misión", "Complete Mission")}</span>
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
+                  <div className="p-4 pt-1 border-t border-[#2b292e] bg-[#17161a] flex flex-col gap-3 text-xs animate-in fade-in">
+                    <p className="text-[#ccc3d8] leading-relaxed">{m.description}</p>
+
+                    {/* Reglas e instrucciones */}
+                    <div className="p-3 rounded-xl bg-[#201f23] border border-[#2b292e] space-y-1.5">
+                      <span className="text-[10px] uppercase font-bold text-[#f2be71] tracking-wider block">
+                        📋 Instrucciones de Verificación:
+                      </span>
+                      <ul className="space-y-1 text-[11px] text-[#ccc3d8]/90 pl-1">
+                        {m.rules.map((rule, idx) => (
+                          <li key={idx} className="flex items-start gap-1.5">
+                            <span className="text-[#f2be71] font-bold">{idx + 1}.</span>
+                            <span>{rule}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Acciones: Abrir tarea + Pegar Enlace + Enviar */}
+                    <div className="p-3 rounded-xl bg-[#201f23] border border-[#f2be71]/30 flex flex-col gap-2.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] uppercase font-bold text-[#e6e1e7] tracking-wider">
+                          {t("Enlace o Confirmación de tu Publicación:", "Post Link or Confirmation:")}
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenTask(m.actionUrl)}
+                          className="btn-dark inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold cursor-pointer"
+                        >
+                          <ExternalLink className="h-3 w-3 text-[#f2be71]" />
+                          <span>{t("↗ Abrir Tarea", "↗ Open Task")}</span>
+                        </button>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input
+                          type="url"
+                          value={currentUrl}
+                          onChange={(e) => handleUrlChange(m.id, e.target.value)}
+                          placeholder={m.evidencePlaceholder}
+                          className="flex-1 bg-[#121115] border border-[#363439] rounded-xl px-3.5 py-2.5 text-xs text-[#e6e1e7] placeholder:text-[#ccc3d8]/40 focus:outline-hidden focus:border-[#f2be71]"
+                        />
+
+                        <button
+                          type="button"
+                          disabled={isSubmitting}
+                          onClick={() => handleSubmitForReview(m)}
+                          className="btn-gold px-5 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-50"
+                        >
+                          {isSubmitting ? (
+                            <Clock className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Send className="h-3.5 w-3.5" />
+                          )}
+                          <span>{t("Enviar a Revisión", "Submit for Review")}</span>
+                        </button>
+                      </div>
+
+                      {isSuccess && (
+                        <div className="p-2.5 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                          <span>
+                            {t(
+                              "¡Misión enviada exitosamente! Se revisará en menos de 24 horas para sumar tus sellos.",
+                              "Mission submitted! It will be reviewed within 24 hours to add your stamps."
+                            )}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -310,18 +671,36 @@ export function StepMissions({
         </div>
       </Reveal>
 
-      {/* Botón para reiniciar o volver al inicio */}
+      {/* 7. TARJETA FINAL DE AGRADECIMIENTO */}
       <Reveal delay={200}>
-        <div className="pt-2">
+        <div className="rounded-3xl border border-[#f2be71]/30 bg-gradient-to-br from-[#201f23] via-[#1c1b1f] to-[#252329] p-6 text-center flex flex-col items-center gap-3 shadow-2xl relative overflow-hidden">
+          <div className="w-14 h-14 rounded-2xl bg-[#684400]/40 border border-[#f2be71]/40 flex items-center justify-center text-2xl shadow-md">
+            💖
+          </div>
+
+          <div className="space-y-1 max-w-md">
+            <h3 className="font-headline-sm text-lg font-bold text-[#e6e1e7]">
+              {t("¡Gracias de Corazón por tu Visita!", "Thank You for Visiting Us!")}
+            </h3>
+            <p className="text-xs text-[#ccc3d8] leading-relaxed">
+              {t(
+                `Para todo el equipo de ${brandName} ha sido un auténtico placer recibirte. Tus sellos y premios están guardados de forma segura con tu número de teléfono.`,
+                `For the entire team at ${brandName}, it has been a true pleasure having you. Your stamps and rewards are safely saved with your phone number.`
+              )}
+            </p>
+          </div>
+
           {onResetToStart && (
-            <button
-              type="button"
-              onClick={onResetToStart}
-              className="w-full h-12 rounded-full bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] text-[#ccc3d8] hover:text-white font-medium text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
-            >
-              <RotateCcw className="h-4 w-4 text-[#f2be71]" />
-              <span>{t("Volver al Inicio (Modo Demo)", "Return to Start (Demo Mode)")}</span>
-            </button>
+            <div className="w-full pt-2">
+              <button
+                type="button"
+                onClick={onResetToStart}
+                className="btn-dark w-full h-12 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md"
+              >
+                <RotateCcw className="h-4 w-4 text-[#f2be71]" />
+                <span>{t("Comenzar Nueva Experiencia (Modo Demo)", "Start New Experience (Demo Mode)")}</span>
+              </button>
+            </div>
           )}
         </div>
       </Reveal>
