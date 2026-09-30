@@ -61,8 +61,8 @@ export function AddToHomeScreenModal() {
 
   if (isInstalled) {
     return (
-      <div className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-[11px] font-semibold">
-        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+      <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#0d2e1f] border border-[#10b981]/40 text-[#10b981] text-[11px] font-semibold">
+        <CheckCircle2 className="h-3.5 w-3.5 text-[#10b981] shrink-0" />
         <span>{t("✓ Tarjeta guardada en tu pantalla de inicio", "✓ Card saved to your home screen")}</span>
       </div>
     );
@@ -73,11 +73,11 @@ export function AddToHomeScreenModal() {
       <button
         type="button"
         onClick={handleInstallClick}
-        className="w-full inline-flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl border border-amber-300/80 bg-gradient-to-r from-amber-50 via-white to-amber-50 hover:from-amber-100 hover:to-amber-100 text-amber-950 text-xs uppercase tracking-wider font-bold shadow-xs transition-all transform active:scale-98"
+        className="w-full inline-flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl bg-[#1c1b1f] border border-[#f2be71]/40 hover:border-[#f2be71]/70 hover:bg-[#252429] text-[#f2be71] text-xs uppercase tracking-wider font-bold transition-all active:scale-98 cursor-pointer"
       >
-        <Smartphone className="h-4 w-4 text-amber-700 animate-pulse" />
-        <span>
-          {t("📲 Guardar Tarjeta en Pantalla de Inicio (1-Tap)", "📲 Add Card to Home Screen (1-Tap)")}
+        <Smartphone className="h-4 w-4 text-[#f2be71] shrink-0" />
+        <span className="text-[#f2be71]">
+          {t("Guardar Tarjeta en Pantalla de Inicio (1-Tap)", "Add Card to Home Screen (1-Tap)")}
         </span>
       </button>
 
