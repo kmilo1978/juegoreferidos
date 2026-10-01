@@ -488,3 +488,19 @@
 - Resultado: Aprobado (Score: 10/10)
 - Resumen: Proyecto clonado, sincronizado con GitHub y verificado funcionalmente en 'C:\Users\Usuario\Documents\Saas Referidos Viralidad App Movil'.
 - Observaciones: Pruebas de instalación y compilación superadas al 100%.
+## Nueva sesión
+- Fecha: 2026-10-01 12:45
+- Solicitud: Corrección del aviso de renderizado en el Dashboard 'BarChart is not defined'.
+- Decisiones clave:
+  1. Se implementó blindaje global en src/admin/main.tsx y src/admin/AdminApp.tsx asignando window.BarChart = BarChart3 y window.BarChart3 = BarChart3 para prevenir fallos por invocación de versiones en caché o scripts externos.
+  2. En src/admin/pages/Dashboard.tsx se importó explícitamente tanto BarChart como BarChart3 de lucide-react para asegurar disponibilidad en el scope léxico del componente.
+  3. En src/admin/AdminApp.tsx se potenció el ErrorBoundary: el botón 'Recargar Dashboard' ahora resetea el estado del error (hasError: false) y fuerza la recarga de ruta sin bucles, agregando además un botón secundario 'Continuar' para no bloquear la interfaz.
+  4. Se reinició el servidor de desarrollo Vite con borrado de caché forzada (--force) y se verificó la compilación de producción con Vite (un run build) superada en 5.89s con 0 errores.
+  5. Se sincronizó la corrección en ambas carpetas de trabajo y se actualizó GitHub.
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 12:45
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Corrección y blindaje de BarChart implementados, probados con compilación limpia y servidor Vite reiniciado con caché purgada.
+- Observaciones: Pruebas de compilación y recarga superadas con éxito.

@@ -1,5 +1,6 @@
 import { Component, ReactNode } from "react";
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BarChart3 } from "lucide-react";
 import { AdminLayout } from "./AdminLayout";
 import { Dashboard } from "./pages/Dashboard";
 import { Sessions } from "./pages/Sessions";
@@ -19,6 +20,12 @@ import { Composio } from "./pages/Composio";
 import { Analytics } from "./pages/Analytics";
 import { Contest } from "./pages/Contest";
 import { Demo } from "./pages/Demo";
+
+// Blindaje global
+if (typeof window !== "undefined") {
+  (window as any).BarChart = BarChart3;
+  (window as any).BarChart3 = BarChart3;
+}
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: string }> {
   constructor(props: { children: ReactNode }) {
@@ -40,12 +47,28 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
             <div className="bg-[#0f0e12] p-3 rounded-xl text-xs text-red-400 font-mono text-left overflow-auto">
               {this.state.error}
             </div>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-5 py-2.5 text-sm hover:brightness-105 cursor-pointer"
-            >
-              Recargar Dashboard
-            </button>
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  this.setState({ hasError: false, error: "" });
+                  window.location.hash = "#/";
+                  window.location.reload();
+                }}
+                className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-5 py-2.5 text-sm hover:brightness-105 cursor-pointer shadow-lg transition-all"
+              >
+                Recargar Dashboard
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  this.setState({ hasError: false, error: "" });
+                }}
+                className="bg-[#201f23] text-[#ccc3d8] hover:text-white border border-[#363439] font-semibold rounded-xl px-4 py-2.5 text-sm cursor-pointer transition-all"
+              >
+                Continuar
+              </button>
+            </div>
           </div>
         </div>
       );

@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Loader2,
+  BarChart,
   BarChart3,
   Filter,
   Flame,
