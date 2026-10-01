@@ -101,7 +101,7 @@ export function WifiPortal() {
                 <label className="block text-[#ccc3d8] text-sm mb-2">SSID Red WiFi</label>
                 <input 
                   type="text" 
-                  defaultValue="Bliss Soul Free WiFi"
+                  defaultValue="WiFi Clientes VIP"
                   className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-3 w-full"
                 />
               </div>

@@ -206,7 +206,7 @@ export function Dashboard() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="w-10 h-10 text-[#f2be71] animate-spin" />
-          <span className="text-sm text-[#ccc3d8] font-medium font-['Epilogue']">Cargando métricas de Bliss Soul...</span>
+          <span className="text-sm text-[#ccc3d8] font-medium font-['Epilogue']">Cargando métricas del negocio...</span>
         </div>
       </div>
     );

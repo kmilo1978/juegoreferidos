@@ -92,7 +92,7 @@ export function Push() {
               required
               value={formData.title}
               onChange={e => setFormData({...formData, title: e.target.value})}
-              placeholder="Ej: ¡Hora Feliz en Bliss Soul!"
+              placeholder="Ej: ¡Hora Feliz hoy 2x1 en mesa!"
               className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-3 w-full"
             />
           </div>

@@ -27,9 +27,9 @@ export function Hermes() {
       if (data.hermes) {
         setApiUrl(data.hermes.apiUrl || "http://localhost:3000");
         setApiKey(data.hermes.apiKey || "");
-        setAgentId(data.hermes.agentId || "Hermes-Bliss");
+        setAgentId(data.hermes.agentId || "Hermes-Asistente");
         setMode(data.hermes.mode || "autonomous");
-        setPrompt(data.hermes.prompt || "Eres el Sommelier de Bliss Soul Bakery & Café...");
+        setPrompt(data.hermes.prompt || "Eres el Asistente Virtual y Sommelier del negocio...");
       }
       setError(null);
     } catch (err) {

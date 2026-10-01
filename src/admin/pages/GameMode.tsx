@@ -1,28 +1,125 @@
 import { useEffect, useState } from "react";
-import { Loader2, Gamepad2, Save, Sparkles, Timer, CheckCircle, Shield } from "lucide-react";
+import {
+  Loader2,
+  Gamepad2,
+  Save,
+  Sparkles,
+  Timer,
+  CheckCircle,
+  Dices,
+  Layers,
+  Coins,
+  Star,
+  Award,
+  Share2,
+  UserCheck,
+} from "lucide-react";
+
+interface GameStepModule {
+  id: string;
+  name: string;
+  category: string;
+  icon: string;
+  description: string;
+  active: boolean;
+  required?: boolean;
+}
 
 export function GameMode() {
-  const [config, setConfig] = useState<any>(null);
-  const [secondChance, setSecondChance] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Estados locales editables
-  const [gameMode, setGameMode] = useState("hybrid");
+  // Calibración de Precisión
   const [precisionTarget, setPrecisionTarget] = useState(10.0);
   const [toleranceMs, setToleranceMs] = useState(40);
   const [maxAttempts, setMaxAttempts] = useState(3);
-  const [precisionDifficulty, setPrecisionDifficulty] = useState("medio");
 
   // Segunda Oportunidad
   const [scEnabled, setScEnabled] = useState(true);
-  const [scPrizeName, setScPrizeName] = useState("");
-  const [scPrizeValue, setScPrizeValue] = useState("");
-  const [scPrizeDescription, setScPrizeDescription] = useState("");
-  const [scTerms, setScTerms] = useState("");
-  const [scWhatsappStatus, setScWhatsappStatus] = useState("");
+  const [scPrizeName, setScPrizeName] = useState("Postre Artesanal de Cortesía");
+  const [scPrizeValue, setScPrizeValue] = useState("$18.000 COP");
+  const [scPrizeDescription, setScPrizeDescription] = useState("Una porción de repostería artesanal de la casa");
+  const [scTerms, setScTerms] = useState("Válido hoy en caja.");
+  const [scWhatsappStatus, setScWhatsappStatus] = useState("¡Disfrutando de una experiencia increíble en {restaurante}! ☕🍰 10/10 ✨");
+
+  // CHECKLIST MAESTRO DE PASOS Y MINIJUEGOS EN MESA
+  const [gameModules, setGameModules] = useState<GameStepModule[]>([
+    {
+      id: "step_register",
+      name: "1. Registro del Comensal",
+      category: "Captación",
+      icon: "👤",
+      description: "Pide Nombre y WhatsApp para crear el perfil y acreditar los primeros sellos.",
+      active: true,
+      required: true,
+    },
+    {
+      id: "step_social",
+      name: "2. Instagram Stories / Foto en Mesa",
+      category: "Viralidad",
+      icon: "📸",
+      description: "Invita al cliente a subir una foto etiquetando al negocio o enviándola por WhatsApp.",
+      active: true,
+    },
+    {
+      id: "step_roulette",
+      name: "3. Ruleta de la Suerte (Girar y Ganar)",
+      category: "Azar / Premios",
+      icon: "🎰",
+      description: "El cliente gira la ruleta y gana premios instantáneos de la casa según probabilidades.",
+      active: true,
+    },
+    {
+      id: "step_dice",
+      name: "4. Dados de la Suerte (Lanzar y Sumar)",
+      category: "Minijuego de Azar",
+      icon: "🎲",
+      description: "Lanza 2 dados en 3D: suma puntaje para desbloquear cupones escalonados.",
+      active: false,
+    },
+    {
+      id: "step_betting",
+      name: "5. Mesa de Apuestas (Carta Alta / Puntos)",
+      category: "Gamificación",
+      icon: "🃏",
+      description: "Permite apostar puntos acumulados para duplicarlos o ganar premios VIP.",
+      active: false,
+    },
+    {
+      id: "step_feedback",
+      name: "6. Calificación Google Maps (Embudo)",
+      category: "Reputación",
+      icon: "⭐",
+      description: "Calificación 1-5 estrellas: 4-5★ van a Google Maps y 1-3★ a WhatsApp privado.",
+      active: true,
+    },
+    {
+      id: "step_precision",
+      name: "7. Reto 10s de Precisión (2ª Oportunidad)",
+      category: "Destreza",
+      icon: "⏱️",
+      description: "Detener el cronómetro exactamente en 10.00s para ganar el premio de revancha.",
+      active: true,
+    },
+    {
+      id: "step_stamps",
+      name: "8. Tarjeta Digital de 15 Sellos VIP",
+      category: "Fidelización",
+      icon: "🎟️",
+      description: "Muestra la tarjeta de sellos acumulados y progreso hacia los hitos 5, 10 y 15.",
+      active: true,
+    },
+    {
+      id: "step_missions",
+      name: "9. Catálogo de Misiones de Embajador",
+      category: "Comunidad",
+      icon: "🎯",
+      description: "Misiones activas de redes sociales para sumar sellos adicionales.",
+      active: true,
+    },
+  ]);
 
   const fetchData = async () => {
     try {
@@ -31,26 +128,30 @@ export function GameMode() {
         fetch("http://localhost:3001/api/second-chance-config"),
       ]);
 
-      if (!gameRes.ok || !scRes.ok) throw new Error("Error al cargar configuración de juegos");
+      if (!gameRes.ok || !scRes.ok) throw new Error("Error al cargar configuración");
 
       const gameData = await gameRes.json();
       const scData = await scRes.json();
 
-      setConfig(gameData.gameConfig);
-      setSecondChance(scData.secondChance);
-
       if (gameData.gameConfig) {
-        setGameMode(gameData.gameConfig.gameMode || "hybrid");
         setPrecisionTarget(gameData.gameConfig.precisionTarget || 10.0);
         setToleranceMs(gameData.gameConfig.toleranceMs || 40);
         setMaxAttempts(gameData.gameConfig.maxAttempts || 3);
-        setPrecisionDifficulty(gameData.gameConfig.precisionDifficulty || "medio");
+
+        if (Array.isArray(gameData.gameConfig.activeSteps)) {
+          setGameModules((prev) =>
+            prev.map((mod) => ({
+              ...mod,
+              active: mod.required ? true : gameData.gameConfig.activeSteps.includes(mod.id),
+            }))
+          );
+        }
       }
 
       if (scData.secondChance) {
         setScEnabled(scData.secondChance.enabled ?? true);
-        setScPrizeName(scData.secondChance.prizeName || "");
-        setScPrizeValue(scData.secondChance.prizeValue || "");
+        setScPrizeName(scData.secondChance.prizeName || "Postre Artesanal de Cortesía");
+        setScPrizeValue(scData.secondChance.prizeValue || "$18.000 COP");
         setScPrizeDescription(scData.secondChance.prizeDescription || "");
         setScTerms(scData.secondChance.claimTerms || "");
         setScWhatsappStatus(scData.secondChance.whatsappStatusText || "");
@@ -68,11 +169,21 @@ export function GameMode() {
     fetchData();
   }, []);
 
+  // Toggle de un módulo en el checklist
+  const handleToggleModule = (id: string) => {
+    setGameModules((prev) =>
+      prev.map((mod) => (mod.id === id && !mod.required ? { ...mod, active: !mod.active } : mod))
+    );
+  };
+
+  // Guardar en Backend
   const handleSaveAll = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError(null);
     setSuccess(null);
+
+    const activeSteps = gameModules.filter((m) => m.active).map((m) => m.id);
 
     try {
       const [resGame, resSc] = await Promise.all([
@@ -80,11 +191,10 @@ export function GameMode() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            gameMode,
+            activeSteps,
             precisionTarget: Number(precisionTarget),
             toleranceMs: Number(toleranceMs),
             maxAttempts: Number(maxAttempts),
-            precisionDifficulty,
           }),
         }),
         fetch("http://localhost:3001/api/second-chance-config", {
@@ -101,9 +211,9 @@ export function GameMode() {
         }),
       ]);
 
-      if (!resGame.ok || !resSc.ok) throw new Error("Error al guardar configuración de juegos");
+      if (!resGame.ok || !resSc.ok) throw new Error("Error al guardar configuración");
 
-      setSuccess("Configuración de juegos y 2ª Oportunidad guardada con éxito");
+      setSuccess("Checklist de juegos guardado: el juego en mesa se adaptó automáticamente");
       setTimeout(() => setSuccess(null), 3000);
       fetchData();
     } catch (err) {
@@ -115,19 +225,40 @@ export function GameMode() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
       </div>
     );
   }
 
+  const activeStepsCount = gameModules.filter((m) => m.active).length;
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-[#e6e1e7] font-bold text-2xl font-['Epilogue']">Mecánicas de Juego & 2ª Oportunidad</h2>
-          <p className="text-sm text-[#ccc3d8]">Elige cómo juegan los comensales en mesa (Ruleta, Cronómetro 10s de Precisión o Modo Híbrido).</p>
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-[#e6e1e7] font-bold text-2xl font-['Epilogue']">
+              Módulos de Juego & Checklist en Mesa
+            </h2>
+            <span className="px-2.5 py-0.5 rounded-full bg-[#684400]/30 border border-[#f2be71]/40 text-[#f2be71] text-xs font-mono font-bold">
+              {activeStepsCount} Pasos Activos
+            </span>
+          </div>
+          <p className="text-sm text-[#ccc3d8] mt-0.5">
+            Enciende o apaga con el checklist los juegos que quieras en el frontend. La barra de pasos de la mesa se adapta sola.
+          </p>
         </div>
+
+        <button
+          type="button"
+          onClick={handleSaveAll}
+          disabled={saving}
+          className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
+        >
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          <span>Guardar Configuración en Mesa</span>
+        </button>
       </div>
 
       {error && (
@@ -142,171 +273,169 @@ export function GameMode() {
         </div>
       )}
 
-      <form onSubmit={handleSaveAll} className="space-y-6">
-        {/* Selector de Modo de Juego */}
-        <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4">
-          <h3 className="text-lg font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-            <Gamepad2 className="w-5 h-5 text-[#f2be71]" />
-            <span>Selección de Mecánica Principal en Mesa</span>
+      {/* CHECKLIST MAESTRO DE JUEGOS Y PASOS */}
+      <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4 shadow-xl">
+        <div className="flex items-center justify-between border-b border-[#363439] pb-3">
+          <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
+            <Layers className="w-4 h-4 text-[#f2be71]" />
+            <span>Checklist de Pasos Habilitados en el Teléfono del Cliente</span>
           </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { id: "hybrid", title: "Modo Híbrido (Recomendado)", desc: "Ruleta en Paso 3 + Reto de Precisión en Paso 6 para revancha", icon: "✨" },
-              { id: "roulette", title: "Solo Ruleta Clásica", desc: "El cliente gira y gana de inmediato con animación clásica", icon: "🎰" },
-              { id: "precision", title: "Solo Reto Cronómetro 10s", desc: "Puro juego de destreza: detener exactamente en 10.00s", icon: "⏱️" },
-              { id: "stamps", title: "Modo Solo Fidelización", desc: "Enfocado en acumular sellos de visita sin minijuegos", icon: "🎟️" },
-            ].map((mode) => (
-              <div
-                key={mode.id}
-                onClick={() => setGameMode(mode.id)}
-                className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                  gameMode === mode.id
-                    ? "bg-[#2b292e] border-[#f2be71] shadow-lg shadow-[#f2be71]/10"
-                    : "bg-[#201f23] border-[#363439] hover:bg-[#252429]"
-                }`}
-              >
-                <div className="text-2xl mb-2">{mode.icon}</div>
-                <h4 className={`text-sm font-bold ${gameMode === mode.id ? "text-[#f2be71]" : "text-[#e6e1e7]"}`}>
-                  {mode.title}
-                </h4>
-                <p className="text-xs text-[#ccc3d8] mt-1 leading-relaxed">{mode.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Calibración del Reto 10 Segundos */}
-          {(gameMode === "hybrid" || gameMode === "precision") && (
-            <div className="mt-6 pt-6 border-t border-[#363439] grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block">
-                  Tiempo Objetivo
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={precisionTarget}
-                  onChange={(e) => setPrecisionTarget(Number(e.target.value))}
-                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-sm mt-1.5"
-                />
-                <span className="text-[11px] text-[#958da1]">Segundos exactos a clavar (ej: 10.0s).</span>
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block">
-                  Tolerancia de Victoria (Milivoltios / ms)
-                </label>
-                <input
-                  type="number"
-                  value={toleranceMs}
-                  onChange={(e) => setToleranceMs(Number(e.target.value))}
-                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-sm mt-1.5"
-                />
-                <span className="text-[11px] text-[#958da1]">±40ms es nivel gourmet justo.</span>
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block">
-                  Intentos Permitidos
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="5"
-                  value={maxAttempts}
-                  onChange={(e) => setMaxAttempts(Number(e.target.value))}
-                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-sm mt-1.5"
-                />
-                <span className="text-[11px] text-[#958da1]">3 intentos mantienen la emoción alta.</span>
-              </div>
-            </div>
-          )}
+          <span className="text-xs text-[#958da1]">Los comensales solo verán los pasos marcados en [ON]</span>
         </div>
 
-        {/* Configuración de Segunda Oportunidad (Revancha) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-2">
+          {gameModules.map((mod) => (
+            <div
+              key={mod.id}
+              onClick={() => handleToggleModule(mod.id)}
+              className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                mod.active
+                  ? "bg-[#201f23] border-[#f2be71]/60 shadow-md"
+                  : "bg-[#17161a] border-[#2b292e] opacity-50 hover:opacity-75"
+              }`}
+            >
+              <div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-2xl w-9 h-9 rounded-lg bg-[#141317] border border-[#363439] flex items-center justify-center shrink-0">
+                      {mod.icon}
+                    </span>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-[#958da1] tracking-wider block">
+                        {mod.category}
+                      </span>
+                      <h4 className="text-xs font-bold text-[#e6e1e7] leading-tight">{mod.name}</h4>
+                    </div>
+                  </div>
+
+                  {/* Switch */}
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      disabled={mod.required}
+                      checked={mod.active}
+                      onChange={() => handleToggleModule(mod.id)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-8 h-4 bg-[#2b292e] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#f2be71]"></div>
+                  </label>
+                </div>
+
+                <p className="text-[11px] text-[#ccc3d8] mt-2 leading-relaxed">
+                  {mod.description}
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-[#363439]/40 flex items-center justify-between text-[10px]">
+                <span className={mod.active ? "text-[#f2be71] font-bold" : "text-[#958da1]"}>
+                  {mod.active ? "✓ ACTIVO EN MESA" : "— INACTIVO"}
+                </span>
+                {mod.required && <span className="text-[#958da1]">(Paso Base)</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* CALIBRACIÓN DEL RETO 10 SEGUNDOS Y SEGUNDA OPORTUNIDAD */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Calibración Cronómetro */}
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#f2be71]" />
-              <span>Segunda Oportunidad (Revancha de Mesa)</span>
+          <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2 border-b border-[#363439] pb-3">
+            <Timer className="w-4 h-4 text-[#f2be71]" />
+            <span>Calibración del Reto 10s de Precisión</span>
+          </h3>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="text-[11px] font-semibold text-[#ccc3d8] uppercase block mb-1">
+                Tiempo Meta
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                value={precisionTarget}
+                onChange={(e) => setPrecisionTarget(Number(e.target.value))}
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs font-mono font-bold"
+              />
+              <span className="text-[10px] text-[#958da1]">Segundos (10.0s)</span>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-semibold text-[#ccc3d8] uppercase block mb-1">
+                Tolerancia (ms)
+              </label>
+              <input
+                type="number"
+                value={toleranceMs}
+                onChange={(e) => setToleranceMs(Number(e.target.value))}
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs font-mono font-bold"
+              />
+              <span className="text-[10px] text-[#958da1]">±40ms es justo</span>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-semibold text-[#ccc3d8] uppercase block mb-1">
+                Intentos Máx.
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="5"
+                value={maxAttempts}
+                onChange={(e) => setMaxAttempts(Number(e.target.value))}
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs font-mono font-bold"
+              />
+              <span className="text-[10px] text-[#958da1]">3 intentos</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Premio de Segunda Oportunidad */}
+        <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-[#363439] pb-3">
+            <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#f2be71]" />
+              <span>Premio de Revancha (2ª Oportunidad)</span>
             </h3>
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex items-center gap-1.5 cursor-pointer">
               <input
                 type="checkbox"
                 checked={scEnabled}
                 onChange={(e) => setScEnabled(e.target.checked)}
-                className="w-4 h-4 accent-[#f2be71]"
+                className="w-3.5 h-3.5 accent-[#f2be71]"
               />
-              <span className="text-xs font-bold text-[#e6e1e7]">Habilitar 2ª Oportunidad</span>
+              <span className="text-xs text-[#ccc3d8] font-bold">Activo</span>
             </label>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block">
-                Nombre del Premio de Revancha
+              <label className="text-[11px] font-semibold text-[#ccc3d8] uppercase block mb-1">
+                Nombre del Premio
               </label>
               <input
                 type="text"
                 value={scPrizeName}
                 onChange={(e) => setScPrizeName(e.target.value)}
-                placeholder="Postre Artesanal de Autor Gratis"
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-sm mt-1"
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs"
               />
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block">
-                Valor Referencial del Premio
+              <label className="text-[11px] font-semibold text-[#ccc3d8] uppercase block mb-1">
+                Valor Referencial
               </label>
               <input
                 type="text"
                 value={scPrizeValue}
                 onChange={(e) => setScPrizeValue(e.target.value)}
-                placeholder="$18.000 COP"
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-sm mt-1"
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs font-mono"
               />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block">
-                Descripción para el Comensal
-              </label>
-              <input
-                type="text"
-                value={scPrizeDescription}
-                onChange={(e) => setScPrizeDescription(e.target.value)}
-                placeholder="Una porción de nuestra Tarta Vasca artesanal del día"
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-sm mt-1"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block">
-                Texto para Estados de WhatsApp (Viralidad Boca a Boca)
-              </label>
-              <textarea
-                rows={2}
-                value={scWhatsappStatus}
-                onChange={(e) => setScWhatsappStatus(e.target.value)}
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-sm mt-1 resize-none"
-              />
-              <span className="text-[11px] text-[#958da1]">El cliente publica esta frase en sus Estados de WhatsApp para desbloquear su intento.</span>
             </div>
           </div>
         </div>
-
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={saving}
-            className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shadow-lg"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            <span>Guardar Mecánicas & 2ª Oportunidad</span>
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 }

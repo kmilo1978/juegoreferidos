@@ -16,10 +16,30 @@ import {
   Bot,
   Zap,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 export function AdminLayout() {
   const location = useLocation();
+  const [brand, setBrand] = useState<{ name: string; tagline: string; logoUrl?: string; primaryColor?: string }>({
+    name: "Tu Negocio",
+    tagline: "Panel de Control Modular",
+  });
+
+  useEffect(() => {
+    fetch("http://localhost:3001/api/config")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.settings?.brand) {
+          setBrand({
+            name: data.settings.brand.name || "Tu Negocio",
+            tagline: data.settings.brand.tagline || "Panel de Control Modular",
+            logoUrl: data.settings.brand.logoUrl,
+            primaryColor: data.settings.brand.primaryColor || "#f2be71",
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const title = useMemo(() => {
     switch (location.pathname) {
@@ -75,18 +95,33 @@ export function AdminLayout() {
     },
   ];
 
+  const brandInitials = brand.name
+    ? brand.name
+        .split(" ")
+        .map((w) => w[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "TN";
+
   return (
     <div className="flex min-h-screen bg-[#141317]">
       {/* Sidebar fijo elegante */}
       <aside className="fixed inset-y-0 left-0 w-64 bg-[#0f0e12] border-r border-[#363439] flex flex-col z-20">
         <div className="p-5 border-b border-[#363439]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#684400]/40 border border-[#f2be71]/40 flex items-center justify-center text-[#f2be71] font-bold text-sm">
-              BS
-            </div>
-            <div>
-              <h1 className="text-[#f2be71] font-['Epilogue'] font-bold text-base leading-tight">Bliss Soul</h1>
-              <p className="text-[11px] text-[#ccc3d8]">Panel de Control Modular</p>
+          <div className="flex items-center gap-3">
+            {brand.logoUrl ? (
+              <img src={brand.logoUrl} alt={brand.name} className="w-9 h-9 rounded-xl object-contain bg-[#1c1b1f] border border-[#f2be71]/40 p-1" />
+            ) : (
+              <div className="w-9 h-9 rounded-xl bg-[#684400]/40 border border-[#f2be71]/40 flex items-center justify-center text-[#f2be71] font-bold text-sm shrink-0">
+                {brandInitials}
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <h1 className="text-[#f2be71] font-['Epilogue'] font-bold text-sm leading-tight truncate">
+                {brand.name}
+              </h1>
+              <p className="text-[10px] text-[#ccc3d8] truncate">{brand.tagline}</p>
             </div>
           </div>
         </div>
@@ -139,7 +174,7 @@ export function AdminLayout() {
         <header className="bg-[#0f0e12]/95 backdrop-blur-md border-b border-[#363439] px-8 py-4 flex items-center justify-between sticky top-0 z-10">
           <div>
             <h2 className="text-[#e6e1e7] font-['Epilogue'] font-bold text-lg leading-tight">{title}</h2>
-            <span className="text-[11px] text-[#ccc3d8]">Bliss Soul Bakery & Café • Mesa 1 a 10</span>
+            <span className="text-[11px] text-[#ccc3d8]">{brand.name} • Mesas en Vivo</span>
           </div>
 
           <div className="flex items-center gap-4">
