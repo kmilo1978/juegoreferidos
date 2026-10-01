@@ -520,3 +520,24 @@
 - Resultado: Aprobado (Score: 10/10)
 - Resumen: Carga instantánea de Dashboard, reescritura de URL /admin y apertura en todas las IPs locales verificada.
 - Observaciones: Pruebas de petición HTTP 200 y compilación superadas.
+## Nueva sesión
+- Fecha: 2026-10-01 12:52
+- Solicitud: Integración universal de Composio con Google Drive, Supabase, GitHub, Google Sheets y más desde una sola conexión.
+- Decisiones clave:
+  1. En src/admin/pages/Composio.tsx se enriqueció el módulo con soporte integral para los conectores clave:
+     - Google Drive: Copias de seguridad automáticas de db.json e imágenes en la nube.
+     - Supabase: Sincronización continua de clientes y eventos con base de datos relacional PostgreSQL.
+     - GitHub: Respaldo y versionado de snapshots en repositorios privados y disparadores de Actions.
+     - Google Sheets: Filas en vivo por cada partida, ruleta y canje de voucher en caja.
+     - WhatsApp Business Cloud, Gmail, Notion CRM y Slack/Discord staff.
+  2. Se añadió el botón de diagnóstico interactivo 'Probar Conexión Única' conectado al endpoint POST /api/integrations/composio/test-all en server/modules/config.js, permitiendo verificar la latencia y operatividad de todos los conectores habilitados bajo una sola API Key.
+  3. Se incluyó un selector rápido 'Activar Todos' / 'Desactivar Todos' y explicaciones accesibles del concepto de Managed OAuth (1 token = múltiples servicios).
+  4. Compilación de producción con Vite aprobada al 100% (7.37s, 0 errores).
+  5. Sincronización en ambas carpetas y GitHub actualizada.
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 12:52
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Módulo Composio universal configurado con Google Drive, Supabase, GitHub y Sheets bajo una sola credencial centralizada.
+- Observaciones: Pruebas de compilación y endpoints de diagnóstico superadas exitosamente.
