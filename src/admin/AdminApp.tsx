@@ -20,6 +20,7 @@ import { Composio } from "./pages/Composio";
 import { Analytics } from "./pages/Analytics";
 import { Contest } from "./pages/Contest";
 import { Demo } from "./pages/Demo";
+import { NfcAssistant } from "./pages/NfcAssistant";
 
 // Blindaje global
 if (typeof window !== "undefined") {
@@ -95,6 +96,7 @@ export function AdminApp() {
             {/* Juego & Captación */}
             <Route path="demo" element={<Demo />} />
             <Route path="game-mode" element={<GameMode />} />
+            <Route path="nfc" element={<NfcAssistant />} />
             <Route path="wifi" element={<WifiPortal />} />
             <Route path="channels" element={<Channels />} />
             <Route path="push" element={<Push />} />

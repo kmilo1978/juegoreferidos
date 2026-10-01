@@ -681,3 +681,22 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Visualizador en vivo de tarjeta de sellos implementado y validado en navegador Edge CDP con capturas de 15 sellos (café), 10 sellos (croissant) y 8 sellos completados (estrellas).
 - Observaciones: Compilación Vite 100% limpia sin errores. Sincronizado en ambos repositorios locales y en GitHub.
+
+## Nueva sesión
+- Fecha: 2026-10-01 17:25
+- Solicitud: crea un modulo apra configurar nfc o simplemente uso una aplicaion para eso te pregunto? / agregale esas funciones
+- Decisiones clave:
+  1. Solución híbrida inteligente: Explicación de cómo funcionan los chips físicos NFC (NTAG213 / NTAG215) con la app gratuita estándar del mercado (NFC Tools) para grabación en 2 segundos.
+  2. Implementación de módulo backend dedicado 'server/modules/nfc.js' con endpoints para links por mesa, métricas (lecturas NFC vs escaneos QR, tasa contactless) y registro de visitas por dispositivo.
+  3. Creación del componente 'src/admin/pages/NfcAssistant.tsx' con 4 KPIs en vivo, directorio de enlaces por mesa con botón para copiar URL, probar link y botón para Web NFC API directa en Android Chrome.
+  4. Pestaña de Guía Rápida paso a paso con recomendaciones de hardware para mesas de madera/vidrio vs mesas metálicas (anti-metal).
+  5. Registro automático de visitas contactless en 'src/App.tsx' discriminando si el comensal llegó por NFC (&origen=nfc) o por código QR.
+  6. Conexión de la ruta '/nfc' en AdminApp.tsx y navegación en AdminLayout.tsx.
+- Pendientes:
+  - Ninguno. Módulo completamente operativo y validado.
+
+## Validación completada
+- Fecha: 2026-10-01 17:25
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Asistente NFC y mesas contactless creado, compilación Vite 100% limpia sin errores, probado visualmente en navegador Edge (overview y guía) y sincronizado con el backend :3001.
+- Observaciones: Pruebas visuales con Edge CDP confirmaron carga correcta de KPIs, tabla de mesas con enlaces dinámicos, tutorial ilustrado y modal de asistencia. Sincronizado en ambos repositorios.

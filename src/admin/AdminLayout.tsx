@@ -20,6 +20,7 @@ import {
   Smartphone,
   Sun,
   Moon,
+  Radio,
 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
@@ -83,6 +84,7 @@ export function AdminLayout() {
       case "/reputation": return "Embudo de Reputación";
       case "/game-mode": return "Mecánicas de Juego & 2ª Oportunidad";
       case "/demo": return "Simulador Frontend (Demo en Vivo)";
+      case "/nfc": return "Asistente NFC & Mesas Contactless";
       case "/wifi": return "Portal Cautivo WiFi & Kiosko";
       case "/channels": return "Canales & WhatsApp";
       case "/push": return "Ofertas Push & Flujos";
@@ -114,6 +116,7 @@ export function AdminLayout() {
       items: [
         { path: "/demo", label: "Simulador Frontend (Demo)", icon: Smartphone },
         { path: "/game-mode", label: "Mecánica & 2ª Op.", icon: Gamepad2 },
+        { path: "/nfc", label: "Asistente NFC Mesas", icon: Radio },
         { path: "/wifi", label: "Portal WiFi / Kiosko", icon: Wifi },
         { path: "/channels", label: "Canales & WhatsApp", icon: MessageCircle },
         { path: "/push", label: "Notificaciones Push", icon: Bell },

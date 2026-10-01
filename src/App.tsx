@@ -242,6 +242,32 @@ function JuegoQrPage() {
     recordPageView();
     OneSignalService.init();
 
+    // Registro de captura Contactless (NFC o QR por mesa)
+    try {
+      if (typeof window !== "undefined") {
+        const p = new URLSearchParams(window.location.search);
+        const isNfc = p.get("origen") === "nfc" || p.get("nfc") === "1";
+        const mesaParam = p.get("mesa") || "1";
+        const cleanMesa = mesaParam.replace(/[^0-9a-zA-Z]/g, "") || "1";
+        const ua = navigator.userAgent || "";
+        const dev = /iPhone|iPad|iPod/i.test(ua)
+          ? "iPhone (iOS)"
+          : /Android/i.test(ua)
+          ? "Android"
+          : "Web / Desktop";
+
+        fetch("/api/nfc/track", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mesa: cleanMesa,
+            origen: isNfc ? "nfc" : "qr",
+            dispositivo: dev,
+          }),
+        }).catch(() => {});
+      }
+    } catch {}
+
     const stored = getStoredHistory();
     if (stored && stored.length > 0) {
       setHistory(stored);

@@ -24,6 +24,7 @@ import { handleReputation } from "./modules/reputation.js";
 import { handleConfig } from "./modules/config.js";
 import { handlePush } from "./modules/push.js";
 import { handleCaptivePortal } from "./modules/captive-portal.js";
+import { handleNfc } from "./modules/nfc.js";
 
 const modules = [
   handleTables,
@@ -34,6 +35,7 @@ const modules = [
   handleConfig,
   handlePush,
   handleCaptivePortal,
+  handleNfc,
 ];
 
 const server = http.createServer((req, res) => {

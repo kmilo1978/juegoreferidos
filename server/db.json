@@ -149,6 +149,11 @@
   ],
   "logs": [
     {
+      "id": "muq3rxlll4o",
+      "timestamp": "5:25:42 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
       "id": "mupxz3291zv",
       "timestamp": "2:43:18 p. m.",
       "method": "POST",
@@ -539,14 +544,6 @@
       "url": "/api/game-config",
       "status": 200,
       "detail": "Mecánica de juego actualizada: hybrid"
-    },
-    {
-      "id": "mulsc63218g",
-      "timestamp": "4:54:26 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
     }
   ],
   "settings": {
@@ -1265,5 +1262,63 @@
       "bytesDownMb": 58.1,
       "bytesUpMb": 9.4
     }
-  ]
+  ],
+  "nfc": {
+    "baseDomain": "http://localhost:5173",
+    "stats": {
+      "nfcScans": 28,
+      "qrScans": 66,
+      "lastScans": [
+        {
+          "id": "scan_1790893542876",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:25 p. m."
+        },
+        {
+          "id": "scan_1790893542869",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:25 p. m."
+        },
+        {
+          "id": "scan_1",
+          "mesa": 3,
+          "origen": "nfc",
+          "timestamp": "Hace 12 min",
+          "device": "iPhone (iOS 18)"
+        },
+        {
+          "id": "scan_2",
+          "mesa": 1,
+          "origen": "qr",
+          "timestamp": "Hace 25 min",
+          "device": "Samsung Galaxy (Android 14)"
+        },
+        {
+          "id": "scan_3",
+          "mesa": 5,
+          "origen": "nfc",
+          "timestamp": "Hace 40 min",
+          "device": "Xiaomi (Android 13)"
+        },
+        {
+          "id": "scan_4",
+          "mesa": 2,
+          "origen": "nfc",
+          "timestamp": "Hace 1 hora",
+          "device": "iPhone 15 Pro"
+        },
+        {
+          "id": "scan_5",
+          "mesa": 4,
+          "origen": "qr",
+          "timestamp": "Hace 2 horas",
+          "device": "Pixel 8 (Android 14)"
+        }
+      ]
+    }
+  }
 }
