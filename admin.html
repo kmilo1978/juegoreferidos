@@ -8,6 +8,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@0,100..900;1,100..900&family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+  <script>
+    (function() {
+      try {
+        var p = window.location.pathname;
+        if (!window.location.hash || window.location.hash === "#" || window.location.hash === "#/") {
+          if (p === "/demo" || p.startsWith("/demo/")) {
+            window.location.replace("/admin.html#/demo" + window.location.search);
+          } else if (p.startsWith("/admin/") && p !== "/admin/") {
+            var sub = p.replace(/^\/admin\//, "");
+            if (sub && !sub.endsWith(".html")) {
+              window.location.replace("/admin.html#/" + sub + window.location.search);
+            }
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body class="bg-[#141317] text-[#e6e1e7] font-['Manrope'] m-0 p-0 overflow-x-hidden antialiased">
   <div id="root"></div>

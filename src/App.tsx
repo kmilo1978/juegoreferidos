@@ -150,15 +150,17 @@ function JuegoQrPage() {
         const p = new URLSearchParams(window.location.search);
         if (p.get("demo") === "true") {
           return {
-            id: "PRIZE-DEMO-2026",
+            uniqueCode: "DEMO-4321",
+            prizeId: "PRIZE-DEMO-2026",
             prizeName: "Porción de Tarta Vasca de Pistacho",
-            prizeDescription: "Postre artesanal de autor elaborado en casa",
+            prizeNameEn: "Artisanal Basque Pistachio Cheesecake",
+            value: "$18.000",
             tableNumber: getInitialTable(),
             participantName: "Laura Gómez (Comensal Demo)",
-            whatsapp: "573001234567",
-            claimedAt: Date.now() - 5 * 60000,
-            redeemed: false,
-            uniqueCode: "DEMO-4321",
+            participantWhatsapp: "573001234567",
+            wonAt: new Date().toLocaleTimeString(),
+            createdAt: Date.now() - 5 * 60000,
+            status: "DISPONIBLE" as const,
           };
         }
       } catch {

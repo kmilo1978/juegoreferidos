@@ -23,6 +23,7 @@ import {
   RotateCw,
   Sliders,
   ChevronDown,
+  Award,
 } from "lucide-react";
 
 interface DeviceProfile {

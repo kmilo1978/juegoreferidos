@@ -149,6 +149,166 @@
   ],
   "logs": [
     {
+      "id": "mupw5i9vx6q",
+      "timestamp": "1:52:19 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupw5i9dcw0",
+      "timestamp": "1:52:19 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupw5gdicyn",
+      "timestamp": "1:52:16 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupw5gcj0cp",
+      "timestamp": "1:52:16 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupw5e9cf3x",
+      "timestamp": "1:52:14 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupw5e8k97z",
+      "timestamp": "1:52:14 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupw5cg3p7w",
+      "timestamp": "1:52:11 p. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mupvtqpkmrw",
+      "timestamp": "1:43:10 p. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mupvgaid8f9",
+      "timestamp": "1:32:42 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupvgahgjix",
+      "timestamp": "1:32:42 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupvg911eiz",
+      "timestamp": "1:32:40 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupvg8zfpqc",
+      "timestamp": "1:32:40 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupvg7ng9pc",
+      "timestamp": "1:32:39 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupvg7minpe",
+      "timestamp": "1:32:39 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupvfz51xji",
+      "timestamp": "1:32:28 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupvfz30f1q",
+      "timestamp": "1:32:27 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupv8ct545x",
+      "timestamp": "1:26:32 p. m.",
+      "method": "POST",
+      "url": "/api/config",
+      "status": 200,
+      "detail": "Configuración centralizada guardada en backend"
+    },
+    {
+      "id": "mupv7y058u1",
+      "timestamp": "1:26:13 p. m.",
+      "method": "POST",
+      "url": "/api/config",
+      "status": 200,
+      "detail": "Configuración centralizada guardada en backend"
+    },
+    {
+      "id": "mupv7x7xodu",
+      "timestamp": "1:26:12 p. m.",
+      "method": "POST",
+      "url": "/api/config",
+      "status": 200,
+      "detail": "Configuración centralizada guardada en backend"
+    },
+    {
+      "id": "muputn3q8cm",
+      "timestamp": "1:15:06 p. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
       "id": "mupu2jt0esz",
       "timestamp": "12:54:02 p. m.",
       "method": "POST",
@@ -385,20 +545,6 @@
       "url": "/api/push/drafts",
       "status": 200,
       "detail": "💾 Plantilla push guardada: \"Test Promo\""
-    },
-    {
-      "method": "PUSH",
-      "url": "/api/push/broadcast",
-      "timestamp": "4:07:17 p. m.",
-      "detail": "📢 Encapuchado Push Masivo: \"? Prueba Happy Hour\" enviado a suscriptores. (URL: Inicio)"
-    },
-    {
-      "id": "mulqnj6k2pn",
-      "timestamp": "4:07:17 p. m.",
-      "method": "PUSH",
-      "url": "/api/push/broadcast",
-      "status": 200,
-      "detail": "📢 Campaña Push enviada: \"? Prueba Happy Hour\" (Subscribed Users)"
     }
   ],
   "settings": {
@@ -426,7 +572,8 @@
         "value": "10%",
         "probability": 30,
         "color": "#a27e2c",
-        "active": true
+        "active": true,
+        "terms": "Válido hoy en caja."
       },
       {
         "id": "p2",
@@ -842,13 +989,13 @@
       "name": "Mesa 1",
       "zone": "Salón Principal",
       "capacity": 4,
-      "status": "PREMIO_PENDIENTE",
-      "currentCustomer": "juan camilo Botero",
-      "currentWhatsapp": "5730053914",
-      "activeSessionId": "SES-MUO9YZIH",
-      "prizeWon": "Postre Artesanal de Autor Gratis",
-      "uniqueCode": "TURE-FEXRL",
-      "startedAt": "Ahora",
+      "status": "JUGANDO",
+      "currentCustomer": "Invitado en Mesa",
+      "currentWhatsapp": null,
+      "activeSessionId": "SES-M1-1024",
+      "prizeWon": null,
+      "uniqueCode": null,
+      "startedAt": "Hace 3 min",
       "lastActivityAt": "Ahora",
       "qrUrl": "http://localhost:5173/?mesa=1"
     },
@@ -1028,6 +1175,53 @@
       "target": "Google Drive (Carpeta Principal)",
       "status": "success",
       "type": "scheduled"
+    }
+  ],
+  "connectedDevices": [
+    {
+      "id": "dev-iphone-carlos",
+      "mac": "D4:61:9D:28:44:A1",
+      "ip": "192.168.88.102",
+      "hostname": "iPhone-de-Carlos",
+      "fullName": "Carlos Andrés Restrepo",
+      "whatsapp": "573009876543",
+      "connectedAt": "2026-10-01T17:30:12.271Z",
+      "expiresAt": "2026-10-01T19:30:12.271Z",
+      "stampsGranted": 1,
+      "status": "authorized",
+      "hardware": "mikrotik",
+      "bytesDownMb": 142.5,
+      "bytesUpMb": 18.2
+    },
+    {
+      "id": "dev-samsung-marcela",
+      "mac": "BC:D1:1F:72:08:9B",
+      "ip": "192.168.88.105",
+      "hostname": "Galaxy-S24-Ultra",
+      "fullName": "Marcela Gómez",
+      "whatsapp": "573001234567",
+      "connectedAt": "2026-10-01T17:15:12.271Z",
+      "expiresAt": "2026-10-01T19:15:12.271Z",
+      "stampsGranted": 1,
+      "status": "authorized",
+      "hardware": "mikrotik",
+      "bytesDownMb": 210.8,
+      "bytesUpMb": 34.6
+    },
+    {
+      "id": "dev-xiaomi-felipe",
+      "mac": "E8:48:B8:11:5F:C3",
+      "ip": "192.168.88.110",
+      "hostname": "Redmi-Note-13",
+      "fullName": "Felipe Morales",
+      "whatsapp": "573105556677",
+      "connectedAt": "2026-10-01T17:45:12.271Z",
+      "expiresAt": "2026-10-01T19:45:12.271Z",
+      "stampsGranted": 1,
+      "status": "authorized",
+      "hardware": "unifi",
+      "bytesDownMb": 58.1,
+      "bytesUpMb": 9.4
     }
   ]
 }
