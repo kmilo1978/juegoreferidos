@@ -309,3 +309,25 @@
 - Resumen: OneSignal Push Pro, Apple/Google Wallet Pass, sellos modulares, QR de mesa y analítica GTM completados y verificados.
 - Observaciones: Build limpio de Vite sin errores de TypeScript y backend sincronizado.
 
+## Nueva sesión
+- Fecha: 2026-10-01 12:10
+- Solicitud: En el módulo de Mesas debe ser posible configurar la ubicación / zona y agregar mesas con dicha ubicación personalizada.
+- Decisiones clave:
+  - Se implementó en `src/admin/pages/Sessions.tsx`:
+    1. Gestor de Ubicaciones y Zonas: modal para ver todas las zonas del establecimiento con contador de mesas asociadas, agregar nuevas zonas (ej: Rooftop, Terraza Jardín, Barra, VIP, Piso 2) y eliminar zonas en desuso.
+    2. Pestañas de Filtro por Ubicación: barra horizontal interactiva que permite filtrar las mesas por zona en tiempo real.
+    3. Edición de Mesas y Ubicaciones: botón ✏️ en cada fila para cambiar el nombre, ubicación (escogiendo de la lista o escribiendo una nueva zona al instante) y capacidad de personas.
+    4. Agregar Nueva Mesa: modal mejorado con selección de zona existente o creación de zona al vuelo, número y capacidad.
+    5. Eliminar Mesa: botón 🗑️ para retirar mesas con confirmación.
+  - Se habilitó en el backend (`server/modules/config.js`) el almacenamiento de la lista de zonas `settings.zones`.
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 33.48s).
+  - Repositorio sincronizado en GitHub rama `main` (commit 08e0604).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 12:10
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Módulo de mesas con configuración de ubicaciones/zonas, filtros en vivo, edición y creación de mesas completado.
+- Observaciones: Pruebas de compilación superadas sin errores.
+
+
