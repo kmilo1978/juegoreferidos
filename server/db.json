@@ -103,9 +103,10 @@
       "missionsCount": 3,
       "enteredAt": "12:32 p. m.",
       "dateFormatted": "1 de oct",
-      "status": "INSCRITO",
-      "winner": false,
-      "origin": "Google Sheets"
+      "status": "GANADOR CENA PARA 2",
+      "winner": true,
+      "origin": "Google Sheets",
+      "wonAt": "12:53 p. m. - 1 de oct"
     },
     {
       "id": "TKT-MUMQ9NHU",
@@ -147,6 +148,30 @@
     }
   ],
   "logs": [
+    {
+      "id": "mupu2jt0esz",
+      "timestamp": "12:54:02 p. m.",
+      "method": "POST",
+      "url": "/api/missions/config",
+      "status": 200,
+      "detail": "Catálogo de misiones actualizado (8 misiones configuradas)"
+    },
+    {
+      "id": "mupu2afkfiz",
+      "timestamp": "12:53:49 p. m.",
+      "method": "POST",
+      "url": "/api/contest/draw",
+      "status": 200,
+      "detail": "¡Ganador del sorteo mensual seleccionado!: Demo Sheets (#VIP-GS-9820-8877)"
+    },
+    {
+      "id": "muptauso1fw",
+      "timestamp": "12:32:29 p. m.",
+      "method": "POST",
+      "url": "/api/contest/import-sheets",
+      "status": 200,
+      "detail": "Importados 1 participantes desde Google Sheets"
+    },
     {
       "id": "mupstqf6hy5",
       "timestamp": "12:19:11 p. m.",

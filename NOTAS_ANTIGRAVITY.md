@@ -541,3 +541,30 @@
 - Resultado: Aprobado (Score: 10/10)
 - Resumen: Módulo Composio universal configurado con Google Drive, Supabase, GitHub y Sheets bajo una sola credencial centralizada.
 - Observaciones: Pruebas de compilación y endpoints de diagnóstico superadas exitosamente.
+## Nueva sesión
+- Fecha: 2026-10-01 12:56
+- Solicitud: Investigación técnica e implementación completa de Portales Cautivos para restaurantes y comercios físicos.
+- Decisiones clave:
+  1. Investigación y cumplimiento de estándares de red:
+     - Detección CNA en iOS/macOS (/hotspot-detect.html), Android/Chrome (/generate_204), Windows (/connecttest.txt) y RFC 8908 (/api/portal/cna-status).
+     - Arquitectura de Walled Garden y autorización por dirección MAC de cliente.
+     - Handshake con MikroTik RouterOS (Hotspot + script de terminal .rsc) y Ubiquiti UniFi Controller (Guest Portal API).
+  2. En server/modules/captive-portal.js:
+     - Implementados los endpoints CNA de redirección y éxito.
+     - Endpoint POST /api/portal/authorize que registra al cliente en CRM, acredita +1 sello de visita y almacena la sesión en db.connectedDevices con TTL de expiración.
+     - Endpoints de administración de dispositivos: /api/portal/devices, /disconnect, /extend (+60 minutos).
+     - Generador descargable de scripts para MikroTik: GET /api/portal/scripts/mikrotik.
+  3. En src/admin/pages/WifiPortal.tsx:
+     - Pestaña 1 (Identidad & Bienvenida): Logo con ImageUploader, SSID, Tiempos de sesión, fidelización (+1 sello automático) y redirección.
+     - Pestaña 2 (Hardware & Routers): Selectores dedicados para MikroTik RouterOS, Ubiquiti UniFi y Kiosko Web Standalone, con botón de descarga de script .rsc y comandos de terminal.
+     - Pestaña 3 (Dispositivos en Vivo): Monitoreo en tiempo real de MACs, IPs, comensales y botones de desconexión o extensión.
+     - Pestaña 4 (Simulador CNA): Maqueta interactiva de smartphone mostrando el popup exacto que ve el cliente al asociarse al Wi-Fi.
+  4. Compilación de producción con Vite superada en 5.98s con 0 errores.
+  5. Sincronizado en ambas carpetas y GitHub actualizado.
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 12:56
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Módulo de Portal Cautivo implementado a nivel técnico con soporte de estándares CNA, MikroTik, UniFi y monitoreo de dispositivos.
+- Observaciones: Pruebas de compilación, API y scripts de descarga superadas al 100%.
