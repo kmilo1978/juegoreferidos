@@ -618,3 +618,9 @@
 - Resultado: Aprobado (score >= 9)
 - Resumen: Corrección y validación real con navegador Edge CDP del Simulador Demo Multidispositivo y redirección de rutas.
 - Observaciones: Se diagnosticó que 'Award' faltaba en la lista de importación de lucide-react en Demo.tsx causando un ReferenceError capturado por ErrorBoundary. Además se agregó redirección en admin.html para que el acceso sin hash (/demo o /admin/demo) redireccione de forma limpia a /admin.html#/demo. Verificado con Edge CDP con capturas de pantalla reales, cambio de dispositivos y pruebas del Paso 8 (Misiones VIP).
+
+## Validación completada
+- Fecha: 2026-10-01 14:09
+- Resultado: Aprobado (score >= 9)
+- Resumen: Implementación y verificación del módulo de Notificaciones Push con historial de envíos, horarios y calendario personalizable, métricas de aperturas y botón de darse de baja (opt-out) conectado a base de datos.
+- Observaciones: Se construyeron endpoints /api/push/history, /api/push/track-open, /api/push/unsubscribe y /api/push/schedule-config. Verificado en navegador Edge CDP con capturas de pantalla tanto del panel de administración como del diálogo móvil del comensal.
