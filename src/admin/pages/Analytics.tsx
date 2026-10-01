@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Loader2,
-  BarChart,
+  BarChart3,
   Save,
   CheckCircle2,
   Code2,
@@ -198,7 +198,7 @@ export function Analytics() {
             <div className="flex items-center justify-between border-b border-[#363439] pb-3">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-[#f59e0b]/20 border border-[#f59e0b]/40 flex items-center justify-center text-[#f59e0b]">
-                  <BarChart className="w-4 h-4" />
+                  <BarChart3 className="w-4 h-4" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-[#e6e1e7] font-['Epilogue']">Google Analytics 4 (GA4)</h3>

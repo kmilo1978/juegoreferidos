@@ -15,6 +15,7 @@ import {
   Database,
   Bot,
   Zap,
+  BarChart3,
 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
@@ -88,7 +89,7 @@ export function AdminLayout() {
       group: "Ajustes & Sistema",
       items: [
         { path: "/config", label: "Marca & Ajustes", icon: Settings },
-        { path: "/analytics", label: "GTM & Píxeles", icon: BarChart },
+        { path: "/analytics", label: "GTM & Píxeles", icon: BarChart3 },
         { path: "/security", label: "Seguridad & PINs", icon: Shield },
         { path: "/databases", label: "Bases de Datos", icon: Database },
         { path: "/hermes", label: "Hermes IA", icon: Bot },
