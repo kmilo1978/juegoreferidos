@@ -22,6 +22,7 @@ import { playVictoryFanfareSound, playDefeatSound, playTactileClickSound } from 
 import { GameConfigService, DIFFICULTY_SETTINGS } from "@/lib/gameConfigService";
 import tartaVascaImg from "@/assets/tarta-vasca.jpg";
 import emblemaDorado from "@/assets/emblema-dorado.png";
+import { clientConfig } from "@/config/clientConfig";
 
 interface StepPrecisionTimerProps {
   prizes: GamePrize[];

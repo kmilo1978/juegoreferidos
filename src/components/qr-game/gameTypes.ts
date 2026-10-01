@@ -27,11 +27,15 @@ export interface ParticipantData {
   birthDate?: string | undefined; // Formato DD/MM para regalos de cumpleaños
   consentData: boolean;
   consentMarketing: boolean;
+  tableNumber?: string;
+  registeredAt?: number;
 }
 
 export interface FeedbackData {
   rating: number;
   comment?: string | undefined;
+  createdAt?: number;
+  customerName?: string;
 }
 
 export interface InstagramEvidence {

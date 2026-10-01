@@ -14,7 +14,7 @@ interface FormErrors {
 
 interface StepUserDataProps {
   initialData?: ParticipantData | undefined;
-  onBack: () => void;
+  onBack?: () => void;
   onComplete: (data: ParticipantData) => void;
 }
 

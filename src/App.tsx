@@ -713,6 +713,8 @@ function JuegoQrPage() {
             email: customerData.email || "",
             tableNumber: session.tableNumber,
             registeredAt: Date.now(),
+            consentData: true,
+            consentMarketing: true,
           };
           setParticipant(newPart);
           try {

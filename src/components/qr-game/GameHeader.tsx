@@ -19,7 +19,7 @@ export function GameHeader({
   onOpenKioskPortal,
   onStepClick,
 }: GameHeaderProps) {
-  const { t, language, setLanguage } = useLanguage();
+  const { t, lang, setLang } = useLanguage();
 
   const gameSteps = [
     { num: 1, label: t("1. Datos", "1. Info"), short: t("Datos", "Info") },
@@ -56,18 +56,18 @@ export function GameHeader({
           <div className="flex items-center bg-[#201f23] p-0.5 rounded-full border border-[#363439] shadow-inner">
             <button
               type="button"
-              onClick={() => setLanguage("es")}
+              onClick={() => setLang("es")}
               className={`px-3 py-0.5 rounded-full text-[10px] font-black transition-all cursor-pointer ${
-                language === "es" ? "badge-gold shadow-xs" : "text-[#ccc3d8] hover:text-white"
+                lang === "es" ? "badge-gold shadow-xs" : "text-[#ccc3d8] hover:text-white"
               }`}
             >
               ES
             </button>
             <button
               type="button"
-              onClick={() => setLanguage("en")}
+              onClick={() => setLang("en")}
               className={`px-3 py-0.5 rounded-full text-[10px] font-black transition-all cursor-pointer ${
-                language === "en" ? "badge-gold shadow-xs" : "text-[#ccc3d8] hover:text-white"
+                lang === "en" ? "badge-gold shadow-xs" : "text-[#ccc3d8] hover:text-white"
               }`}
             >
               EN

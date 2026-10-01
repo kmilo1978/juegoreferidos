@@ -360,7 +360,7 @@ export class StampService {
    */
   static resetAfterRedemption(whatsapp: string): StampCardState {
     const activeMode = this.getGlobalMode();
-    const firstReward = STAMP_REWARDS_15[0];
+    const firstReward = STAMP_MILESTONES_3[0];
 
     const resetState: StampCardState = {
       currentStamps: 0,

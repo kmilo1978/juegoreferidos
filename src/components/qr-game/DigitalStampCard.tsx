@@ -3,6 +3,7 @@ import {
   StampCardState,
   StampService,
   StampReward,
+  STAMP_MILESTONES_3,
 } from "@/lib/stampService";
 import {
   Sparkles,

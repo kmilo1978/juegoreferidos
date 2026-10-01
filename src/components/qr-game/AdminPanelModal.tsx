@@ -271,7 +271,7 @@ export function AdminPanelModal({
   const [pinChangeFeedback, setPinChangeFeedback] = useState<string | null>(null);
 
   const canAccessTab = (
-    tab: "stats" | "prizes" | "campaign" | "messages" | "push_campaigns" | "branding" | "security"
+    tab: "stats" | "prizes" | "campaign" | "messages" | "push_campaigns" | "branding" | "security" | "tables"
   ): boolean => {
     if (authenticatedRole === "owner") return true;
     if (!authenticatedRole) return false;
@@ -291,7 +291,7 @@ export function AdminPanelModal({
       case "branding":
         return hasPermission(authenticatedRole, "manageBrand");
       case "security":
-        return authenticatedRole === "owner";
+        return false; // Owner is handled at the top of the function
       default:
         return false;
     }

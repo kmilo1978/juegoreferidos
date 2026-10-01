@@ -100,11 +100,14 @@ export function StepSecondChancePrecision({
         id: "second-chance-precision-reward",
         name: secondChanceConfig.prizeName || "Postre de Autor Especial",
         nameEn: "Chef Signature Dessert",
-        value: 18000,
+        type: "special_experience",
+        value: "18000",
         probability: 1,
         color: "#f2be71",
         textColor: "#141317",
         active: true,
+        terms: "Válido solo hoy",
+        termsEn: "Valid only today",
       });
     } else {
       if (currentAttempts >= maxAttempts) {
