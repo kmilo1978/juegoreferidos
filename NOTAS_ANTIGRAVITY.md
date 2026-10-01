@@ -280,10 +280,32 @@
     2. En cuanto el usuario realiza 1 intento (`attemptsUsed > 0`): el botón se vuelve dorado y activo ("Continuar a Tarjeta de 15 Sellos (Paso 7) ➔"), permitiendo avanzar de inmediato sin obligar a agotar los 3 intentos si desea continuar su recorrido.
     3. Si gana: se activa con felicitación dorada ("¡Premio Conseguido! Continuar al Paso 7 ➔").
   - Compilación de producción con Vite aprobada al 100% (0 errores, 13.73s).
+## Nueva sesión
+- Fecha: 2026-10-01 12:00
+- Solicitud: Suite OneSignal Push Pro (Rich Push, imágenes, botones de acción, programación de envíos, flujos automáticos, duplicar campañas), Pases digitales para Apple Wallet (.pkpass) y Google Wallet, Sellos 100% modulares (cantidad flexible, iconos personalizados e hitos libres), Códigos QR de mesa personalizables y módulo de Analítica (GTM, GA4, Meta Pixel, TikTok Pixel, Search Console).
+- Decisiones clave:
+  - Se implementó en `src/admin/pages/Push.tsx` el Centro Integral de OneSignal Push Pro con 4 pestañas interactivas:
+    1. Nueva Campaña / Rich Push: título y cuerpo con tags dinámicas, imagen banner destacada (OneSignal Big Picture), botones de acción interactivos rápidos, deep link URL, segmentación de audiencia y selector entre envío inmediato o programado (fecha y hora). Incluye vista previa en vivo estilo smartphone.
+    2. Flujos Automáticos (Drip Campaigns): bienvenida en mesa por WiFi/QR, retención 7 días de sellos pendientes, alerta automática de Happy Hour a las 3:00 PM y voucher por vencer (24h), cada uno con toggle modular On/Off, plantilla editable y botón de prueba.
+    3. Borradores y Campañas: gestor para guardar plantillas, cargarlas en el editor, duplicar/copiar campañas con 1 clic y eliminar.
+    4. Credenciales de OneSignal: vinculación de App ID, REST API Key, Safari Web ID y switch del motor web push.
+  - Se crearon los Pases Digitales Oficiales para Apple Wallet y Google Wallet (`DigitalWalletPassModal.tsx`):
+    1. En el reclamo de premios (`StepPrizeClaim.tsx`): botón "📱 Guardar Voucher en Apple / Google Wallet" con exportación de pase `.pkpass` y enlace de sincronización de Google Wallet con código único y QR.
+    2. En la tarjeta de sellos (`StepDigitalStamps.tsx`): botón "📱 Guardar Tarjeta en Apple / Google Wallet" para almacenar el progreso de visitas en el móvil del cliente sin conexión.
+  - Se modularizó al 100% el motor de sellos en `stampService.ts` y `StepDigitalStamps.tsx`:
+    1. Se eliminó la limitación rígida de 15 sellos fijos; ahora admite cualquier cantidad configurada (6, 8, 10, 12, 15, etc.).
+    2. Cuadrícula adaptable dinámicamente según la cantidad de sellos.
+    3. Soporte para icono de sello personalizado (emoji o imagen) y catálogo dinámico de hitos de premios.
+  - Se crearon los módulos de Analítica (`Analytics.tsx` con GTM, GA4, Meta Pixel, TikTok Pixel, Google Search Console) y Códigos QR personalizados para mesas con descarga en PNG e impresión de habladores en `Sessions.tsx`.
+  - Se conectó el checklist maestro de minijuegos (`GameMode.tsx`) con el recorrido del cliente en `App.tsx` para omitir pantallas desactivadas en tiempo real.
+  - Proxy configurado en `vite.config.ts` hacia el puerto 3001.
+  - Compilación de producción con Vite superada con éxito (0 errores, 27.75s).
+  - Repositorio sincronizado en GitHub rama `main` (commit 7c5a45c).
 - Pendientes: Ninguno.
 
 ## Validación completada
-- Fecha: 2026-09-30 11:35
+- Fecha: 2026-10-01 12:00
 - Resultado: Aprobado (Score: 10/10)
-- Resumen: Acceso garantizado a los Pasos 7 y 8 tanto por la barra de navegación superior interactiva como por el botón de avance del Paso 6 tras el primer intento.
-- Observaciones: Build limpio y sin errores.
+- Resumen: OneSignal Push Pro, Apple/Google Wallet Pass, sellos modulares, QR de mesa y analítica GTM completados y verificados.
+- Observaciones: Build limpio de Vite sin errores de TypeScript y backend sincronizado.
+
