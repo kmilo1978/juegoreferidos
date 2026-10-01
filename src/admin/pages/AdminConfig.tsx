@@ -17,6 +17,7 @@ import {
   Search,
 } from "lucide-react";
 import { ImageUploader } from "../components/ImageUploader";
+import { ColorPaletteSelector } from "../components/ColorPaletteSelector";
 import {
   CURATED_GOOGLE_FONTS_HEADING,
   CURATED_GOOGLE_FONTS_BODY,
@@ -407,6 +408,14 @@ export function AdminConfig() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Tarjeta de Combinaciones & Paletas de Color */}
+          <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 shadow-lg">
+            <ColorPaletteSelector
+              currentPrimaryColor={primaryColor}
+              onSelectPrimaryColor={(color) => setPrimaryColor(color)}
+            />
           </div>
 
           {/* Tarjeta de Tipografía & Google Fonts (Personalización de Letras) */}

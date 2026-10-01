@@ -149,6 +149,32 @@
   ],
   "logs": [
     {
+      "id": "muq4dybcagq",
+      "timestamp": "5:42:50 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/3165212283",
+      "status": 200,
+      "detail": "Consulta de sellos para +3165212283: 1/15"
+    },
+    {
+      "id": "muq4dy12wsh",
+      "timestamp": "5:42:49 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muq4dxow3mp",
+      "timestamp": "5:42:49 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/3165212283",
+      "status": 200,
+      "detail": "Consulta de sellos para +3165212283: 1/15"
+    },
+    {
+      "id": "muq43o1unfb",
+      "timestamp": "5:34:50 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
       "id": "muq43o1ktvp",
       "timestamp": "5:34:50 p. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
@@ -482,38 +508,6 @@
       "url": "/api/contest/import-sheets",
       "status": 200,
       "detail": "Importados 1 participantes desde Google Sheets"
-    },
-    {
-      "id": "mupstqf6hy5",
-      "timestamp": "12:19:11 p. m.",
-      "method": "POST",
-      "url": "/api/backup/google-drive",
-      "status": 200,
-      "detail": "Copia de seguridad guardada en Google Drive: db_backup_2026-10-01_12-19.json (22 KB)"
-    },
-    {
-      "id": "mupstli0rz4",
-      "timestamp": "12:19:04 p. m.",
-      "method": "POST",
-      "url": "/api/integrations/composio/test-db",
-      "status": 200,
-      "detail": "Test DB Composio [airtable]: OK (38ms)"
-    },
-    {
-      "id": "muo9v8qpu4j",
-      "timestamp": "10:40:42 a. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "muo8r9iol3j",
-      "timestamp": "10:09:37 a. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
     }
   ],
   "settings": {
@@ -1237,8 +1231,22 @@
     "baseDomain": "http://localhost:5173",
     "stats": {
       "nfcScans": 28,
-      "qrScans": 76,
+      "qrScans": 78,
       "lastScans": [
+        {
+          "id": "scan_1790894570595",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:42 p. m."
+        },
+        {
+          "id": "scan_1790894569857",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:42 p. m."
+        },
         {
           "id": "scan_1790894090367",
           "mesa": 1,
