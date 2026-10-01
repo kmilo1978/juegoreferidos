@@ -4,7 +4,24 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    {
+      name: "admin-rewrite",
+      configureServer(server) {
+        server.middlewares.use((req, _res, next) => {
+          if (req.url) {
+            const cleanUrl = req.url.split("?")[0];
+            if (cleanUrl === "/admin" || cleanUrl === "/admin/") {
+              req.url = req.url.replace(cleanUrl, "/admin.html");
+            }
+          }
+          next();
+        });
+      },
+    },
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -12,6 +29,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    host: true,
     watch: {
       ignored: ["**/server/**", "**/db.json", "**/*.log"],
     },

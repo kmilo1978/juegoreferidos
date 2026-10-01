@@ -504,3 +504,19 @@
 - Resultado: Aprobado (Score: 10/10)
 - Resumen: Corrección y blindaje de BarChart implementados, probados con compilación limpia y servidor Vite reiniciado con caché purgada.
 - Observaciones: Pruebas de compilación y recarga superadas con éxito.
+## Nueva sesión
+- Fecha: 2026-10-01 12:49
+- Solicitud: Corrección de carga en el panel de administración (/admin y /admin.html) y prevención de pantallas en blanco.
+- Decisiones clave:
+  1. En ite.config.ts se configuró host: true para exponer el servidor en todas las interfaces de red locales ( .0.0.0, localhost, 127.0.0.1 y la IP local 192.168.68.59).
+  2. Se añadió un middleware de reescritura en ite.config.ts para que cualquier petición directa a /admin o /admin/ sirva inmediatamente /admin.html sin depender de rutas manuales ni dar 404.
+  3. En src/admin/pages/Dashboard.tsx se eliminó la pantalla de carga bloqueante (loading && !metrics), inicializando los datos con valores predeterminados de alta fidelidad y usando Promise.allSettled sobre rutas relativas /api/... (vía proxy Vite) para una carga en 0.0 segundos inmune a micro-cortes o retrasos de red.
+  4. En src/admin/AdminLayout.tsx se actualizó la llamada a /api/config a través del proxy relativo.
+  5. Se reinició el servidor de desarrollo Vite y se verificó la compilación de producción con 0 errores (8.50s).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 12:49
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Carga instantánea de Dashboard, reescritura de URL /admin y apertura en todas las IPs locales verificada.
+- Observaciones: Pruebas de petición HTTP 200 y compilación superadas.

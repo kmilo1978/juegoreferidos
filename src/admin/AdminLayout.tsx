@@ -29,7 +29,7 @@ export function AdminLayout() {
   });
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/config")
+    fetch("/api/config")
       .then((res) => res.json())
       .then((data) => {
         if (data.settings?.brand) {
