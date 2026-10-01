@@ -1,4 +1,4 @@
-# 🎨 DESIGN.md — Sistema de Diseño · Bliss Soul Bakery & Café
+# 🎨 DESIGN.md — Sistema de Diseño · Fidelización & Gamificación en Mesa (Marca Blanca)
 
 > Este archivo es la **guía oficial de diseño** del proyecto. Antes de modificar cualquier componente visual, consulta este documento. Esto garantiza que todo luzca coherente, elegante y con la identidad de la marca.
 

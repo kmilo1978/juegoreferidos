@@ -219,9 +219,9 @@ export function StepPrecisionTimer({
             {/* Badge de Marca con Glassmorphism */}
             <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
               <div className="bg-black/40 backdrop-blur-md border border-white/20 px-3.5 py-1.5 rounded-full flex items-center gap-2 shadow-lg">
-                <img src={emblemaDorado} alt="Bliss Emblema" className="w-4 h-4 object-contain" />
+                <img src={clientConfig.brand.logoUrl || emblemaDorado} alt={clientConfig.brand.name} className="w-4 h-4 object-contain" />
                 <span className="text-[10px] font-mono tracking-[0.25em] text-white font-bold uppercase">
-                  @BLISSSOULBAKERY
+                  {(clientConfig.channels.instagramHandle || "@TURESTAURANTE").toUpperCase()}
                 </span>
               </div>
             </div>

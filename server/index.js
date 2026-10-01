@@ -1,5 +1,5 @@
 /**
- * SERVIDOR BACKEND MODULAR - BLISS SOUL BAKERY & CAFÉ
+ * SERVIDOR BACKEND MODULAR - FIDELIZACIÓN & GAMIFICACIÓN EN MESA (MARCA BLANCA)
  * Arquitectura modular y extensible de 0 dependencias.
  * Módulos integrados:
  *  - Tables (Gestión de mesas en tiempo real)
@@ -68,8 +68,8 @@ const server = http.createServer((req, res) => {
   if (req.method === "GET" && (pathname === "/manifest.json" || pathname === "/manifest.webmanifest" || pathname === "/api/manifest")) {
     const brand = db.settings?.brand || {};
     const manifest = {
-      name: brand.name ? `${brand.name} - Fidelización & Premios` : "Bliss Soul - Experiencia & Premios VIP",
-      short_name: brand.name || "Bliss Soul",
+      name: brand.name ? `${brand.name} - Fidelización & Premios` : "Tu Restaurante & Café - Experiencia & Premios VIP",
+      short_name: brand.name || "Tu Negocio",
       description: brand.tagline || "Gira la ruleta, acumula sellos de visita y canjea premios exclusivos en tu mesa.",
       start_url: "/?source=pwa",
       scope: "/",

@@ -117,7 +117,7 @@ export function Dashboard() {
     return days;
   }, []);
 
-  // Eventos de feed en vivo adaptados a la gastronomía de Bliss Soul
+  // Eventos de feed en vivo adaptados a la gastronomía del negocio
   const liveEvents = useMemo(() => {
     const defaultEvents = [
       {

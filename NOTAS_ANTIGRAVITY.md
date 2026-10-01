@@ -759,3 +759,28 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Manifiesto PWA creado y validado en backend :3001 y frontend :5173 respondiendo 200 OK. Sistema listo para instalarse como app nativa en Android e iOS.
 - Observaciones: Pruebas automáticas confirmaron entrega de JSON válido con iconos y atajos.
+
+## Nueva sesión
+- Fecha: 2026-10-01 18:09
+- Solicitud: recuerda que debes eliminar cualquier mencion de Bliss Soul
+- Decisiones clave:
+  1. Auditoría de texto global con git grep en todo el proyecto para localizar menciones de 'Bliss' o 'Bliss Soul'.
+  2. Sustitución completa y sistemática por términos neutros de marca blanca (White-label):
+     - 'public/manifest.json': 'Tu Restaurante & Café - Experiencia & Premios VIP' y 'Tu Negocio'.
+     - 'server/index.js': eliminación del encabezado y actualización del fallback del manifest dinámico.
+     - 'src/lib/colorPalettes.ts': renombrada la paleta a 'Oro Imperial & Noir (Lujo & Alta Cocina)'.
+     - 'src/components/qr-game/StepPrecisionTimer.tsx': reemplazado badge '@BLISSSOULBAKERY' por el canal de Instagram dinámico configurado ('clientConfig.channels.instagramHandle').
+     - 'src/admin/pages/Hermes.tsx': cambiado agentId por defecto a 'Hermes-Asistente'.
+     - 'src/admin/pages/Dashboard.tsx': limpiado comentario de feed gastronómico.
+     - 'README.md' y 'DESIGN.md': convertidos 100% a formato de marca blanca.
+  3. Verificación con 'git grep -i "bliss"' confirmando 0 ocurrencias residuales.
+  4. Compilación Vite 100% limpia sin errores.
+  5. Sincronización en ambos repositorios y GitHub.
+- Pendientes:
+  - Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 18:09
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Limpieza total de marca blanca completada sin alterar la funcionalidad. 0 menciones de Bliss Soul en el código.
+- Observaciones: Verificado mediante búsqueda estricta y compilación exitosa.

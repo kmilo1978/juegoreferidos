@@ -24,7 +24,7 @@
    - Disparo de confeti festivo con `canvas-confetti`.
 
 4. **🔒 Voucher Digital Anticopia con Validación PIN de 4 Dígitos:**
-   - Código único alfanumérico (`BLISS-XXXXX`) y código QR dorado con isotipo de marca.
+   - Código único alfanumérico (`VIP-XXXXX`) y código QR dorado con isotipo de marca.
    - Botón de cobro protegido con un **teclado numérico táctil de 4 dígitos** para meseros o cajeras.
 
 5. **📊 Base de Datos Gratuita con Google Sheets en Tiempo Real:**

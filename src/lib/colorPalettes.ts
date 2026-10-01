@@ -15,7 +15,7 @@ export interface ColorPalette {
 export const COLOR_PALETTES: ColorPalette[] = [
   {
     id: "oro_imperial_noir",
-    name: "Oro Imperial & Noir (Bliss Soul)",
+    name: "Oro Imperial & Noir (Lujo & Alta Cocina)",
     category: "popular",
     categoryLabel: "Lujo & Alta Cocina",
     colors: ["#f2be71", "#ffddb1", "#e6e1e7", "#363439", "#141317"],

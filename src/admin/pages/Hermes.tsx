@@ -13,7 +13,7 @@ export function Hermes() {
   // Estados locales
   const [apiUrl, setApiUrl] = useState("http://localhost:3000");
   const [apiKey, setApiKey] = useState("");
-  const [agentId, setAgentId] = useState("Hermes-Bliss");
+  const [agentId, setAgentId] = useState("Hermes-Asistente");
   const [mode, setMode] = useState("autonomous");
   const [prompt, setPrompt] = useState("");
 
