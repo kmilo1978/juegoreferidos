@@ -11,6 +11,7 @@ import {
   Eye,
   RefreshCw,
 } from "lucide-react";
+import { ImageUploader } from "../components/ImageUploader";
 
 export function AdminConfig() {
   const [loading, setLoading] = useState(true);
@@ -226,16 +227,18 @@ export function AdminConfig() {
                 />
               </div>
 
-              <div>
-                <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block mb-1">
-                  Ruta o URL del Logotipo
-                </label>
-                <input
-                  type="text"
+              <div className="sm:col-span-2">
+                <ImageUploader
+                  label="Logotipo Principal del Negocio"
                   value={logoUrl}
-                  onChange={(e) => setLogoUrl(e.target.value)}
-                  placeholder="/src/assets/logo.png"
-                  className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono"
+                  onChange={setLogoUrl}
+                  recommendedDimensions="512 x 512 px (Cuadrado) o 450 x 150 px"
+                  aspectRatio="1:1 cuadrado o 3:1 horizontal"
+                  maxWeight="Menor a 300 KB"
+                  formats="PNG con fondo transparente, SVG o WebP"
+                  description="Logotipo principal que se mostrará en la barra superior móvil, tarjetas de mesas y tickets de comensales."
+                  placeholder="Pega URL o sube una imagen desde tu equipo"
+                  previewHeight="h-16"
                 />
               </div>
 

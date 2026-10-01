@@ -14,6 +14,7 @@ import {
   CheckCircle,
   ExternalLink,
 } from "lucide-react";
+import { ImageUploader } from "../components/ImageUploader";
 
 interface Milestone {
   stamp: number;
@@ -295,15 +296,17 @@ export function Stamps() {
             </div>
 
             <div className="pt-2">
-              <label className="text-[11px] text-[#ccc3d8] block mb-1">
-                O ingresa la URL de tu icono personalizado (PNG transparente):
-              </label>
-              <input
-                type="url"
+              <ImageUploader
+                label="Icono Gráfico de Sello Personalizado"
                 value={customIconUrl}
-                onChange={(e) => setCustomIconUrl(e.target.value)}
-                placeholder="https://ejemplo.com/icono-marca.png"
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2 w-full text-xs font-mono"
+                onChange={setCustomIconUrl}
+                recommendedDimensions="128 x 128 px"
+                aspectRatio="1:1 cuadrado"
+                maxWeight="Menor a 80 KB"
+                formats="PNG con fondo transparente o SVG"
+                description="Icono gráfico que se estampará en los círculos de visita de la tarjeta digital del cliente. Si está vacío, se usará el emoji seleccionado arriba."
+                placeholder="Pega URL o sube tu icono PNG"
+                previewHeight="h-14"
               />
             </div>
           </div>

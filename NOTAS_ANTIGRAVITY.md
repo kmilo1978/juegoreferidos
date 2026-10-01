@@ -408,3 +408,27 @@
 - Resultado: Aprobado (Score: 10/10)
 - Resumen: Módulo de demo con simulador móvil interactivo, salto de fases y QR para teléfono físico completado e integrado.
 - Observaciones: Pruebas de compilación superadas sin errores.
+
+## Nueva sesión
+- Fecha: 2026-10-01 12:30
+- Solicitud: En embudo de reputación poder agregar el logo, y en todos los módulos donde se pueda agregar una imagen, logo o similar, especificar los tamaños sugeridos, proporciones y peso máximo.
+- Decisiones clave:
+  - Se creó el componente src/admin/components/ImageUploader.tsx:
+    1. Selector interactivo para subir imágenes directamente desde la computadora (con lectura en Base64 y medición de peso real en KB) o ingresar URL externa.
+    2. Tarjeta con especificaciones técnicas claras y visibles: ?? Dimensiones recomendadas, ?? Proporción/Relación de aspecto, ?? Peso máximo sugerido y ??? Formatos recomendados.
+    3. Vista previa en tiempo real con botón para reemplazar o quitar la imagen.
+    4. Alerta suave si el archivo supera el límite de peso recomendado.
+  - Se integró ImageUploader en todos los módulos de imagen de la plataforma:
+    1. Reputation.tsx (Embudo de Reputación): Logo del embudo (400x120 px horizontal o 250x250 px, < 200 KB, PNG transparente).
+    2. AdminConfig.tsx (Marca): Logotipo principal del negocio (512x512 px o 450x150 px, < 300 KB, PNG transparente / SVG / WebP).
+    3. Push.tsx (Notificaciones): Banner destacado Big Picture (1024x512 px, relación 2:1, < 350 KB, JPG/PNG).
+    4. Stamps.tsx (Sellos de Visita): Icono de sello personalizado (128x128 px, relación 1:1, < 80 KB, PNG transparente).
+    5. WifiPortal.tsx (Portal WiFi / Kiosko): Banner o logotipo de bienvenida (600x200 px, relación 3:1, < 250 KB, PNG transparente).
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 7.00s).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 12:30
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Carga de logo en embudo de reputación y especificaciones técnicas completas de tamaño, proporción y peso en todos los módulos de imagen.
+- Observaciones: Pruebas de compilación superadas sin errores.

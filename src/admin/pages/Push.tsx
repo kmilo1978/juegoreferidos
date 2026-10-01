@@ -20,6 +20,7 @@ import {
   MessageSquare,
   Zap,
 } from "lucide-react";
+import { ImageUploader } from "../components/ImageUploader";
 
 interface ActionButton {
   id: string;
@@ -539,23 +540,19 @@ export function Push() {
               />
             </div>
 
-            {/* Rich Push: Imagen Destacada (Big Picture) */}
-            <div className="space-y-2">
-              <label className="text-xs text-[#ccc3d8] font-semibold flex items-center gap-1.5">
-                <ImageIcon className="w-3.5 h-3.5 text-[#f2be71]" />
-                <span>Imagen Destacada / Banner Grande (OneSignal Big Picture)</span>
-              </label>
-              <input
-                type="text"
-                value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                placeholder="https://... o ruta relativa de imagen"
-                className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-3 w-full text-sm"
-              />
-              <p className="text-[11px] text-[#ccc3d8]/70">
-                Aparece en grande en la bandeja de notificaciones de Android, Windows y macOS.
-              </p>
-            </div>
+            {/* Rich Push: Imagen Destacada (Big Picture) con Especificaciones Sugeridas */}
+            <ImageUploader
+              label="Banner Destacado de Notificación (OneSignal Big Picture)"
+              value={formData.image}
+              onChange={(val) => setFormData({ ...formData, image: val })}
+              recommendedDimensions="1024 x 512 px (Horizontal)"
+              aspectRatio="2:1 panorámica"
+              maxWeight="Menor a 350 KB"
+              formats="JPG o PNG optimizado"
+              description="Aparece desplegado en tamaño grande en la bandeja de notificaciones de Android, Windows y macOS al llegar el aviso."
+              placeholder="Pega URL o sube el banner desde tu equipo"
+              previewHeight="h-20"
+            />
 
             {/* URL Destino */}
             <div className="space-y-2">

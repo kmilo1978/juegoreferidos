@@ -16,6 +16,7 @@ import {
   Image as ImageIcon,
   CheckCircle,
 } from "lucide-react";
+import { ImageUploader } from "../components/ImageUploader";
 
 export function Reputation() {
   const [data, setData] = useState<any>(null);
@@ -267,20 +268,19 @@ export function Reputation() {
             </div>
           </div>
 
-          {/* 2. Logo Personalizado del Embudo */}
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider flex items-center gap-1.5">
-              <ImageIcon className="w-3.5 h-3.5 text-[#f2be71]" />
-              <span>Logo Específico para el Embudo (Opcional)</span>
-            </label>
-            <input
-              type="text"
-              value={customLogoUrl}
-              onChange={(e) => setCustomLogoUrl(e.target.value)}
-              placeholder="https://... o ruta de imagen (dejar vacío para usar el logo de marca)"
-              className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs"
-            />
-          </div>
+          {/* 2. Logo Personalizado del Embudo con Especificaciones Sugeridas */}
+          <ImageUploader
+            label="Logo Específico para el Embudo de Calificación"
+            value={customLogoUrl}
+            onChange={setCustomLogoUrl}
+            recommendedDimensions="400 x 120 px (Horizontal) o 250 x 250 px"
+            aspectRatio="3:1 horizontal o 1:1 cuadrado"
+            maxWeight="Menor a 200 KB"
+            formats="PNG transparente o WebP"
+            description="Este logotipo se mostrará en la cabecera de la tarjeta de evaluación del comensal. Si lo dejas vacío, se usará el logo general de la marca."
+            placeholder="Pega URL o sube una imagen desde tu equipo"
+            previewHeight="h-16"
+          />
 
           {/* 3. Umbral y Enlaces */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-[#363439] pt-4">

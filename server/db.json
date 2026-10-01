@@ -128,11 +128,20 @@
       "missionsCount": 5,
       "enteredAt": "08:22 p. m.",
       "dateFormatted": "28 de sept",
-      "status": "INSCRITO",
-      "winner": false
+      "status": "GANADOR CENA PARA 2",
+      "winner": true,
+      "wonAt": "12:25 p. m. - 1 de oct"
     }
   ],
   "logs": [
+    {
+      "id": "mupstqf6hy5",
+      "timestamp": "12:19:11 p. m.",
+      "method": "POST",
+      "url": "/api/backup/google-drive",
+      "status": 200,
+      "detail": "Copia de seguridad guardada en Google Drive: db_backup_2026-10-01_12-19.json (22 KB)"
+    },
     {
       "id": "mupstli0rz4",
       "timestamp": "12:19:04 p. m.",
