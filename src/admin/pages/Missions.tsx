@@ -3,20 +3,23 @@ import { Loader2, CheckCircle, XCircle } from "lucide-react";
 
 interface Mission {
   id: string;
-  type: string;
-  platform: string;
-  points: number;
-  description: string;
+  category?: string;
+  title: string;
+  rewardStamps?: number;
+  description?: string;
   active: boolean;
 }
 
 interface Submission {
   id: string;
-  missionId: string;
-  userId: string;
-  proofUrl?: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  submittedAt: string;
+  missionId?: string;
+  missionTitle?: string;
+  customerName?: string;
+  customerWhatsapp?: string;
+  evidenceUrl?: string;
+  status: string;
+  submittedAt?: string;
+  dateFormatted?: string;
 }
 
 export function Missions() {
@@ -73,21 +76,21 @@ export function Missions() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <div className="space-y-4">
           <h4 className="text-[#ccc3d8] font-medium">Cola de Revisión</h4>
-          {submissions.filter(s => s.status === 'PENDING').map(sub => (
+          {submissions.filter(s => s.status?.toUpperCase() === 'PENDING' || s.status?.toUpperCase() === 'PENDIENTE').map(sub => (
             <div key={sub.id} className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <p className="text-[#e6e1e7] font-bold">Usuario: {sub.userId}</p>
-                  <p className="text-[#958da1] text-sm">Misión ID: {sub.missionId}</p>
+                  <p className="text-[#e6e1e7] font-bold">Cliente: {sub.customerName || sub.customerWhatsapp || "Invitado"}</p>
+                  <p className="text-[#f2be71] text-sm font-semibold">{sub.missionTitle || sub.missionId}</p>
                   <p className="text-[#958da1] text-xs mt-1">
-                    {new Date(sub.submittedAt).toLocaleString()}
+                    {sub.dateFormatted || sub.submittedAt || "Reciente"}
                   </p>
                 </div>
               </div>
-              {sub.proofUrl && (
+              {sub.evidenceUrl && (
                 <div className="mb-4 bg-[#201f23] p-3 rounded-xl text-sm text-[#60a5fa] truncate">
-                  <a href={sub.proofUrl} target="_blank" rel="noreferrer">
-                    Ver prueba adjunta
+                  <a href={sub.evidenceUrl} target="_blank" rel="noreferrer" className="underline">
+                    Ver evidencia / enlace publicado ↗
                   </a>
                 </div>
               )}
@@ -107,7 +110,7 @@ export function Missions() {
               </div>
             </div>
           ))}
-          {submissions.filter(s => s.status === 'PENDING').length === 0 && (
+          {submissions.filter(s => s.status?.toUpperCase() === 'PENDING' || s.status?.toUpperCase() === 'PENDIENTE').length === 0 && (
             <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-8 text-center text-[#958da1]">
               No hay misiones pendientes de revisión.
             </div>
@@ -121,11 +124,11 @@ export function Missions() {
               {missions.map(mission => (
                 <div key={mission.id} className="flex items-center justify-between border-b border-[#363439] pb-4 last:border-0 last:pb-0">
                   <div>
-                    <p className="text-[#e6e1e7] font-bold">{mission.platform} - {mission.type}</p>
-                    <p className="text-[#958da1] text-sm">{mission.description}</p>
+                    <p className="text-[#e6e1e7] font-bold">{mission.title}</p>
+                    <p className="text-[#958da1] text-sm">{mission.category || mission.description}</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-[#f2be71] font-bold">+{mission.points} pts</span>
+                    <span className="text-[#f2be71] font-bold">+{mission.rewardStamps || 1} sellos</span>
                     <div className="mt-1">
                       <span className={`text-xs px-2 py-1 rounded-full ${mission.active ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-[#363439] text-[#958da1]'}`}>
                         {mission.active ? 'Activa' : 'Inactiva'}

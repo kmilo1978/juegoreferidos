@@ -39,7 +39,7 @@ export function Dashboard() {
       const tablesData = await tablesRes.json();
 
       setMetrics(metricsData);
-      setTables(tablesData);
+      setTables(Array.isArray(tablesData) ? tablesData : (tablesData.tables || []));
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');

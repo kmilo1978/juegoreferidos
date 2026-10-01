@@ -20,7 +20,7 @@ export function Sessions() {
     fetch('http://localhost:3001/api/tables')
       .then(res => res.json())
       .then(data => {
-        setTables(data);
+        setTables(Array.isArray(data) ? data : (data.tables || []));
         setError(null);
       })
       .catch(err => setError(err.message))
