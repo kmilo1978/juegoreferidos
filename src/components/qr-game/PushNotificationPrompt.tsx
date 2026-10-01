@@ -1,6 +1,6 @@
 import { clientConfig } from "@/config/clientConfig";
 import { useState, useEffect } from "react";
-import { Bell, BellRing, CheckCircle2, Sparkles, X, Coffee, ShieldCheck } from "lucide-react";
+import { Bell, BellRing, BellOff, CheckCircle2, Sparkles, X, Coffee, ShieldCheck, AlertCircle } from "lucide-react";
 import { playVictoryFanfareSound } from "../../lib/soundEffects";
 
 interface PushNotificationPromptProps {
@@ -9,6 +9,7 @@ interface PushNotificationPromptProps {
   customerName?: string;
   customerWhatsapp?: string;
   onSubscribed?: () => void;
+  onUnsubscribed?: () => void;
 }
 
 export function PushNotificationPrompt({
@@ -17,6 +18,7 @@ export function PushNotificationPrompt({
   customerName,
   customerWhatsapp,
   onSubscribed,
+  onUnsubscribed,
 }: PushNotificationPromptProps) {
   const [permissionState, setPermissionState] = useState<NotificationPermission>(() => {
     if (typeof window !== "undefined" && "Notification" in window) {
@@ -26,7 +28,9 @@ export function PushNotificationPrompt({
   });
 
   const [loading, setLoading] = useState(false);
+  const [unsubscribing, setUnsubscribing] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [unsubscribedSuccess, setUnsubscribedSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -40,6 +44,7 @@ export function PushNotificationPrompt({
 
   if (!isOpen) return null;
 
+  // Activar Notificaciones Push
   const handleRequestPermission = async () => {
     if (typeof window === "undefined" || !("Notification" in window)) {
       setErrorMessage("Tu navegador no soporta notificaciones push.");
@@ -48,6 +53,7 @@ export function PushNotificationPrompt({
 
     setLoading(true);
     setErrorMessage("");
+    setUnsubscribedSuccess(false);
 
     try {
       const permission = await Notification.requestPermission();
@@ -57,7 +63,7 @@ export function PushNotificationPrompt({
         playVictoryFanfareSound();
         setSuccess(true);
 
-        // Generar o recuperar token simulado / real de suscripci�n
+        // Generar o recuperar token simulado / real de suscripción
         let pushEndpoint = "https://fcm.googleapis.com/fcm/send/device_" + Date.now();
         if ("serviceWorker" in navigator) {
           try {
@@ -69,9 +75,9 @@ export function PushNotificationPrompt({
           } catch {}
         }
 
-        // Registrar suscriptor en el backend modular
+        // Registrar suscriptor en el backend
         try {
-          await fetch("http://localhost:3001/api/push/subscribe", {
+          await fetch("/api/push/subscribe", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -81,13 +87,13 @@ export function PushNotificationPrompt({
             }),
           });
         } catch (backendErr) {
-          console.warn("[Push] Backend local no disponible para registrar suscriptor:", backendErr);
+          console.warn("[Push] Error al registrar suscriptor:", backendErr);
         }
 
-        // Enviar notificaci�n local de bienvenida
+        // Notificación local de cortesía
         try {
           new Notification(`🎉 ¡Bienvenido a ${clientConfig.brand.name} VIP!`, {
-            body: `Hola ${customerName || "Invitado"}, tus notificaciones están activas. Te avisaremos cuando tu orden está lista.`,
+            body: `Hola ${customerName || "Invitado"}, tus notificaciones están activas. Te avisaremos cuando tu orden esté lista.`,
             icon: "/assets/emblema-dorado.png",
           });
         } catch {}
@@ -96,14 +102,65 @@ export function PushNotificationPrompt({
 
         setTimeout(() => {
           onClose();
-        }, 2200);
+        }, 2500);
       } else if (permission === "denied") {
-        setErrorMessage("Has bloqueado las notificaciones. Puedes activarlas en el icono de candado de tu navegador.");
+        setErrorMessage("Has bloqueado las notificaciones en tu navegador. Puedes desbloquearlas tocando el icono de candado en la barra de direcciones.");
       }
     } catch (err: any) {
       setErrorMessage("No se pudo activar: " + (err.message || "Error desconocido"));
     } finally {
       setLoading(false);
+    }
+  };
+
+  // DARSE DE BAJA (Opt-Out) Y COMUNICAR CON LA BASE DE DATOS
+  const handleUnsubscribe = async () => {
+    setUnsubscribing(true);
+    setErrorMessage("");
+
+    try {
+      // 1. Obtener endpoint si está registrado en ServiceWorker (sin colgar la promesa)
+      let pushEndpoint = "";
+      if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+        try {
+          const reg = await Promise.race([
+            navigator.serviceWorker.getRegistration(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("sw_timeout")), 300)),
+          ]).catch(() => null);
+
+          if (reg && (reg as ServiceWorkerRegistration).pushManager) {
+            const sub = await (reg as ServiceWorkerRegistration).pushManager.getSubscription();
+            if (sub) {
+              pushEndpoint = sub.endpoint;
+              await sub.unsubscribe().catch(() => {});
+            }
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      // 2. Comunicar baja a la base de datos del backend
+      const res = await fetch("/api/push/unsubscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          endpoint: pushEndpoint || undefined,
+          customerWhatsapp: customerWhatsapp || undefined,
+          customerName: customerName || "Invitado en Mesa",
+          reason: "El usuario pulsó el botón 'Darse de baja' en la aplicación",
+        }),
+      });
+
+      if (!res.ok) throw new Error("No se pudo procesar la baja en el servidor");
+
+      setSuccess(false);
+      setUnsubscribedSuccess(true);
+      if (onUnsubscribed) onUnsubscribed();
+    } catch (err: any) {
+      setErrorMessage("Error al darse de baja: " + (err.message || "Inténtalo de nuevo"));
+    } finally {
+      setUnsubscribing(false);
     }
   };
 
@@ -121,23 +178,86 @@ export function PushNotificationPrompt({
           <X className="w-5 h-5" />
         </button>
 
-        {success ? (
+        {/* ESTADO 1: BAJA CONFIRMADA */}
+        {unsubscribedSuccess ? (
           <div className="text-center py-6 space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full bg-neutral-100 text-neutral-600 flex items-center justify-center shadow-inner border border-neutral-200">
+              <BellOff className="w-8 h-8 text-neutral-500" />
+            </div>
+            <h3 className="text-xl font-serif font-bold text-neutral-900">
+              Te has dado de baja
+            </h3>
+            <p className="text-xs text-neutral-600 max-w-xs mx-auto leading-relaxed">
+              Tu dispositivo ha sido dado de baja en la base de datos del restaurante. Ya no recibirás más notificaciones push en este navegador.
+            </p>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-100 text-neutral-700 text-xs font-semibold border border-neutral-300">
+              <ShieldCheck className="w-3.5 h-3.5 text-neutral-500" />
+              Baja registrada en base de datos
+            </div>
+
+            <div className="pt-3 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={handleRequestPermission}
+                className="w-full py-2.5 px-4 rounded-xl bg-amber-50 hover:bg-amber-100 text-[#8e6e22] border border-amber-300 text-xs font-bold transition-colors cursor-pointer"
+              >
+                ¿Cambiaste de opinión? Volver a Activar
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full py-2 px-4 rounded-xl bg-transparent hover:bg-neutral-100 text-neutral-500 text-xs font-medium cursor-pointer"
+              >
+                Cerrar ventana
+              </button>
+            </div>
+          </div>
+        ) : success ? (
+          /* ESTADO 2: NOTIFICACIONES ACTIVAS CON BOTÓN DE DARSE DE BAJA */
+          <div className="text-center py-5 space-y-4">
             <div className="w-16 h-16 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-inner">
               <CheckCircle2 className="w-10 h-10 animate-bounce" />
             </div>
             <h3 className="text-xl font-serif font-bold text-neutral-900">
-              �Notificaciones VIP Activadas!
+              ¡Notificaciones VIP Activas!
             </h3>
-            <p className="text-sm text-neutral-600 max-w-xs mx-auto">
-              Te avisaremos en tu pantalla cuando tu caf� o postre est� listo y cuando tengamos beneficios exclusivos.
+            <p className="text-xs text-neutral-600 max-w-xs mx-auto leading-relaxed">
+              Te avisaremos en tu pantalla cuando tu café o postre esté listo y cuando tengamos beneficios exclusivos para tu mesa.
             </p>
+
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 text-xs font-medium border border-amber-200">
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              Suscripci�n vinculada exitosamente
+              Suscripción vinculada exitosamente
+            </div>
+
+            {errorMessage && (
+              <div className="p-2.5 bg-red-50 text-red-700 text-xs rounded-xl border border-red-200">
+                {errorMessage}
+              </div>
+            )}
+
+            <div className="pt-4 border-t border-neutral-200 space-y-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full py-2.5 px-4 rounded-xl bg-[#d4af37] text-neutral-950 font-bold text-xs hover:brightness-105 transition-all cursor-pointer shadow-sm"
+              >
+                Entendido, Continuar
+              </button>
+
+              <button
+                type="button"
+                onClick={handleUnsubscribe}
+                disabled={unsubscribing}
+                className="w-full py-2 px-3 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 hover:text-red-900 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <BellOff className="w-3.5 h-3.5" />
+                <span>{unsubscribing ? "Procesando baja en BD..." : "Darse de baja de notificaciones"}</span>
+              </button>
             </div>
           </div>
         ) : (
+          /* ESTADO 3: SOLICITUD DE SUSCRIPCIÓN CON ENLACE DE BAJA */
           <div className="space-y-5">
             {/* Cabecera */}
             <div className="text-center space-y-2 pt-2">
@@ -148,10 +268,10 @@ export function PushNotificationPrompt({
                 Club VIP {clientConfig.brand.name}
               </span>
               <h3 className="text-xl font-serif font-bold text-neutral-900 leading-snug">
-¿Deseas recibir avisos de tu pedido y promociones?
+                ¿Deseas recibir avisos de tu pedido y promociones?
               </h3>
               <p className="text-xs text-neutral-600">
-                Mantente al d�a sin descargar ninguna app pesada, directamente en tu navegador.
+                Mantente al día sin descargar apps pesadas, directamente en tu navegador móvil.
               </p>
             </div>
 
@@ -160,55 +280,71 @@ export function PushNotificationPrompt({
               <div className="flex items-start gap-2.5">
                 <Coffee className="w-4 h-4 text-[#8e6e22] shrink-0 mt-0.5" />
                 <span>
-                  <strong>Aviso de mesa y barra:</strong> Te notificamos cuando tu bebida de autor o tarta est� servida.
+                  <strong>Aviso de mesa y barra:</strong> Te notificamos cuando tu bebida de autor o tarta esté servida.
                 </span>
               </div>
               <div className="flex items-start gap-2.5">
                 <Sparkles className="w-4 h-4 text-[#8e6e22] shrink-0 mt-0.5" />
                 <span>
-                  <strong>Beneficios 2x1 y Sellos Dobles:</strong> Acceso a d�as de doble sello en tu tarjeta digital.
+                  <strong>Beneficios 2x1 y Sellos Dobles:</strong> Acceso exclusivo a días de doble sello en tu tarjeta digital.
                 </span>
               </div>
               <div className="flex items-start gap-2.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <span>
-                  <strong>100% libre de spam:</strong> Solo alertas relevantes de tu visita. Puedes desactivarlo cuando quieras.
+                  <strong>100% libre de spam:</strong> Solo alertas de tu interés. Tienes la opción de darte de baja en cualquier momento con un clic.
                 </span>
               </div>
             </div>
 
             {errorMessage && (
-              <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl border border-red-200">
-                {errorMessage}
+              <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl border border-red-200 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{errorMessage}</span>
               </div>
             )}
 
-            {/* Botones de acci�n */}
+            {/* Botones de acción */}
             <div className="space-y-2 pt-1">
               <button
+                type="button"
                 onClick={handleRequestPermission}
                 disabled={loading}
-                className="btn-gold w-full py-3 px-4 rounded-xl font-medium text-sm shadow-md hover:brightness-105 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#d4af37] to-[#f2be71] text-neutral-950 font-bold text-sm shadow-md hover:brightness-105 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span className="w-4 h-4 border-2 border-neutral-900 border-t-transparent rounded-full animate-spin" />
                     Activando...
                   </span>
                 ) : (
                   <>
                     <Bell className="w-4 h-4" />
-¡Sí, Activar Notificaciones VIP!
+                    ¡Sí, Activar Notificaciones VIP!
                   </>
                 )}
               </button>
 
-              <button
-                onClick={onClose}
-                className="w-full py-2.5 px-4 rounded-xl bg-transparent hover:bg-neutral-100 text-neutral-500 hover:text-neutral-800 text-xs font-medium transition-colors cursor-pointer"
-              >
-                Quizás más tarde
-              </button>
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="py-2 px-3 rounded-xl bg-transparent hover:bg-neutral-100 text-neutral-500 hover:text-neutral-800 text-xs font-medium transition-colors cursor-pointer"
+                >
+                  Quizás más tarde
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleUnsubscribe}
+                  disabled={unsubscribing}
+                  className="py-2 px-3 rounded-xl text-neutral-400 hover:text-red-700 hover:bg-red-50 text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                  title="Darse de baja de la base de datos"
+                >
+                  <BellOff className="w-3 h-3" />
+                  <span>Darse de baja</span>
+                </button>
+              </div>
             </div>
           </div>
         )}

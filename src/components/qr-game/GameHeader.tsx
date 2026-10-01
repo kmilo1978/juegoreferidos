@@ -1,6 +1,6 @@
 import { TableSession } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
-import { RotateCcw, Wifi } from "lucide-react";
+import { RotateCcw, Wifi, Bell } from "lucide-react";
 import emblemaDorado from "@/assets/emblema-dorado.png";
 import { clientConfig } from "@/config/clientConfig";
 
@@ -9,6 +9,7 @@ interface GameHeaderProps {
   currentStep: number;
   onResetSession: () => void;
   onOpenKioskPortal?: () => void;
+  onOpenPushModal?: () => void;
   onStepClick?: (step: number) => void;
 }
 
@@ -17,6 +18,7 @@ export function GameHeader({
   currentStep,
   onResetSession,
   onOpenKioskPortal,
+  onOpenPushModal,
   onStepClick,
 }: GameHeaderProps) {
   const { t, lang, setLang } = useLanguage();
@@ -76,6 +78,16 @@ export function GameHeader({
 
           {/* Acciones auxiliares */}
           <div className="flex items-center gap-2">
+            {onOpenPushModal && (
+              <button
+                type="button"
+                onClick={onOpenPushModal}
+                className="h-7 w-7 rounded-full bg-[#f2be71]/15 text-[#f2be71] border border-[#f2be71]/30 flex items-center justify-center cursor-pointer hover:bg-[#f2be71]/25 transition-colors"
+                title="Notificaciones VIP & Gestión de Bajas"
+              >
+                <Bell className="h-3.5 w-3.5" />
+              </button>
+            )}
             {onOpenKioskPortal && (
               <button
                 type="button"

@@ -149,6 +149,46 @@
   ],
   "logs": [
     {
+      "id": "mupwnp2mslp",
+      "timestamp": "2:06:27 p. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mupwlza4zv1",
+      "timestamp": "2:05:07 p. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mupwijzmzvg",
+      "timestamp": "2:02:28 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupwijywmkc",
+      "timestamp": "2:02:27 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "mupwcxpu7pe",
+      "timestamp": "1:58:05 p. m.",
+      "method": "PUSH",
+      "url": "/api/push/unsubscribe",
+      "status": 200,
+      "detail": "Baja de Web Push procesada para: Cliente Prueba Baja (Razón: Prueba de opt-out)"
+    },
+    {
       "id": "mupw5i9vx6q",
       "timestamp": "1:52:19 p. m.",
       "method": "GET",
@@ -507,44 +547,6 @@
       "url": "/api/tables",
       "status": 200,
       "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mulsc61oqdt",
-      "timestamp": "4:54:26 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "method": "PUSH",
-      "url": "/api/push/broadcast",
-      "timestamp": "4:32:54 p. m.",
-      "detail": "📢 Programada (2026-10-01T15:00): \"? �Oferta Programada Fin de Semana!\" (Canales: Push=true, Webhook=true)"
-    },
-    {
-      "id": "mulrkh2u5yj",
-      "timestamp": "4:32:54 p. m.",
-      "method": "PUSH",
-      "url": "/api/push/broadcast",
-      "status": 200,
-      "detail": "📢 Campaña Push programada: \"? �Oferta Programada Fin de Semana!\" (Todos)"
-    },
-    {
-      "id": "mulrkcnvrdu",
-      "timestamp": "4:32:49 p. m.",
-      "method": "DELETE",
-      "url": "/api/push/drafts",
-      "status": 200,
-      "detail": "🗑️ Plantilla push eliminada (ID: draft_1790631157879)"
-    },
-    {
-      "id": "mulrk41mvbt",
-      "timestamp": "4:32:37 p. m.",
-      "method": "POST",
-      "url": "/api/push/drafts",
-      "status": 200,
-      "detail": "💾 Plantilla push guardada: \"Test Promo\""
     }
   ],
   "settings": {
@@ -971,14 +973,24 @@
           "push": true,
           "whatsappPreview": true
         },
-        "sentAt": "28/9/2026, 4:32:54 p. m."
+        "sentAt": "28/9/2026, 4:32:54 p. m.",
+        "id": "camp_1790881076295",
+        "sentCount": 84,
+        "openedCount": 54,
+        "openRate": 64,
+        "status": "PROGRAMADO"
       },
       {
         "title": "? Prueba Happy Hour",
         "body": "�Sellos dobles de 3 a 6 PM!",
         "url": "",
         "segment": "Subscribed Users",
-        "sentAt": "28/9/2026, 4:07:17 p. m."
+        "sentAt": "28/9/2026, 4:07:17 p. m.",
+        "id": "camp_1790794676295",
+        "sentCount": 96,
+        "openedCount": 62,
+        "openRate": 65,
+        "status": "ENVIADO"
       }
     ]
   },
@@ -1153,6 +1165,32 @@
       "customerName": "Laura Cliente VIP",
       "subscribedAt": "2026-09-29T16:21:29.808Z",
       "userAgent": "node"
+    },
+    {
+      "id": "sub_1790881085872",
+      "endpoint": "dispositivo_manual_1790881085872",
+      "customerName": "Cliente Prueba Baja",
+      "customerWhatsapp": "573155554321",
+      "status": "UNSUBSCRIBED",
+      "subscribedAt": "2026-10-01T18:58:05.872Z",
+      "subscribedAtFormatted": "1/10/2026, 1:58:05 p. m.",
+      "unsubscribedAt": "2026-10-01T18:58:05.872Z",
+      "unsubscribedAtFormatted": "1/10/2026, 1:58:05 p. m.",
+      "unsubscribeReason": "Prueba de opt-out",
+      "deviceInfo": "node"
+    },
+    {
+      "id": "sub_1790881591308",
+      "endpoint": "dispositivo_manual_1790881591308",
+      "customerName": "Laura Gómez (Comensal Demo)",
+      "customerWhatsapp": "573001234567",
+      "status": "UNSUBSCRIBED",
+      "subscribedAt": "2026-10-01T19:06:31.307Z",
+      "subscribedAtFormatted": "1/10/2026, 2:06:31 p. m.",
+      "unsubscribedAt": "2026-10-01T19:06:31.307Z",
+      "unsubscribedAtFormatted": "1/10/2026, 2:06:31 p. m.",
+      "unsubscribeReason": "El usuario pulsó el botón 'Darse de baja' en la aplicación",
+      "deviceInfo": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0"
     }
   ],
   "backupHistory": [
