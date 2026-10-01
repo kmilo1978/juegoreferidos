@@ -630,3 +630,19 @@
 - Resultado: Aprobado (score >= 9)
 - Resumen: Implementación y verificación del selector de Modo Día (Light) y Modo Noche (Dark) en el dashboard de administración.
 - Observaciones: Diseñado con paleta bistro suave (marfil #f8f6f2, tarjetas blancas con sombra sutil y acentos tostados dorados #a47317). Incluye selector en topbar y sidebar con persistencia en localStorage ('admin_theme_mode'). Verificado en Edge CDP con capturas de pantalla de Dashboard y Mesas en ambos modos con 0 errores.
+
+## Nueva sesión
+- Fecha: 2026-10-01 14:25
+- Solicitud: guarda y actualiza todo y crea una lista de pendientes
+- Decisiones clave:
+  1. Consolidación de todos los módulos finalizados (Simulador multidispositivo, Notificaciones Push con historial/horarios/aperturas/opt-out en BD, y Modo Día/Noche con paleta bistro).
+  2. Creación del documento integral PENDIENTES.md categorizado en Prioridad Alta (Inmediata / Operativa), Prioridad Media (Automatización y Hardware) y Prioridad Baja (Escalabilidad SaaS y nuevas funciones).
+  3. Sincronización total y versionado en ambos repositorios locales y remotos en GitHub.
+- Pendientes:
+  - Ver PENDIENTES.md para el roadmap detallado.
+
+## Validación completada
+- Fecha: 2026-10-01 14:25
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Lista de pendientes y hoja de ruta consolidada en PENDIENTES.md y sincronizada en ambos repositorios Git.
+- Observaciones: Proyecto en estado completamente funcional, sin errores de compilación y con todos los repositorios actualizados.
