@@ -134,6 +134,14 @@
   ],
   "logs": [
     {
+      "id": "mupstli0rz4",
+      "timestamp": "12:19:04 p. m.",
+      "method": "POST",
+      "url": "/api/integrations/composio/test-db",
+      "status": 200,
+      "detail": "Test DB Composio [airtable]: OK (38ms)"
+    },
+    {
       "id": "muo9v8qpu4j",
       "timestamp": "10:40:42 a. m.",
       "method": "POST",
@@ -625,7 +633,11 @@
       "googleSheetWebhookUrl": "",
       "supabaseEnabled": false,
       "supabaseProjectUrl": "",
-      "supabaseAnonKey": ""
+      "supabaseAnonKey": "",
+      "googleDriveBackup": {
+        "lastBackupDate": "2026-10-01T17:19:11.082Z",
+        "lastBackupStatus": "success"
+      }
     },
     "composio": {
       "enabled": true,
@@ -947,6 +959,28 @@
       "customerName": "Laura Cliente VIP",
       "subscribedAt": "2026-09-29T16:21:29.808Z",
       "userAgent": "node"
+    }
+  ],
+  "backupHistory": [
+    {
+      "id": "bk-MUPSTQF1",
+      "fileName": "db_backup_2026-10-01_12-19.json",
+      "timestamp": "2026-10-01T17:19:11.082Z",
+      "formattedDate": "1/10/2026, 12:19:11 p. m.",
+      "sizeKb": "22 KB",
+      "target": "Google Drive (Mi_Carpeta_Drive)",
+      "status": "success",
+      "type": "manual"
+    },
+    {
+      "id": "bk-init-01",
+      "fileName": "db_backup_2026-10-01_auto.json",
+      "timestamp": "2026-10-01T15:19:04.621Z",
+      "formattedDate": "1/10/2026, 10:19:04 a. m.",
+      "sizeKb": "184 KB",
+      "target": "Google Drive (Carpeta Principal)",
+      "status": "success",
+      "type": "scheduled"
     }
   ]
 }

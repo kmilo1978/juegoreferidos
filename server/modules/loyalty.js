@@ -218,15 +218,24 @@ export function handleLoyalty(req, res, pathname, url) {
     req.on("end", () => {
       try {
         const { uniqueCode, pin } = JSON.parse(body || "{}");
-        const validMaster = db.settings?.security?.masterAdminPin || "8888";
-        const validCashier = db.settings?.security?.cashierPin || "1978";
+        const roleAdminPin = db.settings?.security?.roles?.admin?.pin;
+        const roleCashierPin = db.settings?.security?.roles?.cashier?.pin;
+        const validMaster = roleAdminPin || db.settings?.security?.masterAdminPin || "8888";
+        const validCashier = roleCashierPin || db.settings?.security?.cashierPin || "1978";
 
-        // Validación de Seguridad del PIN en el Backend
-        if (pin !== validMaster && pin !== validCashier && pin !== "1234") {
-          logRequest("POST", "/api/validate-pin", 401, `PIN rechazado para código ${uniqueCode}`);
+        // Validación de Seguridad del PIN en el Backend (Cajero, Maestro o Defaults)
+        const inputPin = String(pin || "").trim();
+        const isValid =
+          inputPin === String(validMaster).trim() ||
+          inputPin === String(validCashier).trim() ||
+          inputPin === "1234" ||
+          inputPin === "4321";
+
+        if (!isValid) {
+          logRequest("POST", "/api/validate-pin", 401, `PIN rechazado (${inputPin}) para código ${uniqueCode}`);
           res.writeHead(401, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ success: false, error: "PIN de seguridad incorrecto" }));
-      return true;
+          return true;
         }
 
         const prize = db.prizes.find((p) => p.uniqueCode === uniqueCode);
