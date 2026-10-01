@@ -624,3 +624,9 @@
 - Resultado: Aprobado (score >= 9)
 - Resumen: Implementación y verificación del módulo de Notificaciones Push con historial de envíos, horarios y calendario personalizable, métricas de aperturas y botón de darse de baja (opt-out) conectado a base de datos.
 - Observaciones: Se construyeron endpoints /api/push/history, /api/push/track-open, /api/push/unsubscribe y /api/push/schedule-config. Verificado en navegador Edge CDP con capturas de pantalla tanto del panel de administración como del diálogo móvil del comensal.
+
+## Validación completada
+- Fecha: 2026-10-01 14:19
+- Resultado: Aprobado (score >= 9)
+- Resumen: Implementación y verificación del selector de Modo Día (Light) y Modo Noche (Dark) en el dashboard de administración.
+- Observaciones: Diseñado con paleta bistro suave (marfil #f8f6f2, tarjetas blancas con sombra sutil y acentos tostados dorados #a47317). Incluye selector en topbar y sidebar con persistencia en localStorage ('admin_theme_mode'). Verificado en Edge CDP con capturas de pantalla de Dashboard y Mesas en ambos modos con 0 errores.
