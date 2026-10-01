@@ -19,6 +19,7 @@ import {
   Layers,
   Info,
   Maximize2,
+  Target,
 } from "lucide-react";
 
 export function Demo() {
@@ -101,7 +102,8 @@ export function Demo() {
     { num: 4, name: "Voucher & Canje PIN", icon: Gift, desc: "Premio ganado, voucher con QR y validación de caja" },
     { num: 5, name: "Embudo Calificación", icon: Star, desc: "1-3★ WhatsApp privado gerencia vs 4-5★ Google Maps" },
     { num: 6, name: "Segunda Oportunidad", icon: Timer, desc: "Reto del cronómetro de precisión (10.00s)" },
-    { num: 7, name: "Sellos VIP & Sorteo", icon: Trophy, desc: "Progreso de visitas, boleto VIP y misiones" },
+    { num: 7, name: "Sellos VIP & Sorteo", icon: Award, desc: "Progreso de visitas, sellos acumulados y boleto" },
+    { num: 8, name: "Misiones & Embajador", icon: Target, desc: "Desafíos sociales, TripAdvisor, TikTok y comunidad" },
   ];
 
   return (
@@ -161,7 +163,7 @@ export function Demo() {
           <span className="text-xs text-[#958da1]">Haz clic en cualquier fase para probarla al instante</span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
           {stepsList.map((step) => {
             const Icon = step.icon;
             const isSelected = selectedStep === step.num;
@@ -404,6 +406,12 @@ export function Demo() {
                 <span className="text-[#f2be71] font-bold">•</span>
                 <span>
                   <strong>Desvío de Calificación:</strong> En el Paso 5, prueba poner 1 a 3 estrellas para ver cómo se desvía a WhatsApp confidencial de gerencia.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[#f2be71] font-bold">•</span>
+                <span>
+                  <strong>Misiones & Embajador (Paso 8):</strong> Prueba las tareas sociales (TripAdvisor, TikTok) y el reto viral de invitar 3 amigos con enlace y código VIP de WhatsApp.
                 </span>
               </li>
             </ul>
