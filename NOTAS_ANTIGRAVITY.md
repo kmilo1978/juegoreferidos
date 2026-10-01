@@ -663,3 +663,21 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Módulo de Google Fonts integrado a Marca & Ajustes, compilación Vite 100% limpia (19.84s) y verificado visualmente en navegador Edge CDP.
 - Observaciones: Pruebas visuales confirmaron renderizado correcto del catálogo gastronómico, cambio de fuentes dinámicas, prueba de fuentes personalizadas y persistencia en base de datos.
+
+## Nueva sesión
+- Fecha: 2026-10-01 17:09
+- Solicitud: en sellos de visita agrega un visualozar seguin el numero de sellos que se valla escofiendo y el sello que se escoja
+- Decisiones clave:
+  1. Integración de un Visualizador Interactivo en Tiempo Real de la Tarjeta Digital en el panel administrativo ('src/admin/pages/Stamps.tsx').
+  2. Adaptación dinámica de la cuadrícula de sellos (3 a 30 sellos, con presets rápidos de 6, 8, 10, 12, 15 y 20 sellos).
+  3. Muestra en vivo del sello seleccionado (emoji activo o logotipo gráfico personalizado cargado por el usuario).
+  4. Visualización de los hitos de premios (regalos intermedios y Gran Premio VIP final).
+  5. Simulador interactivo de progreso para que el administrador pueda probar cómo se ve la tarjeta con X sellos marcados (con slider, botones rápidos 'Vacía', 'Mitad', 'Completada', '+1 Sello' o haciendo clic directo en cualquier casilla).
+  6. Cálculo automático acotado de porcentaje (0% a 100%) y alertas informativas del próximo hito.
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 17:09
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Visualizador en vivo de tarjeta de sellos implementado y validado en navegador Edge CDP con capturas de 15 sellos (café), 10 sellos (croissant) y 8 sellos completados (estrellas).
+- Observaciones: Compilación Vite 100% limpia sin errores. Sincronizado en ambos repositorios locales y en GitHub.

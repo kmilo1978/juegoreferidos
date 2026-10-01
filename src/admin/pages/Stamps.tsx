@@ -13,6 +13,9 @@ import {
   Smartphone,
   CheckCircle,
   ExternalLink,
+  Eye,
+  RotateCcw,
+  Zap,
 } from "lucide-react";
 import { ImageUploader } from "../components/ImageUploader";
 
@@ -38,6 +41,7 @@ export function Stamps() {
   const [visitIcon, setVisitIcon] = useState("☕");
   const [customIconUrl, setCustomIconUrl] = useState("");
   const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [simulatedStamps, setSimulatedStamps] = useState(3);
 
   // Configuración de Happy Hour
   const [hhEnabled, setHhEnabled] = useState(true);
@@ -186,7 +190,49 @@ export function Stamps() {
     );
   }
 
-  const iconPresets = ["☕", "🥐", "🍰", "🧁", "🍪", "🍷", "🍕", "🍔", "🍣", "✨"];
+  const iconPresets = [
+    "☕", "🥐", "🍰", "🧁", "🍪", "🍷", "🍕", "🍔", "🍣", "✨",
+    "🌟", "👑", "🎖️", "🍩", "🍦", "🥂", "🥖", "🎯"
+  ];
+
+  // Cuadrícula dinámica según totalStamps
+  const previewGridCols =
+    totalStamps <= 6
+      ? "grid-cols-3 sm:grid-cols-6"
+      : totalStamps <= 8
+        ? "grid-cols-4 sm:grid-cols-8"
+        : totalStamps <= 10
+          ? "grid-cols-5 sm:grid-cols-10"
+          : totalStamps <= 12
+            ? "grid-cols-4 sm:grid-cols-6"
+            : totalStamps <= 15
+              ? "grid-cols-5"
+              : totalStamps <= 20
+                ? "grid-cols-5 sm:grid-cols-10"
+                : "grid-cols-6";
+
+  const getMilestoneForStamp = (num: number) => {
+    return milestones.find((m) => Number(m.stamp) === num);
+  };
+
+  const safeSimulatedStamps = Math.min(simulatedStamps, totalStamps);
+  const progressPercent = Math.min(100, Math.round((safeSimulatedStamps / totalStamps) * 100));
+
+  const handleToggleStamp = (num: number) => {
+    if (safeSimulatedStamps === num) {
+      setSimulatedStamps(num - 1);
+    } else {
+      setSimulatedStamps(num);
+    }
+  };
+
+  const activeMilestone = milestones
+    .filter((m) => Number(m.stamp) <= safeSimulatedStamps)
+    .sort((a, b) => b.stamp - a.stamp)[0];
+
+  const nextPendingMilestone = milestones
+    .filter((m) => Number(m.stamp) > safeSimulatedStamps)
+    .sort((a, b) => a.stamp - b.stamp)[0];
 
   return (
     <div className="space-y-6">
@@ -223,91 +269,298 @@ export function Stamps() {
         </div>
       )}
 
-      {/* 1. ESTRUCTURA BASE DE LA TARJETA (CANTIDAD TOTAL E ICONO) */}
-      <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-5 shadow-lg">
-        <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2 border-b border-[#363439] pb-3">
-          <Award className="w-4 h-4 text-[#f2be71]" />
-          <span>Estructura de la Tarjeta Digital</span>
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Cantidad Total de Sellos */}
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block">
-              Cantidad Total de Sellos de la Tarjeta
-            </label>
-            <div className="flex items-center gap-3">
-              <input
-                type="number"
-                min="3"
-                max="30"
-                value={totalStamps}
-                onChange={(e) => setTotalStamps(Number(e.target.value))}
-                className="bg-[#201f23] border border-[#363439] text-[#f2be71] font-mono text-center text-lg font-bold rounded-xl px-4 py-2.5 w-24 focus:border-[#f2be71]/60 focus:outline-none"
-              />
-              <span className="text-xs text-[#ccc3d8]">sellos para completar la tarjeta completa</span>
-            </div>
-            <div className="flex gap-2 flex-wrap pt-1">
-              {[6, 8, 10, 12, 15, 20].map((num) => (
-                <button
-                  key={num}
-                  type="button"
-                  onClick={() => setTotalStamps(num)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-colors ${
-                    totalStamps === num
-                      ? "bg-[#f2be71] text-[#121115]"
-                      : "bg-[#201f23] text-[#ccc3d8] hover:bg-[#2b292e]"
-                  }`}
-                >
-                  {num} Sellos
-                </button>
-              ))}
-            </div>
+      {/* 1. ESTRUCTURA BASE DE LA TARJETA (CANTIDAD TOTAL E ICONO) + VISUALIZADOR EN TIEMPO REAL */}
+      <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-6 shadow-lg">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#363439] pb-3 gap-2">
+          <div>
+            <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
+              <Award className="w-4 h-4 text-[#f2be71]" />
+              <span>Estructura de la Tarjeta Digital & Personalización</span>
+            </h3>
+            <p className="text-xs text-[#ccc3d8]">
+              Configura cuántos sellos completan la tarjeta, el icono de visita de tu local y visualiza en tiempo real cómo la verán los comensales.
+            </p>
           </div>
 
-          {/* Icono de Sello Intermedio */}
-          <div className="md:col-span-2 space-y-2">
-            <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block">
-              Icono de Visita (Sellos de Consumo en Mesa)
-            </label>
-            <div className="flex items-center gap-3 flex-wrap">
-              <input
-                type="text"
-                value={visitIcon}
-                onChange={(e) => setVisitIcon(e.target.value)}
-                className="w-12 h-12 text-2xl text-center bg-[#201f23] border border-[#f2be71]/40 rounded-xl focus:outline-none shrink-0"
-              />
-              <div className="flex gap-1.5 flex-wrap">
-                {iconPresets.map((emoji) => (
+          <div className="flex items-center gap-2 text-xs font-mono text-[#f2be71] bg-[#201f23] px-3 py-1.5 rounded-xl border border-[#363439]">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{totalStamps} Sellos Totales</span>
+          </div>
+        </div>
+
+        {/* Fila de controles de configuración + Visualizador */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Columna Izquierda: Cantidad e Iconos (5 cols) */}
+          <div className="lg:col-span-5 space-y-5">
+            {/* Cantidad Total de Sellos */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block">
+                Cantidad Total de Sellos de la Tarjeta
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="number"
+                  min="3"
+                  max="30"
+                  value={totalStamps}
+                  onChange={(e) => {
+                    const val = Math.max(3, Math.min(30, Number(e.target.value) || 3));
+                    setTotalStamps(val);
+                  }}
+                  className="bg-[#201f23] border border-[#363439] text-[#f2be71] font-mono text-center text-lg font-bold rounded-xl px-4 py-2.5 w-24 focus:border-[#f2be71]/60 focus:outline-none"
+                />
+                <span className="text-xs text-[#ccc3d8]">sellos para completar la tarjeta completa</span>
+              </div>
+              <div className="flex gap-1.5 flex-wrap pt-1">
+                {[6, 8, 10, 12, 15, 20].map((num) => (
                   <button
-                    key={emoji}
+                    key={num}
                     type="button"
-                    onClick={() => setVisitIcon(emoji)}
-                    className={`w-9 h-9 rounded-xl text-base flex items-center justify-center transition-all cursor-pointer ${
-                      visitIcon === emoji
-                        ? "bg-[#f2be71] text-[#121115] font-bold shadow-md scale-105"
-                        : "bg-[#201f23] border border-[#363439] text-[#e6e1e7] hover:bg-[#2b292e]"
+                    onClick={() => setTotalStamps(num)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
+                      totalStamps === num
+                        ? "bg-[#f2be71] text-[#121115] shadow-md scale-105"
+                        : "bg-[#201f23] text-[#ccc3d8] hover:bg-[#2b292e] border border-[#363439]"
                     }`}
                   >
-                    {emoji}
+                    {num} Sellos
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="pt-2">
-              <ImageUploader
-                label="Icono Gráfico de Sello Personalizado"
-                value={customIconUrl}
-                onChange={setCustomIconUrl}
-                recommendedDimensions="128 x 128 px"
-                aspectRatio="1:1 cuadrado"
-                maxWeight="Menor a 80 KB"
-                formats="PNG con fondo transparente o SVG"
-                description="Icono gráfico que se estampará en los círculos de visita de la tarjeta digital del cliente. Si está vacío, se usará el emoji seleccionado arriba."
-                placeholder="Pega URL o sube tu icono PNG"
-                previewHeight="h-14"
+            {/* Icono de Sello de Visita */}
+            <div className="space-y-2 pt-2 border-t border-[#363439]/60">
+              <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block flex items-center justify-between">
+                <span>Icono de Sello (Visitas en Mesa)</span>
+                <span className="text-[11px] text-[#f2be71] font-mono">Activo: {visitIcon}</span>
+              </label>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <input
+                  type="text"
+                  value={visitIcon}
+                  onChange={(e) => setVisitIcon(e.target.value)}
+                  className="w-11 h-11 text-2xl text-center bg-[#201f23] border border-[#f2be71]/40 rounded-xl focus:outline-none shrink-0"
+                  title="Emoji o carácter personalizado"
+                />
+                <div className="flex gap-1.5 flex-wrap flex-1">
+                  {iconPresets.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => setVisitIcon(emoji)}
+                      className={`w-9 h-9 rounded-xl text-base flex items-center justify-center transition-all cursor-pointer ${
+                        visitIcon === emoji
+                          ? "bg-[#f2be71] text-[#121115] font-bold shadow-md scale-105"
+                          : "bg-[#201f23] border border-[#363439] text-[#e6e1e7] hover:bg-[#2b292e]"
+                      }`}
+                      title={`Seleccionar ${emoji}`}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <ImageUploader
+                  label="O sube un Icono Gráfico Personalizado (Opcional)"
+                  value={customIconUrl}
+                  onChange={setCustomIconUrl}
+                  recommendedDimensions="128 x 128 px"
+                  aspectRatio="1:1 cuadrado"
+                  maxWeight="Menor a 80 KB"
+                  formats="PNG con fondo transparente o SVG"
+                  description="Si subes un logo o gráfico PNG, se estampará en lugar del emoji en las casillas."
+                  placeholder="URL o sube tu logo"
+                  previewHeight="h-12"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Columna Derecha: VISUALIZADOR EN TIEMPO REAL (7 cols) */}
+          <div className="lg:col-span-7 bg-[#141317] border-2 border-[#363439] rounded-3xl p-5 shadow-2xl space-y-4 relative overflow-hidden flex flex-col justify-between">
+            {/* Halo de luz decorativo */}
+            <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#f2be71]/10 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Header del visualizador */}
+            <div className="flex items-center justify-between border-b border-[#363439]/60 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-[#201f23] text-[#f2be71] flex items-center justify-center font-bold text-xs">
+                  <Smartphone className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-[#e6e1e7] flex items-center gap-1.5">
+                    <span>Visualizador en Vivo • Tarjeta del Comensal</span>
+                    <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#201f23] text-[#10b981] font-bold">
+                      En Tiempo Real
+                    </span>
+                  </h4>
+                  <p className="text-[10px] text-[#ccc3d8]">
+                    Haz clic en cualquier casilla para simular cómo se estampa en el móvil.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-[#f2be71] bg-[#201f23] px-2.5 py-1 rounded-lg border border-[#363439]">
+                  {safeSimulatedStamps} / {totalStamps} Sellos
+                </span>
+              </div>
+            </div>
+
+            {/* Cuadrícula interactiva de sellos */}
+            <div className="space-y-2">
+              <div className={`grid ${previewGridCols} gap-2`}>
+                {Array.from({ length: totalStamps }, (_, i) => i + 1).map((selloNum) => {
+                  const isEarned = selloNum <= safeSimulatedStamps;
+                  const milestone = getMilestoneForStamp(selloNum);
+                  const isLast = selloNum === totalStamps;
+
+                  return (
+                    <div
+                      key={selloNum}
+                      onClick={() => handleToggleStamp(selloNum)}
+                      title={`Sello #${selloNum}${milestone ? ` • Premio: ${milestone.title}` : ""}`}
+                      className={`aspect-square rounded-2xl flex flex-col items-center justify-center relative transition-all cursor-pointer select-none ${
+                        isEarned
+                          ? "bg-gradient-to-tr from-[#684400] via-[#f2be71] to-[#ffddb1] text-[#121115] shadow-[0_0_12px_rgba(242,190,113,0.5)] scale-102 font-black"
+                          : isLast
+                            ? "bg-gradient-to-tr from-[#684400]/40 to-[#2b292e] border-2 border-[#f2be71] text-[#f2be71] hover:border-[#ffddb1]"
+                            : milestone
+                              ? "bg-[#201f23] border border-[#f2be71]/60 text-[#f2be71] hover:border-[#f2be71]"
+                              : "bg-[#201f23] border border-[#363439] text-[#958da1] hover:border-[#ccc3d8]/40"
+                      }`}
+                    >
+                      {isEarned ? (
+                        customIconUrl ? (
+                          <img
+                            src={customIconUrl}
+                            alt="Sello"
+                            className="w-5 h-5 object-contain"
+                          />
+                        ) : (
+                          <span className="text-base leading-none drop-shadow-sm">
+                            {visitIcon || "✓"}
+                          </span>
+                        )
+                      ) : isLast ? (
+                        <>
+                          <Trophy className="w-3.5 h-3.5" />
+                          <span className="text-[7px] font-bold mt-0.5">VIP</span>
+                        </>
+                      ) : milestone ? (
+                        <>
+                          <span className="text-xs leading-none">{milestone.icon || "🎁"}</span>
+                          <span className="text-[8px] font-bold mt-0.5">{selloNum}</span>
+                        </>
+                      ) : (
+                        <span className="text-xs font-semibold">{selloNum}</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Barra de progreso de la tarjeta simulada */}
+            <div className="space-y-1.5 pt-1">
+              <div className="flex justify-between items-center text-[11px] text-[#ccc3d8]">
+                <span>Progreso de Fidelización del Cliente</span>
+                <span className="text-[#f2be71] font-mono font-bold">
+                  {progressPercent}%
+                </span>
+              </div>
+              <div className="w-full bg-[#0f0e12] h-2 rounded-full overflow-hidden border border-[#363439] p-0.5">
+                <div
+                  className="bg-gradient-to-r from-[#f2be71] to-[#ffddb1] h-full rounded-full transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Controles del simulador (Slider y Botones rápidos) */}
+            <div className="p-3 rounded-2xl bg-[#1c1b1f] border border-[#363439] space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-[#ccc3d8] flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#f2be71]" />
+                  <span>Probar Avance de Sellos:</span>
+                </span>
+                <span className="font-mono text-[#f2be71] font-bold">
+                  {safeSimulatedStamps} sellos marcados
+                </span>
+              </div>
+
+              <input
+                type="range"
+                min="0"
+                max={totalStamps}
+                value={safeSimulatedStamps}
+                onChange={(e) => setSimulatedStamps(Number(e.target.value))}
+                className="w-full accent-[#f2be71] cursor-pointer"
               />
+
+              <div className="flex items-center gap-1.5 justify-between flex-wrap pt-1">
+                <div className="flex gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSimulatedStamps(0)}
+                    className="px-2 py-1 rounded-lg bg-[#201f23] hover:bg-[#2b292e] text-[10px] text-[#ccc3d8] cursor-pointer"
+                  >
+                    Vacía (0)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSimulatedStamps(Math.round(totalStamps / 2))}
+                    className="px-2 py-1 rounded-lg bg-[#201f23] hover:bg-[#2b292e] text-[10px] text-[#ccc3d8] cursor-pointer"
+                  >
+                    Mitad ({Math.round(totalStamps / 2)})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSimulatedStamps(totalStamps)}
+                    className="px-2 py-1 rounded-lg bg-[#201f23] hover:bg-[#2b292e] text-[10px] text-[#f2be71] font-bold cursor-pointer"
+                  >
+                    Completada ({totalStamps})
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSimulatedStamps((prev) => Math.min(totalStamps, prev + 1))}
+                  className="px-3 py-1 rounded-lg bg-[#f2be71] hover:brightness-105 text-[#121115] text-[10px] font-bold transition-all cursor-pointer"
+                >
+                  +1 Sello de Visita
+                </button>
+              </div>
+            </div>
+
+            {/* Aviso del estado del hito según sellos simulados */}
+            <div className="p-3 rounded-xl bg-[#201f23] border border-[#363439] text-xs flex items-center gap-2.5">
+              <Gift className="w-4 h-4 text-[#f2be71] shrink-0" />
+              <div className="text-[11px] leading-tight">
+                {safeSimulatedStamps >= totalStamps ? (
+                  <span className="text-[#10b981] font-bold">
+                    🎉 ¡Tarjeta 100% Completada! El comensal gana el Gran Premio y entra al Sorteo VIP de fin de mes.
+                  </span>
+                ) : activeMilestone ? (
+                  <span className="text-[#e6e1e7]">
+                    Último premio desbloqueado: <strong className="text-[#f2be71]">{activeMilestone.title}</strong> (Sello #{activeMilestone.stamp}).
+                  </span>
+                ) : (
+                  <span className="text-[#ccc3d8]">
+                    Próximo premio a desbloquear:{" "}
+                    {nextPendingMilestone ? (
+                      <strong className="text-[#f2be71]">
+                        {nextPendingMilestone.title} en el sello #{nextPendingMilestone.stamp}
+                      </strong>
+                    ) : (
+                      "Gran Premio final al completar la tarjeta."
+                    )}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
