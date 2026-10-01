@@ -589,3 +589,26 @@
 - Resultado: Aprobado (Score: 10/10)
 - Resumen: Simulador Demo operativo al 100% tanto en marco móvil integrado como en pestaña externa independiente.
 - Observaciones: Pruebas de compilación y HTTP 200 superadas con éxito.
+## Nueva sesión
+- Fecha: 2026-10-01 13:08
+- Solicitud: En el simulador demo permitir visualizar en diferentes dispositivos móviles opcionalmente.
+- Decisiones clave:
+  1. En src/admin/pages/Demo.tsx se implementó un catálogo multidispositivo completo con 7 perfiles:
+     - iPhone 15 / 16 Pro (393 x 780 px, Dynamic Island de Apple con animación).
+     - iPhone SE / Mini Compacto (375 x 667 px, Ceja Notch tradicional).
+     - Samsung Galaxy S24 Ultra (412 x 800 px, cámara punch-hole circular Android).
+     - Google Pixel 8 / 9 (412 x 780 px, cámara punch-hole Android pura).
+     - Xiaomi Redmi Note 13 (393 x 780 px, gama masiva de comensales).
+     - iPad Mini / Tablet 8" (600 x 800 px, soporte de aluminio para camareros o mostrador).
+     - Pantalla Completa Fluida (100% responsive para pruebas de escritorio).
+  2. Se añadió botón de Orientación 'Vertical (Retrato) / Horizontal (Apaisado)' que rota la maqueta 90 grados al instante para probar atril de mesa.
+  3. El marco del dispositivo (Mockup) adapta su curvatura, notch y barra de inicio inferior dinámicamente según el sistema operativo (iOS vs Android).
+  4. Compilación de producción con Vite aprobada al 100% (10.41s, 0 errores).
+  5. Sincronización en ambas carpetas y GitHub actualizada.
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 13:08
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Selector multidispositivo con modelos de iPhone, Samsung, Xiaomi, Pixel, iPad y rotación de pantalla integrado al simulador demo.
+- Observaciones: Pruebas de compilación superadas sin advertencias.
