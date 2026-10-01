@@ -15,6 +15,10 @@ export interface ClientConfig {
     logoUrl: string;
     emblemUrl: string; // Para el centro de la ruleta y el código QR
     currency: string;  // COP, USD, MXN, EUR, etc.
+    fontHeading?: string; // Fuente de Google Fonts para títulos (ej: "Playfair Display", "Epilogue")
+    fontBody?: string;    // Fuente de Google Fonts para textos (ej: "Manrope", "Montserrat")
+    fontHeadingCustom?: string;
+    fontBodyCustom?: string;
   };
 
   // 2. Paleta Cromática Dinámica
@@ -104,6 +108,10 @@ export const clientConfig: ClientConfig = {
     logoUrl: storedBrand?.logoUrl || emblemaDorado,
     emblemUrl: storedBrand?.emblemUrl || emblemaDorado,
     currency: storedBrand?.currency || "COP",
+    fontHeading: storedBrand?.fontHeading || "Epilogue",
+    fontBody: storedBrand?.fontBody || "Manrope",
+    fontHeadingCustom: storedBrand?.fontHeadingCustom || "",
+    fontBodyCustom: storedBrand?.fontBodyCustom || "",
   },
   theme: {
     primaryColor: storedBrand?.primaryColor || "#a27e2c",    // Color corporativo principal

@@ -52,9 +52,9 @@
   --spacing-space-lg: 1.5rem;
   --spacing-space-xl: 2rem;
 
-  /* Stitch Fonts */
-  --font-headline: "Epilogue", sans-serif;
-  --font-body: "Manrope", sans-serif;
+  /* Stitch Fonts Dinámicas */
+  --font-headline: var(--brand-font-heading, "Epilogue"), sans-serif;
+  --font-body: var(--brand-font-body, "Manrope"), sans-serif;
 }
 
 @layer base {
@@ -63,14 +63,20 @@
     --gold-light: #ffddb1;
     --ink: #e6e1e7;
     --bg-cream: #141317;
+    --brand-font-heading: "Epilogue", sans-serif;
+    --brand-font-body: "Manrope", sans-serif;
   }
 
   body {
     background-color: #141317;
     color: #e6e1e7;
-    font-family: "Manrope", system-ui, -apple-system, sans-serif;
+    font-family: var(--brand-font-body, "Manrope"), system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     overflow-x: clip;
+  }
+
+  h1, h2, h3, h4, h5, h6, [class*="font-['Epilogue']"] {
+    font-family: var(--brand-font-heading, "Epilogue"), sans-serif;
   }
 }
 

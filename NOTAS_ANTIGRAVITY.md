@@ -646,3 +646,20 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Lista de pendientes y hoja de ruta consolidada en PENDIENTES.md y sincronizada en ambos repositorios Git.
 - Observaciones: Proyecto en estado completamente funcional, sin errores de compilación y con todos los repositorios actualizados.
+
+## Nueva sesión
+- Fecha: 2026-10-01 14:44
+- Solicitud: en marca agrega las opciones de agregar font de google para poder personalizar
+- Decisiones clave:
+  1. Creación del motor de Google Fonts dinámicas ('src/lib/fontLoader.ts') con catálogo curado para gastronomía (Serif/Bistró, Sans/Moderna, Display/Artesanal) y compatibilidad para cualquier fuente de Google Fonts escrita por el usuario o enlazada.
+  2. Inyección dinámica en el DOM ('--brand-font-heading' y '--brand-font-body') y enlace '<link>' a fonts.googleapis.com con recarga en tiempo real.
+  3. Integración en 'AdminConfig.tsx' con pestañas de Catálogo Recomendado y Fuente Personalizada, botón 'Probar Fuente', restablecimiento a valores originales y vista previa en vivo tanto en el editor como en el mockup del smartphone del comensal.
+  4. Persistencia en backend REST ('/api/config' -> 'server/db.json') y en 'localStorage' a través de 'brandService.ts'.
+- Pendientes:
+  - Ninguno en este módulo.
+
+## Validación completada
+- Fecha: 2026-10-01 14:44
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Módulo de Google Fonts integrado a Marca & Ajustes, compilación Vite 100% limpia (19.84s) y verificado visualmente en navegador Edge CDP.
+- Observaciones: Pruebas visuales confirmaron renderizado correcto del catálogo gastronómico, cambio de fuentes dinámicas, prueba de fuentes personalizadas y persistencia en base de datos.

@@ -10,8 +10,22 @@ import {
   AlertCircle,
   Eye,
   RefreshCw,
+  Type,
+  ExternalLink,
+  RotateCcw,
+  Check,
+  Search,
 } from "lucide-react";
 import { ImageUploader } from "../components/ImageUploader";
+import {
+  CURATED_GOOGLE_FONTS_HEADING,
+  CURATED_GOOGLE_FONTS_BODY,
+  loadGoogleFont,
+  applyBrandFonts,
+  parseFontInput,
+  GoogleFontOption,
+} from "../../lib/fontLoader";
+import { getBrandConfig, saveBrandConfig } from "../../lib/brandService";
 
 export function AdminConfig() {
   const [loading, setLoading] = useState(true);
@@ -26,6 +40,15 @@ export function AdminConfig() {
   const [logoUrl, setLogoUrl] = useState("/src/assets/logo-header.png");
   const [primaryColor, setPrimaryColor] = useState("#f2be71");
   const [currency, setCurrency] = useState("COP");
+
+  // Estados de Google Fonts
+  const [fontHeading, setFontHeading] = useState("Epilogue");
+  const [fontBody, setFontBody] = useState("Manrope");
+  const [customHeadingInput, setCustomHeadingInput] = useState("");
+  const [customBodyInput, setCustomBodyInput] = useState("");
+  const [fontCategoryFilter, setFontCategoryFilter] = useState<string>("all");
+  const [activeFontTab, setActiveFontTab] = useState<"curated" | "custom">("curated");
+  const [fontTestMessage, setFontTestMessage] = useState<string | null>(null);
 
   // Premios de la Ruleta (100% dinámicos)
   const [prizes, setPrizes] = useState<any[]>([]);
@@ -52,6 +75,14 @@ export function AdminConfig() {
         setLogoUrl(data.settings.brand.logoUrl || "");
         setPrimaryColor(data.settings.brand.primaryColor || "#f2be71");
         setCurrency(data.settings.brand.currency || "COP");
+
+        const hFont = data.settings.brand.fontHeading || "Epilogue";
+        const bFont = data.settings.brand.fontBody || "Manrope";
+        setFontHeading(hFont);
+        setFontBody(bFont);
+        if (data.settings.brand.fontHeadingCustom) setCustomHeadingInput(data.settings.brand.fontHeadingCustom);
+        if (data.settings.brand.fontBodyCustom) setCustomBodyInput(data.settings.brand.fontBodyCustom);
+        applyBrandFonts(hFont, bFont);
       }
 
       if (data.settings?.prizes && Array.isArray(data.settings.prizes)) {
@@ -68,6 +99,65 @@ export function AdminConfig() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Cargar dinámicamente las fuentes seleccionadas en tiempo real
+  useEffect(() => {
+    if (fontHeading) {
+      loadGoogleFont(fontHeading, true);
+    }
+  }, [fontHeading]);
+
+  useEffect(() => {
+    if (fontBody) {
+      loadGoogleFont(fontBody, false);
+    }
+  }, [fontBody]);
+
+  // Precargar fuentes del catálogo curado para que se vean estilizadas
+  useEffect(() => {
+    CURATED_GOOGLE_FONTS_HEADING.forEach((f) => {
+      loadGoogleFont(f.name, true);
+    });
+  }, []);
+
+  // Probar fuente personalizada de títulos
+  const handleTestCustomHeading = () => {
+    const clean = parseFontInput(customHeadingInput);
+    if (!clean) {
+      setFontTestMessage("⚠️ Ingresa un nombre o enlace válido de Google Fonts");
+      setTimeout(() => setFontTestMessage(null), 3500);
+      return;
+    }
+    setFontHeading(clean);
+    loadGoogleFont(clean, true);
+    setFontTestMessage(`✓ Fuente de título "${clean}" cargada y aplicada.`);
+    setTimeout(() => setFontTestMessage(null), 3500);
+  };
+
+  // Probar fuente personalizada de texto/cuerpo
+  const handleTestCustomBody = () => {
+    const clean = parseFontInput(customBodyInput);
+    if (!clean) {
+      setFontTestMessage("⚠️ Ingresa un nombre o enlace válido de Google Fonts");
+      setTimeout(() => setFontTestMessage(null), 3500);
+      return;
+    }
+    setFontBody(clean);
+    loadGoogleFont(clean, false);
+    setFontTestMessage(`✓ Fuente de texto "${clean}" cargada y aplicada.`);
+    setTimeout(() => setFontTestMessage(null), 3500);
+  };
+
+  // Restablecer tipografías por defecto
+  const handleResetFonts = () => {
+    setFontHeading("Epilogue");
+    setFontBody("Manrope");
+    setCustomHeadingInput("");
+    setCustomBodyInput("");
+    applyBrandFonts("Epilogue", "Manrope");
+    setFontTestMessage("✓ Tipografías restablecidas a las originales (Epilogue + Manrope)");
+    setTimeout(() => setFontTestMessage(null), 3000);
+  };
 
   // Suma de probabilidades
   const totalProbability = useMemo(() => {
@@ -121,13 +211,34 @@ export function AdminConfig() {
             logoUrl,
             primaryColor,
             currency,
+            fontHeading,
+            fontBody,
+            fontHeadingCustom: customHeadingInput,
+            fontBodyCustom: customBodyInput,
           },
           prizes,
         }),
       });
 
       if (!res.ok) throw new Error("Error al guardar marca y ruleta");
-      setSuccess("Identidad de marca y premios de ruleta guardados correctamente");
+
+      // Sincronizar también en localStorage local
+      const currentBrand = getBrandConfig();
+      saveBrandConfig({
+        ...currentBrand,
+        name: brandName,
+        tagline,
+        taglineEn,
+        logoUrl,
+        primaryColor,
+        currency,
+        fontHeading,
+        fontBody,
+        fontHeadingCustom: customHeadingInput,
+        fontBodyCustom: customBodyInput,
+      });
+
+      setSuccess("Identidad de marca, tipografías de Google y premios guardados correctamente");
       setTimeout(() => setSuccess(null), 3000);
       fetchData();
     } catch (err) {
@@ -298,6 +409,315 @@ export function AdminConfig() {
             </div>
           </div>
 
+          {/* Tarjeta de Tipografía & Google Fonts (Personalización de Letras) */}
+          <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-5 shadow-lg">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#363439] pb-3 gap-2">
+              <div>
+                <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
+                  <Type className="w-4 h-4 text-[#f2be71]" />
+                  <span>Tipografía & Google Fonts (Personalización de Textos)</span>
+                </h3>
+                <p className="text-xs text-[#ccc3d8]">
+                  Personaliza los tipos de letra de tu negocio. Elige entre estilos gastronómicos recomendados o agrega cualquier fuente de Google Fonts.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleResetFonts}
+                className="text-xs text-[#ccc3d8] hover:text-[#f2be71] flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                title="Volver a Epilogue y Manrope"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Restablecer por Defecto</span>
+              </button>
+            </div>
+
+            {/* Pestañas: Catálogo Curado vs Fuente Personalizada */}
+            <div className="flex items-center gap-2 border-b border-[#363439]/60 pb-3">
+              <button
+                type="button"
+                onClick={() => setActiveFontTab("curated")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activeFontTab === "curated"
+                    ? "bg-[#f2be71] text-[#121115]"
+                    : "bg-[#201f23] text-[#ccc3d8] hover:text-white"
+                }`}
+              >
+                <Palette className="w-3.5 h-3.5" />
+                <span>Catálogo Gastronómico Recomendado</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveFontTab("custom")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activeFontTab === "custom"
+                    ? "bg-[#f2be71] text-[#121115]"
+                    : "bg-[#201f23] text-[#ccc3d8] hover:text-white"
+                }`}
+              >
+                <Search className="w-3.5 h-3.5" />
+                <span>Agregar Cualquier Google Font</span>
+              </button>
+            </div>
+
+            {/* Mensaje de feedback de prueba de fuente */}
+            {fontTestMessage && (
+              <div className="bg-[#201f23] border border-[#f2be71]/40 text-[#f2be71] px-3 py-2 rounded-xl text-xs flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 shrink-0" />
+                <span>{fontTestMessage}</span>
+              </div>
+            )}
+
+            {/* CONTENIDO PESTAÑA 1: CATÁLOGO CURADO */}
+            {activeFontTab === "curated" && (
+              <div className="space-y-4">
+                {/* Filtro de estilo */}
+                <div className="flex items-center gap-2 flex-wrap text-xs">
+                  <span className="text-[#958da1] font-semibold">Filtrar por estilo:</span>
+                  {[
+                    { id: "all", label: "Todas" },
+                    { id: "Elegante / Bistró", label: "👑 Elegante / Bistró" },
+                    { id: "Moderna / Nítida", label: "✨ Moderna / Nítida" },
+                    { id: "Artesanal / Expresiva", label: "🥖 Artesanal / Expresiva" },
+                  ].map((filter) => (
+                    <button
+                      key={filter.id}
+                      type="button"
+                      onClick={() => setFontCategoryFilter(filter.id)}
+                      className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                        fontCategoryFilter === filter.id
+                          ? "bg-[#2b292e] text-[#f2be71] font-bold border border-[#f2be71]/40"
+                          : "text-[#ccc3d8] hover:bg-[#201f23]"
+                      }`}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 1. Selector de Títulos */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block flex items-center justify-between">
+                    <span>1. Tipografía para Títulos & Encabezados</span>
+                    <span className="font-mono text-[#f2be71]">{fontHeading}</span>
+                  </label>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                    {CURATED_GOOGLE_FONTS_HEADING
+                      .filter((f) => fontCategoryFilter === "all" || f.styleType === fontCategoryFilter)
+                      .map((font) => {
+                        const isSelected = fontHeading.toLowerCase() === font.name.toLowerCase();
+                        return (
+                          <div
+                            key={font.name}
+                            onClick={() => {
+                              setFontHeading(font.name);
+                              loadGoogleFont(font.name, true);
+                            }}
+                            className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-1.5 ${
+                              isSelected
+                                ? "bg-[#2b292e] border-[#f2be71] shadow-[0_0_12px_rgba(242,190,113,0.25)]"
+                                : "bg-[#201f23] border-[#363439] hover:border-[#f2be71]/40 hover:bg-[#252429]"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-[#141317] text-[#958da1]">
+                                {font.styleType}
+                              </span>
+                              {isSelected && <Check className="w-3.5 h-3.5 text-[#f2be71]" />}
+                            </div>
+
+                            <div
+                              className="text-base font-bold text-[#e6e1e7] leading-tight truncate my-0.5"
+                              style={{ fontFamily: `'${font.name}', sans-serif` }}
+                            >
+                              {font.name}
+                            </div>
+
+                            <p className="text-[10px] text-[#ccc3d8] line-clamp-1">
+                              {font.recommendedFor}
+                            </p>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+
+                {/* 2. Selector de Texto de Lectura (Cuerpo) */}
+                <div className="space-y-2 pt-2 border-t border-[#363439]/60">
+                  <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block flex items-center justify-between">
+                    <span>2. Tipografía para Textos de Lectura & Botones</span>
+                    <span className="font-mono text-[#f2be71]">{fontBody}</span>
+                  </label>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    {CURATED_GOOGLE_FONTS_BODY.map((font) => {
+                      const isSelected = fontBody.toLowerCase() === font.name.toLowerCase();
+                      return (
+                        <button
+                          key={font.name}
+                          type="button"
+                          onClick={() => {
+                            setFontBody(font.name);
+                            loadGoogleFont(font.name, false);
+                          }}
+                          className={`p-2.5 rounded-xl border text-center cursor-pointer transition-all ${
+                            isSelected
+                              ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71] font-bold"
+                              : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:border-[#f2be71]/40"
+                          }`}
+                        >
+                          <span
+                            className="block text-sm"
+                            style={{ fontFamily: `'${font.name}', sans-serif` }}
+                          >
+                            {font.name}
+                          </span>
+                          <span className="text-[9px] text-[#958da1] block mt-0.5">
+                            {font.name === "Manrope" ? "Por defecto" : "Google Font"}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* CONTENIDO PESTAÑA 2: FUENTE PERSONALIZADA LIBRE */}
+            {activeFontTab === "custom" && (
+              <div className="space-y-4">
+                <div className="bg-[#201f23] border border-[#363439] p-4 rounded-xl space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[#f2be71] flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Usa más de 1,500 fuentes gratuitas de Google Fonts</span>
+                    </span>
+                    <a
+                      href="https://fonts.google.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#f2be71] hover:underline flex items-center gap-1 text-[11px] font-semibold"
+                    >
+                      <span>Explorar fonts.google.com</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                  <p className="text-[#ccc3d8]">
+                    Escribe el nombre exacto de la fuente de Google (ej: <code className="bg-[#141317] px-1 py-0.5 rounded text-[#f2be71]">Bebas Neue</code>, <code className="bg-[#141317] px-1 py-0.5 rounded text-[#f2be71]">Pacifico</code>, <code className="bg-[#141317] px-1 py-0.5 rounded text-[#f2be71]">Space Grotesk</code>, <code className="bg-[#141317] px-1 py-0.5 rounded text-[#f2be71]">Syne</code>) o pega directamente el enlace de Google Fonts.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Fuente personalizada para Títulos */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block">
+                      Fuente para Títulos (Headings)
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={customHeadingInput}
+                        onChange={(e) => setCustomHeadingInput(e.target.value)}
+                        placeholder="Ej: Bebas Neue o Cormorant Infant"
+                        className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3.5 py-2 text-xs w-full"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleTestCustomHeading}
+                        className="bg-[#2b292e] hover:bg-[#363439] text-[#f2be71] border border-[#f2be71]/40 px-3 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors cursor-pointer"
+                      >
+                        Probar
+                      </button>
+                    </div>
+                    <span className="text-[10px] text-[#958da1]">
+                      Actual activa: <strong className="text-[#e6e1e7]">{fontHeading}</strong>
+                    </span>
+                  </div>
+
+                  {/* Fuente personalizada para Texto */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block">
+                      Fuente para Textos & Botones (Body)
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={customBodyInput}
+                        onChange={(e) => setCustomBodyInput(e.target.value)}
+                        placeholder="Ej: Plus Jakarta Sans o Cabin"
+                        className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3.5 py-2 text-xs w-full"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleTestCustomBody}
+                        className="bg-[#2b292e] hover:bg-[#363439] text-[#f2be71] border border-[#f2be71]/40 px-3 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors cursor-pointer"
+                      >
+                        Probar
+                      </button>
+                    </div>
+                    <span className="text-[10px] text-[#958da1]">
+                      Actual activa: <strong className="text-[#e6e1e7]">{fontBody}</strong>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* CAJA DE PREVISUALIZACIÓN TIPOGRÁFICA EN VIVO */}
+            <div className="bg-[#141317] border border-[#363439] rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between border-b border-[#363439]/60 pb-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#958da1] flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5 text-[#f2be71]" />
+                  <span>Previsualización Tipográfica en Vivo</span>
+                </span>
+                <span className="text-[10px] font-mono text-[#f2be71]">
+                  Títulos: <strong>{fontHeading}</strong> • Texto: <strong>{fontBody}</strong>
+                </span>
+              </div>
+
+              {/* Título de muestra */}
+              <h4
+                className="text-xl font-bold text-[#e6e1e7] leading-snug"
+                style={{ fontFamily: `'${fontHeading}', sans-serif` }}
+              >
+                Experiencias de Sabor Inolvidables en Mesa
+              </h4>
+
+              {/* Párrafo de muestra */}
+              <p
+                className="text-xs text-[#ccc3d8] leading-relaxed"
+                style={{ fontFamily: `'${fontBody}', sans-serif` }}
+              >
+                Disfruta de nuestros postres artesanales horneados diariamente, café de finca recién tostado y premios especiales en cada visita escaneando el código QR.
+              </p>
+
+              {/* Fila con botón y números */}
+              <div className="flex items-center justify-between gap-3 pt-1 flex-wrap">
+                <button
+                  type="button"
+                  className="px-4 py-2 rounded-xl text-xs font-bold shadow-md"
+                  style={{
+                    backgroundColor: primaryColor,
+                    color: "#121115",
+                    fontFamily: `'${fontBody}', sans-serif`,
+                  }}
+                >
+                  Girar Ruleta de Premios
+                </button>
+
+                <div
+                  className="text-xs font-semibold text-[#f2be71] font-mono"
+                  style={{ fontFamily: `'${fontHeading}', sans-serif` }}
+                >
+                  Mesa 04 • Ticket #8492 • $24.500 COP
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Tarjeta de Premios de Ruleta 100% Personalizable */}
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4 shadow-lg">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#363439] pb-3 gap-2">
@@ -408,8 +828,18 @@ export function AdminConfig() {
                   </span>
                 )}
                 <div>
-                  <h4 className="text-xs font-bold text-[#e6e1e7] leading-tight truncate">{brandName}</h4>
-                  <p className="text-[9px] text-[#ccc3d8] truncate">{tagline}</p>
+                  <h4
+                    className="text-xs font-bold text-[#e6e1e7] leading-tight truncate"
+                    style={{ fontFamily: `'${fontHeading}', sans-serif` }}
+                  >
+                    {brandName}
+                  </h4>
+                  <p
+                    className="text-[9px] text-[#ccc3d8] truncate"
+                    style={{ fontFamily: `'${fontBody}', sans-serif` }}
+                  >
+                    {tagline}
+                  </p>
                 </div>
               </div>
               <span className="text-[10px] font-mono bg-[#201f23] text-[#f2be71] px-2 py-0.5 rounded-full border border-[#363439]">
@@ -419,29 +849,48 @@ export function AdminConfig() {
 
             {/* Simulación del juego de Ruleta */}
             <div className="bg-[#141317] rounded-2xl p-4 text-center space-y-3 border border-[#363439]/40">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-[#958da1]">Paso 3 • Gira y Gana</span>
+              <span
+                className="text-[10px] uppercase font-bold tracking-wider text-[#958da1]"
+                style={{ fontFamily: `'${fontHeading}', sans-serif` }}
+              >
+                Paso 3 • Gira y Gana
+              </span>
               <div
                 className="w-28 h-28 mx-auto rounded-full border-4 border-dashed flex items-center justify-center shadow-lg transition-all"
                 style={{ borderColor: primaryColor }}
               >
                 <span className="text-2xl animate-spin" style={{ animationDuration: "12s" }}>🎰</span>
               </div>
-              <p className="text-xs text-[#ccc3d8]">¡Gira la ruleta y gana premios instantáneos de la casa!</p>
+              <p
+                className="text-xs text-[#ccc3d8]"
+                style={{ fontFamily: `'${fontBody}', sans-serif` }}
+              >
+                ¡Gira la ruleta y gana premios instantáneos de la casa!
+              </p>
 
               <button
                 type="button"
                 className="w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-md transition-transform active:scale-95"
-                style={{ backgroundColor: primaryColor, color: "#121115" }}
+                style={{
+                  backgroundColor: primaryColor,
+                  color: "#121115",
+                  fontFamily: `'${fontBody}', sans-serif`,
+                }}
               >
                 Girar Ruleta Ahora
               </button>
             </div>
 
-            {/* Nota de marca blanca */}
-            <div className="p-3 rounded-xl bg-[#201f23] border border-[#363439] text-[11px] text-[#ccc3d8] space-y-1">
-              <span className="font-bold text-[#f2be71] block">✓ Marca Blanca Activa</span>
+            {/* Nota de marca blanca y fuentes activas */}
+            <div className="p-3 rounded-xl bg-[#201f23] border border-[#363439] text-[11px] text-[#ccc3d8] space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[#f2be71]">✓ Marca Blanca Activa</span>
+                <span className="text-[9px] font-mono text-[#958da1]">Google Fonts</span>
+              </div>
               <p className="text-[#958da1] text-[10px]">
-                Los colores, logotipo y nombre configurados aquí se aplicarán a todas las pantallas de tus mesas.
+                Tipografía de Título: <strong className="text-[#e6e1e7]">{fontHeading}</strong>
+                <br />
+                Tipografía de Cuerpo: <strong className="text-[#e6e1e7]">{fontBody}</strong>
               </p>
             </div>
           </div>

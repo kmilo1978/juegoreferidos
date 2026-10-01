@@ -1,4 +1,5 @@
 import { clientConfig } from "../config/clientConfig";
+import { applyBrandFonts } from "./fontLoader";
 
 export interface BrandIdentityConfig {
   name: string;
@@ -13,6 +14,10 @@ export interface BrandIdentityConfig {
   cardColor?: string;
   textColor?: string;
   mutedColor?: string;
+  fontHeading?: string;
+  fontBody?: string;
+  fontHeadingCustom?: string;
+  fontBodyCustom?: string;
   whatsappNumber: string;
   instagramHandle: string;
   instagramProfileUrl: string;
@@ -46,6 +51,10 @@ export function getBrandConfig(): BrandIdentityConfig {
     instagramProfileUrl: clientConfig.channels.instagramProfileUrl,
     googleMapsReviewUrl: clientConfig.channels.googleMapsReviewUrl,
     supportEmail: clientConfig.channels.supportEmail || "",
+    fontHeading: (clientConfig.brand as any).fontHeading || "Epilogue",
+    fontBody: (clientConfig.brand as any).fontBody || "Manrope",
+    fontHeadingCustom: "",
+    fontBodyCustom: "",
     enableWhatsAppPhotoSubmission: clientConfig.channels.enableWhatsAppPhotoSubmission ?? true,
     whatsappPhotoMessage: clientConfig.channels.whatsappPhotoMessage || "¡Hola! 📸 Aquí les comparto la foto de mi pedido en la mesa {tableNumber} (Cliente: {participantName}) para validar mi visita y jugar en la Ruleta de Premios.",
   };
@@ -105,8 +114,9 @@ export function saveBrandConfig(newConfig: BrandIdentityConfig): void {
   try {
     localStorage.setItem(BRAND_STORAGE_KEY, JSON.stringify(newConfig));
 
-    // Aplicar colores en tiempo de ejecución
+    // Aplicar colores y fuentes en tiempo de ejecución
     applyBrandColors(newConfig.primaryColor, newConfig.backgroundColor);
+    applyBrandFonts(newConfig.fontHeading, newConfig.fontBody);
 
     // Sincronizar en memoria clientConfig para los componentes existentes
     clientConfig.brand.name = newConfig.name;
@@ -115,6 +125,8 @@ export function saveBrandConfig(newConfig: BrandIdentityConfig): void {
     clientConfig.brand.logoUrl = newConfig.logoUrl;
     clientConfig.brand.emblemUrl = newConfig.emblemUrl;
     clientConfig.brand.currency = newConfig.currency;
+    (clientConfig.brand as any).fontHeading = newConfig.fontHeading;
+    (clientConfig.brand as any).fontBody = newConfig.fontBody;
 
     clientConfig.theme.primaryColor = newConfig.primaryColor;
     if (newConfig.primaryHover) clientConfig.theme.primaryHover = newConfig.primaryHover;
@@ -137,11 +149,23 @@ export function saveBrandConfig(newConfig: BrandIdentityConfig): void {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          brand: {
+            name: newConfig.name,
+            tagline: newConfig.tagline,
+            taglineEn: newConfig.taglineEn,
+            logoUrl: newConfig.logoUrl,
+            emblemUrl: newConfig.emblemUrl,
+            currency: newConfig.currency,
+            primaryColor: newConfig.primaryColor,
+            fontHeading: newConfig.fontHeading,
+            fontBody: newConfig.fontBody,
+            fontHeadingCustom: newConfig.fontHeadingCustom,
+            fontBodyCustom: newConfig.fontBodyCustom,
+          },
           enableWhatsAppPhoto: newConfig.enableWhatsAppPhotoSubmission,
           whatsappNumber: newConfig.whatsappNumber,
           whatsappPhotoMessage: newConfig.whatsappPhotoMessage,
           instagramHandle: newConfig.instagramHandle,
-          brandName: newConfig.name,
         }),
       }).catch(() => {
         // Silencioso si el servidor backend local está apagado
@@ -205,11 +229,12 @@ function adjustColorBrightness(hex: string, percent: number): string {
   return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 }
 
-// Inicialización automática de colores si estamos en el navegador
+// Inicialización automática de colores y fuentes si estamos en el navegador
 if (typeof window !== "undefined") {
   try {
     const active = getBrandConfig();
     applyBrandColors(active.primaryColor, active.backgroundColor);
+    applyBrandFonts(active.fontHeading, active.fontBody);
   } catch {
     // ignore
   }

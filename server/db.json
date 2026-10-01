@@ -149,6 +149,22 @@
   ],
   "logs": [
     {
+      "id": "mupxz3291zv",
+      "timestamp": "2:43:18 p. m.",
+      "method": "POST",
+      "url": "/api/config",
+      "status": 200,
+      "detail": "Configuración centralizada guardada en backend"
+    },
+    {
+      "id": "mupwnrpqwht",
+      "timestamp": "2:06:31 p. m.",
+      "method": "PUSH",
+      "url": "/api/push/unsubscribe",
+      "status": 200,
+      "detail": "Baja de Web Push procesada para: Laura Gómez (Comensal Demo) (Razón: El usuario pulsó el botón 'Darse de baja' en la aplicación)"
+    },
+    {
       "id": "mupwnp2mslp",
       "timestamp": "2:06:27 p. m.",
       "method": "POST",
@@ -531,22 +547,6 @@
       "url": "/api/tables",
       "status": 200,
       "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mulsc62yxll",
-      "timestamp": "4:54:26 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mulsc62dmr1",
-      "timestamp": "4:54:26 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
     }
   ],
   "settings": {
@@ -558,12 +558,16 @@
       "emblemUrl": "/src/assets/emblema-dorado.png",
       "currency": "COP",
       "primaryColor": "#a27e2c",
-      "backgroundColor": "#fcfaf7"
+      "backgroundColor": "#fcfaf7",
+      "fontHeading": "Epilogue",
+      "fontBody": "Inter",
+      "fontHeadingCustom": "",
+      "fontBodyCustom": ""
     },
     "channels": {
       "instagramHandle": "@turestaurante",
       "enableWhatsAppPhoto": true,
-      "whatsappNumber": "573022777295",
+      "whatsappNumber": "573000000000",
       "whatsappPhotoMessage": "¡Hola! 📸 Aquí les comparto la foto de mi pedido en la mesa {tableNumber} (Cliente: {participantName}) para validar mi visita y jugar en la Ruleta de Premios.",
       "googleMapsReviewUrl": "https://maps.google.com"
     },
