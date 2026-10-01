@@ -4,10 +4,18 @@ import { AdminLayout } from "./AdminLayout";
 import { Dashboard } from "./pages/Dashboard";
 import { Sessions } from "./pages/Sessions";
 import { Prizes } from "./pages/Prizes";
+import { Stamps } from "./pages/Stamps";
 import { Missions } from "./pages/Missions";
-import { AdminConfig } from "./pages/AdminConfig";
+import { Reputation } from "./pages/Reputation";
+import { GameMode } from "./pages/GameMode";
 import { WifiPortal } from "./pages/WifiPortal";
+import { Channels } from "./pages/Channels";
 import { Push } from "./pages/Push";
+import { AdminConfig } from "./pages/AdminConfig";
+import { Security } from "./pages/Security";
+import { Databases } from "./pages/Databases";
+import { Hermes } from "./pages/Hermes";
+import { Composio } from "./pages/Composio";
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: string }> {
   constructor(props: { children: ReactNode }) {
@@ -49,13 +57,28 @@ export function AdminApp() {
       <HashRouter>
         <Routes>
           <Route path="/" element={<AdminLayout />}>
+            {/* Operaciones en Sala */}
             <Route index element={<Dashboard />} />
             <Route path="sessions" element={<Sessions />} />
             <Route path="prizes" element={<Prizes />} />
+            <Route path="stamps" element={<Stamps />} />
             <Route path="missions" element={<Missions />} />
-            <Route path="config" element={<AdminConfig />} />
+            <Route path="reputation" element={<Reputation />} />
+
+            {/* Juego & Captación */}
+            <Route path="game-mode" element={<GameMode />} />
             <Route path="wifi" element={<WifiPortal />} />
+            <Route path="channels" element={<Channels />} />
             <Route path="push" element={<Push />} />
+
+            {/* Ajustes & Sistema */}
+            <Route path="config" element={<AdminConfig />} />
+            <Route path="security" element={<Security />} />
+            <Route path="databases" element={<Databases />} />
+            <Route path="hermes" element={<Hermes />} />
+            <Route path="composio" element={<Composio />} />
+
+            {/* Ruta comodín */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

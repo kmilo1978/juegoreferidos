@@ -52,37 +52,37 @@ export function renderBackendDashboard() {
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     :root {
-      --bg: #F1F5F9;
-      --card-bg: #FFFFFF;
-      --card-border: #E2E8F0;
-      --sidebar-bg: #FFFFFF;
-      --accent: ${s.brand.primaryColor || '#a27e2c'};
-      --accent-light: rgba(162, 126, 44, 0.10);
-      --accent-hover: #8c6b22;
-      --accent-glow: rgba(162, 126, 44, 0.20);
-      --success: #059669;
-      --success-bg: #ECFDF5;
-      --success-glow: rgba(5, 150, 105, 0.12);
-      --warning: #D97706;
-      --warning-bg: #FFFBEB;
-      --danger: #DC2626;
-      --danger-bg: #FEF2F2;
-      --info: #2563EB;
-      --info-bg: #EFF6FF;
-      --text: #0F172A;
-      --text-secondary: #334155;
-      --text-muted: #64748B;
-      --text-light: #94A3B8;
-      --bronze: #92400E;
-      --bronze-bg: #FEF3C7;
-      --bronze-border: #FCD34D;
-      --silver: #475569;
-      --silver-bg: #F1F5F9;
-      --silver-border: #CBD5E1;
-      --gold: #92400E;
-      --gold-bg: #FFFBEB;
-      --gold-border: #F59E0B;
-      --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --bg: #0f0e12;
+      --card-bg: #1c1b1f;
+      --card-border: #363439;
+      --sidebar-bg: #0b0a0d;
+      --accent: #f2be71;
+      --accent-light: rgba(242, 190, 113, 0.15);
+      --accent-hover: #ffddb1;
+      --accent-glow: rgba(242, 190, 113, 0.25);
+      --success: #10b981;
+      --success-bg: #0d2e1f;
+      --success-glow: rgba(16, 185, 129, 0.2);
+      --warning: #f59e0b;
+      --warning-bg: #2a1f00;
+      --danger: #ef4444;
+      --danger-bg: #2a0000;
+      --info: #d1bcff;
+      --info-bg: #201a35;
+      --text: #e6e1e7;
+      --text-secondary: #ccc3d8;
+      --text-muted: #958da1;
+      --text-light: #737373;
+      --bronze: #d97706;
+      --bronze-bg: #2a1f00;
+      --bronze-border: #684400;
+      --silver: #94a3b8;
+      --silver-bg: #1e293b;
+      --silver-border: #475569;
+      --gold: #f2be71;
+      --gold-bg: #684400;
+      --gold-border: #f2be71;
+      --font-family: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
