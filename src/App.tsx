@@ -281,6 +281,51 @@ function JuegoQrPage() {
       SecondChanceService.syncFromBackend().then((sc) => {
         if (sc) setSecondChanceConfig(sc);
       });
+
+      // Sincronizar Marca, Fuentes de Google, Canales y Premios centralizados
+      fetch("/api/config")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.settings) {
+            // Actualizar premios activos de ruleta
+            if (Array.isArray(data.settings.prizes) && data.settings.prizes.length > 0) {
+              setPrizes(data.settings.prizes);
+            }
+            // Actualizar identidad de marca en vivo
+            if (data.settings.brand) {
+              const b = data.settings.brand;
+              if (b.name) clientConfig.brand.name = b.name;
+              if (b.tagline) clientConfig.brand.tagline = b.tagline;
+              if (b.logoUrl) clientConfig.brand.logoUrl = b.logoUrl;
+              if (b.primaryColor) {
+                clientConfig.theme.primaryColor = b.primaryColor;
+                document.documentElement.style.setProperty("--primary-color", b.primaryColor);
+              }
+              // Inyección dinámica de Google Fonts en el cliente
+              const headingFont = b.fontHeading || "Epilogue";
+              const bodyFont = b.fontBody || "Manrope";
+              const linkId = "google-fonts-client-sync";
+              let fontLink = document.getElementById(linkId) as HTMLLinkElement;
+              if (!fontLink) {
+                fontLink = document.createElement("link");
+                fontLink.id = linkId;
+                fontLink.rel = "stylesheet";
+                document.head.appendChild(fontLink);
+              }
+              const formattedH = headingFont.replace(/\s+/g, "+");
+              const formattedB = bodyFont.replace(/\s+/g, "+");
+              fontLink.href = `https://fonts.googleapis.com/css2?family=${formattedH}:wght@400;600;700;800;900&family=${formattedB}:wght@400;500;600;700&display=swap`;
+            }
+            // Actualizar canales
+            if (data.settings.channels) {
+              const ch = data.settings.channels;
+              if (ch.whatsappNumber) clientConfig.channels.whatsappNumber = ch.whatsappNumber;
+              if (ch.instagramHandle) clientConfig.channels.instagramHandle = ch.instagramHandle;
+              if (ch.googleMapsReviewUrl) clientConfig.channels.googleMapsReviewUrl = ch.googleMapsReviewUrl;
+            }
+          }
+        })
+        .catch(() => {});
     };
     syncBackendConfig();
     const pollInterval = setInterval(syncBackendConfig, 4000);

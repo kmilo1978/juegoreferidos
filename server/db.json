@@ -149,6 +149,96 @@
   ],
   "logs": [
     {
+      "id": "muq43o1ktvp",
+      "timestamp": "5:34:50 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muq43mbyht2",
+      "timestamp": "5:34:48 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muq43mb7i0h",
+      "timestamp": "5:34:48 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muq43ld8jix",
+      "timestamp": "5:34:46 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muq43lcai63",
+      "timestamp": "5:34:46 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muq43jjnzok",
+      "timestamp": "5:34:44 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muq43jirzgj",
+      "timestamp": "5:34:44 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muq43dzi5p1",
+      "timestamp": "5:34:37 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muq43dy6pt6",
+      "timestamp": "5:34:37 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muq40ckkgq4",
+      "timestamp": "5:32:15 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/3165212283",
+      "status": 200,
+      "detail": "Consulta de sellos para +3165212283: 1/15"
+    },
+    {
+      "id": "muq40cjx5c8",
+      "timestamp": "5:32:15 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/3165212283",
+      "status": 200,
+      "detail": "Consulta de sellos para +3165212283: 1/15"
+    },
+    {
+      "id": "muq3xdhru9s",
+      "timestamp": "5:29:56 p. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "muq3x6szpuh",
+      "timestamp": "5:29:48 p. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "muq3w7e6s7w",
+      "timestamp": "5:29:02 p. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "muq3rxm50up",
+      "timestamp": "5:25:42 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
       "id": "muq3rxlll4o",
       "timestamp": "5:25:42 p. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
@@ -424,126 +514,6 @@
       "url": "/api/tables",
       "status": 200,
       "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "muo6xgfau4w",
-      "timestamp": "9:18:27 a. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "muo6wln6n2r",
-      "timestamp": "9:17:47 a. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "munfwbs5ilu",
-      "timestamp": "8:41:44 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mumwdr2folm",
-      "timestamp": "11:35:25 a. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mumwd0nybmt",
-      "timestamp": "11:34:51 a. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mumvvuc2f61",
-      "timestamp": "11:21:29 a. m.",
-      "method": "POST",
-      "url": "/api/push/subscribe",
-      "status": 200,
-      "detail": "Dispositivo suscrito a Web Push: Laura Cliente VIP"
-    },
-    {
-      "id": "mumsjqa4ru6",
-      "timestamp": "9:48:05 a. m.",
-      "method": "HERMES",
-      "url": "/api/hermes/test",
-      "status": 200,
-      "detail": "🤖 [HERMES PING] Conexión establecida con éxito (Endpoint: https://api.hermes.ai/v1, Agente: hermes-agent-pos, Latencia: 43ms)"
-    },
-    {
-      "id": "mumq9nhvfef",
-      "timestamp": "8:44:16 a. m.",
-      "method": "POST",
-      "url": "/api/contest/enter",
-      "status": 200,
-      "detail": "Inscripción al concurso mensual Cena para 2: Marcela Restrepo (#CENA2-6677-VIP)"
-    },
-    {
-      "id": "mulyqa8w196",
-      "timestamp": "7:53:23 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mulxv22c87b",
-      "timestamp": "7:29:06 p. m.",
-      "method": "POST",
-      "url": "/api/reputation/feedback",
-      "status": 200,
-      "detail": "Calificación recibida: 3★ (whatsapp) por María Gómez"
-    },
-    {
-      "id": "mulxi0nocd5",
-      "timestamp": "7:18:57 p. m.",
-      "method": "POST",
-      "url": "/api/missions/review",
-      "status": 200,
-      "detail": "Misión APROBADA: Video o Reel en TikTok (+3 sellos a Ana Gourmet)"
-    },
-    {
-      "id": "mulxhvuybin",
-      "timestamp": "7:18:51 p. m.",
-      "method": "POST",
-      "url": "/api/missions/submit",
-      "status": 200,
-      "detail": "Misión enviada para revisión: Video o Reel en TikTok por Ana Gourmet"
-    },
-    {
-      "id": "mulueles3t9",
-      "timestamp": "5:52:19 p. m.",
-      "method": "POST",
-      "url": "/api/game-config",
-      "status": 200,
-      "detail": "Mecánica de juego actualizada: roulette"
-    },
-    {
-      "id": "muluegedfxp",
-      "timestamp": "5:52:12 p. m.",
-      "method": "POST",
-      "url": "/api/game-config",
-      "status": 200,
-      "detail": "Mecánica de juego actualizada: precision"
-    },
-    {
-      "id": "mult1dwmde2",
-      "timestamp": "5:14:03 p. m.",
-      "method": "POST",
-      "url": "/api/game-config",
-      "status": 200,
-      "detail": "Mecánica de juego actualizada: hybrid"
     }
   ],
   "settings": {
@@ -1002,13 +972,13 @@
       "name": "Mesa 1",
       "zone": "Salón Principal",
       "capacity": 4,
-      "status": "JUGANDO",
-      "currentCustomer": "Invitado en Mesa",
-      "currentWhatsapp": null,
-      "activeSessionId": "SES-M1-1024",
-      "prizeWon": null,
-      "uniqueCode": null,
-      "startedAt": "Hace 3 min",
+      "status": "CANJEADO",
+      "currentCustomer": "agustin",
+      "currentWhatsapp": "3165212283",
+      "activeSessionId": "SES-MUQ3RX3B",
+      "prizeWon": "Bono Dulce Sorpresa",
+      "uniqueCode": "TURE-2P634",
+      "startedAt": "Ahora",
       "lastActivityAt": "Ahora",
       "qrUrl": "http://localhost:5173/?mesa=1"
     },
@@ -1267,8 +1237,78 @@
     "baseDomain": "http://localhost:5173",
     "stats": {
       "nfcScans": 28,
-      "qrScans": 66,
+      "qrScans": 76,
       "lastScans": [
+        {
+          "id": "scan_1790894090367",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:34 p. m."
+        },
+        {
+          "id": "scan_1790894090357",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:34 p. m."
+        },
+        {
+          "id": "scan_1790894088139",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:34 p. m."
+        },
+        {
+          "id": "scan_1790894088109",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:34 p. m."
+        },
+        {
+          "id": "scan_1790894086871",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:34 p. m."
+        },
+        {
+          "id": "scan_1790894086847",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:34 p. m."
+        },
+        {
+          "id": "scan_1790894084510",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:34 p. m."
+        },
+        {
+          "id": "scan_1790894084494",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:34 p. m."
+        },
+        {
+          "id": "scan_1790894077281",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:34 p. m."
+        },
+        {
+          "id": "scan_1790894077276",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:34 p. m."
+        },
         {
           "id": "scan_1790893542876",
           "mesa": 1,
