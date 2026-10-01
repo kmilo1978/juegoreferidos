@@ -612,3 +612,9 @@
 - Resultado: Aprobado (Score: 10/10)
 - Resumen: Selector multidispositivo con modelos de iPhone, Samsung, Xiaomi, Pixel, iPad y rotación de pantalla integrado al simulador demo.
 - Observaciones: Pruebas de compilación superadas sin advertencias.
+
+## Validación completada
+- Fecha: 2026-10-01 13:55
+- Resultado: Aprobado (score >= 9)
+- Resumen: Corrección y validación real con navegador Edge CDP del Simulador Demo Multidispositivo y redirección de rutas.
+- Observaciones: Se diagnosticó que 'Award' faltaba en la lista de importación de lucide-react en Demo.tsx causando un ReferenceError capturado por ErrorBoundary. Además se agregó redirección en admin.html para que el acceso sin hash (/demo o /admin/demo) redireccione de forma limpia a /admin.html#/demo. Verificado con Edge CDP con capturas de pantalla reales, cambio de dispositivos y pruebas del Paso 8 (Misiones VIP).
