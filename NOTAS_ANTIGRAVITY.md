@@ -331,3 +331,33 @@
 - Observaciones: Pruebas de compilaciÃ³n superadas sin errores.
 
 
+
+## Nueva sesión
+- Fecha: 2026-10-01 12:15
+- Solicitud: Crear módulo de Sorteo de Fin de Mes (Boleto VIP) para agregar personas, filtrar y jugar sorteo en vivo tipo tómbola. En el embudo de calificación, permitir configurar experiencias para 1, 2 y 3 estrellas (desvío a WhatsApp privado de gerencia) frente a 4 y 5 estrellas (Google Maps), con logo personalizado, iconos dinámicos (estrellas, corazones, café, platos, emojis) y mensajes desplegables configurables.
+- Decisiones clave:
+  - Se creó el módulo src/admin/pages/Contest.tsx:
+    1. Arena de Sorteo en Vivo con Tómbola Digital interactiva: barajado dinámico en pantalla, animación desacelerada de suspenso, revelación de ganador con modal de felicitación y botón directo de notificación vía WhatsApp con plantilla precargada.
+    2. Gestión de participantes con filtros: "Todos", "En Tómbola", "Ganadores" y "Boletos VIP".
+    3. Botón para agregar participantes manualmente y botón "Sincronizar Mesas" que importa comensales de las mesas activas.
+    4. Integración con backend en /api/contest, /api/contest/enter y /api/contest/draw.
+  - Se registró la ruta en src/admin/AdminApp.tsx y se añadió el enlace con icono Trophy al menú de "Operaciones en Sala" en src/admin/AdminLayout.tsx.
+  - Se rediseñó src/admin/pages/Reputation.tsx:
+    1. Icono de calificación configurable: Estrellas ?, Corazones ??, Café ?, Platos ???, o Emojis ??.
+    2. Logo personalizado exclusivo para el embudo (customLogoUrl).
+    3. Configuración para 1, 2 y 3 estrellas: Título, mensaje explicativo y plantilla de WhatsApp para gerencia.
+    4. Configuración para 4 y 5 estrellas: Título, mensaje para Google Maps y texto del botón CTA.
+    5. Simulador móvil interactivo en tiempo real con vista previa reactiva.
+  - Se conectó src/components/qr-game/StepFeedback.tsx para que consuma en vivo la configuración guardada de /api/reputation:
+    1. Muestra el logo personalizado cargado por el restaurante.
+    2. Renderiza la familia de iconos seleccionada (estrellas, corazones, café, platos o emojis).
+    3. Despliega los títulos, mensajes y botones según la calificación recibida.
+    4. Sincroniza y registra automáticamente cada calificación recibida en /api/reputation/feedback.
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 28.33s).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 12:15
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Módulo de Sorteo VIP de Fin de Mes en vivo y Embudo de Calificación 100% personalizable completados y validados.
+- Observaciones: Pruebas de compilación superadas sin errores.

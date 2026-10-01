@@ -17,6 +17,7 @@ import { Databases } from "./pages/Databases";
 import { Hermes } from "./pages/Hermes";
 import { Composio } from "./pages/Composio";
 import { Analytics } from "./pages/Analytics";
+import { Contest } from "./pages/Contest";
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: string }> {
   constructor(props: { children: ReactNode }) {
@@ -64,6 +65,7 @@ export function AdminApp() {
             <Route path="prizes" element={<Prizes />} />
             <Route path="stamps" element={<Stamps />} />
             <Route path="missions" element={<Missions />} />
+            <Route path="contest" element={<Contest />} />
             <Route path="reputation" element={<Reputation />} />
 
             {/* Juego & Captación */}

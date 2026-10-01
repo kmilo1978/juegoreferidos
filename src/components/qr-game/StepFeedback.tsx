@@ -8,6 +8,10 @@ import {
   Sparkles,
   ArrowRight,
   Star,
+  Heart,
+  Coffee,
+  Utensils,
+  Smile,
   ShieldCheck,
   Send,
   Trophy,
@@ -41,20 +45,54 @@ export function StepFeedback({
   const [hasSentPrivate, setHasSentPrivate] = useState(false);
   const [hasClickedGoogle, setHasClickedGoogle] = useState(false);
 
+  // Configuración dinámica desde el backend /api/reputation
   const [googleReviewUrl, setGoogleReviewUrl] = useState<string>(
     clientConfig.channels.googleMapsReviewUrl || "https://maps.google.com"
   );
   const [whatsappPrivate, setWhatsappPrivate] = useState<string>(
     clientConfig.channels.whatsappNumber || "573000000000"
   );
+  const [minRatingForGoogle, setMinRatingForGoogle] = useState<number>(4);
+  const [customLogoUrl, setCustomLogoUrl] = useState<string>("");
+  const [ratingIcon, setRatingIcon] = useState<"star" | "heart" | "coffee" | "dish" | "emoji">("star");
+
+  // Mensajes dinámicos configurables
+  const [lowRatingTitle, setLowRatingTitle] = useState("¿En qué podemos mejorar?");
+  const [lowRatingMessage, setLowRatingMessage] = useState(
+    "Lamentamos que tu visita no haya sido perfecta hoy. Déjanos tus comentarios para que la gerencia pueda atenderlo de inmediato."
+  );
+  const [lowRatingWhatsappText, setLowRatingWhatsappText] = useState(
+    "Hola, quiero compartir una sugerencia confidencial sobre mi visita en mesa: "
+  );
+
+  const [highRatingTitle, setHighRatingTitle] = useState("¡Nos alegra que hayas disfrutado!");
+  const [highRatingMessage, setHighRatingMessage] = useState(
+    "Tu respaldo en Google Maps ayuda a otros amantes del buen comer a descubrir nuestra propuesta gastronómica."
+  );
+  const [highRatingCtaText, setHighRatingCtaText] = useState("Publicar Reseña en Google Maps");
 
   useEffect(() => {
     fetch("/api/reputation")
       .then((res) => res.json())
       .then((data) => {
         if (data?.success && data?.config) {
-          if (data.config.googleBusinessUrl) setGoogleReviewUrl(data.config.googleBusinessUrl);
-          if (data.config.whatsappPrivateNumber) setWhatsappPrivate(data.config.whatsappPrivateNumber);
+          const cfg = data.config;
+          if (cfg.googleBusinessUrl) setGoogleReviewUrl(cfg.googleBusinessUrl);
+          if (cfg.googleMapsUrl) setGoogleReviewUrl(cfg.googleMapsUrl);
+          if (cfg.whatsappPrivateNumber) setWhatsappPrivate(cfg.whatsappPrivateNumber);
+          if (cfg.whatsappManager) setWhatsappPrivate(cfg.whatsappManager);
+          if (cfg.minRatingForGoogle) setMinRatingForGoogle(cfg.minRatingForGoogle);
+          if (cfg.minStarsGoogle) setMinRatingForGoogle(cfg.minStarsGoogle);
+          if (cfg.customLogoUrl) setCustomLogoUrl(cfg.customLogoUrl);
+          if (cfg.ratingIcon) setRatingIcon(cfg.ratingIcon);
+
+          if (cfg.lowRatingTitle) setLowRatingTitle(cfg.lowRatingTitle);
+          if (cfg.lowRatingMessage) setLowRatingMessage(cfg.lowRatingMessage);
+          if (cfg.lowRatingWhatsappText) setLowRatingWhatsappText(cfg.lowRatingWhatsappText);
+
+          if (cfg.highRatingTitle) setHighRatingTitle(cfg.highRatingTitle);
+          if (cfg.highRatingMessage) setHighRatingMessage(cfg.highRatingMessage);
+          if (cfg.highRatingCtaText) setHighRatingCtaText(cfg.highRatingCtaText);
         }
       })
       .catch(() => {});
@@ -68,11 +106,48 @@ export function StepFeedback({
     5: t("5 DE 5 • ¡EXTRAORDINARIA! • INOLVIDABLE", "5 OUT OF 5 • EXTRAORDINARY • UNFORGETTABLE"),
   };
 
-  const isPositive = (rating || 5) >= 4;
+  const isPositive = (rating || 5) >= minRatingForGoogle;
+
+  const renderRatingIcon = (isFilled: boolean) => {
+    const commonClass = `h-8 w-8 transition-transform ${
+      isFilled
+        ? "text-[#f2be71] fill-[#f2be71] drop-shadow-[0_0_8px_rgba(242,190,113,0.6)]"
+        : "text-[#4a4455] fill-transparent"
+    }`;
+
+    switch (ratingIcon) {
+      case "heart":
+        return <Heart className={commonClass} />;
+      case "coffee":
+        return <Coffee className={commonClass} />;
+      case "dish":
+        return <Utensils className={commonClass} />;
+      case "emoji":
+        return <Smile className={commonClass} />;
+      case "star":
+      default:
+        return <Star className={commonClass} />;
+    }
+  };
+
+  const syncFeedbackWithBackend = (action: "google" | "whatsapp") => {
+    try {
+      fetch("/api/reputation/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: customerName || "Comensal",
+          rating,
+          comment: comment || "",
+          actionTaken: action,
+        }),
+      }).catch(() => {});
+    } catch {}
+  };
 
   const handleSendPrivateFeedback = () => {
-    const brandName = clientConfig.brand.name;
-    const msg = `⚠️ *Feedback Confidencial en Mesa*\nCliente: ${customerName || "Comensal"}\nCalificación: ${rating} / 5 ⭐\nComentario: "${comment || "Sin comentarios adicionales"}"\n\nPor favor atender directamente al cliente en sala.`;
+    const prefix = lowRatingWhatsappText || "Hola, quiero compartir una sugerencia confidencial sobre mi visita en mesa: ";
+    const msg = `⚠️ *Feedback Confidencial en Mesa*\nCliente: ${customerName || "Comensal"}\nCalificación: ${rating} / 5\nComentario: "${comment || "Sin comentarios adicionales"}"\n\n${prefix}\nPor favor atender directamente al cliente en sala.`;
     const cleanPhone = whatsappPrivate.replace(/\D/g, "");
     if (cleanPhone) {
       window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
@@ -80,6 +155,7 @@ export function StepFeedback({
       window.open(waLink(msg), "_blank", "noopener,noreferrer");
     }
     setHasSentPrivate(true);
+    syncFeedbackWithBackend("whatsapp");
     if (onComplete) {
       onComplete({
         rating,
@@ -92,6 +168,7 @@ export function StepFeedback({
 
   const handleGoogleClick = () => {
     setHasClickedGoogle(true);
+    syncFeedbackWithBackend("google");
     window.open(googleReviewUrl, "_blank", "noopener,noreferrer");
     if (onComplete) {
       onComplete({
@@ -106,34 +183,36 @@ export function StepFeedback({
   return (
     <div className="w-full flex flex-col gap-6">
 
-      {/* Selector de 5 Estrellas Interactivo estilo Stitch */}
+      {/* Selector de Calificación Interactivo estilo Stitch */}
       <Reveal delay={50}>
         <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#2b292e] p-5 shadow-xl flex flex-col items-center text-center gap-3">
+          {customLogoUrl ? (
+            <img
+              src={customLogoUrl}
+              alt="Logo"
+              className="h-12 w-auto max-w-[140px] object-contain rounded-lg mb-1"
+            />
+          ) : null}
+
           <span className="font-label-sm text-[10px] uppercase tracking-wider text-[#f2be71] font-bold">
             {t("¿Cómo calificarías tu experiencia hoy?", "How was your experience today?")}
           </span>
 
-          {/* 5 Botones de Estrellas con Brillo Dorado */}
+          {/* 5 Botones de Calificación con Iconos Dinámicos */}
           <div className="flex items-center justify-center gap-2 py-1">
-            {[1, 2, 3, 4, 5].map((starVal) => {
+            {[1, 2, 3, 4, 5].map((val) => {
               const activeVal = hoveredRating || rating;
-              const isFilled = starVal <= activeVal;
+              const isFilled = val <= activeVal;
               return (
                 <button
-                  key={starVal}
+                  key={val}
                   type="button"
-                  onClick={() => setRating(starVal)}
-                  onMouseEnter={() => setHoveredRating(starVal)}
+                  onClick={() => setRating(val)}
+                  onMouseEnter={() => setHoveredRating(val)}
                   onMouseLeave={() => setHoveredRating(0)}
-                  className="w-11 h-11 flex items-center justify-center rounded-full text-[#f2be71] hover:scale-115 active:scale-95 transition-all cursor-pointer"
+                  className="w-11 h-11 flex items-center justify-center rounded-full hover:scale-115 active:scale-95 transition-all cursor-pointer"
                 >
-                  <Star
-                    className={`h-8 w-8 transition-transform ${
-                      isFilled
-                        ? "fill-[#f2be71] text-[#f2be71] drop-shadow-[0_0_8px_rgba(242,190,113,0.6)]"
-                        : "text-[#4a4455] fill-transparent"
-                    }`}
-                  />
+                  {renderRatingIcon(isFilled)}
                 </button>
               );
             })}
@@ -158,7 +237,7 @@ export function StepFeedback({
                   <span>{t("Experiencia Superior", "Top Tier Experience")}</span>
                 </div>
                 <h2 className="font-headline-sm text-lg text-[#e6e1e7] font-bold">
-                  {t("¡Nos alegra que hayas disfrutado!", "We're thrilled you enjoyed it!")}
+                  {highRatingTitle}
                 </h2>
               </div>
               <span className="w-9 h-9 rounded-full bg-[#684400]/50 border border-[#f2be71]/30 flex items-center justify-center text-[#f2be71] text-base shrink-0">
@@ -167,10 +246,7 @@ export function StepFeedback({
             </div>
 
             <p className="font-body-sm text-xs text-[#ccc3d8] leading-relaxed">
-              {t(
-                "Tu respaldo en Google Maps ayuda a otros amantes del buen comer a descubrir nuestra propuesta gastronómica.",
-                "Your review on Google Maps helps other food lovers discover our dining experience."
-              )}
+              {highRatingMessage}
             </p>
 
             {/* Tarjeta Oficial Google Maps */}
@@ -200,7 +276,7 @@ export function StepFeedback({
               onClick={handleGoogleClick}
               className="w-full h-13 py-3 px-6 rounded-full btn-purple text-sm font-bold flex items-center justify-center gap-2 shadow-[0_4px_24px_rgba(138,79,255,0.4)] active:scale-98 transition-all cursor-pointer hover:brightness-105"
             >
-              <span>{t("Publicar Reseña en Google Maps", "Publish Review on Google Maps")}</span>
+              <span>{highRatingCtaText}</span>
               <ExternalLink className="h-4 w-4" />
             </button>
 
@@ -225,7 +301,7 @@ export function StepFeedback({
                   <span>{t("Canal Directo de Calidad", "Direct Quality Channel")}</span>
                 </div>
                 <h2 className="font-headline-sm text-lg text-[#e6e1e7] font-bold">
-                  {t("Lamentamos no haber alcanzado la perfección", "We're sorry we didn't meet perfection")}
+                  {lowRatingTitle}
                 </h2>
               </div>
               <span className="w-9 h-9 rounded-full bg-[#2b292e] flex items-center justify-center text-[#ffb4a3] text-base shrink-0">
@@ -234,10 +310,7 @@ export function StepFeedback({
             </div>
 
             <p className="font-body-sm text-xs text-[#ccc3d8] leading-relaxed">
-              {t(
-                "Deseamos escuchar tu opinión honesta para compensar tu experiencia y corregirlo inmediatamente en sala.",
-                "We want to hear your feedback directly to compensate you and resolve this right away."
-              )}
+              {lowRatingMessage}
             </p>
 
             <textarea

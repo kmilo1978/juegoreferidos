@@ -16,6 +16,7 @@ import {
   Bot,
   Zap,
   BarChart3,
+  Trophy,
 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
@@ -71,8 +72,9 @@ export function AdminLayout() {
         { path: "/", label: "Dashboard", icon: LayoutDashboard },
         { path: "/sessions", label: "10 Mesas en Vivo", icon: Users },
         { path: "/prizes", label: "Premios & Canjes", icon: Gift },
-        { path: "/stamps", label: "15 Sellos & Sorteo", icon: Award },
+        { path: "/stamps", label: "Sellos de Visitas", icon: Award },
         { path: "/missions", label: "Misiones & Tareas", icon: Target },
+        { path: "/contest", label: "Sorteo VIP Fin de Mes", icon: Trophy },
         { path: "/reputation", label: "Embudo Reputación", icon: Star },
       ],
     },
