@@ -362,3 +362,114 @@ html, body {
   }
 }
 
+/* ========================================================
+ * MODO DÍA & NOCHE PARA EL DASHBOARD DE ADMINISTRACIÓN
+ * ======================================================== */
+.theme-light {
+  background-color: #f8f6f2 !important;
+  color: #1c1917 !important;
+}
+
+.theme-light aside {
+  background-color: #ffffff !important;
+  border-color: #e6dfd4 !important;
+  box-shadow: 4px 0 24px rgba(120, 100, 70, 0.05);
+}
+
+.theme-light header {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-color: #e6dfd4 !important;
+  box-shadow: 0 2px 16px rgba(120, 100, 70, 0.04);
+}
+
+.theme-light .bg-\[\#141317\] {
+  background-color: #f8f6f2 !important;
+}
+
+.theme-light .bg-\[\#0f0e12\] {
+  background-color: #ffffff !important;
+  border-color: #e6dfd4 !important;
+}
+
+.theme-light .bg-\[\#0b0a0d\] {
+  background-color: #fbf9f6 !important;
+  border-color: #e6dfd4 !important;
+}
+
+.theme-light .bg-\[\#1c1b1f\] {
+  background-color: #ffffff !important;
+  border-color: #e6dfd4 !important;
+  box-shadow: 0 4px 20px -2px rgba(120, 100, 70, 0.06);
+}
+
+.theme-light .bg-\[\#201f23\] {
+  background-color: #f3efe8 !important;
+  border-color: #e4dcd0 !important;
+}
+
+.theme-light .bg-\[\#252429\] {
+  background-color: #ebe5db !important;
+  border-color: #dfd7cb !important;
+}
+
+.theme-light .bg-\[\#2b292e\] {
+  background-color: #e8e1d5 !important;
+  border-color: #ddd4c6 !important;
+}
+
+.theme-light .border-\[\#363439\] {
+  border-color: #e6dfd4 !important;
+}
+
+.theme-light .border-\[\#2b292e\] {
+  border-color: #ebe5dc !important;
+}
+
+.theme-light .text-\[\#e6e1e7\] {
+  color: #1c1917 !important;
+}
+
+.theme-light .text-\[\#ccc3d8\] {
+  color: #61594e !important;
+}
+
+.theme-light .text-\[\#958da1\] {
+  color: #797165 !important;
+}
+
+.theme-light .text-\[\#f2be71\] {
+  color: #a47317 !important;
+}
+
+.theme-light .text-\[\#ffddb1\] {
+  color: #8c5d07 !important;
+}
+
+.theme-light input,
+.theme-light select,
+.theme-light textarea {
+  color: #1c1917 !important;
+  background-color: #f7f3ed !important;
+  border-color: #dfd7cc !important;
+}
+
+.theme-light table thead,
+.theme-light table thead tr,
+.theme-light table thead tr th {
+  background-color: #f2ece3 !important;
+  border-color: #e6dfd4 !important;
+  color: #4a4235 !important;
+}
+
+.theme-light table tbody tr {
+  border-color: #eee8de !important;
+}
+
+.theme-light table tbody tr:hover {
+  background-color: #f7f3ed !important;
+}
+
+.theme-light .divide-\[\#363439\]\/60 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #eee8de !important;
+}
+
