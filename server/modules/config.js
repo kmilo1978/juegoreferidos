@@ -81,6 +81,10 @@ export function handleConfig(req, res, pathname, url) {
         if (data.visitIcon !== undefined) db.settings.stamps.visitIcon = data.visitIcon;
         if (data.stampRewards !== undefined) db.settings.stamps.milestones = data.stampRewards;
 
+        if (data.pushFlows) db.settings.pushFlows = data.pushFlows;
+        if (data.pushConfig) db.settings.pushConfig = { ...(db.settings.pushConfig || {}), ...data.pushConfig };
+        if (data.analytics) db.settings.analytics = { ...(db.settings.analytics || {}), ...data.analytics };
+
         saveDb();
         logRequest("POST", "/api/config", 200, `Configuración centralizada guardada en backend`);
 

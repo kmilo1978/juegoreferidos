@@ -212,6 +212,11 @@ function JuegoQrPage() {
     SecondChanceService.getSecondChanceConfig()
   );
 
+  const isStepActive = (stepId: string) => {
+    if (!gameConfig.activeSteps || !Array.isArray(gameConfig.activeSteps)) return true;
+    return gameConfig.activeSteps.includes(stepId);
+  };
+
   // Registrar visita, cargar historial persistente y sincronizar configuración de juego
   useEffect(() => {
     recordPageView();
@@ -346,8 +351,12 @@ function JuegoQrPage() {
     }
 
     setParticipant(data);
-    // PASO 2: INSTAGRAM Y REDES SOCIALES
-    setCurrentStep(2);
+    // Verificar si el paso 2 (Redes / Foto) está activo en el checklist
+    if (isStepActive("step_social")) {
+      setCurrentStep(2);
+    } else {
+      setCurrentStep(3);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     // Actualizar variable de la mesa en tiempo real
@@ -550,7 +559,15 @@ function JuegoQrPage() {
                     onValidateAtCashier={handleOpenValidatePin}
                     secondChanceConfig={secondChanceConfig}
                     onProceedToFeedback={() => {
-                      setCurrentStep(5);
+                      if (isStepActive("step_feedback")) {
+                        setCurrentStep(5);
+                      } else if (isStepActive("step_precision")) {
+                        setCurrentStep(6);
+                      } else if (isStepActive("step_stamps")) {
+                        setCurrentStep(7);
+                      } else {
+                        setCurrentStep(8);
+                      }
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
                   />
@@ -604,7 +621,13 @@ function JuegoQrPage() {
                   isStandAlone={false}
                   secondChanceConfig={secondChanceConfig}
                   onUnlockSecondChance={() => {
-                    setCurrentStep(6);
+                    if (isStepActive("step_precision")) {
+                      setCurrentStep(6);
+                    } else if (isStepActive("step_stamps")) {
+                      setCurrentStep(7);
+                    } else {
+                      setCurrentStep(8);
+                    }
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                   onComplete={(fb) => setFeedback(fb)}
@@ -628,7 +651,11 @@ function JuegoQrPage() {
                     handlePrizeWon(prize);
                   }}
                   onExit={() => {
-                    setCurrentStep(7);
+                    if (isStepActive("step_stamps")) {
+                      setCurrentStep(7);
+                    } else {
+                      setCurrentStep(8);
+                    }
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 />

@@ -58,6 +58,7 @@ export function AdminLayout() {
       case "/databases": return "Bases de Datos & Sincronización";
       case "/hermes": return "Hermes IA & WhatsApp";
       case "/composio": return "Integraciones Composio";
+      case "/analytics": return "Analítica, GTM & Píxeles";
       default: return "Panel Administrativo";
     }
   }, [location.pathname]);
@@ -87,6 +88,7 @@ export function AdminLayout() {
       group: "Ajustes & Sistema",
       items: [
         { path: "/config", label: "Marca & Ajustes", icon: Settings },
+        { path: "/analytics", label: "GTM & Píxeles", icon: BarChart },
         { path: "/security", label: "Seguridad & PINs", icon: Shield },
         { path: "/databases", label: "Bases de Datos", icon: Database },
         { path: "/hermes", label: "Hermes IA", icon: Bot },

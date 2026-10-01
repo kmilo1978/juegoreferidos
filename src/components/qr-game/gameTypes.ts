@@ -75,6 +75,7 @@ export interface GameConfig {
   maxAttempts: number; // 1, 2 o 3 intentos
   validationChannel: "both" | "instagram" | "whatsapp";
   reviewTiming: "after_game" | "before_game";
+  activeSteps?: string[];
 }
 
 export const DEFAULT_GAME_CONFIG: GameConfig = {

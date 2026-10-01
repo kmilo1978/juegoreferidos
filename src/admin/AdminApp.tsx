@@ -16,6 +16,7 @@ import { Security } from "./pages/Security";
 import { Databases } from "./pages/Databases";
 import { Hermes } from "./pages/Hermes";
 import { Composio } from "./pages/Composio";
+import { Analytics } from "./pages/Analytics";
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: string }> {
   constructor(props: { children: ReactNode }) {
@@ -73,6 +74,7 @@ export function AdminApp() {
 
             {/* Ajustes & Sistema */}
             <Route path="config" element={<AdminConfig />} />
+            <Route path="analytics" element={<Analytics />} />
             <Route path="security" element={<Security />} />
             <Route path="databases" element={<Databases />} />
             <Route path="hermes" element={<Hermes />} />

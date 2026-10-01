@@ -15,6 +15,12 @@ export default defineConfig({
     watch: {
       ignored: ["**/server/**", "**/db.json", "**/*.log"],
     },
+    proxy: {
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
+    },
   },
   build: {
     rollupOptions: {

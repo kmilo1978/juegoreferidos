@@ -53,16 +53,14 @@ export const STAMP_MILESTONES_3: StampReward[] = [
 
 export interface StampCardState {
   currentStamps: number;
-  totalRequired: number; // Siempre 15 sellos fijos
-  mode: 15;
+  totalRequired: number; // Configurable: 6, 8, 10, 12, 15, etc.
+  mode: number;
   rewardTitle: string;
-  nextReward: StampReward;
+  nextReward: StampReward | null;
   unlockedRewards: StampReward[];
   isRewardUnlocked: boolean;
   historyVisits: string[];
 }
-
-const DEFAULT_STAMP_MODE: 15 = 15;
 
 export class StampService {
   private static getKey(whatsapp: string): string {
@@ -173,89 +171,88 @@ export class StampService {
   }
 
   /**
-   * Obtiene la modalidad configurada (Siempre 15 sellos fijos)
+   * Obtiene el número total de sellos configurados (ej: 6, 8, 10, 12, 15)
    */
-  static getGlobalMode(): 15 {
+  static getTotalRequired(): number {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("juegoreferidos_stamp_total");
+        if (stored) {
+          const num = parseInt(stored, 10);
+          if (num > 0) return num;
+        }
+      } catch {}
+    }
     return 15;
   }
 
-  /**
-   * Mantiene compatibilidad: la modalidad está fija en 15 sellos con 3 hitos cada 5 visitas
-   */
-  static setGlobalMode(_mode?: number): void {
+  static setTotalRequired(total: number): void {
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem(this.getGlobalModeKey(), "15");
-      } catch {
-        // ignore
-      }
+        localStorage.setItem("juegoreferidos_stamp_total", String(total));
+      } catch {}
     }
   }
 
   /**
-   * Obtiene los 3 grandes premios cada 5 visitas (Sello 5, 10 y 15)
+   * Compatibilidad con getGlobalMode
+   */
+  static getGlobalMode(): number {
+    return this.getTotalRequired();
+  }
+
+  static setGlobalMode(mode?: number): void {
+    if (mode && mode > 0) {
+      this.setTotalRequired(mode);
+    }
+  }
+
+  /**
+   * Obtiene la lista completa de hitos con premios
    */
   static getMilestoneRewards(): StampReward[] {
     const rewards = this.getStampRewards();
-    return [
-      rewards[0] || STAMP_MILESTONES_3[0],
-      rewards[1] || STAMP_MILESTONES_3[1],
-      rewards[2] || STAMP_MILESTONES_3[2],
-    ];
+    return Array.isArray(rewards) && rewards.length > 0 ? rewards : STAMP_MILESTONES_3;
   }
 
   /**
-   * Indica si un sello específico es un hito con premio (5, 10 o 15)
+   * Indica si un sello específico es un hito con premio
    */
   static isPrizeStamp(stampNumber: number): boolean {
-    return stampNumber === 5 || stampNumber === 10 || stampNumber === 15;
+    const prizes = this.getMilestoneRewards();
+    return prizes.some((p) => p.stamp === stampNumber);
   }
 
   /**
-   * Obtiene el premio si es sello 5, 10 o 15. Si es de visita (1-4, etc.) devuelve null.
+   * Obtiene el premio asignado a un sello específico
    */
   static getRewardForStamp(stampNumber: number): StampReward | null {
     const prizes = this.getMilestoneRewards();
-    if (stampNumber === 5) return prizes[0];
-    if (stampNumber === 10) return prizes[1];
-    if (stampNumber === 15) return prizes[2];
-    return null;
+    return prizes.find((p) => p.stamp === stampNumber) || null;
   }
 
   /**
-   * Obtiene el próximo hito a alcanzar (Sello 5, 10 o 15) y los sellos restantes
+   * Obtiene el próximo hito a alcanzar y los sellos restantes
    */
   static getNextMilestone(currentStamps: number) {
-    const milestones = this.getMilestoneRewards();
-    if (currentStamps < 5) {
+    const milestones = [...this.getMilestoneRewards()].sort((a, b) => a.stamp - b.stamp);
+    const next = milestones.find((m) => m.stamp > currentStamps);
+
+    if (next) {
       return {
-        targetStamp: 5,
-        remaining: 5 - currentStamps,
-        milestoneNumber: 1,
-        reward: milestones[0],
+        targetStamp: next.stamp,
+        remaining: Math.max(0, next.stamp - currentStamps),
+        milestoneNumber: milestones.indexOf(next) + 1,
+        reward: next,
       };
     }
-    if (currentStamps < 10) {
-      return {
-        targetStamp: 10,
-        remaining: 10 - currentStamps,
-        milestoneNumber: 2,
-        reward: milestones[1],
-      };
-    }
-    if (currentStamps < 15) {
-      return {
-        targetStamp: 15,
-        remaining: 15 - currentStamps,
-        milestoneNumber: 3,
-        reward: milestones[2],
-      };
-    }
+
+    const last = milestones[milestones.length - 1] || STAMP_MILESTONES_3[2];
     return {
-      targetStamp: 15,
+      targetStamp: last.stamp,
       remaining: 0,
-      milestoneNumber: 3,
-      reward: milestones[2],
+      milestoneNumber: milestones.length,
+      reward: last,
     };
   }
 
@@ -263,16 +260,17 @@ export class StampService {
    * Obtiene el estado actual de sellos y recompensas del cliente
    */
   static getCustomerStampCard(whatsapp: string): StampCardState {
-    const activeMode = 15;
+    const totalRequired = this.getTotalRequired();
     const milestones = this.getMilestoneRewards();
 
     if (typeof window === "undefined") {
+      const first = milestones[0] || STAMP_MILESTONES_3[0];
       return {
         currentStamps: 1,
-        totalRequired: 15,
-        mode: 15,
-        rewardTitle: milestones[0].title,
-        nextReward: milestones[0],
+        totalRequired,
+        mode: totalRequired,
+        rewardTitle: first.title,
+        nextReward: first,
         unlockedRewards: [],
         isRewardUnlocked: false,
         historyVisits: [],
@@ -295,7 +293,6 @@ export class StampService {
       // ignore
     }
 
-    const totalRequired = 15;
     const isRewardUnlocked = currentStamps >= totalRequired;
     const nextMilestone = this.getNextMilestone(currentStamps);
     const unlockedRewards = milestones.filter((m) => currentStamps >= m.stamp);
@@ -303,7 +300,7 @@ export class StampService {
     return {
       currentStamps,
       totalRequired,
-      mode: 15,
+      mode: totalRequired,
       rewardTitle: nextMilestone.reward.title,
       nextReward: nextMilestone.reward,
       unlockedRewards,
@@ -317,24 +314,24 @@ export class StampService {
    * Aplica automáticamente el multiplicador de sellos dobles (x2) en Horas Muertas (3 PM - 6 PM).
    */
   static addStamp(whatsapp: string, countOverride?: number): StampCardState & { addedCount: number; isHappyHour: boolean } {
-    const activeMode = this.getGlobalMode();
+    const totalRequired = this.getTotalRequired();
     const current = this.getCustomerStampCard(whatsapp);
     const multiplier = countOverride ?? this.getStampMultiplier();
-    const newCount = Math.min(activeMode, current.currentStamps + multiplier);
+    const newCount = Math.min(totalRequired, current.currentStamps + multiplier);
     const today = new Date().toLocaleDateString("es-CO");
-    const rewards = this.getStampRewards();
+    const milestones = this.getMilestoneRewards();
 
-    const isRewardUnlocked = newCount >= activeMode;
+    const isRewardUnlocked = newCount >= totalRequired;
     const currentReward = this.getRewardForStamp(newCount);
-    const nextReward = this.getRewardForStamp(Math.min(newCount + 1, activeMode));
-    const unlockedRewards = rewards.slice(0, newCount);
+    const nextMilestone = this.getNextMilestone(newCount);
+    const unlockedRewards = milestones.filter((m) => newCount >= m.stamp);
 
     const updated: StampCardState = {
       currentStamps: newCount,
-      totalRequired: activeMode,
-      mode: activeMode,
-      rewardTitle: currentReward.title,
-      nextReward,
+      totalRequired,
+      mode: totalRequired,
+      rewardTitle: currentReward ? currentReward.title : nextMilestone.reward.title,
+      nextReward: nextMilestone.reward,
       unlockedRewards,
       isRewardUnlocked,
       historyVisits: [today, ...current.historyVisits],
@@ -359,13 +356,14 @@ export class StampService {
    * Canjea el premio de sellos y reinicia el ciclo para la siguiente tarjeta
    */
   static resetAfterRedemption(whatsapp: string): StampCardState {
-    const activeMode = this.getGlobalMode();
-    const firstReward = STAMP_MILESTONES_3[0];
+    const totalRequired = this.getTotalRequired();
+    const milestones = this.getMilestoneRewards();
+    const firstReward = milestones[0] || STAMP_MILESTONES_3[0];
 
     const resetState: StampCardState = {
       currentStamps: 0,
-      totalRequired: activeMode,
-      mode: activeMode,
+      totalRequired,
+      mode: totalRequired,
       rewardTitle: firstReward.title,
       nextReward: firstReward,
       unlockedRewards: [],

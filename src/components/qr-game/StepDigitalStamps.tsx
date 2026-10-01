@@ -12,10 +12,12 @@ import {
   Zap,
   ArrowLeft,
   ShieldCheck,
+  Smartphone,
 } from "lucide-react";
 import { StampService, StampCardState, StampReward } from "@/lib/stampService";
 import { clientConfig } from "@/config/clientConfig";
 import { AddToHomeScreenModal } from "./AddToHomeScreenModal";
+import { DigitalWalletPassModal } from "./DigitalWalletPassModal";
 
 interface StepDigitalStampsProps {
   customerName?: string | undefined;
@@ -37,13 +39,26 @@ export function StepDigitalStamps({
   );
   const [selectedReward, setSelectedReward] = useState<StampReward | null>(null);
   const [showAllCatalog, setShowAllCatalog] = useState(false);
+  const [isWalletOpen, setIsWalletOpen] = useState(false);
   const isHappyHourActive = StampService.isHappyHour();
 
-  const totalRequired = 15;
+  const totalRequired = StampService.getTotalRequired();
+  const visitIcon = StampService.getVisitIcon();
   const currentStamps = Math.min(stampCard.currentStamps, totalRequired);
   const progressPercent = Math.round((currentStamps / totalRequired) * 100);
   const isCompleted = currentStamps >= totalRequired;
   const nextMilestone = StampService.getNextMilestone(currentStamps);
+
+  const gridColsClass =
+    totalRequired <= 6
+      ? "grid-cols-3"
+      : totalRequired <= 8
+        ? "grid-cols-4"
+        : totalRequired <= 10
+          ? "grid-cols-5"
+          : totalRequired <= 12
+            ? "grid-cols-4 sm:grid-cols-6"
+            : "grid-cols-5";
 
   useEffect(() => {
     // Sincronizar estado de sellos desde la base de datos o servicio local
@@ -53,7 +68,7 @@ export function StepDigitalStamps({
 
   return (
     <div className="w-full max-w-lg mx-auto flex flex-col gap-5 text-left">
-      {/* 1. ENCABEZADO DE LA ETAPA 7: PASAPORTE DE 15 SELLOS VIP */}
+      {/* 1. ENCABEZADO DE LA ETAPA 7: PASAPORTE DE SELLOS VIP */}
       <Reveal delay={0}>
         <div className="flex flex-col gap-2">
           {/* Badge superior */}
@@ -67,14 +82,14 @@ export function StepDigitalStamps({
           <h2 className="font-headline-xl-mobile text-2xl sm:text-3xl text-[#e6e1e7] tracking-tight mt-1">
             {t("Tu Tarjeta de", "Your Digital")}{" "}
             <span className="text-[#f2be71] italic font-serif">
-              {t("15 Sellos de la Casa", "15 Dining Stamps")}
+              {totalRequired} {t("Sellos de la Casa", "Dining Stamps")}
             </span>
           </h2>
 
           <p className="font-body-md text-xs sm:text-sm text-[#ccc3d8] leading-relaxed">
             {t(
-              "Cada vez que visites el salón y valides tu cuenta con el mesero, acumulas un sello. Cada 5 visitas desbloqueas un beneficio gastronómico exclusivo.",
-              "Each dining visit validated with your server earns a stamp. Unlock a special culinary treat every 5 visits."
+              `Cada vez que visites el salón y valides tu cuenta con el personal, acumulas sellos para desbloquear beneficios gastronómicos exclusivos de la casa.`,
+              `Each dining visit validated with our team earns stamps towards exclusive treats.`
             )}
           </p>
 
@@ -97,7 +112,7 @@ export function StepDigitalStamps({
         </div>
       </Reveal>
 
-      {/* 2. TARJETA DIGITAL DE 15 SELLOS */}
+      {/* 2. TARJETA DIGITAL MODULAR DE SELLOS */}
       <Reveal delay={100}>
         <div className="w-full rounded-3xl bg-[#1c1b1f] border border-[#f2be71]/40 p-4 sm:p-6 shadow-2xl relative overflow-hidden flex flex-col gap-4">
           {/* Halo ambiental decorativo */}
@@ -116,54 +131,48 @@ export function StepDigitalStamps({
 
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full badge-gold shadow-sm">
               <span className="font-mono text-xs font-black text-[#121115]">
-                {currentStamps} / 15 {t("Sellos", "Stamps")}
+                {currentStamps} / {totalRequired} {t("Sellos", "Stamps")}
               </span>
             </div>
           </div>
 
-          {/* Cuadrícula de 15 Sellos (3 filas x 5 columnas) */}
-          <div className="grid grid-cols-5 gap-2 sm:gap-2.5 pt-1">
-            {Array.from({ length: 15 }, (_, i) => i + 1).map((selloNum) => {
+          {/* Cuadrícula Modular de Sellos */}
+          <div className={`grid ${gridColsClass} gap-2 sm:gap-2.5 pt-1`}>
+            {Array.from({ length: totalRequired }, (_, i) => i + 1).map((selloNum) => {
               const isEarned = selloNum <= currentStamps;
-              const isMilestone5 = selloNum === 5;
-              const isMilestone10 = selloNum === 10;
-              const isMilestone15 = selloNum === 15;
+              const isPrize = StampService.isPrizeStamp(selloNum);
+              const prizeReward = StampService.getRewardForStamp(selloNum);
+              const isLast = selloNum === totalRequired;
 
               return (
                 <div
                   key={selloNum}
                   onClick={() => {
-                    const r = StampService.getRewardForStamp(selloNum);
-                    if (r) setSelectedReward(r);
+                    if (prizeReward) setSelectedReward(prizeReward);
                   }}
                   className={`aspect-square rounded-2xl flex flex-col items-center justify-center relative transition-all cursor-pointer ${
                     isEarned
                       ? "badge-gold shadow-[0_0_12px_rgba(242,190,113,0.5)] scale-105 font-bold"
-                      : isMilestone15
+                      : isLast
                         ? "bg-gradient-to-tr from-[#684400] to-[#3a383d] border border-[#f2be71]/60 text-[#f2be71]"
-                        : isMilestone10
-                          ? "bg-[#2b292e] border border-[#d1bcff]/60 text-[#d1bcff]"
-                          : isMilestone5
-                            ? "bg-[#2b292e] border border-[#f2be71]/60 text-[#f2be71]"
-                            : "bg-[#201f23] border border-[#2b292e] text-[#ccc3d8]/40"
+                        : isPrize
+                          ? "bg-[#2b292e] border border-[#f2be71]/60 text-[#f2be71]"
+                          : "bg-[#201f23] border border-[#2b292e] text-[#ccc3d8]/40"
                   }`}
                 >
                   {isEarned ? (
-                    <span className="text-sm sm:text-base font-black text-[#121115]">✓</span>
-                  ) : isMilestone15 ? (
+                    <span className="text-sm sm:text-base font-black text-[#121115]">
+                      {visitIcon || "✓"}
+                    </span>
+                  ) : isLast ? (
                     <>
                       <Trophy className="h-4 w-4" />
-                      <span className="text-[7px] font-bold mt-0.5">15 VIP</span>
+                      <span className="text-[7px] font-bold mt-0.5">{selloNum} VIP</span>
                     </>
-                  ) : isMilestone10 ? (
+                  ) : isPrize ? (
                     <>
-                      <Gift className="h-4 w-4" />
-                      <span className="text-[8px] font-bold mt-0.5">10</span>
-                    </>
-                  ) : isMilestone5 ? (
-                    <>
-                      <Coffee className="h-4 w-4" />
-                      <span className="text-[8px] font-bold mt-0.5">5</span>
+                      <span className="text-xs">{prizeReward?.icon || "🎁"}</span>
+                      <span className="text-[8px] font-bold mt-0.5">{selloNum}</span>
                     </>
                   ) : (
                     <span className="text-xs font-semibold">{selloNum}</span>
@@ -237,10 +246,20 @@ export function StepDigitalStamps({
             </div>
           </div>
 
+          {/* Botón Guardar en Apple Wallet / Google Wallet */}
+          <button
+            type="button"
+            onClick={() => setIsWalletOpen(true)}
+            className="w-full py-2.5 px-4 rounded-xl bg-[#0f0e12] border border-[#f2be71]/40 text-[#f2be71] hover:border-[#f2be71]/80 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 shadow-sm"
+          >
+            <Smartphone className="h-4 w-4 text-[#f2be71]" />
+            <span>{t("📱 Guardar Tarjeta en Apple / Google Wallet", "📱 Save Card to Apple / Google Wallet")}</span>
+          </button>
+
           {/* Opción de guardar en pantalla de inicio */}
           <AddToHomeScreenModal />
 
-          {/* Desplegable de los 3 Hitos */}
+          {/* Desplegable de los Hitos */}
           <button
             type="button"
             onClick={() => setShowAllCatalog(!showAllCatalog)}
@@ -249,7 +268,7 @@ export function StepDigitalStamps({
             <span>
               {showAllCatalog
                 ? t("Ocultar catálogo de beneficios", "Hide rewards catalog")
-                : t("📜 Ver los 3 Grandes Premios (Sellos #5, #10 y #15)", "📜 View the 3 Major Rewards (Stamps #5, #10 & #15)")}
+                : t("📜 Ver Grandes Premios e Hitos Desbloqueables", "📜 View Major Rewards & Unlockable Milestones")}
             </span>
             {showAllCatalog ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
@@ -329,6 +348,19 @@ export function StepDigitalStamps({
           </div>
         </div>
       </Reveal>
+
+      {/* Modal Digital Wallet Pass */}
+      <DigitalWalletPassModal
+        isOpen={isWalletOpen}
+        onClose={() => setIsWalletOpen(false)}
+        type="stamps"
+        customerName={customerName}
+        customerWhatsapp={customerWhatsapp}
+        currentStamps={currentStamps}
+        totalStamps={totalRequired}
+        nextRewardTitle={nextMilestone.reward.title}
+        prizeCode={`STAMP-${cleanPhone || "VIP"}`}
+      />
     </div>
   );
 }

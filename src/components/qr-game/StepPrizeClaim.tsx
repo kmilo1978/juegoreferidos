@@ -13,9 +13,11 @@ import {
   ArrowRight,
   MessageCircle,
   Trophy,
+  Smartphone,
 } from "lucide-react";
 import { waLink } from "@/data/site";
 import { clientConfig } from "@/config/clientConfig";
+import { DigitalWalletPassModal } from "./DigitalWalletPassModal";
 
 interface StepPrizeClaimProps {
   prize: WonPrize;
@@ -35,6 +37,7 @@ export function StepPrizeClaim({
 }: StepPrizeClaimProps) {
   const { lang, t } = useLanguage();
   const [copiedCode, setCopiedCode] = useState(false);
+  const [isWalletOpen, setIsWalletOpen] = useState(false);
 
   const isUsed = prize.status === "UTILIZADO";
   const prizeDisplayName = lang === "en" ? prize.prizeNameEn : prize.prizeName;
@@ -164,17 +167,38 @@ export function StepPrizeClaim({
             </button>
           )}
 
+          {/* Botón Guardar en Apple Wallet / Google Wallet */}
+          <button
+            type="button"
+            onClick={() => setIsWalletOpen(true)}
+            className="w-full py-2.5 px-4 rounded-full bg-[#1c1b1f] border border-[#f2be71]/40 text-[#f2be71] hover:border-[#f2be71]/80 text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-98"
+          >
+            <Smartphone className="h-4 w-4 text-[#f2be71]" />
+            <span>{t("📱 Guardar Voucher en Apple / Google Wallet", "📱 Save Voucher to Apple / Google Wallet")}</span>
+          </button>
+
           {/* Compartir por WhatsApp */}
           <button
             type="button"
             onClick={handleShareWhatsApp}
-            className="w-full py-2.5 text-center text-xs text-[#ccc3d8] hover:text-[#f2be71] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full py-2 text-center text-xs text-[#ccc3d8] hover:text-[#f2be71] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <Share2 className="h-3.5 w-3.5 text-[#f2be71]" />
             <span>{t("Compartir mi premio por WhatsApp", "Share my prize on WhatsApp")}</span>
           </button>
         </div>
       </Reveal>
+
+      {/* Modal Digital Wallet Pass */}
+      <DigitalWalletPassModal
+        isOpen={isWalletOpen}
+        onClose={() => setIsWalletOpen(false)}
+        type="prize"
+        customerName={prize.participantName}
+        customerWhatsapp={prize.participantWhatsapp}
+        prizeName={prizeDisplayName}
+        prizeCode={prize.uniqueCode}
+      />
     </div>
   );
 }
