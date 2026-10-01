@@ -741,3 +741,21 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Biblioteca de combinaciones de color gastronómicas integrada y validada con capturas en navegador Edge.
 - Observaciones: Sincronizado en ambos repositorios locales y remoto en GitHub.
+
+## Nueva sesión
+- Fecha: 2026-10-01 18:03
+- Solicitud: actualiza todo y el manifiesto
+- Decisiones clave:
+  1. Creación del manifiesto oficial Web App Manifest ('public/manifest.json') según el estándar W3C PWA, con nombre de la app, descripción, iconos de alta resolución (favicon, 192x192, 512x512 y apple-touch-icon), modo 'standalone', orientación vertical y atajos directos (Girar Ruleta, Tarjeta de Sellos, Sorteo VIP).
+  2. Vinculación en 'index.html' y 'admin.html' con etiquetas <link rel="manifest">, <link rel="icon"> y <link rel="apple-touch-icon">.
+  3. Soporte dinámico en el servidor backend (:3001) para servir el manifiesto en '/manifest.json' sincronizado en tiempo real con la marca blanca configurada por el usuario en la base de datos (nombre, eslogan y color primario).
+  4. Compilación Vite 100% limpia sin errores.
+  5. Sincronización en ambos repositorios locales y remoto en GitHub.
+- Pendientes:
+  - Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 18:03
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Manifiesto PWA creado y validado en backend :3001 y frontend :5173 respondiendo 200 OK. Sistema listo para instalarse como app nativa en Android e iOS.
+- Observaciones: Pruebas automáticas confirmaron entrega de JSON válido con iconos y atajos.

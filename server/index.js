@@ -14,7 +14,7 @@
  */
 
 import http from "node:http";
-import { PORT } from "./state.js";
+import { PORT, db } from "./state.js";
 import { renderBackendDashboard } from "./views/dashboard.js";
 import { handleTables } from "./modules/tables.js";
 import { handleLoyalty } from "./modules/loyalty.js";
@@ -61,6 +61,42 @@ const server = http.createServer((req, res) => {
       return;
     }
     res.end(renderBackendDashboard());
+    return;
+  }
+
+  // 1.1 MANIFIESTO PWA DINÁMICO (/manifest.json o /manifest.webmanifest)
+  if (req.method === "GET" && (pathname === "/manifest.json" || pathname === "/manifest.webmanifest" || pathname === "/api/manifest")) {
+    const brand = db.settings?.brand || {};
+    const manifest = {
+      name: brand.name ? `${brand.name} - Fidelización & Premios` : "Bliss Soul - Experiencia & Premios VIP",
+      short_name: brand.name || "Bliss Soul",
+      description: brand.tagline || "Gira la ruleta, acumula sellos de visita y canjea premios exclusivos en tu mesa.",
+      start_url: "/?source=pwa",
+      scope: "/",
+      display: "standalone",
+      background_color: "#141317",
+      theme_color: brand.primaryColor || "#0f0e12",
+      orientation: "portrait-primary",
+      icons: [
+        { src: "/favicon.png", sizes: "64x64", type: "image/png" },
+        { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
+        { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
+      ],
+      shortcuts: [
+        {
+          name: "Girar Ruleta",
+          url: "/?paso=3&source=shortcut",
+          icons: [{ src: "/icon-192.png", sizes: "192x192" }]
+        },
+        {
+          name: "Tarjeta de Sellos",
+          url: "/?paso=7&source=shortcut",
+          icons: [{ src: "/icon-192.png", sizes: "192x192" }]
+        }
+      ]
+    };
+    res.writeHead(200, { "Content-Type": "application/manifest+json; charset=utf-8" });
+    res.end(JSON.stringify(manifest, null, 2));
     return;
   }
 

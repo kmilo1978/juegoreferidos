@@ -149,6 +149,32 @@
   ],
   "logs": [
     {
+      "id": "muq4ojih60l",
+      "timestamp": "5:51:04 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/3165212283",
+      "status": 200,
+      "detail": "Consulta de sellos para +3165212283: 1/15"
+    },
+    {
+      "id": "muq4ob84dhq",
+      "timestamp": "5:50:53 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muq4ob7bebj",
+      "timestamp": "5:50:53 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/3165212283",
+      "status": 200,
+      "detail": "Consulta de sellos para +3165212283: 1/15"
+    },
+    {
+      "id": "muq4dylp7zf",
+      "timestamp": "5:42:50 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
       "id": "muq4dybcagq",
       "timestamp": "5:42:50 p. m.",
       "method": "GET",
@@ -476,38 +502,6 @@
       "url": "/api/config",
       "status": 200,
       "detail": "Configuración centralizada guardada en backend"
-    },
-    {
-      "id": "muputn3q8cm",
-      "timestamp": "1:15:06 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mupu2jt0esz",
-      "timestamp": "12:54:02 p. m.",
-      "method": "POST",
-      "url": "/api/missions/config",
-      "status": 200,
-      "detail": "Catálogo de misiones actualizado (8 misiones configuradas)"
-    },
-    {
-      "id": "mupu2afkfiz",
-      "timestamp": "12:53:49 p. m.",
-      "method": "POST",
-      "url": "/api/contest/draw",
-      "status": 200,
-      "detail": "¡Ganador del sorteo mensual seleccionado!: Demo Sheets (#VIP-GS-9820-8877)"
-    },
-    {
-      "id": "muptauso1fw",
-      "timestamp": "12:32:29 p. m.",
-      "method": "POST",
-      "url": "/api/contest/import-sheets",
-      "status": 200,
-      "detail": "Importados 1 participantes desde Google Sheets"
     }
   ],
   "settings": {
@@ -1231,8 +1225,22 @@
     "baseDomain": "http://localhost:5173",
     "stats": {
       "nfcScans": 28,
-      "qrScans": 78,
+      "qrScans": 80,
       "lastScans": [
+        {
+          "id": "scan_1790895066238",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:51 p. m."
+        },
+        {
+          "id": "scan_1790895053511",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:50 p. m."
+        },
         {
           "id": "scan_1790894570595",
           "mesa": 1,
@@ -1358,13 +1366,6 @@
           "origen": "nfc",
           "timestamp": "Hace 1 hora",
           "device": "iPhone 15 Pro"
-        },
-        {
-          "id": "scan_5",
-          "mesa": 4,
-          "origen": "qr",
-          "timestamp": "Hace 2 horas",
-          "device": "Pixel 8 (Android 14)"
         }
       ]
     }

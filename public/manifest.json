@@ -1,0 +1,56 @@
+{
+  "name": "Bliss Soul - Experiencia & Premios VIP",
+  "short_name": "Bliss Soul",
+  "description": "Gira la ruleta, acumula sellos de visita y canjea premios exclusivos en tu mesa.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#141317",
+  "theme_color": "#0f0e12",
+  "orientation": "portrait-primary",
+  "categories": ["food", "lifestyle", "shopping"],
+  "lang": "es",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Girar Ruleta de Premios",
+      "short_name": "Ruleta",
+      "description": "Prueba tu suerte y gana beneficios en tu mesa",
+      "url": "/?paso=3&source=shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Tarjeta de Sellos VIP",
+      "short_name": "Mis Sellos",
+      "description": "Consulta tus visitas acumuladas",
+      "url": "/?paso=7&source=shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Sorteo VIP Fin de Mes",
+      "short_name": "Sorteo VIP",
+      "description": "Boletos para el sorteo mensual",
+      "url": "/?paso=8&source=shortcut",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
