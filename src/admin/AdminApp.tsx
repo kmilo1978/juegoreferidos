@@ -18,6 +18,7 @@ import { Hermes } from "./pages/Hermes";
 import { Composio } from "./pages/Composio";
 import { Analytics } from "./pages/Analytics";
 import { Contest } from "./pages/Contest";
+import { Demo } from "./pages/Demo";
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: string }> {
   constructor(props: { children: ReactNode }) {
@@ -69,6 +70,7 @@ export function AdminApp() {
             <Route path="reputation" element={<Reputation />} />
 
             {/* Juego & Captación */}
+            <Route path="demo" element={<Demo />} />
             <Route path="game-mode" element={<GameMode />} />
             <Route path="wifi" element={<WifiPortal />} />
             <Route path="channels" element={<Channels />} />

@@ -17,6 +17,7 @@ import {
   Zap,
   BarChart3,
   Trophy,
+  Smartphone,
 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
@@ -52,6 +53,7 @@ export function AdminLayout() {
       case "/missions": return "Misiones & Embajadores";
       case "/reputation": return "Embudo de Reputación";
       case "/game-mode": return "Mecánicas de Juego & 2ª Oportunidad";
+      case "/demo": return "Simulador Frontend (Demo en Vivo)";
       case "/wifi": return "Portal Cautivo WiFi & Kiosko";
       case "/channels": return "Canales & WhatsApp";
       case "/push": return "Ofertas Push & Flujos";
@@ -81,6 +83,7 @@ export function AdminLayout() {
     {
       group: "Juego & Captación",
       items: [
+        { path: "/demo", label: "Simulador Frontend (Demo)", icon: Smartphone },
         { path: "/game-mode", label: "Mecánica & 2ª Op.", icon: Gamepad2 },
         { path: "/wifi", label: "Portal WiFi / Kiosko", icon: Wifi },
         { path: "/channels", label: "Canales & WhatsApp", icon: MessageCircle },

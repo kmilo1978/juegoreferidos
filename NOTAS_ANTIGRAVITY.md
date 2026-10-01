@@ -386,3 +386,25 @@
 - Resultado: Aprobado (Score: 10/10)
 - Resumen: Reseteo aleatorio de PINs de caja, base de datos vía Composio y programador de backups a Google Drive completados e integrados.
 - Observaciones: Pruebas de compilación y llamadas API en vivo superadas al 100%.
+
+## Nueva sesión
+- Fecha: 2026-10-01 12:25
+- Solicitud: Agregar un módulo de demostración (demo) interactivo con el frontend que ya tenemos.
+- Decisiones clave:
+  - Se creó el módulo src/admin/pages/Demo.tsx:
+    1. Simulador de Dispositivo Móvil en Vivo (Live Device Mockup): marco interactivo tipo smartphone moderno (iPhone/Android) con Dynamic Island, dimensiones táctiles reales y ejecución en caliente del frontend real en un iframe.
+    2. Modos de Pantalla: Móvil (390px), Tablet (600px) y Vista Expandida.
+    3. Barra de Salto Directo a Fases: botones para ir inmediatamente al Paso 1 (Bienvenida), Paso 2 (Redes), Paso 3 (Ruleta/Minijuego), Paso 4 (Voucher & PIN), Paso 5 (Embudo de Calificación), Paso 6 (Segunda Oportunidad 10.00s) o Paso 7 (Sellos VIP & Sorteo).
+    4. Selector de Mesa & Entorno: Mesa 1, Mesa 2, Terraza Jardín, VIP Rooftop, Punto de Pago Caja (Kiosko) o Pedido a Domicilio.
+    5. Selector de Minijuego: alternar entre Ruleta Gastronómica y Reto del Cronómetro de 10.00s.
+    6. Generador de Código QR en Vivo: genera el QR dinámico con la URL del juego para que el administrador o evaluador pueda apuntar la cámara de su teléfono móvil real y probarlo en su propia mano.
+    7. Acciones rápidas: 'Reiniciar Demo', 'Copiar Enlace' y 'Abrir en Pestaña Nueva'.
+  - Se registró la ruta /demo en src/admin/AdminApp.tsx y se incorporó el enlace con icono Smartphone en src/admin/AdminLayout.tsx en la sección 'Juego & Captación'.
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 5.30s).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 12:25
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Módulo de demo con simulador móvil interactivo, salto de fases y QR para teléfono físico completado e integrado.
+- Observaciones: Pruebas de compilación superadas sin errores.
