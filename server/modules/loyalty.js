@@ -151,7 +151,145 @@ export function handleLoyalty(req, res, pathname, url) {
     logRequest("POST", "/api/contest/draw", 200, `¡Ganador del sorteo mensual seleccionado!: ${winner.customerName} (${winner.ticketCode})`);
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ success: true, winner, contest: db.monthlyContest }));
-      return true;
+    return true;
+  }
+
+  // 13.2 API: IMPORTAR PARTICIPANTES DESDE GOOGLE SHEETS (/api/contest/import-sheets)
+  if (pathname === "/api/contest/import-sheets" && req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { participants, sheetUrl } = JSON.parse(body || "{}");
+        const list = Array.isArray(participants) ? participants : [];
+        db.monthlyContest = db.monthlyContest || [];
+        let addedCount = 0;
+
+        for (const p of list) {
+          const cleanPhone = (p.customerWhatsapp || p.whatsapp || p.telefono || "").toString().replace(/[^0-9]/g, "");
+          const name = (p.customerName || p.nombre || p.name || "Comensal Google Sheet").trim();
+          if (!name) continue;
+
+          // Verificar si ya existe
+          let existing = db.monthlyContest.find((e) => e.customerWhatsapp === cleanPhone && cleanPhone !== "");
+          if (!existing) {
+            const ticket = p.ticketCode || `#VIP-GS-${Math.floor(1000 + Math.random() * 9000)}-${cleanPhone.slice(-4) || "HOJA"}`;
+            db.monthlyContest.unshift({
+              id: `TKT-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
+              customerName: name,
+              customerWhatsapp: cleanPhone || "573000000000",
+              ticketCode: ticket,
+              prize: "Cena Degustación de Autor para 2 Personas",
+              missionsCount: p.missionsCount || 3,
+              enteredAt: new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }),
+              dateFormatted: new Date().toLocaleDateString("es-CO", { day: "numeric", month: "short" }),
+              status: "INSCRITO",
+              winner: false,
+              origin: "Google Sheets",
+            });
+            addedCount++;
+          }
+        }
+
+        saveDb();
+        logRequest("POST", "/api/contest/import-sheets", 200, `Importados ${addedCount} participantes desde Google Sheets`);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true, addedCount, contest: db.monthlyContest }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return true;
+  }
+
+  // 13.3 API: ACCIONES POR LOTE EN CONCURSO (/api/contest/batch)
+  if (pathname === "/api/contest/batch" && req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { ids, action, value } = JSON.parse(body || "{}");
+        const targetIds = Array.isArray(ids) ? ids : [];
+        db.monthlyContest = db.monthlyContest || [];
+
+        if (action === "delete") {
+          db.monthlyContest = db.monthlyContest.filter((c) => !targetIds.includes(c.id));
+        } else if (action === "set_vip") {
+          db.monthlyContest.forEach((c) => {
+            if (targetIds.includes(c.id)) {
+              c.missionsCount = (c.missionsCount || 1) + 3;
+              if (!c.ticketCode.includes("VIP")) {
+                c.ticketCode = `#VIP-${c.ticketCode.replace(/^#/, "")}`;
+              }
+            }
+          });
+        } else if (action === "include") {
+          db.monthlyContest.forEach((c) => {
+            if (targetIds.includes(c.id)) {
+              c.status = "INSCRITO";
+              c.winner = false;
+            }
+          });
+        } else if (action === "exclude") {
+          db.monthlyContest.forEach((c) => {
+            if (targetIds.includes(c.id)) {
+              c.status = "EN ESPERA";
+            }
+          });
+        }
+
+        saveDb();
+        logRequest("POST", "/api/contest/batch", 200, `Acción por lote "${action}" sobre ${targetIds.length} participantes`);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true, contest: db.monthlyContest }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return true;
+  }
+
+  // 13.4 API: TRANSFERIR PARTICIPANTES DE CONCURSO A MÓDULO DE PREMIOS (/api/contest/transfer-to-prizes)
+  if (pathname === "/api/contest/transfer-to-prizes" && req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { ids, prizeName } = JSON.parse(body || "{}");
+        const targetIds = Array.isArray(ids) ? ids : [];
+        db.monthlyContest = db.monthlyContest || [];
+        db.prizes = db.prizes || [];
+        let transferredCount = 0;
+
+        const selected = db.monthlyContest.filter((c) => targetIds.includes(c.id));
+        for (const item of selected) {
+          const voucherCode = `CUPON-${Math.floor(1000 + Math.random() * 9000)}-${item.customerWhatsapp.slice(-4) || "VIP"}`;
+          db.prizes.unshift({
+            id: `PRZ-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
+            name: prizeName || "Cortesía Especial Sorteo VIP",
+            customerName: item.customerName,
+            whatsapp: item.customerWhatsapp,
+            tableNumber: "Sorteo VIP",
+            status: "ACTIVO",
+            uniqueCode: voucherCode,
+            wonAt: new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }),
+            expiresAt: "24h",
+          });
+          transferredCount++;
+        }
+
+        saveDb();
+        logRequest("POST", "/api/contest/transfer-to-prizes", 200, `Transferidos ${transferredCount} participantes a Premios & Canjes`);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true, transferredCount, totalPrizes: db.prizes.length }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return true;
   }
 
 

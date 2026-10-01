@@ -95,6 +95,19 @@
   ],
   "monthlyContest": [
     {
+      "id": "TKT-MUPTAUSM-EGR9",
+      "customerName": "Demo Sheets",
+      "customerWhatsapp": "573009998877",
+      "ticketCode": "#VIP-GS-9820-8877",
+      "prize": "Cena Degustación de Autor para 2 Personas",
+      "missionsCount": 3,
+      "enteredAt": "12:32 p. m.",
+      "dateFormatted": "1 de oct",
+      "status": "INSCRITO",
+      "winner": false,
+      "origin": "Google Sheets"
+    },
+    {
       "id": "TKT-MUMQ9NHU",
       "customerName": "Marcela Restrepo",
       "customerWhatsapp": "573115556677",

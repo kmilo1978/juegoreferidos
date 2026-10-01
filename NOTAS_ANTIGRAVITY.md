@@ -432,3 +432,27 @@
 - Resultado: Aprobado (Score: 10/10)
 - Resumen: Carga de logo en embudo de reputación y especificaciones técnicas completas de tamaño, proporción y peso en todos los módulos de imagen.
 - Observaciones: Pruebas de compilación superadas sin errores.
+
+## Nueva sesión
+- Fecha: 2026-10-01 12:35
+- Solicitud: En Sorteo VIP tener la opción de agregar e importar desde Google Sheets, seleccionar participantes con checkboxes desde el mismo dashboard y moverlos entre módulos mediante filtros y acciones por lote.
+- Decisiones clave:
+  - En src/admin/pages/Contest.tsx y server/modules/loyalty.js:
+    1. Conexión & Importación de Google Sheets (/api/contest/import-sheets): modal con soporte para pegar enlace de Google Sheet, URL CSV o pegar texto tabular de comensales directamente. Sincroniza participantes y les asigna el badge de origen 'Google Sheets'.
+    2. Exportación a CSV / Google Sheets: botón para descargar archivo CSV de todos los participantes y ganadores con un solo clic.
+    3. Selección múltiple desde el dashboard (Checkboxes): casilla de verificación en cada fila y botón maestro 'Seleccionar todos' en la cabecera.
+    4. Barra de Acciones por Lote (Batch Bar): aparece flotante al seleccionar participantes y permite:
+       - Mover al módulo de Premios & Canjes (/api/contest/transfer-to-prizes) emitiendo vouchers oficiales con PIN de validación en caja.
+       - Asignar +3 Boletos VIP a todos los seleccionados (/api/contest/batch).
+       - Incluir o Excluir de la tómbola en directo.
+       - Eliminar comensales seleccionados.
+    5. Filtros avanzados por Origen: 'Todos', 'En Tómbola', 'Google Sheets', 'Mesas en Sala', 'Boletos VIP' y 'Ganadores', más buscador en tiempo real.
+    6. Sincronización bidireccional con Mesas: botón 'Sincronizar Mesas' que importa los comensales sentados activamente en sala hacia el sorteo.
+  - Compilación de producción con Vite aprobada al 100% (0 errores, 7.06s).
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 12:35
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Sorteo VIP enriquecido con conector de Google Sheets, selección múltiple en dashboard y transferencia entre módulos por filtros.
+- Observaciones: Pruebas de compilación y llamadas API en vivo superadas al 100%.
