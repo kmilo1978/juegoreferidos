@@ -110,6 +110,10 @@ function JuegoQrPage() {
       try {
         const saved = sessionStorage.getItem("juego_participant");
         if (saved) return JSON.parse(saved);
+        const p = new URLSearchParams(window.location.search);
+        if (p.get("demo") === "true") {
+          return { fullName: "Laura Gómez (Comensal Demo)", whatsapp: "573001234567" };
+        }
       } catch {
         // ignore
       }
@@ -143,6 +147,20 @@ function JuegoQrPage() {
       try {
         const savedPrize = sessionStorage.getItem("juego_won_prize");
         if (savedPrize) return JSON.parse(savedPrize) as WonPrize;
+        const p = new URLSearchParams(window.location.search);
+        if (p.get("demo") === "true") {
+          return {
+            id: "PRIZE-DEMO-2026",
+            prizeName: "Porción de Tarta Vasca de Pistacho",
+            prizeDescription: "Postre artesanal de autor elaborado en casa",
+            tableNumber: getInitialTable(),
+            participantName: "Laura Gómez (Comensal Demo)",
+            whatsapp: "573001234567",
+            claimedAt: Date.now() - 5 * 60000,
+            redeemed: false,
+            uniqueCode: "DEMO-4321",
+          };
+        }
       } catch {
         // ignore
       }
@@ -243,7 +261,7 @@ function JuegoQrPage() {
       const params = new URLSearchParams(window.location.search);
       // Atajos para probar directamente cada paso o juego
       const requestedStep = params.get("paso");
-      if (requestedStep && ["1", "2", "3", "4", "5", "6", "7"].includes(requestedStep)) {
+      if (requestedStep && ["1", "2", "3", "4", "5", "6", "7", "8"].includes(requestedStep)) {
         setCurrentStep(parseInt(requestedStep, 10));
       } else if (params.get("juego") === "precision" || params.get("test") === "precision") {
         sessionStorage.removeItem("juego_won_prize");

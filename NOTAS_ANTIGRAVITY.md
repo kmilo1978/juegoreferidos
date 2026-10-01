@@ -568,3 +568,24 @@
 - Resultado: Aprobado (Score: 10/10)
 - Resumen: Módulo de Portal Cautivo implementado a nivel técnico con soporte de estándares CNA, MikroTik, UniFi y monitoreo de dispositivos.
 - Observaciones: Pruebas de compilación, API y scripts de descarga superadas al 100%.
+## Nueva sesión
+- Fecha: 2026-10-01 13:00
+- Solicitud: Corrección de apertura del simulador demo frontend tanto en iframe como en pestaña nueva.
+- Decisiones clave:
+  1. En ite.config.ts: se expandió la regla de reescritura para admitir cualquier ruta que empiece con /admin, /admin/*, /demo o /demo/*, sirviendo dmin.html sin dar 404 ni páginas en blanco.
+  2. En src/admin/pages/Demo.tsx:
+     - Se reemplazó la URL absoluta del iframe por la ruta relativa /?, garantizando carga inmediata bajo cualquier hostname, puerto o IP.
+     - Se transformó el botón 'Abrir en Pestaña Nueva' en un hipervínculo nativo <a target="_blank"> para eliminar bloqueos de ventanas emergentes en navegadores modernos.
+     - Se agregaron permisos llow="clipboard-write; camera; microphone; geolocation" al <iframe>.
+  3. En src/App.tsx:
+     - Se dotó al modo demo (?demo=true) de datos predeterminados en participant y wonPrize para que cualquier fase (como el Paso 4 de Voucher & PIN) cargue su cupón sin requerir girar la ruleta previamente.
+     - Se incluyó el paso 8 en la lectura de parámetros por URL.
+  4. Compilación de producción con Vite aprobada al 100% (5.10s, 0 errores).
+  5. Sincronización en ambas carpetas y GitHub actualizada.
+- Pendientes: Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-01 13:00
+- Resultado: Aprobado (Score: 10/10)
+- Resumen: Simulador Demo operativo al 100% tanto en marco móvil integrado como en pestaña externa independiente.
+- Observaciones: Pruebas de compilación y HTTP 200 superadas con éxito.

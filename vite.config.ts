@@ -13,7 +13,12 @@ export default defineConfig({
         server.middlewares.use((req, _res, next) => {
           if (req.url) {
             const cleanUrl = req.url.split("?")[0];
-            if (cleanUrl === "/admin" || cleanUrl === "/admin/") {
+            if (
+              cleanUrl === "/admin" ||
+              cleanUrl.startsWith("/admin/") ||
+              cleanUrl === "/demo" ||
+              cleanUrl.startsWith("/demo/")
+            ) {
               req.url = req.url.replace(cleanUrl, "/admin.html");
             }
           }

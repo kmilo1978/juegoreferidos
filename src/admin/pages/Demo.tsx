@@ -36,12 +36,8 @@ export function Demo() {
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Construir la URL del frontend para el iframe
+  // Construir la URL del frontend para el iframe y navegación
   const buildFrontendUrl = (step = selectedStep, table = selectedTable, game = selectedGame) => {
-    const port = typeof window !== "undefined" && window.location.port ? `:${window.location.port}` : "";
-    const protocol = typeof window !== "undefined" ? window.location.protocol : "http:";
-    const host = typeof window !== "undefined" ? window.location.hostname : "localhost";
-
     const params = new URLSearchParams();
     params.set("demo", "true");
     if (table.startsWith("caja")) {
@@ -60,7 +56,7 @@ export function Demo() {
       params.set("juego", "precision");
     }
 
-    return `${protocol}//${host}${port}/?${params.toString()}`;
+    return `/?${params.toString()}`;
   };
 
   const currentUrl = buildFrontendUrl();
@@ -142,14 +138,15 @@ export function Demo() {
             <span>{copiedLink ? "Copiado" : "Copiar Enlace"}</span>
           </button>
 
-          <button
-            type="button"
-            onClick={handleOpenExternal}
+          <a
+            href={currentUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-4 py-2.5 text-xs hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2"
           >
             <span>Abrir en Pestaña Nueva</span>
             <ExternalLink className="w-4 h-4" />
-          </button>
+          </a>
         </div>
       </div>
 
@@ -266,6 +263,7 @@ export function Demo() {
                 src={buildFrontendUrl()}
                 title="Frontend Demo"
                 className="w-full h-[720px] border-0"
+                allow="clipboard-write; camera; microphone; geolocation"
               />
             </div>
 
