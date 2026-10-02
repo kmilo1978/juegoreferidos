@@ -64,7 +64,7 @@ export interface WonPrize {
   usedAt?: string;
 }
 
-export type GameMode = "roulette" | "precision" | "hybrid" | "stamps";
+export type GameMode = "roulette" | "precision" | "hybrid" | "stamps" | "scratch" | "memory";
 export type PrecisionDifficulty = "facil" | "medio" | "dificil";
 
 export interface GameConfig {

@@ -149,6 +149,91 @@
   ],
   "logs": [
     {
+      "id": "mur2my24wc0",
+      "timestamp": "9:41:36 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur2mxy0eaj",
+      "timestamp": "9:41:36 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mur2jtqs47k",
+      "timestamp": "9:39:11 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur2jtq4f2h",
+      "timestamp": "9:39:11 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mur2hit33m7",
+      "timestamp": "9:37:23 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur2his6de2",
+      "timestamp": "9:37:23 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur2hinlktf",
+      "timestamp": "9:37:23 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mur2e3kcf0m",
+      "timestamp": "9:34:43 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur2e3g3hy9",
+      "timestamp": "9:34:43 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur2e3a221s",
+      "timestamp": "9:34:43 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mur2am8mxd0",
+      "timestamp": "9:32:01 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur2am3mlqg",
+      "timestamp": "9:32:01 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur2alxx9qt",
+      "timestamp": "9:32:01 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "muq6umv6ggb",
+      "timestamp": "6:51:47 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
       "id": "muq6umjmcag",
       "timestamp": "6:51:47 p. m.",
       "method": "GET",
@@ -375,118 +460,6 @@
       "url": "/api/config",
       "status": 200,
       "detail": "Configuración centralizada guardada en backend"
-    },
-    {
-      "id": "mupwnrpqwht",
-      "timestamp": "2:06:31 p. m.",
-      "method": "PUSH",
-      "url": "/api/push/unsubscribe",
-      "status": 200,
-      "detail": "Baja de Web Push procesada para: Laura Gómez (Comensal Demo) (Razón: El usuario pulsó el botón 'Darse de baja' en la aplicación)"
-    },
-    {
-      "id": "mupwnp2mslp",
-      "timestamp": "2:06:27 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mupwlza4zv1",
-      "timestamp": "2:05:07 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mupwijzmzvg",
-      "timestamp": "2:02:28 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/573001234567",
-      "status": 200,
-      "detail": "Consulta de sellos para +573001234567: 3/15"
-    },
-    {
-      "id": "mupwijywmkc",
-      "timestamp": "2:02:27 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/573001234567",
-      "status": 200,
-      "detail": "Consulta de sellos para +573001234567: 3/15"
-    },
-    {
-      "id": "mupwcxpu7pe",
-      "timestamp": "1:58:05 p. m.",
-      "method": "PUSH",
-      "url": "/api/push/unsubscribe",
-      "status": 200,
-      "detail": "Baja de Web Push procesada para: Cliente Prueba Baja (Razón: Prueba de opt-out)"
-    },
-    {
-      "id": "mupw5i9vx6q",
-      "timestamp": "1:52:19 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/573001234567",
-      "status": 200,
-      "detail": "Consulta de sellos para +573001234567: 3/15"
-    },
-    {
-      "id": "mupw5i9dcw0",
-      "timestamp": "1:52:19 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/573001234567",
-      "status": 200,
-      "detail": "Consulta de sellos para +573001234567: 3/15"
-    },
-    {
-      "id": "mupw5gdicyn",
-      "timestamp": "1:52:16 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/573001234567",
-      "status": 200,
-      "detail": "Consulta de sellos para +573001234567: 3/15"
-    },
-    {
-      "id": "mupw5gcj0cp",
-      "timestamp": "1:52:16 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/573001234567",
-      "status": 200,
-      "detail": "Consulta de sellos para +573001234567: 3/15"
-    },
-    {
-      "id": "mupw5e9cf3x",
-      "timestamp": "1:52:14 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/573001234567",
-      "status": 200,
-      "detail": "Consulta de sellos para +573001234567: 3/15"
-    },
-    {
-      "id": "mupw5e8k97z",
-      "timestamp": "1:52:14 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/573001234567",
-      "status": 200,
-      "detail": "Consulta de sellos para +573001234567: 3/15"
-    },
-    {
-      "id": "mupw5cg3p7w",
-      "timestamp": "1:52:11 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mupvtqpkmrw",
-      "timestamp": "1:43:10 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
     }
   ],
   "settings": {
@@ -494,8 +467,8 @@
       "name": "Tu Restaurante & Café",
       "tagline": "Sabores inolvidables, momentos que alegran el día.",
       "taglineEn": "Unforgettable flavors, moments that brighten your day.",
-      "logoUrl": "/src/assets/logo-header.png",
-      "emblemUrl": "/src/assets/emblema-dorado.png",
+      "logoUrl": "",
+      "emblemUrl": "",
       "currency": "COP",
       "primaryColor": "#a27e2c",
       "backgroundColor": "#fcfaf7",
@@ -945,13 +918,13 @@
       "name": "Mesa 1",
       "zone": "Salón Principal",
       "capacity": 4,
-      "status": "CANJEADO",
-      "currentCustomer": "agustin",
-      "currentWhatsapp": "3165212283",
-      "activeSessionId": "SES-MUQ3RX3B",
-      "prizeWon": "Bono Dulce Sorpresa",
-      "uniqueCode": "TURE-2P634",
-      "startedAt": "Ahora",
+      "status": "JUGANDO",
+      "currentCustomer": "Invitado en Mesa",
+      "currentWhatsapp": null,
+      "activeSessionId": "SES-M1-1024",
+      "prizeWon": null,
+      "uniqueCode": null,
+      "startedAt": "Hace 3 min",
       "lastActivityAt": "Ahora",
       "qrUrl": "http://localhost:5173/?mesa=1"
     },
@@ -1210,8 +1183,78 @@
     "baseDomain": "http://localhost:5173",
     "stats": {
       "nfcScans": 28,
-      "qrScans": 86,
+      "qrScans": 96,
       "lastScans": [
+        {
+          "id": "scan_1790952096919",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:41 a. m."
+        },
+        {
+          "id": "scan_1790952096744",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:41 a. m."
+        },
+        {
+          "id": "scan_1790951951193",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:39 a. m."
+        },
+        {
+          "id": "scan_1790951951184",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:39 a. m."
+        },
+        {
+          "id": "scan_1790951843701",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:37 a. m."
+        },
+        {
+          "id": "scan_1790951843666",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:37 a. m."
+        },
+        {
+          "id": "scan_1790951683978",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:34 a. m."
+        },
+        {
+          "id": "scan_1790951683821",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:34 a. m."
+        },
+        {
+          "id": "scan_1790951521551",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:32 a. m."
+        },
+        {
+          "id": "scan_1790951521376",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:32 a. m."
+        },
         {
           "id": "scan_1790898707774",
           "mesa": 1,
@@ -1281,76 +1324,6 @@
           "origen": "qr",
           "device": "Android",
           "timestamp": "05:42 p. m."
-        },
-        {
-          "id": "scan_1790894090367",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:34 p. m."
-        },
-        {
-          "id": "scan_1790894090357",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:34 p. m."
-        },
-        {
-          "id": "scan_1790894088139",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:34 p. m."
-        },
-        {
-          "id": "scan_1790894088109",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:34 p. m."
-        },
-        {
-          "id": "scan_1790894086871",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:34 p. m."
-        },
-        {
-          "id": "scan_1790894086847",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:34 p. m."
-        },
-        {
-          "id": "scan_1790894084510",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:34 p. m."
-        },
-        {
-          "id": "scan_1790894084494",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:34 p. m."
-        },
-        {
-          "id": "scan_1790894077281",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:34 p. m."
-        },
-        {
-          "id": "scan_1790894077276",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:34 p. m."
         }
       ]
     }

@@ -26,7 +26,7 @@ export function GameHeader({
   const gameSteps = [
     { num: 1, label: t("1. Datos", "1. Info"), short: t("Datos", "Info") },
     { num: 2, label: t("2. Redes", "2. Social"), short: t("Redes", "Social") },
-    { num: 3, label: t("3. Ruleta", "3. Wheel"), short: t("Ruleta", "Wheel") },
+    { num: 3, label: t("3. Minijuego", "3. Minigame"), short: t("Juego", "Game") },
     { num: 4, label: t("4. Voucher", "4. Voucher"), short: t("Voucher", "Voucher") },
     { num: 5, label: t("5. Reputación", "5. Review"), short: t("Reseña", "Review") },
     { num: 6, label: t("6. 2ª Oportunidad", "6. 2nd Chance"), short: t("2ª Op.", "2nd Ch.") },
@@ -112,11 +112,17 @@ export function GameHeader({
         {/* 2. LOGO + NOMBRE DE MARCA */}
         <div className="flex flex-col items-center gap-1.5">
           <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#684400] via-[#f2be71] to-[#ffddb1] p-0.5 shadow-[0_0_16px_rgba(242,190,113,0.45)]">
-            <img
-              src={clientConfig.brand.logoUrl || emblemaDorado}
-              alt={clientConfig.brand.name}
-              className="w-full h-full rounded-full object-contain bg-[#141317] p-1"
-            />
+            {clientConfig.brand.logoUrl && !clientConfig.brand.logoUrl.includes("emblema-dorado") ? (
+              <img
+                src={clientConfig.brand.logoUrl}
+                alt={clientConfig.brand.name}
+                className="w-full h-full rounded-full object-contain bg-[#141317] p-1"
+              />
+            ) : (
+              <div className="w-full h-full rounded-full bg-[#141317] flex items-center justify-center text-[#f2be71] text-xl font-black">
+                👑
+              </div>
+            )}
           </div>
           <h1 className="font-headline-sm text-xs sm:text-sm font-bold text-[#e6e1e7] tracking-tight text-center">
             {clientConfig.brand.name}

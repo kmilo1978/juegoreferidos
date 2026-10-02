@@ -18,6 +18,7 @@ import { StepUserData } from "./components/qr-game/StepUserData";
 import { StepInstagramStory } from "./components/qr-game/StepInstagramStory";
 import { StepRouletteWheel } from "./components/qr-game/StepRouletteWheel";
 import { StepPrecisionTimer } from "./components/qr-game/StepPrecisionTimer";
+import { StepMemoryGame } from "./components/qr-game/StepMemoryGame";
 import { StepPrizeClaim } from "./components/qr-game/StepPrizeClaim";
 import { StepSecondChanceShare } from "./components/qr-game/StepSecondChanceShare";
 import { StepSecondChanceVerify } from "./components/qr-game/StepSecondChanceVerify";
@@ -87,6 +88,9 @@ function JuegoQrPage() {
         return 3;
       }
       if (params.get("juego") === "ruleta" || params.get("test") === "ruleta") {
+        return 3;
+      }
+      if (params.get("juego") === "memory" || params.get("test") === "memory") {
         return 3;
       }
       if (params.get("reset") === "1") {
@@ -223,9 +227,19 @@ function JuegoQrPage() {
     } catch {}
   }, [instagramEvidence]);
 
-  // Configuración de modalidad de juego activa (Ruleta vs Precisión 10s vs Híbrido)
+  // Configuración de modalidad de juego activa (Ruleta vs Precisión 10s vs Memoria vs Híbrido)
   const [gameConfig, setGameConfig] = useState<GameConfig>(() => GameConfigService.getGameConfig());
-  const [chosenGameMode, setChosenGameMode] = useState<"roulette" | "precision" | null>(null);
+  const [chosenGameMode, setChosenGameMode] = useState<"roulette" | "precision" | "memory" | "scratch" | null>(() => {
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search);
+      const j = p.get("juego") || p.get("test") || p.get("modo");
+      if (j === "memory" || j === "memoria") return "memory";
+      if (j === "precision") return "precision";
+      if (j === "scratch") return "scratch";
+      if (j === "ruleta" || j === "roulette") return "roulette";
+    }
+    return null;
+  });
 
   // Configuración de Segunda Oportunidad (WhatsApp Status + Cronómetro de Precisión)
   const [secondChanceConfig, setSecondChanceConfig] = useState<SecondChanceConfig>(() =>
@@ -343,6 +357,10 @@ function JuegoQrPage() {
       } else if (params.get("juego") === "ruleta" || params.get("test") === "ruleta") {
         sessionStorage.removeItem("juego_won_prize");
         setChosenGameMode("roulette");
+        setCurrentStep(3);
+      } else if (params.get("juego") === "memory" || params.get("test") === "memory") {
+        sessionStorage.removeItem("juego_won_prize");
+        setChosenGameMode("memory");
         setCurrentStep(3);
       } else if (params.get("reset") === "1") {
         sessionStorage.removeItem("juego_won_prize");
@@ -630,14 +648,39 @@ function JuegoQrPage() {
             </div>
           )}
 
-          {/* PASO 3: EL CARRUSEL (RULETA DE LA SUERTE) */}
+          {/* PASO 3: MINIJUEGO ACTIVO (RULETA, PRECISIÓN O JUEGO DE MEMORIA HALLOWEEN) */}
           {currentStep === 3 && (
             <div>
-              <StepRouletteWheel
-                prizes={prizes}
-                participantName={participant?.fullName || "Invitado"}
-                onPrizeWon={handlePrizeWon}
-              />
+              {(chosenGameMode === "memory" || (!chosenGameMode && gameConfig.gameMode === "memory")) ? (
+                <StepMemoryGame
+                  participantName={participant?.fullName || "Invitado"}
+                  tableNumber={session.tableNumber}
+                  onWinPrize={(prizeName, prizeValue) => {
+                    const won: GamePrize = {
+                      id: "prize-memory",
+                      name: prizeName || "Postre o Cóctel Espeluznante",
+                      nameEn: prizeName || "Spooky Treat",
+                      value: prizeValue || "$18.000 COP",
+                      color: "#ff007f",
+                      probability: 100,
+                    };
+                    handlePrizeWon(won);
+                  }}
+                />
+              ) : (chosenGameMode === "precision" || (!chosenGameMode && gameConfig.gameMode === "precision")) ? (
+                <StepPrecisionTimer
+                  gameConfig={gameConfig}
+                  participantName={participant?.fullName || "Invitado"}
+                  tableNumber={session.tableNumber}
+                  onPrizeWon={handlePrizeWon}
+                />
+              ) : (
+                <StepRouletteWheel
+                  prizes={prizes}
+                  participantName={participant?.fullName || "Invitado"}
+                  onPrizeWon={handlePrizeWon}
+                />
+              )}
             </div>
           )}
 

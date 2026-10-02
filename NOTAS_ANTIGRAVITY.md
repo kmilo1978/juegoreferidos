@@ -832,3 +832,27 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Juego de memoria implementado con temática Halloween y motor 100% personalizable para cualquier marca o temporada. Validado con compilación y capturas en Edge CDP.
 - Observaciones: Sincronizado en ambos repositorios locales y en GitHub.
+
+## Nueva sesión
+- Fecha: 2026-10-02 09:44
+- Solicitud: recuera que son version mobil
+- Decisiones clave:
+  1. Adaptación y verificación de la experiencia móvil nativa en smartphones (viewport estándar móvil 390x844 px):
+     - Soporte dinámico en 'src/App.tsx' para detectar el modo 'memory' tanto desde la configuración activa en el panel como vía URL ('?juego=memory' o '?test=memory').
+     - Renderizado de 'StepMemoryGame' en el Paso 3 del embudo con cuadrícula 4x4 (16 cartas táctiles) adaptadas a la pantalla del teléfono con tamaño óptimo para el pulgar y feedback sonoro instantáneo.
+     - Actualización de 'GameHeader.tsx' para mostrar '3. Minijuego' en lugar de 'Ruleta' cuando el cliente juega a memoria o cronómetro.
+     - Sustitución del fallback de logo antiguo por un emblema regio dorado neutral '👑' en fondo negro con halo oro para garantizar 100% marca blanca.
+     - Limpieza de 'logoUrl' y 'emblemUrl' en 'server/db.json' y 'server/state.js' eliminando referencias fijas a logos antiguos.
+  2. Verificación visual mediante Edge CDP en viewport móvil nativo emulando iPhone 14/15 (390x844 con deviceScaleFactor: 2 y pantalla táctil):
+     - Portada de Halloween ocupando la tarjeta móvil con luna, fantasma flotante, estrellas, botón fucsia ¡JUGAR! y calabazas sonrientes.
+     - Tablero 4x4 con cronómetro regresivo a décimas de segundo, puntuación dinámica y cartas volteadas interactivas.
+  3. Compilación limpia con Vite ('bun run build' con 0 errores).
+  4. Sincronización en la réplica y push a GitHub.
+- Pendientes:
+  - Ninguno.
+
+## Validación completada
+- Fecha: 2026-10-02 09:44
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Versión móvil del juego de memoria auditada y verificada en pantalla de smartphone real. Interacción táctil fluida, marca blanca 100% neutra y diseño idéntico a la referencia.
+- Observaciones: Sincronizado en ambos repositorios locales y remoto.
