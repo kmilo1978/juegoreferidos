@@ -31,6 +31,7 @@ import { GameJackpotConfig } from "./pages/games/GameJackpotConfig";
 import { GamePlinkoConfig } from "./pages/games/GamePlinkoConfig";
 import { GameSecondChanceConfig } from "./pages/games/GameSecondChanceConfig";
 import { GameExclusiveCustomizer } from "./pages/games/GameExclusiveCustomizer";
+import { Faq } from "./pages/Faq";
 
 // Blindaje global
 if (typeof window !== "undefined") {
@@ -128,6 +129,7 @@ export function AdminApp() {
             <Route path="databases" element={<Databases />} />
             <Route path="hermes" element={<Hermes />} />
             <Route path="composio" element={<Composio />} />
+            <Route path="faq" element={<Faq />} />
 
             {/* Ruta comodín */}
             <Route path="*" element={<Navigate to="/" replace />} />

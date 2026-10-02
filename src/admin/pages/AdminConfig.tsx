@@ -15,6 +15,16 @@ import {
   RotateCcw,
   Check,
   Search,
+  Sliders,
+  ShieldCheck,
+  LayoutGrid,
+  SlidersHorizontal,
+  Sun,
+  Moon,
+  Layers,
+  HelpCircle,
+  Smartphone,
+  CheckCircle2,
 } from "lucide-react";
 import { ImageUploader } from "../components/ImageUploader";
 import { ColorPaletteSelector } from "../components/ColorPaletteSelector";
@@ -27,6 +37,12 @@ import {
   GoogleFontOption,
 } from "../../lib/fontLoader";
 import { getBrandConfig, saveBrandConfig } from "../../lib/brandService";
+import {
+  CentralSystemConfigService,
+  CentralSystemConfig,
+  DEFAULT_CENTRAL_CONFIG,
+} from "../../lib/centralSystemConfig";
+import { CentralConfigSections } from "../components/CentralConfigSections";
 
 export function AdminConfig() {
   const [loading, setLoading] = useState(true);
@@ -34,13 +50,21 @@ export function AdminConfig() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // Pestaña principal activa
+  const [activeTopTab, setActiveTopTab] = useState<"brand" | "modules" | "colors" | "typography" | "geometry" | "validation">("brand");
+
+  // Configuración Modular Centralizada
+  const [centralConfig, setCentralConfig] = useState<CentralSystemConfig>(() =>
+    CentralSystemConfigService.getConfig()
+  );
+
   // Estados de Marca
-  const [brandName, setBrandName] = useState("Tu Restaurante & Café");
-  const [tagline, setTagline] = useState("Sabores inolvidables, momentos que alegran el día.");
-  const [taglineEn, setTaglineEn] = useState("Unforgettable flavors, moments that brighten your day.");
-  const [logoUrl, setLogoUrl] = useState("/src/assets/logo-header.png");
-  const [primaryColor, setPrimaryColor] = useState("#f2be71");
-  const [currency, setCurrency] = useState("COP");
+  const [brandName, setBrandName] = useState(centralConfig.brand.brandName || "Tu Restaurante & Café");
+  const [tagline, setTagline] = useState(centralConfig.brand.tagline || "Sabores inolvidables, momentos que alegran el día.");
+  const [taglineEn, setTaglineEn] = useState(centralConfig.brand.taglineEn || "Unforgettable flavors, moments that brighten your day.");
+  const [logoUrl, setLogoUrl] = useState(centralConfig.brand.logoUrl || "/src/assets/logo-header.png");
+  const [primaryColor, setPrimaryColor] = useState(centralConfig.colors.primary || "#f2be71");
+  const [currency, setCurrency] = useState(centralConfig.brand.currency || "COP");
 
   // Estados de Google Fonts
   const [fontHeading, setFontHeading] = useState("Epilogue");
@@ -223,7 +247,30 @@ export function AdminConfig() {
 
       if (!res.ok) throw new Error("Error al guardar marca y ruleta");
 
-      // Sincronizar también en localStorage local
+      // Sincronizar también en CentralSystemConfigService y localStorage
+      const updatedCentral: CentralSystemConfig = {
+        ...centralConfig,
+        colors: {
+          ...centralConfig.colors,
+          primary: primaryColor,
+        },
+        typography: {
+          ...centralConfig.typography,
+          fontHeading,
+          fontBody,
+        },
+        brand: {
+          ...centralConfig.brand,
+          brandName,
+          tagline,
+          taglineEn,
+          logoUrl,
+          currency,
+        },
+      };
+      setCentralConfig(updatedCentral);
+      CentralSystemConfigService.saveConfig(updatedCentral);
+
       const currentBrand = getBrandConfig();
       saveBrandConfig({
         ...currentBrand,
@@ -288,11 +335,69 @@ export function AdminConfig() {
         </div>
       )}
 
+      {/* BARRA DE PESTAÑAS DEL SISTEMA MODULAR */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-[#363439] pb-3">
+        {[
+          { id: "brand", label: "Marca & Ruleta", icon: Sparkles },
+          { id: "modules", label: "16 Módulos ON/OFF", icon: LayoutGrid },
+          { id: "colors", label: "Colores & Estados", icon: Palette },
+          { id: "typography", label: "Tipografía & Escala", icon: Type },
+          { id: "geometry", label: "Radios & Sombras", icon: SlidersHorizontal },
+          { id: "validation", label: "Auditoría & Reset", icon: ShieldCheck },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTopTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTopTab(tab.id as any)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                isActive
+                  ? "bg-[#f2be71] text-[#121115] shadow-lg shadow-[#f2be71]/20 font-bold"
+                  : "bg-[#1c1b1f] text-[#ccc3d8] hover:text-[#e6e1e7] hover:bg-[#252429] border border-[#363439]"
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* COLUMNA IZQUIERDA Y CENTRAL (2 COLS): FORMULARIO DE MARCA */}
+        {/* COLUMNA IZQUIERDA Y CENTRAL (2 COLS) */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Tarjeta de Identidad */}
-          <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-5 shadow-lg">
+          {activeTopTab !== "brand" ? (
+            <CentralConfigSections
+              activeTab={activeTopTab}
+              config={centralConfig}
+              onChange={(updated) => {
+                setCentralConfig(updated);
+                if (updated.colors.primary !== primaryColor) {
+                  setPrimaryColor(updated.colors.primary);
+                }
+                if (updated.typography.fontHeading !== fontHeading) {
+                  setFontHeading(updated.typography.fontHeading);
+                }
+                if (updated.typography.fontBody !== fontBody) {
+                  setFontBody(updated.typography.fontBody);
+                }
+              }}
+              onReset={() => {
+                const fresh = CentralSystemConfigService.resetToDefaults();
+                setCentralConfig(fresh);
+                setPrimaryColor(fresh.colors.primary);
+                setFontHeading(fresh.typography.fontHeading);
+                setFontBody(fresh.typography.fontBody);
+                setSuccess("Configuración de fábrica restablecida exitosamente.");
+                setTimeout(() => setSuccess(null), 3500);
+              }}
+            />
+          ) : (
+            <>
+              {/* Tarjeta de Identidad */}
+              <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-5 shadow-lg">
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2 border-b border-[#363439] pb-3">
               <Sparkles className="w-4 h-4 text-[#f2be71]" />
               <span>Datos del Negocio (Marca Blanca)</span>
@@ -816,6 +921,8 @@ export function AdminConfig() {
               ))}
             </div>
           </div>
+            </>
+          )}
         </div>
 
         {/* COLUMNA DERECHA (1 COL): MOCKUP DE VISTA PREVIA EN MESA */}

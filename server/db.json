@@ -149,6 +149,42 @@
   ],
   "logs": [
     {
+      "id": "mur9wj50khd",
+      "timestamp": "1:05:01 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur9o8yjcg3",
+      "timestamp": "12:58:34 p. m.",
+      "method": "POST",
+      "url": "/api/missions/config",
+      "status": 200,
+      "detail": "Catálogo de misiones actualizado (8 misiones configuradas)"
+    },
+    {
+      "id": "mur9o7g7jpd",
+      "timestamp": "12:58:32 p. m.",
+      "method": "POST",
+      "url": "/api/missions/config",
+      "status": 200,
+      "detail": "Catálogo de misiones actualizado (8 misiones configuradas)"
+    },
+    {
+      "id": "mur99lx33kj",
+      "timestamp": "12:47:11 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur99lvgnj7",
+      "timestamp": "12:47:11 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur8o65u013",
+      "timestamp": "12:30:31 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
       "id": "mur8o64wrbr",
       "timestamp": "12:30:31 p. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
@@ -390,39 +426,6 @@
     {
       "id": "mur81umlw71",
       "timestamp": "12:13:10 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur81ukqlb7",
-      "timestamp": "12:13:10 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur81mhzpra",
-      "timestamp": "12:12:59 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur81ls1hbw",
-      "timestamp": "12:12:58 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur81lk8j6u",
-      "timestamp": "12:12:58 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mur6sbvg800",
-      "timestamp": "11:37:46 a. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur6sbrdxux",
-      "timestamp": "11:37:46 a. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
     }
   ],
@@ -1158,8 +1161,36 @@
     "baseDomain": "http://localhost:5173",
     "stats": {
       "nfcScans": 28,
-      "qrScans": 154,
+      "qrScans": 158,
       "lastScans": [
+        {
+          "id": "scan_1790964301333",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "01:05 p. m."
+        },
+        {
+          "id": "scan_1790964301280",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "01:05 p. m."
+        },
+        {
+          "id": "scan_1790963231789",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "12:47 p. m."
+        },
+        {
+          "id": "scan_1790963231736",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "12:47 p. m."
+        },
         {
           "id": "scan_1790962231600",
           "mesa": 1,
@@ -1271,34 +1302,6 @@
           "origen": "qr",
           "device": "Android",
           "timestamp": "12:24 p. m."
-        },
-        {
-          "id": "scan_1790961757662",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "12:22 p. m."
-        },
-        {
-          "id": "scan_1790961757509",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "12:22 p. m."
-        },
-        {
-          "id": "scan_1790961753290",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "12:22 p. m."
-        },
-        {
-          "id": "scan_1790961753239",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "12:22 p. m."
         }
       ]
     }

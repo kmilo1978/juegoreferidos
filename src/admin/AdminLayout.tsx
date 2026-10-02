@@ -31,6 +31,7 @@ import {
   Coins,
   CircleDot,
   Sliders,
+  HelpCircle,
 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
@@ -141,6 +142,7 @@ export function AdminLayout() {
       case "/hermes": return "Hermes IA & WhatsApp";
       case "/composio": return "Integraciones Composio";
       case "/analytics": return "Analítica, GTM & Píxeles";
+      case "/faq": return "Preguntas Frecuentes & Guía del Sistema";
       default: return "Panel Administrativo";
     }
   }, [location.pathname]);
@@ -190,6 +192,7 @@ export function AdminLayout() {
         { path: "/databases", label: "Bases de Datos", icon: Database },
         { path: "/hermes", label: "Hermes IA", icon: Bot },
         { path: "/composio", label: "Composio", icon: Zap },
+        { path: "/faq", label: "FAQ & Guía", icon: HelpCircle },
       ],
     },
   ];
