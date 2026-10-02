@@ -1004,3 +1004,22 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Juego 'Raspa y Gana' adaptado con absoluta fidelidad a la imagen de referencia navideÃ±a, con fÃ­sica tÃ¡ctil de raspado, mensajes de premio/consolaciÃ³n, 100% personalizable y con simulador mÃ³vil.
 - Observaciones: Pruebas visuales aprobadas con Edge CDP, compilaciÃ³n limpia y sincronizaciÃ³n en ambos repositorios.
+
+## Nueva sesión
+- Fecha: 2026-10-02 11:35
+- Solicitud: Unificación de Reto de Precisión y 2ª Oportunidad, tipografías profesionales no infantiles, física ultra-fluida de Plinko a 60 FPS basada en la foto original y encuadre móvil sin scroll.
+- Decisiones clave:
+  1. Se priorizó y unificó 'Segunda Oportunidad (Precisión VIP)' retirando la duplicidad tosca de 'Reto de Precisión 10s' en el menú lateral, rutas y catálogo de juegos.
+  2. En el selector rápido superior 'Juego Principal Activo en las Mesas' se dejaron los 6 juegos independientes principales (Ruleta, Raspa y Gana, Memoria, Descubre y Gana, Jackpot, Suelta y Gana).
+  3. En 'StepPlinkoGame.tsx': Se eliminó el motor de intervalo por saltos y se implementó un motor continuo de física a 60 FPS con 'requestAnimationFrame', trayectorias hermite de caída con rebotes elásticos en clavijas, destellos blancos/dorados en tiempo real ('scale-125') y sonido acústico sintetizado con Web Audio API.
+  4. Diseño fiel a la foto de referencia: Portada con cartel de madera en nieve, tutorial en 2 pasos ilustrado, botón rojo rubí; Tablero con marco perimetral, dos faroles laterales iluminados, campana central, triángulo dorado y bola roja con copo de nieve, matriz densa de 11 filas de clavijas doradas 3D, botón central 'SOLTAR LA BOLA' y 7 casillas de premios idénticas a la imagen original.
+  5. Encuadre móvil perfecto (390x844 px): Se ajustó la altura del campo de clavijas y las casillas para que todo el juego y el botón de altavoz inferior queden 100% visibles sin scroll.
+  6. Tipografías: Eliminadas tipografías infantiles o pesos hinchados caricaturescos; aplicada tipografía gastronómica sobria (Epilogue y Manrope con tracking y pesos armónicos).
+- Pendientes:
+  - Ninguno. Módulo y arquitectura 100% operativos.
+
+## Validación completada
+- Fecha: 2026-10-02 11:38
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Física fluida de Plinko a 60 FPS completada, diseño idéntico a la imagen original, 2ª Oportunidad VIP unificada y tipografía profesional sin fuentes infantiles.
+- Observaciones: Pruebas visuales en Edge CDP verificadas ('verify_plinko_fluid_board.png', 'verify_plinko_fluid_dropping.png', 'verify_games_hub_unified.png'), 'bun run build' con 0 errores TypeScript y sincronización en ambos repositorios.

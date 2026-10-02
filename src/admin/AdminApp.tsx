@@ -105,7 +105,7 @@ export function AdminApp() {
             {/* Juego & Captación (Submenú de Juegos Modulares) */}
             <Route path="games" element={<GamesHub />} />
             <Route path="games/roulette" element={<GameRouletteConfig />} />
-            <Route path="games/precision" element={<GamePrecisionConfig />} />
+            <Route path="games/precision" element={<GameSecondChanceConfig />} />
             <Route path="games/scratch" element={<GameScratchConfig />} />
             <Route path="games/memory" element={<GameMemoryConfig />} />
             <Route path="games/pick-win" element={<GamePickAndWinConfig />} />

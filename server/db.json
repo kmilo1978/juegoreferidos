@@ -149,6 +149,60 @@
   ],
   "logs": [
     {
+      "id": "mur6sbrdxux",
+      "timestamp": "11:37:46 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur6sbn4b7l",
+      "timestamp": "11:37:46 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mur6gwxdgap",
+      "timestamp": "11:28:53 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur6gwwoqhq",
+      "timestamp": "11:28:53 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur6gwny4vu",
+      "timestamp": "11:28:53 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mur68edm0nl",
+      "timestamp": "11:22:16 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur68e8jbjv",
+      "timestamp": "11:22:16 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur68e6l7gs",
+      "timestamp": "11:22:16 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mur5pu3o7ta",
+      "timestamp": "11:07:50 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
       "id": "mur5pu2jh7q",
       "timestamp": "11:07:50 a. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
@@ -399,66 +453,6 @@
     {
       "id": "muq6j138t40",
       "timestamp": "6:42:46 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/3165212283",
-      "status": 200,
-      "detail": "Consulta de sellos para +3165212283: 1/15"
-    },
-    {
-      "id": "muq6j10ntdn",
-      "timestamp": "6:42:46 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "muq6j0zhdvf",
-      "timestamp": "6:42:46 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/3165212283",
-      "status": 200,
-      "detail": "Consulta de sellos para +3165212283: 1/15"
-    },
-    {
-      "id": "muq4ojih60l",
-      "timestamp": "5:51:04 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/3165212283",
-      "status": 200,
-      "detail": "Consulta de sellos para +3165212283: 1/15"
-    },
-    {
-      "id": "muq4ob84dhq",
-      "timestamp": "5:50:53 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "muq4ob7bebj",
-      "timestamp": "5:50:53 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/3165212283",
-      "status": 200,
-      "detail": "Consulta de sellos para +3165212283: 1/15"
-    },
-    {
-      "id": "muq4dylp7zf",
-      "timestamp": "5:42:50 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "muq4dybcagq",
-      "timestamp": "5:42:50 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/3165212283",
-      "status": 200,
-      "detail": "Consulta de sellos para +3165212283: 1/15"
-    },
-    {
-      "id": "muq4dy12wsh",
-      "timestamp": "5:42:49 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "muq4dxow3mp",
-      "timestamp": "5:42:49 p. m.",
       "method": "GET",
       "url": "/api/stamps/3165212283",
       "status": 200,
@@ -1197,8 +1191,50 @@
     "baseDomain": "http://localhost:5173",
     "stats": {
       "nfcScans": 28,
-      "qrScans": 108,
+      "qrScans": 114,
       "lastScans": [
+        {
+          "id": "scan_1790959066356",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "11:37 a. m."
+        },
+        {
+          "id": "scan_1790959066206",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "11:37 a. m."
+        },
+        {
+          "id": "scan_1790958533807",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "11:28 a. m."
+        },
+        {
+          "id": "scan_1790958533778",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "11:28 a. m."
+        },
+        {
+          "id": "scan_1790958136389",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "11:22 a. m."
+        },
+        {
+          "id": "scan_1790958136302",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "11:22 a. m."
+        },
         {
           "id": "scan_1790957270430",
           "mesa": 1,
@@ -1296,48 +1332,6 @@
           "origen": "qr",
           "device": "Android",
           "timestamp": "09:41 a. m."
-        },
-        {
-          "id": "scan_1790951951193",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "09:39 a. m."
-        },
-        {
-          "id": "scan_1790951951184",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "09:39 a. m."
-        },
-        {
-          "id": "scan_1790951843701",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "09:37 a. m."
-        },
-        {
-          "id": "scan_1790951843666",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "09:37 a. m."
-        },
-        {
-          "id": "scan_1790951683978",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "09:34 a. m."
-        },
-        {
-          "id": "scan_1790951683821",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "09:34 a. m."
         }
       ]
     }

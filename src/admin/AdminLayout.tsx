@@ -146,13 +146,12 @@ export function AdminLayout() {
   const gamesSubmenuItems = [
     { path: "/games", label: "Catálogo de Juegos (Hub)", icon: Gamepad2, end: true },
     { path: "/games/roulette", label: "Ruleta de Premios", icon: RotateCw },
-    { path: "/games/precision", label: "Reto Precisión 10s", icon: Timer },
     { path: "/games/scratch", label: "Raspa y Gana (Scratch)", icon: Flame },
     { path: "/games/memory", label: "Juego de Memoria (Halloween)", icon: Brain },
     { path: "/games/pick-win", label: "Descubre y Gana (Día Muertos)", icon: Sparkles },
     { path: "/games/jackpot", label: "Jackpot (Tragaperras)", icon: Coins },
     { path: "/games/plinko", label: "Suelta y Gana (Plinko)", icon: CircleDot },
-    { path: "/games/second-chance", label: "2ª Oportunidad Viral", icon: Share2 },
+    { path: "/games/second-chance", label: "2ª Oportunidad (Precisión VIP)", icon: Share2 },
   ];
 
   const navGroups = [

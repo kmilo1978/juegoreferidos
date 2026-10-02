@@ -52,17 +52,7 @@ export function GamesHub() {
       accentColor: "#f2be71",
       badge: "Más Popular en Mesas",
     },
-    {
-      id: "precision",
-      name: "Reto Cronómetro 10.000s",
-      category: "Destreza & Habilidad",
-      icon: Timer,
-      route: "/games/precision",
-      description: "El cliente debe frenar el temporizador exactamente en 10.000s. Despierta adrenalina y sana competencia entre los comensales.",
-      status: activeGameMode === "precision" ? "activo" : "disponible",
-      accentColor: "#10b981",
-      badge: "Alta Adrenalina",
-    },
+
     {
       id: "scratch",
       name: "Raspa y Gana Digital (Scratch & Win)",
@@ -120,14 +110,14 @@ export function GamesHub() {
     },
     {
       id: "second-chance",
-      name: "2ª Oportunidad Viral",
-      category: "Revancha & Viralidad",
+      name: "2ª Oportunidad & Reto Precisión VIP",
+      category: "Revancha, Viralidad & Precisión",
       icon: Share2,
       route: "/games/second-chance",
-      description: "Si el cliente no ganó en su primer intento, desbloquea una segunda oportunidad compartiendo una foto o estado en WhatsApp.",
+      description: "Si el comensal no ganó en la primera dinámica, desbloquea una segunda oportunidad con el elegante cronómetro de 10s al compartir en WhatsApp.",
       status: "activo",
       accentColor: "#8b5cf6",
-      badge: "Generador de Referidos",
+      badge: "Viral & Mayor Conversión",
     },
   ];
 
@@ -241,14 +231,13 @@ export function GamesHub() {
                 </p>
               </div>
               <span className="text-[10px] font-mono font-bold text-[#121115] bg-[#f2be71] px-2.5 py-1 rounded-full uppercase">
-                {activeGameMode === "roulette" ? "Ruleta Activa" : activeGameMode === "precision" ? "Precisión Activa" : activeGameMode === "scratch" ? "Raspa Activo" : activeGameMode === "memory" ? "Memoria Activa" : activeGameMode === "jackpot" ? "Jackpot Activo" : activeGameMode === "plinko" ? "Suelta y Gana Activo" : "Descubre y Gana Activo"}
+                {activeGameMode === "roulette" ? "Ruleta Activa" : activeGameMode === "scratch" ? "Raspa Activo" : activeGameMode === "memory" ? "Memoria Activa" : activeGameMode === "jackpot" ? "Jackpot Activo" : activeGameMode === "plinko" ? "Suelta y Gana Activo" : "Descubre y Gana Activo"}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               {[
                 { id: "roulette", name: "Ruleta", icon: RotateCw, desc: "Girar y ganar azar" },
-                { id: "precision", name: "Cronómetro 10s", icon: Timer, desc: "Frenar a los 10.000s" },
                 { id: "scratch", name: "Raspa y Gana", icon: Flame, desc: "Rasca con el dedo" },
                 { id: "memory", name: "Memoria", icon: Brain, desc: "Parejas Halloween" },
                 { id: "pick-win", name: "Descubre y Gana", icon: Sparkles, desc: "3 iguales Día Muertos" },
