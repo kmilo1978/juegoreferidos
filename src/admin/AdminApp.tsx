@@ -30,6 +30,7 @@ import { GamePickAndWinConfig } from "./pages/games/GamePickAndWinConfig";
 import { GameJackpotConfig } from "./pages/games/GameJackpotConfig";
 import { GamePlinkoConfig } from "./pages/games/GamePlinkoConfig";
 import { GameSecondChanceConfig } from "./pages/games/GameSecondChanceConfig";
+import { GameExclusiveCustomizer } from "./pages/games/GameExclusiveCustomizer";
 
 // Blindaje global
 if (typeof window !== "undefined") {
@@ -104,6 +105,7 @@ export function AdminApp() {
 
             {/* Juego & Captación (Submenú de Juegos Modulares) */}
             <Route path="games" element={<GamesHub />} />
+            <Route path="games/exclusive" element={<GameExclusiveCustomizer />} />
             <Route path="games/roulette" element={<GameRouletteConfig />} />
             <Route path="games/precision" element={<GameSecondChanceConfig />} />
             <Route path="games/scratch" element={<GameScratchConfig />} />

@@ -1052,3 +1052,26 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Los 5 juegos promocionales cuentan con sus DOS CARAS exactas a las capturas de referencia, tanto en su portada de captación como en su tablero de juego y canje de voucher.
 - Observaciones: Pruebas visuales completadas en Edge CDP para las 10 caras ('verify_jackpot_face1_reels.png', 'verify_jackpot_face2_boarding_pass.png', 'verify_pick_win_face1_perfume.png', 'verify_pick_win_face2_board3x3.png', 'verify_memory_face1_ghost.png', 'verify_memory_face2_cards4x4.png', 'verify_scratch_face1_welcome.png', 'verify_scratch_face2_card.png', 'verify_plinko_face1_cabin.png', 'verify_plinko_face2_board.png'). Compilación Vite con 0 errores TypeScript y réplica sincronizada.
+
+## Nueva sesión
+- Fecha: 2026-10-02 12:45
+- Solicitud: Personalización exclusiva: Personalizar la estética, la narrativa, las reglas del juego, los premios y la duración de los retos, creando dinámicas únicas y adaptadas al departamento comercial.
+- Decisiones clave:
+  1. Se implementó el módulo integral de Personalización Exclusiva Comercial ('GameExclusiveCustomizer.tsx' y 'exclusiveCommercialData.ts') estructurado en los 5 pilares estratégicos:
+     - Pilar 1: Estética & Identidad Visual (paleta cromática, temas estacionales/gourmet/VIP, texturas ambientales de nieve/estrellas/papel picado/madera, reversos de cartas e insignia de campaña).
+     - Pilar 2: Narrativa & Storytelling Comercial (titulares de impacto Cara 1, propuesta de valor, copys de CTA, tutorial en 2 pasos ilustrados, títulos de juego Cara 2, textos de victoria y mensajes empáticos de consolación).
+     - Pilar 3: Reglas del Juego & Dificultad (niveles fácil/medio/difícil, vidas/intentos permitidos, slider de probabilidad de victoria del 10% al 100%, modo aleatorio vs habilidad vs garantizado, y efectos acústicos).
+     - Pilar 4: Premios & Vouchers Comerciales (premio principal, valor comercial, categoría/badge, formato de voucher con Boarding Pass o tarjeta rascable o ticket digital, límite de stock diario para control presupuestario y premio de consolación).
+     - Pilar 5: Duración & Urgencia Comercial (cronómetro límite de partida en segundos, ventana de fechas de vigencia de campaña comercial y temporizador de expiración del cupón en minutos para incentivar el consumo y canje inmediato en sala).
+  2. Integración en el panel administrativo:
+     - Pestaña de primer nivel 'Personalización Exclusiva' dentro del Hub de Juegos ('GamesHub.tsx').
+     - Acceso directo en el submenú lateral de la barra de navegación ('/games/exclusive').
+  3. Simulador móvil táctil de doble cara integrado en vivo ('Cara 1: Portada' y 'Cara 2: Tablero/Canje') con actualización en tiempo real mientras el equipo de marketing edita cualquiera de los 5 pilares.
+- Pendientes:
+  - Ninguno. Módulo 100% operativo y verificado visualmente con capturas en Edge CDP.
+
+## Validación completada
+- Fecha: 2026-10-02 12:48
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Suite de Personalización Exclusiva Comercial implementada con los 5 pilares estratégicos, selector de dinámicas, simulador móvil táctil de doble cara y guardado reactivo.
+- Observaciones: Pruebas visuales completadas en Edge CDP ('verify_exclusive_customizer_overview.png', 'verify_exclusive_customizer_narrative.png', 'verify_exclusive_customizer_prizes.png', 'verify_games_hub_exclusive_tab.png'), 'bun run build' con 0 errores TypeScript y ambos repositorios sincronizados.

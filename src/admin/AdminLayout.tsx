@@ -30,6 +30,7 @@ import {
   Sparkles,
   Coins,
   CircleDot,
+  Sliders,
 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
@@ -119,6 +120,7 @@ export function AdminLayout() {
       case "/contest": return "Sorteo VIP Fin de Mes";
       case "/reputation": return "Embudo de Reputación";
       case "/games": return "Catálogo Modular de Juegos & Dinámicas";
+      case "/games/exclusive": return "Personalización Exclusiva Comercial";
       case "/games/roulette": return "Ruleta de Premios & Probabilidades";
       case "/games/precision": return "Reto Cronómetro de Precisión 10s";
       case "/games/scratch": return "Raspa y Gana Digital (Scratch & Win)";
@@ -145,6 +147,7 @@ export function AdminLayout() {
 
   const gamesSubmenuItems = [
     { path: "/games", label: "Catálogo de Juegos (Hub)", icon: Gamepad2, end: true },
+    { path: "/games/exclusive", label: "Personalización Exclusiva", icon: Sliders },
     { path: "/games/roulette", label: "Ruleta de Premios", icon: RotateCw },
     { path: "/games/scratch", label: "Raspa y Gana (Scratch)", icon: Flame },
     { path: "/games/memory", label: "Juego de Memoria (Halloween)", icon: Brain },

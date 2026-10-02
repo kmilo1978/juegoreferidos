@@ -20,6 +20,7 @@ import {
   Coins,
 } from "lucide-react";
 import { GameSequenceManager } from "./GameSequenceManager";
+import { GameExclusiveCustomizer } from "./GameExclusiveCustomizer";
 
 interface GameInfo {
   id: string;
@@ -34,7 +35,14 @@ interface GameInfo {
 }
 
 export function GamesHub() {
-  const [activeTab, setActiveTab] = useState<"catalog" | "sequence">("catalog");
+  const [activeTab, setActiveTab] = useState<"catalog" | "exclusive" | "sequence">(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search || window.location.hash.split("?")[1] || "");
+      if (params.get("tab") === "exclusive") return "exclusive";
+      if (params.get("tab") === "sequence") return "sequence";
+    }
+    return "catalog";
+  });
   const [activeGameMode, setActiveGameMode] = useState<string>("roulette");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -169,7 +177,7 @@ export function GamesHub() {
 
         <div className="flex items-center gap-2">
           {/* Pestañas: Catálogo vs Secuencia */}
-          <div className="flex bg-[#201f23] p-1 rounded-xl border border-[#363439]">
+          <div className="flex bg-[#201f23] p-1 rounded-xl border border-[#363439] gap-1">
             <button
               type="button"
               onClick={() => setActiveTab("catalog")}
@@ -181,6 +189,18 @@ export function GamesHub() {
             >
               <Gamepad2 className="w-3.5 h-3.5" />
               <span>Catálogo de Juegos</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("exclusive")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === "exclusive"
+                  ? "bg-[#f2be71] text-[#121115]"
+                  : "text-[#ccc3d8] hover:text-white"
+              }`}
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              <span>Personalización Exclusiva</span>
             </button>
             <button
               type="button"
@@ -214,7 +234,9 @@ export function GamesHub() {
       )}
 
       {/* RENDERIZADO SEGÚN PESTAÑA */}
-      {activeTab === "sequence" ? (
+      {activeTab === "exclusive" ? (
+        <GameExclusiveCustomizer />
+      ) : activeTab === "sequence" ? (
         <GameSequenceManager />
       ) : (
         <>
