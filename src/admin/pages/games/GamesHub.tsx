@@ -81,6 +81,17 @@ export function GamesHub() {
       badge: "Especial Halloween",
     },
     {
+      id: "pick-win",
+      name: "Descubre y Gana (Día de Muertos / Triplete)",
+      category: "Azar, Intuición & Búsqueda",
+      icon: Sparkles,
+      route: "/games/pick-win",
+      description: "Tablero 3x3 festivo donde el jugador destapa casillas para encontrar 3 figuras iguales antes de agotar sus intentos. Especial Día de Muertos o personalizable.",
+      status: activeGameMode === "pick-win" ? "activo" : "disponible",
+      accentColor: "#ea580c",
+      badge: "Especial Día de Muertos",
+    },
+    {
       id: "second-chance",
       name: "2ª Oportunidad Viral",
       category: "Revancha & Viralidad",
@@ -115,7 +126,7 @@ export function GamesHub() {
         body: JSON.stringify({ gameMode: mode }),
       });
       if (res.ok) {
-        setSuccess(`✓ Juego activo en mesas actualizado a: ${mode === "roulette" ? "Ruleta de Premios" : mode === "precision" ? "Cronómetro 10s" : mode === "scratch" ? "Raspa y Gana" : "Juego de Memoria (Halloween)"}`);
+        setSuccess(`✓ Juego activo en mesas actualizado a: ${mode === "roulette" ? "Ruleta de Premios" : mode === "precision" ? "Cronómetro 10s" : mode === "scratch" ? "Raspa y Gana" : mode === "memory" ? "Juego de Memoria" : "Descubre y Gana (Día de Muertos)"}`);
         setTimeout(() => setSuccess(null), 3500);
       }
     } catch {
@@ -168,16 +179,17 @@ export function GamesHub() {
             </p>
           </div>
           <span className="text-[10px] font-mono font-bold text-[#121115] bg-[#f2be71] px-2.5 py-1 rounded-full uppercase">
-            {activeGameMode === "roulette" ? "Ruleta Activa" : activeGameMode === "precision" ? "Precisión Activa" : activeGameMode === "scratch" ? "Raspa Activo" : "Memoria Activa"}
+            {activeGameMode === "roulette" ? "Ruleta Activa" : activeGameMode === "precision" ? "Precisión Activa" : activeGameMode === "scratch" ? "Raspa Activo" : activeGameMode === "memory" ? "Memoria Activa" : "Descubre y Gana Activo"}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {[
             { id: "roulette", name: "Ruleta de Premios", icon: RotateCw, desc: "Girar y ganar por azar" },
             { id: "precision", name: "Cronómetro 10.000s", icon: Timer, desc: "Frenar el tiempo con destreza" },
             { id: "scratch", name: "Raspa y Gana", icon: Flame, desc: "Descubrir rascando la pantalla" },
             { id: "memory", name: "Juego de Memoria", icon: Brain, desc: "Parejas Halloween contra reloj" },
+            { id: "pick-win", name: "Descubre y Gana", icon: Sparkles, desc: "3 iguales Día de Muertos" },
           ].map((mode) => {
             const isSelected = activeGameMode === mode.id;
             return (

@@ -149,6 +149,50 @@
   ],
   "logs": [
     {
+      "id": "mur39zmyu1i",
+      "timestamp": "9:59:31 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur39zcb9ob",
+      "timestamp": "9:59:31 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mur392xwjx3",
+      "timestamp": "9:58:49 a. m.",
+      "method": "POST",
+      "url": "/api/game-config",
+      "status": 200,
+      "detail": "Mecánica de juego actualizada: roulette"
+    },
+    {
+      "id": "mur36bl70ui",
+      "timestamp": "9:56:40 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur36azyc7w",
+      "timestamp": "9:56:39 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur36aozrj5",
+      "timestamp": "9:56:39 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mur2my94p5o",
+      "timestamp": "9:41:37 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
       "id": "mur2my24wc0",
       "timestamp": "9:41:36 a. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
@@ -410,56 +454,6 @@
       "url": "/api/stamps/3165212283",
       "status": 200,
       "detail": "Consulta de sellos para +3165212283: 1/15"
-    },
-    {
-      "id": "muq40cjx5c8",
-      "timestamp": "5:32:15 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/3165212283",
-      "status": 200,
-      "detail": "Consulta de sellos para +3165212283: 1/15"
-    },
-    {
-      "id": "muq3xdhru9s",
-      "timestamp": "5:29:56 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "muq3x6szpuh",
-      "timestamp": "5:29:48 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "muq3w7e6s7w",
-      "timestamp": "5:29:02 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "muq3rxm50up",
-      "timestamp": "5:25:42 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "muq3rxlll4o",
-      "timestamp": "5:25:42 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mupxz3291zv",
-      "timestamp": "2:43:18 p. m.",
-      "method": "POST",
-      "url": "/api/config",
-      "status": 200,
-      "detail": "Configuración centralizada guardada en backend"
     }
   ],
   "settings": {
@@ -568,7 +562,18 @@
       "toleranceMs": 40,
       "maxAttempts": 3,
       "validationChannel": "both",
-      "reviewTiming": "after_game"
+      "reviewTiming": "after_game",
+      "memorySettings": {
+        "activeThemeId": "halloween",
+        "timeLimitSeconds": 40,
+        "pairsCount": 8,
+        "allowRanking": true,
+        "soundEnabled": true,
+        "requireLeadRegistration": false,
+        "rewardType": "instant_voucher",
+        "rewardPrizeName": "Postre o Cóctel Espeluznante Gratis",
+        "rewardPrizeValue": "$18.000 COP"
+      }
     },
     "secondChance": {
       "enabled": true,
@@ -1183,8 +1188,36 @@
     "baseDomain": "http://localhost:5173",
     "stats": {
       "nfcScans": 28,
-      "qrScans": 96,
+      "qrScans": 100,
       "lastScans": [
+        {
+          "id": "scan_1790953171902",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:59 a. m."
+        },
+        {
+          "id": "scan_1790953171870",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:59 a. m."
+        },
+        {
+          "id": "scan_1790953000459",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:56 a. m."
+        },
+        {
+          "id": "scan_1790952999980",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "09:56 a. m."
+        },
         {
           "id": "scan_1790952096919",
           "mesa": 1,
@@ -1296,34 +1329,6 @@
           "origen": "qr",
           "device": "Android",
           "timestamp": "06:42 p. m."
-        },
-        {
-          "id": "scan_1790895066238",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:51 p. m."
-        },
-        {
-          "id": "scan_1790895053511",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:50 p. m."
-        },
-        {
-          "id": "scan_1790894570595",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:42 p. m."
-        },
-        {
-          "id": "scan_1790894569857",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "05:42 p. m."
         }
       ]
     }

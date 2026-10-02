@@ -27,6 +27,7 @@ import {
   Flame,
   Share2,
   Brain,
+  Sparkles,
 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
@@ -120,6 +121,7 @@ export function AdminLayout() {
       case "/games/precision": return "Reto Cronómetro de Precisión 10s";
       case "/games/scratch": return "Raspa y Gana Digital (Scratch & Win)";
       case "/games/memory": return "Juego de Memoria (Halloween & Temático)";
+      case "/games/pick-win": return "Descubre y Gana (Día de Muertos & Triplete)";
       case "/games/second-chance": return "Segunda Oportunidad Viral (WhatsApp)";
       case "/game-mode": return "Catálogo Modular de Juegos";
       case "/demo": return "Simulador Frontend (Demo en Vivo)";
@@ -143,6 +145,7 @@ export function AdminLayout() {
     { path: "/games/precision", label: "Reto Precisión 10s", icon: Timer },
     { path: "/games/scratch", label: "Raspa y Gana (Scratch)", icon: Flame },
     { path: "/games/memory", label: "Juego de Memoria (Halloween)", icon: Brain },
+    { path: "/games/pick-win", label: "Descubre y Gana (Día Muertos)", icon: Sparkles },
     { path: "/games/second-chance", label: "2ª Oportunidad Viral", icon: Share2 },
   ];
 

@@ -19,6 +19,7 @@ import { StepInstagramStory } from "./components/qr-game/StepInstagramStory";
 import { StepRouletteWheel } from "./components/qr-game/StepRouletteWheel";
 import { StepPrecisionTimer } from "./components/qr-game/StepPrecisionTimer";
 import { StepMemoryGame } from "./components/qr-game/StepMemoryGame";
+import { StepPickAndWin } from "./components/qr-game/StepPickAndWin";
 import { StepPrizeClaim } from "./components/qr-game/StepPrizeClaim";
 import { StepSecondChanceShare } from "./components/qr-game/StepSecondChanceShare";
 import { StepSecondChanceVerify } from "./components/qr-game/StepSecondChanceVerify";
@@ -91,6 +92,9 @@ function JuegoQrPage() {
         return 3;
       }
       if (params.get("juego") === "memory" || params.get("test") === "memory") {
+        return 3;
+      }
+      if (params.get("juego") === "pick-win" || params.get("test") === "pick-win" || params.get("juego") === "descubre") {
         return 3;
       }
       if (params.get("reset") === "1") {
@@ -227,13 +231,14 @@ function JuegoQrPage() {
     } catch {}
   }, [instagramEvidence]);
 
-  // Configuración de modalidad de juego activa (Ruleta vs Precisión 10s vs Memoria vs Híbrido)
+  // Configuración de modalidad de juego activa (Ruleta vs Precisión 10s vs Memoria vs Descubre y Gana vs Híbrido)
   const [gameConfig, setGameConfig] = useState<GameConfig>(() => GameConfigService.getGameConfig());
-  const [chosenGameMode, setChosenGameMode] = useState<"roulette" | "precision" | "memory" | "scratch" | null>(() => {
+  const [chosenGameMode, setChosenGameMode] = useState<"roulette" | "precision" | "memory" | "scratch" | "pick-win" | null>(() => {
     if (typeof window !== "undefined") {
       const p = new URLSearchParams(window.location.search);
       const j = p.get("juego") || p.get("test") || p.get("modo");
       if (j === "memory" || j === "memoria") return "memory";
+      if (j === "pick-win" || j === "descubre" || j === "muertos") return "pick-win";
       if (j === "precision") return "precision";
       if (j === "scratch") return "scratch";
       if (j === "ruleta" || j === "roulette") return "roulette";
@@ -361,6 +366,10 @@ function JuegoQrPage() {
       } else if (params.get("juego") === "memory" || params.get("test") === "memory") {
         sessionStorage.removeItem("juego_won_prize");
         setChosenGameMode("memory");
+        setCurrentStep(3);
+      } else if (params.get("juego") === "pick-win" || params.get("test") === "pick-win" || params.get("juego") === "descubre") {
+        sessionStorage.removeItem("juego_won_prize");
+        setChosenGameMode("pick-win");
         setCurrentStep(3);
       } else if (params.get("reset") === "1") {
         sessionStorage.removeItem("juego_won_prize");
@@ -648,10 +657,26 @@ function JuegoQrPage() {
             </div>
           )}
 
-          {/* PASO 3: MINIJUEGO ACTIVO (RULETA, PRECISIÓN O JUEGO DE MEMORIA HALLOWEEN) */}
+          {/* PASO 3: MINIJUEGO ACTIVO (RULETA, PRECISIÓN, MEMORIA HALLOWEEN O DESCUBRE Y GANA DÍA DE MUERTOS) */}
           {currentStep === 3 && (
             <div>
-              {(chosenGameMode === "memory" || (!chosenGameMode && gameConfig.gameMode === "memory")) ? (
+              {(chosenGameMode === "pick-win" || (!chosenGameMode && gameConfig.gameMode === "pick-win")) ? (
+                <StepPickAndWin
+                  participantName={participant?.fullName || "Invitado"}
+                  tableNumber={session.tableNumber}
+                  onWinPrize={(prizeName, prizeValue) => {
+                    const won: GamePrize = {
+                      id: "prize-pick-win",
+                      name: prizeName || "Regalo Especial Día de Muertos",
+                      nameEn: prizeName || "Day of the Dead Special Reward",
+                      value: prizeValue || "$20.000 COP",
+                      color: "#e6007e",
+                      probability: 100,
+                    };
+                    handlePrizeWon(won);
+                  }}
+                />
+              ) : (chosenGameMode === "memory" || (!chosenGameMode && gameConfig.gameMode === "memory")) ? (
                 <StepMemoryGame
                   participantName={participant?.fullName || "Invitado"}
                   tableNumber={session.tableNumber}

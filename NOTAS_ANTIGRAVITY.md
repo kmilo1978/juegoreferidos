@@ -856,3 +856,30 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Versión móvil del juego de memoria auditada y verificada en pantalla de smartphone real. Interacción táctil fluida, marca blanca 100% neutra y diseño idéntico a la referencia.
 - Observaciones: Sincronizado en ambos repositorios locales y remoto.
+
+## Nueva sesión
+- Fecha: 2026-10-02 10:02
+- Solicitud: Presenta una imagen con múltiples elementos al usuario para que juegue a descubrir cuáles están premiados... tablero con casillas para hacer clic y descubrir premio oculto (Día de Muertos / Pick & Win / Triplete)
+- Decisiones clave:
+  1. Creación del motor de datos 'src/lib/pickAndWinData.ts':
+     - Presets temáticos completos: Día de Muertos Festivo (con papel picado superior, velas, calaveras de azúcar mexicanas, frasco/premio iluminado, flores de cempasúchil '🏵️' y botón '🌸 PARTICIPA 🌸' fucsia), Cafetería & Dulces Sorpresa, Trattoria & Platos Estrella y Personalizado.
+     - Motor de audio nativo con Web Audio API: sonido táctil al pulsar casilla, campanadas de coincidencia, fallo y fanfarria festiva de victoria.
+  2. Creación del componente móvil interactivo 'src/components/qr-game/StepPickAndWin.tsx':
+     - Formato 100% móvil smartphone (390x844 px).
+     - Portada de bienvenida idéntica a la imagen de referencia con banderines festivos, vela, frasco con calavera decorada y botón fucsia.
+     - Tablero 3x3 (9 casillas) con marco ornamental festivo naranja/amarillo tradicional.
+     - Barra de intentos interactiva con indicadores tipo '[👍 verde] [👎 rojo]'.
+     - Casillas cerradas con flor de cempasúchil resplandeciente '🏵️', destape animado al pulsar y detección automática de 3 figuras iguales para desbloquear el voucher y código único con confeti.
+  3. Creación de la pantalla de configuración administrativa 'src/admin/pages/games/GamePickAndWinConfig.tsx':
+     - Pestañas duales: Configuración modular (temas, dificultad de 3 a 6 intentos, sonido, premio y valor) y Simulador Móvil en Vivo.
+  4. Integración en el submenú de juegos en 'src/admin/AdminLayout.tsx' (icono Sparkles, badge con 7 dinámicas), en 'src/admin/AdminApp.tsx' (ruta '/games/pick-win'), en 'src/admin/pages/games/GamesHub.tsx' (tarjeta y selector de mesa), y en 'src/App.tsx' en el Paso 3 del flujo del cliente.
+  5. Compilación Vite 100% exitosa con 0 errores de TypeScript.
+  6. Validación visual con Edge CDP capturando pantalla de configuración, portada móvil de Día de Muertos, tablero 3x3 y casillas destapadas en vivo.
+- Pendientes:
+  - Ninguno. Módulo 100% operativo.
+
+## Validación completada
+- Fecha: 2026-10-02 10:02
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Juego Descubre y Gana (Día de Muertos / Triplete) implementado con diseño idéntico a la referencia, arquitectura 100% modular y versión móvil nativa. Sincronizado en ambos repositorios.
+- Observaciones: Verificado mediante capturas reales en Edge CDP y compilación limpia.
