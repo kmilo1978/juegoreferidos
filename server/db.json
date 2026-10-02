@@ -149,6 +149,24 @@
   ],
   "logs": [
     {
+      "id": "mur4k7qpzw5",
+      "timestamp": "10:35:28 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur4k7hjl0h",
+      "timestamp": "10:35:28 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mur43axvc5u",
+      "timestamp": "10:22:19 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
       "id": "mur43ax8r92",
       "timestamp": "10:22:19 a. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
@@ -441,21 +459,6 @@
     {
       "id": "muq43mbyht2",
       "timestamp": "5:34:48 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "muq43mb7i0h",
-      "timestamp": "5:34:48 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "muq43ld8jix",
-      "timestamp": "5:34:46 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "muq43lcai63",
-      "timestamp": "5:34:46 p. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
     }
   ],
@@ -1191,8 +1194,22 @@
     "baseDomain": "http://localhost:5173",
     "stats": {
       "nfcScans": 28,
-      "qrScans": 104,
+      "qrScans": 106,
       "lastScans": [
+        {
+          "id": "scan_1790955328585",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "10:35 a. m."
+        },
+        {
+          "id": "scan_1790955328550",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "10:35 a. m."
+        },
         {
           "id": "scan_1790954539538",
           "mesa": 1,
@@ -1318,20 +1335,6 @@
           "origen": "qr",
           "device": "Android",
           "timestamp": "09:32 a. m."
-        },
-        {
-          "id": "scan_1790898707774",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "06:51 p. m."
-        },
-        {
-          "id": "scan_1790898707221",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "06:51 p. m."
         }
       ]
     }

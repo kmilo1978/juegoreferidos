@@ -27,6 +27,7 @@ import {
   Flame,
   Brain,
   Coins,
+  CircleDot,
 } from "lucide-react";
 import { FunnelSequenceService } from "../../lib/funnelSequenceService";
 
@@ -112,7 +113,7 @@ export function Demo() {
   const [isLandscape, setIsLandscape] = useState<boolean>(false);
   const [selectedStep, setSelectedStep] = useState<number>(1);
   const [selectedTable, setSelectedTable] = useState<string>("1");
-  const [selectedGame, setSelectedGame] = useState<"ruleta" | "precision" | "scratch" | "memory" | "pick-win" | "jackpot">("ruleta");
+  const [selectedGame, setSelectedGame] = useState<"ruleta" | "precision" | "scratch" | "memory" | "pick-win" | "jackpot" | "plinko">("ruleta");
   const [funnelSteps, setFunnelSteps] = useState(() => FunnelSequenceService.getSequence());
   const [customHost, setCustomHost] = useState<string>(
     typeof window !== "undefined" ? window.location.hostname : "localhost"
@@ -157,6 +158,8 @@ export function Demo() {
       params.set("juego", "pick-win");
     } else if (game === "jackpot") {
       params.set("juego", "jackpot");
+    } else if (game === "plinko") {
+      params.set("juego", "plinko");
     }
 
     return `/?${params.toString()}`;
@@ -536,6 +539,19 @@ export function Demo() {
                 >
                   <Coins className="w-3.5 h-3.5 text-yellow-400" />
                   <span>Jackpot Slots</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedGame("plinko")}
+                  className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    selectedGame === "plinko"
+                      ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
+                      : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
+                  }`}
+                >
+                  <CircleDot className="w-3.5 h-3.5 text-red-400" />
+                  <span>Suelta y Gana</span>
                 </button>
               </div>
             </div>

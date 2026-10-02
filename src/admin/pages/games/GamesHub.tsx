@@ -16,6 +16,8 @@ import {
   Zap,
   Brain,
   ListOrdered,
+  CircleDot,
+  Coins,
 } from "lucide-react";
 import { GameSequenceManager } from "./GameSequenceManager";
 
@@ -98,12 +100,23 @@ export function GamesHub() {
       id: "jackpot",
       name: "Máquina de Jackpot (Tragaperras)",
       category: "Gran Premio & Expectación",
-      icon: Sparkles,
+      icon: Coins,
       route: "/games/jackpot",
       description: "El clásico juego de 3 rodillos giratorios de casino de lujo. Consigue 3 aviones o 3 símbolos de la casa en línea para ganar el gran premio.",
       status: activeGameMode === "jackpot" ? "activo" : "disponible",
       accentColor: "#f59e0b",
       badge: "Especial Viajes / VIP",
+    },
+    {
+      id: "plinko",
+      name: "Suelta y Gana (Plinko / Pachinko)",
+      category: "Física, Caída & Expectación",
+      icon: CircleDot,
+      route: "/games/plinko",
+      description: "La bola desciende sorteando clavijas y obstáculos hasta caer en casillas de premios. Configurable con temática Navideña, Gourmet o Neon.",
+      status: activeGameMode === "plinko" ? "activo" : "disponible",
+      accentColor: "#ef4444",
+      badge: "Especial Navidad & Temporadas",
     },
     {
       id: "second-chance",
@@ -140,7 +153,7 @@ export function GamesHub() {
         body: JSON.stringify({ gameMode: mode }),
       });
       if (res.ok) {
-        setSuccess(`✓ Juego activo en mesas actualizado a: ${mode === "roulette" ? "Ruleta de Premios" : mode === "precision" ? "Cronómetro 10s" : mode === "scratch" ? "Raspa y Gana" : mode === "memory" ? "Juego de Memoria" : mode === "jackpot" ? "Máquina de Jackpot" : "Descubre y Gana (Día de Muertos)"}`);
+        setSuccess(`✓ Juego activo en mesas actualizado a: ${mode === "roulette" ? "Ruleta de Premios" : mode === "precision" ? "Cronómetro 10s" : mode === "scratch" ? "Raspa y Gana" : mode === "memory" ? "Juego de Memoria" : mode === "jackpot" ? "Máquina de Jackpot" : mode === "plinko" ? "Suelta y Gana (Plinko)" : "Descubre y Gana (Día de Muertos)"}`);
         setTimeout(() => setSuccess(null), 3500);
       }
     } catch {
@@ -228,18 +241,19 @@ export function GamesHub() {
                 </p>
               </div>
               <span className="text-[10px] font-mono font-bold text-[#121115] bg-[#f2be71] px-2.5 py-1 rounded-full uppercase">
-                {activeGameMode === "roulette" ? "Ruleta Activa" : activeGameMode === "precision" ? "Precisión Activa" : activeGameMode === "scratch" ? "Raspa Activo" : activeGameMode === "memory" ? "Memoria Activa" : activeGameMode === "jackpot" ? "Jackpot Activo" : "Descubre y Gana Activo"}
+                {activeGameMode === "roulette" ? "Ruleta Activa" : activeGameMode === "precision" ? "Precisión Activa" : activeGameMode === "scratch" ? "Raspa Activo" : activeGameMode === "memory" ? "Memoria Activa" : activeGameMode === "jackpot" ? "Jackpot Activo" : activeGameMode === "plinko" ? "Suelta y Gana Activo" : "Descubre y Gana Activo"}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3">
               {[
                 { id: "roulette", name: "Ruleta", icon: RotateCw, desc: "Girar y ganar azar" },
                 { id: "precision", name: "Cronómetro 10s", icon: Timer, desc: "Frenar a los 10.000s" },
                 { id: "scratch", name: "Raspa y Gana", icon: Flame, desc: "Rasca con el dedo" },
                 { id: "memory", name: "Memoria", icon: Brain, desc: "Parejas Halloween" },
                 { id: "pick-win", name: "Descubre y Gana", icon: Sparkles, desc: "3 iguales Día Muertos" },
-                { id: "jackpot", name: "Jackpot", icon: Sparkles, desc: "3 rodillos en línea" },
+                { id: "jackpot", name: "Jackpot", icon: Coins, desc: "3 rodillos en línea" },
+                { id: "plinko", name: "Suelta y Gana", icon: CircleDot, desc: "Caída de bola y clavijas" },
               ].map((mode) => {
             const isSelected = activeGameMode === mode.id;
             return (

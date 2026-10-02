@@ -918,3 +918,35 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Máquina de Jackpot (Tragaperras), Gestor visual de secuencia del embudo y aclaración con simulador de la 2ª Oportunidad implementados y validados.
 - Observaciones: Pruebas visuales aprobadas, compilación exitosa y sincronización en ambos repositorios.
+## Nueva sesión
+- Fecha: 2026-10-02 10:38
+- Solicitud: Reparte premios generando expectación hasta el último segundo... Al acceder a Suelta y gana, el participante ve un tablero lleno de obstáculos y unas casillas con premios en la parte inferior... dejar caer una bola en la parte superior y seguir su recorrido... adaptado a móviles, personalizable con temas (Navidad según la imagen enviada), copys, premios y probabilidades.
+- Decisiones clave:
+  1. Creación del motor de datos y física 'src/lib/plinkoData.ts':
+     - Presets temáticos: Especial Navidad (Suelta la bola y gana con cabaña nevada, guirnaldas, árboles, faroles, regalos y dulces como la imagen de referencia), Café & Panadería Gourmet y Cyber Neon.
+     - Motor de audio nativo Web Audio API: sonido de lanzamiento, clics/campanadas al golpear cada obstáculo metálico con variaciones aleatorias de tono y fanfarria triunfal de aterrizaje.
+     - Configuración y persistencia reactiva de slots, probabilidades relativas, textos y gran premio estrella.
+  2. Creación del componente móvil 'src/components/qr-game/StepPlinkoGame.tsx':
+     - Formato 100% smartphone (390x844 px).
+     - Pantalla de bienvenida / portada con cartel de madera rústica nevado 'SUELTA LA BOLA Y GANA', subtítulo de campaña, guía en 2 pasos ilustrada y botón 'JUGAR' con nieve y efecto luminoso.
+     - Pantalla de tablero Plinko con marco festivo perimetral, neón rojo, indicador de entrada superior con bola y flecha, campo escalonado de clavijas doradas, botón flotante central 'SOLTAR LA BOLA 🌿🍒', 7 casillas de premios iluminadas y física de caída fluida con rebotes asíncronos.
+     - Pantalla de victoria con estrella dorada/icono del premio obtenido, tarjeta troquelada oficial con estado CONFIRMADO y botón luminoso 'EMITIR MI VOUCHER OFICIAL'.
+  3. Creación del módulo de configuración administrativa 'src/admin/pages/games/GamePlinkoConfig.tsx':
+     - Pestañas duales: Configuración modular (temas, edición en tiempo real de copys, 7 casillas con iconos, nombres, valor y % de probabilidad) y Simulador Móvil en Vivo.
+  4. Integración modular en toda la plataforma:
+     - 'src/admin/AdminLayout.tsx' con icono CircleDot y submenú en Games.
+     - 'src/admin/AdminApp.tsx' con la ruta '/games/plinko'.
+     - 'src/admin/pages/games/GamesHub.tsx' con tarjeta de catálogo y selector de juego activo en mesas.
+     - 'src/App.tsx' en el Paso 3 del embudo y parámetro URL '?juego=plinko'.
+     - 'src/admin/pages/Demo.tsx' con el 7º juego en la cuadrícula y URL directa.
+     - 'src/lib/funnelSequenceService.ts' con la mención de Plinko en el paso de juego.
+  5. Compilación Vite exitosa con 0 errores TypeScript.
+  6. Pruebas visuales en Edge CDP capturando: portada móvil de bienvenida, tablero de clavijas con botón de soltar bola, voucher de victoria, configuración administrativa y catálogo GamesHub.
+- Pendientes:
+  - Ninguno. Módulo 100% operativo y probado.
+
+## Validación completada
+- Fecha: 2026-10-02 10:38
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Juego 'Suelta y Gana' (Plinko / Pachinko) implementado con diseño idéntico a la imagen navideña de referencia, 100% móvil, modular y configurable.
+- Observaciones: Verificado mediante capturas reales en Edge CDP, compilación limpia y sincronización en ambos repositorios.

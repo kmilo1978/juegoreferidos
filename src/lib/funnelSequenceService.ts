@@ -40,7 +40,7 @@ export const DEFAULT_FUNNEL_STEPS: FunnelStepItem[] = [
     id: "step_game",
     name: "Minijuego en Vivo de Mesa",
     shortLabel: "Juego",
-    description: "La dinámica interactiva seleccionada (Jackpot, Ruleta, Memoria, Raspa o Pick & Win).",
+    description: "La dinámica interactiva seleccionada (Jackpot, Plinko, Ruleta, Memoria, Raspa o Pick & Win).",
     category: "juego",
     iconName: "Gamepad2",
     enabled: true,

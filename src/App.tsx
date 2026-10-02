@@ -21,6 +21,7 @@ import { StepPrecisionTimer } from "./components/qr-game/StepPrecisionTimer";
 import { StepMemoryGame } from "./components/qr-game/StepMemoryGame";
 import { StepPickAndWin } from "./components/qr-game/StepPickAndWin";
 import { StepJackpotGame } from "./components/qr-game/StepJackpotGame";
+import { StepPlinkoGame } from "./components/qr-game/StepPlinkoGame";
 import { StepPrizeClaim } from "./components/qr-game/StepPrizeClaim";
 import { StepSecondChanceShare } from "./components/qr-game/StepSecondChanceShare";
 import { StepSecondChanceVerify } from "./components/qr-game/StepSecondChanceVerify";
@@ -99,6 +100,9 @@ function JuegoQrPage() {
         return 3;
       }
       if (params.get("juego") === "jackpot" || params.get("test") === "jackpot" || params.get("juego") === "tragaperras") {
+        return 3;
+      }
+      if (params.get("juego") === "plinko" || params.get("test") === "plinko" || params.get("juego") === "suelta") {
         return 3;
       }
       if (params.get("reset") === "1") {
@@ -237,10 +241,11 @@ function JuegoQrPage() {
 
   // Configuración de modalidad de juego activa (Ruleta vs Precisión 10s vs Memoria vs Descubre y Gana vs Híbrido)
   const [gameConfig, setGameConfig] = useState<GameConfig>(() => GameConfigService.getGameConfig());
-  const [chosenGameMode, setChosenGameMode] = useState<"roulette" | "precision" | "memory" | "scratch" | "pick-win" | "jackpot" | null>(() => {
+  const [chosenGameMode, setChosenGameMode] = useState<"roulette" | "precision" | "memory" | "scratch" | "pick-win" | "jackpot" | "plinko" | null>(() => {
     if (typeof window !== "undefined") {
       const p = new URLSearchParams(window.location.search);
       const j = p.get("juego") || p.get("test") || p.get("modo");
+      if (j === "plinko" || j === "suelta" || j === "pachinko") return "plinko";
       if (j === "jackpot" || j === "tragaperras" || j === "slots") return "jackpot";
       if (j === "memory" || j === "memoria") return "memory";
       if (j === "pick-win" || j === "descubre" || j === "muertos") return "pick-win";
@@ -662,10 +667,31 @@ function JuegoQrPage() {
             </div>
           )}
 
-          {/* PASO 3: MINIJUEGO ACTIVO (RULETA, PRECISIÓN, MEMORIA, DESCUBRE Y GANA, JACKPOT) */}
+          {/* PASO 3: MINIJUEGO ACTIVO (RULETA, PRECISIÓN, MEMORIA, DESCUBRE Y GANA, JACKPOT, PLINKO) */}
           {currentStep === 3 && (
             <div>
-              {(chosenGameMode === "jackpot" || (!chosenGameMode && gameConfig.gameMode === "jackpot")) ? (
+              {(chosenGameMode === "plinko" || (!chosenGameMode && gameConfig.gameMode === "plinko")) ? (
+                <StepPlinkoGame
+                  participantName={participant?.fullName || "Invitado"}
+                  tableNumber={session.tableNumber}
+                  onWinPrize={(prizeName, prizeValue) => {
+                    const won: GamePrize = {
+                      id: "prize-plinko",
+                      name: prizeName || "Premio Especial Navideño",
+                      nameEn: prizeName || "Holiday Special Reward",
+                      value: prizeValue || "$25.000 COP",
+                      color: "#ef4444",
+                      probability: 100,
+                      type: "special_experience",
+                      textColor: "#ffffff",
+                      active: true,
+                      terms: "Presenta tu pantalla al camarero o en caja para reclamarlo.",
+                      termsEn: "Present at cashier to claim.",
+                    };
+                    handlePrizeWon(won);
+                  }}
+                />
+              ) : (chosenGameMode === "jackpot" || (!chosenGameMode && gameConfig.gameMode === "jackpot")) ? (
                 <StepJackpotGame
                   participantName={participant?.fullName || "Invitado"}
                   tableNumber={session.tableNumber}
