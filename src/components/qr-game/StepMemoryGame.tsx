@@ -36,6 +36,7 @@ interface StepMemoryGameProps {
   initialSettings?: Partial<MemoryGameSettings>;
   tableNumber?: string;
   participantName?: string;
+  initialFace?: "face1" | "face2";
 }
 
 export function StepMemoryGame({
@@ -44,6 +45,7 @@ export function StepMemoryGame({
   initialSettings,
   tableNumber = "Mesa 1",
   participantName = "Comensal VIP",
+  initialFace = "face1",
 }: StepMemoryGameProps) {
   const settings: MemoryGameSettings = {
     ...DEFAULT_MEMORY_SETTINGS,
@@ -53,7 +55,8 @@ export function StepMemoryGame({
   const theme: MemoryThemePreset =
     MEMORY_THEMES[settings.activeThemeId] || MEMORY_THEMES.halloween;
 
-  // Estados del juego
+  // Cara activa: "face1" (Portada de Bienvenida Halloween) o "face2" (Tablero 4x4 de Cartas)
+  const [activeFace, setActiveFace] = useState<"face1" | "face2">(initialFace);
   const [gameState, setGameState] = useState<"welcome" | "playing" | "won" | "timeout">("welcome");
   const [cards, setCards] = useState<CardState[]>([]);
   const [selectedCards, setSelectedCards] = useState<CardState[]>([]);
@@ -65,6 +68,7 @@ export function StepMemoryGame({
   const [streak, setStreak] = useState(0);
 
   const timerRef = useRef<any>(null);
+  const hasWon = gameState === "won";
 
   // Generar y barajar la baraja de parejas
   const setupDeck = () => {
@@ -113,7 +117,12 @@ export function StepMemoryGame({
   const handleStartGame = () => {
     setupDeck();
     setGameState("playing");
+    setActiveFace("face2");
   };
+
+  useEffect(() => {
+    setupDeck();
+  }, []);
 
   // Control del cronómetro
   useEffect(() => {
@@ -228,247 +237,205 @@ export function StepMemoryGame({
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      {/* ============================================================ */}
-      {/* 1. PANTALLA DE BIENVENIDA (ESTILO EXACTO TELÉFONO IZQUIERDO) */}
-      {/* ============================================================ */}
-      {gameState === "welcome" && (
-        <div className="relative rounded-3xl overflow-hidden border border-[#363439] shadow-2xl bg-gradient-to-b from-[#21092e] via-[#1a0826] to-[#0d0414] text-center p-6 sm:p-8 flex flex-col items-center justify-between min-h-[560px]">
-          {/* Ilustración de fondo con luna y castillo de Halloween */}
-          <div className="absolute top-4 right-6 w-20 h-20 rounded-full bg-gradient-to-br from-[#fff7b2] to-[#f59e0b] opacity-85 blur-xs shadow-[0_0_40px_rgba(245,158,11,0.6)] pointer-events-none" />
-          <div className="absolute top-10 left-6 text-xl opacity-60 animate-pulse">🦇</div>
-          <div className="absolute top-16 right-20 text-sm opacity-50">🦇</div>
+    <div className="w-full max-w-[390px] mx-auto select-none">
+      {/* SELECTOR DISCRETO DE LAS DOS CARAS (Cara 1: Portada Halloween / Cara 2: Tablero 4x4) */}
+      <div className="flex items-center justify-between bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-1 mb-2">
+        <button
+          type="button"
+          onClick={() => setActiveFace("face1")}
+          className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+            activeFace === "face1"
+              ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md"
+              : "text-white/70 hover:text-white"
+          }`}
+        >
+          <span>🎃 Cara 1: Portada</span>
+        </button>
 
-          {/* Fantasmita Flotante */}
-          <div className="relative z-10 pt-4 flex flex-col items-center">
-            <div className="text-7xl mb-2 filter drop-shadow-[0_8px_16px_rgba(255,255,255,0.3)] animate-bounce">
+        <button
+          type="button"
+          onClick={() => {
+            setActiveFace("face2");
+            if (gameState === "welcome") setGameState("playing");
+          }}
+          className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+            activeFace === "face2"
+              ? "bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-md"
+              : "text-white/70 hover:text-white"
+          }`}
+        >
+          <span>🃏 Cara 2: Tablero 4x4</span>
+        </button>
+      </div>
+
+      {/* ============================================================== */}
+      {/* CARA 1: PORTADA FANTASMITA Y CALABAZA (FOTO IZQUIERDA)          */}
+      {/* ============================================================== */}
+      {activeFace === "face1" && (
+        <div className="relative rounded-[32px] overflow-hidden border-4 border-[#2b292e] shadow-2xl bg-gradient-to-b from-[#2b0c3f] via-[#1a0729] to-[#0c0314] text-white p-5 flex flex-col justify-between min-h-[640px] text-center">
+          {/* Luna llena amarilla en la esquina superior derecha con destello */}
+          <div className="absolute top-6 right-6 w-20 h-20 rounded-full bg-gradient-to-br from-[#fff7b2] via-[#fef08a] to-[#f59e0b] shadow-[0_0_35px_rgba(254,240,138,0.8)] pointer-events-none" />
+
+          {/* Siluetas de ramas retorcidas, castillo embrujado y murciélagos */}
+          <div className="absolute top-10 left-5 text-xl opacity-70 animate-pulse">🦇</div>
+          <div className="absolute top-16 right-24 text-sm opacity-50">🦇</div>
+          <div className="absolute top-28 left-8 text-xs opacity-60">🦇</div>
+
+          {/* Fantasmita blanco flotante sonriente saludando */}
+          <div className="relative z-10 pt-6 flex flex-col items-center">
+            <span className="text-7xl filter drop-shadow-[0_8px_20px_rgba(255,255,255,0.4)] animate-bounce inline-block">
               👻
-            </div>
-            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#ffddb1] bg-[#ffddb1]/15 px-3 py-1 rounded-full border border-[#ffddb1]/30">
-              Especial de Temporada
             </span>
           </div>
 
-          {/* Título & Mensaje */}
-          <div className="relative z-10 space-y-3 my-4">
-            <h2 className="text-3xl sm:text-4xl font-black text-white font-['Epilogue'] tracking-tight drop-shadow-md leading-tight">
-              {theme.bannerTitle}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#ffddb1]/90 max-w-xs mx-auto leading-relaxed font-medium">
-              {theme.bannerSubtitle}
+          {/* TÍTULO ESTILIZADO DE CUENTO IDÉNTICO A LA FOTO */}
+          <div className="relative z-10 space-y-2 my-auto py-2">
+            <h1 className="text-3xl sm:text-4xl font-serif font-black tracking-tight text-white leading-tight">
+              ¡Juega al<br />
+              Memory de<br />
+              <span className="text-[#fbbf24] drop-shadow-[0_4px_12px_rgba(251,191,36,0.9)] font-['Epilogue'] tracking-wide">
+                Halloween!
+              </span>
+            </h1>
+
+            <p className="text-xs sm:text-sm text-pink-200 font-semibold px-4 pt-1">
+              Encuentra las parejas y gana premios espeluznantes.
+            </p>
+
+            <p className="text-[11px] text-purple-200/80">
+              Pon a prueba tu memoria y diviértete.
             </p>
           </div>
 
-          {/* Botón Grande ¡JUGAR! (Fucsia Magenta llamativo de la imagen) */}
-          <div className="relative z-10 w-full space-y-4">
+          {/* BOTÓN CÁPSULA MAGENTA BRILLANTE: ¡JUGAR! */}
+          <div className="relative z-10 pt-2 pb-1 max-w-[280px] mx-auto w-full">
             <button
               type="button"
               onClick={handleStartGame}
-              className="w-full py-4 px-6 rounded-full text-white font-black text-base uppercase tracking-wider transition-all duration-200 transform hover:scale-102 active:scale-98 shadow-[0_8px_25px_rgba(255,0,127,0.5)] cursor-pointer flex items-center justify-center gap-2"
-              style={{
-                backgroundColor: theme.accentColor,
-              }}
+              className="w-full py-4 px-8 rounded-full bg-gradient-to-r from-[#d91b7d] via-[#f43f5e] to-[#d91b7d] hover:brightness-110 active:scale-95 text-white font-black text-sm tracking-wider uppercase border-2 border-pink-300 shadow-[0_4px_25px_rgba(217,27,125,0.7)] transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Sparkles className="w-5 h-5 text-white animate-spin" />
-              <span>{theme.buttonText}</span>
+              <span className="font-['Epilogue'] tracking-widest text-base">¡JUGAR!</span>
             </button>
+          </div>
 
-            {/* Calabaza iluminada al pie */}
-            <div className="flex items-center justify-center gap-2 text-3xl">
-              <span>🎃</span>
-              <span className="text-xs text-[#ccc3d8] font-semibold">Premio asegurado para ganadores</span>
-              <span>🎃</span>
+          {/* GRAN CALABAZA ILUMINADA EN LA BASE ENTRE HIERBA NOCTURNA Y ESTRELLAS */}
+          <div className="relative z-10 flex items-end justify-center pt-2">
+            <div className="relative">
+              <span className="text-6xl filter drop-shadow-[0_0_20px_rgba(245,158,11,0.9)] inline-block">
+                🎃
+              </span>
+              <span className="absolute -top-2 -left-4 text-amber-300 text-sm animate-pulse">✦</span>
+              <span className="absolute -top-1 -right-4 text-amber-300 text-sm animate-pulse">✦</span>
             </div>
           </div>
         </div>
       )}
 
-      {/* ============================================================ */}
-      {/* 2. PANTALLA DE JUEGO (ESTILO EXACTO TELÉFONO DERECHO) */}
-      {/* ============================================================ */}
-      {gameState === "playing" && (
-        <div className="rounded-3xl border border-[#363439] bg-[#140b1c] p-4 sm:p-5 shadow-2xl space-y-4">
-          {/* BARRA SUPERIOR DE TIEMPO Y PUNTUACIÓN */}
-          <div className="bg-[#24112e] border border-[#3f1f4f] rounded-2xl p-3 flex items-center justify-between shadow-inner">
-            {/* Tiempo */}
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#ff7518]/20 border border-[#ff7518]/40 flex items-center justify-center text-[#ff7518]">
-                <Timer className="w-5 h-5" />
-              </div>
-              <div className="text-left">
-                <span className="text-[10px] uppercase font-bold text-[#ccc3d8] block">Tiempo</span>
-                <span className={`font-mono text-lg font-black ${timeLeft <= 10 ? "text-red-400 animate-pulse" : "text-white"}`}>
-                  {timeLeft.toFixed(1)}s
-                </span>
-              </div>
+      {/* ============================================================== */}
+      {/* CARA 2: TABLERO 4x4 CON REVERSO CALABAZA (FOTO DERECHA)        */}
+      {/* ============================================================== */}
+      {activeFace === "face2" && (
+        <div className="relative rounded-[32px] overflow-hidden border-4 border-[#2b292e] shadow-2xl bg-gradient-to-b from-[#180924] via-[#10051a] to-[#08020e] text-white p-3.5 flex flex-col justify-between min-h-[640px]">
+          {/* BARRA SUPERIOR FUCSIA CON ICONO DE CUADRÍCULA BLANCA 3x3 */}
+          <div className="w-full bg-gradient-to-r from-[#d91b7d] via-[#e11d48] to-[#d91b7d] rounded-2xl py-2 px-3 flex items-center justify-between shadow-md mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-base">🎃</span>
+              <span className="text-xs font-mono font-bold tracking-wider text-white">
+                {tableNumber}
+              </span>
             </div>
 
-            {/* Puntuación */}
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#f2be71]/20 border border-[#f2be71]/40 flex items-center justify-center text-[#f2be71]">
-                <Trophy className="w-5 h-5" />
-              </div>
-              <div className="text-left">
-                <span className="text-[10px] uppercase font-bold text-[#ccc3d8] block">Puntuación</span>
-                <span className="font-mono text-lg font-black text-[#f2be71]">
-                  {score}
-                </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                className="w-6 h-6 rounded-full bg-black/20 text-white flex items-center justify-center cursor-pointer"
+              >
+                {soundEnabled ? <Volume2 className="w-3 h-3" /> : <VolumeX className="w-3 h-3 opacity-50" />}
+              </button>
+
+              <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-white text-xs font-bold">
+                ⊞
               </div>
             </div>
-
-            {/* Audio Toggle */}
-            <button
-              type="button"
-              onClick={() => setSoundEnabled(!soundEnabled)}
-              className="w-8 h-8 rounded-lg bg-[#140b1c] border border-[#3f1f4f] flex items-center justify-center text-[#ccc3d8] hover:text-white cursor-pointer"
-              title={soundEnabled ? "Silenciar" : "Activar sonido"}
-            >
-              {soundEnabled ? <Volume2 className="w-4 h-4 text-[#ff007f]" /> : <VolumeX className="w-4 h-4 opacity-50" />}
-            </button>
           </div>
 
-          {/* CUADRÍCULA 4x4 DE 16 CARTAS CON EFECTO 3D */}
-          <div className="grid grid-cols-4 gap-2.5 sm:gap-3 py-1">
+          {/* INDICADORES FLOTANTES: TIEMPO Y PUNTUACIÓN CON ESTRELLITAS (IDÉNTICO A LA FOTO) */}
+          <div className="flex items-center justify-around px-2 py-1">
+            <div className="flex items-center gap-1.5">
+              <span className="text-amber-300 text-xs">✦</span>
+              <div className="text-center">
+                <span className="text-[10px] text-purple-200 uppercase font-bold block">⏱️ Tiempo</span>
+                <span className="font-mono text-lg font-black text-white">{timeLeft.toFixed(1)}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <div className="text-center">
+                <span className="text-[10px] text-purple-200 uppercase font-bold block">🏆 Puntuación</span>
+                <span className="font-mono text-lg font-black text-white">{score}</span>
+              </div>
+              <span className="text-amber-300 text-xs">✦</span>
+            </div>
+          </div>
+
+          {/* CUADRÍCULA 4x4 (16 CARTAS CON REVERSO NARANJA CALABAZA Y TELARAÑA) */}
+          <div className="grid grid-cols-4 gap-2 my-auto p-1">
             {cards.map((card) => {
               const isRevealed = card.isFlipped || card.isMatched;
 
               return (
-                <div
+                <button
                   key={card.instanceId}
+                  type="button"
                   onClick={() => handleCardClick(card)}
-                  className={`aspect-square rounded-2xl cursor-pointer select-none transition-all duration-300 transform perspective-500 ${
+                  disabled={card.isMatched || isProcessingMatch || hasWon}
+                  className={`aspect-square rounded-2xl select-none transition-all duration-300 transform perspective-500 cursor-pointer ${
                     card.isMatched
-                      ? "ring-2 ring-[#10b981] shadow-[0_0_12px_rgba(16,185,129,0.4)]"
-                      : "hover:scale-103 active:scale-95"
+                      ? "ring-2 ring-emerald-400 scale-98 shadow-md"
+                      : "hover:scale-104 active:scale-95"
                   }`}
                 >
                   <div
-                    className={`w-full h-full rounded-2xl flex items-center justify-center transition-all duration-300 shadow-md ${
+                    className={`w-full h-full rounded-2xl flex items-center justify-center border-2 transition-all ${
                       isRevealed
-                        ? "bg-white text-neutral-900 border-2 border-white"
-                        : "border-2"
+                        ? "bg-white text-slate-900 border-white shadow-lg"
+                        : "bg-gradient-to-b from-[#ea580c] via-[#c2410c] to-[#9a3412] border-amber-300/80 shadow-md"
                     }`}
-                    style={{
-                      backgroundColor: isRevealed ? (card.color || "#ffffff") : theme.cardBackBg,
-                      borderColor: isRevealed ? (card.color || "#ffffff") : theme.cardBackBorder,
-                    }}
                   >
                     {isRevealed ? (
-                      <span className="text-3xl sm:text-4xl animate-scale-up filter drop-shadow">
+                      <span className="text-3xl animate-scale-up filter drop-shadow">
                         {card.emoji}
                       </span>
                     ) : (
-                      <div className="flex flex-col items-center justify-center">
-                        <span className="text-2xl filter drop-shadow opacity-95">
-                          {theme.cardBackIcon}
-                        </span>
+                      <div className="flex flex-col items-center justify-center opacity-90">
+                        <span className="text-xl filter drop-shadow">🎃</span>
                       </div>
                     )}
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
 
-          {/* BARRA DE PROGRESO DE PAREJAS */}
-          <div className="flex items-center justify-between text-xs text-[#ccc3d8] px-1 pt-1">
-            <span>
-              Parejas: <strong className="text-[#ffddb1]">{matchesFound}</strong> / {settings.pairsCount || 8}
-            </span>
-            {streak > 1 && (
-              <span className="text-[#ff007f] font-bold flex items-center gap-1 animate-pulse">
-                <Flame className="w-3.5 h-3.5" />
-                <span>¡Racha x{streak}!</span>
-              </span>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================ */}
-      {/* 3. PANTALLA DE VICTORIA */}
-      {/* ============================================================ */}
-      {gameState === "won" && (
-        <div className="rounded-3xl border border-[#f2be71]/40 bg-gradient-to-b from-[#2a1738] via-[#1c0f26] to-[#0f0714] p-6 sm:p-8 text-center shadow-2xl space-y-5 animate-scale-up">
-          <div className="text-6xl animate-bounce">🎉</div>
-
-          <div className="space-y-2">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[#f2be71] bg-[#f2be71]/15 px-3 py-1 rounded-full border border-[#f2be71]/30">
-              ¡Misión Cumplida!
-            </span>
-            <h3 className="text-2xl sm:text-3xl font-black text-white font-['Epilogue']">
-              ¡Memoria Espeluznante!
-            </h3>
-            <p className="text-xs text-[#ccc3d8] max-w-xs mx-auto">
-              Encontraste todas las parejas en récord de tiempo y desbloqueaste tu premio en mesa.
-            </p>
-          </div>
-
-          {/* Tarjeta de Resumen */}
-          <div className="bg-[#24112e] border border-[#3f1f4f] rounded-2xl p-4 grid grid-cols-2 gap-3 text-left">
-            <div>
-              <span className="text-[10px] uppercase text-[#ccc3d8] block">Puntuación Final</span>
-              <span className="font-mono text-xl font-bold text-[#f2be71]">{score} pts</span>
-            </div>
-            <div>
-              <span className="text-[10px] uppercase text-[#ccc3d8] block">Tiempo Sobrante</span>
-              <span className="font-mono text-xl font-bold text-[#10b981]">{timeLeft.toFixed(1)}s</span>
-            </div>
-            <div className="col-span-2 pt-2 border-t border-[#3f1f4f]">
-              <span className="text-[10px] uppercase text-[#ccc3d8] block">Premio Ganado</span>
-              <span className="text-sm font-bold text-[#ffddb1] flex items-center gap-1.5">
-                <Gift className="w-4 h-4 text-[#f2be71]" />
-                <span>{settings.rewardPrizeName}</span>
-              </span>
-            </div>
-          </div>
-
-          {/* Botón Reclamar */}
-          <button
-            type="button"
-            onClick={handleClaimReward}
-            className="w-full py-4 px-6 rounded-full text-white font-black text-sm uppercase tracking-wider transition-all shadow-[0_8px_25px_rgba(255,0,127,0.4)] cursor-pointer flex items-center justify-center gap-2 hover:brightness-105 active:scale-98"
-            style={{ backgroundColor: theme.accentColor }}
-          >
-            <span>Ver Mi Voucher de Premio</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
-      {/* ============================================================ */}
-      {/* 4. PANTALLA DE TIEMPO AGOTADO (TIMEOUT) */}
-      {/* ============================================================ */}
-      {gameState === "timeout" && (
-        <div className="rounded-3xl border border-red-500/40 bg-[#1f0b12] p-6 sm:p-8 text-center shadow-2xl space-y-4 animate-scale-up">
-          <div className="text-6xl animate-pulse">⏰</div>
-          <h3 className="text-2xl font-black text-white font-['Epilogue']">
-            ¡Se acabó el tiempo!
-          </h3>
-          <p className="text-xs text-[#ccc3d8]">
-            Estuviste muy cerca. Lograste encontrar {matchesFound} de {settings.pairsCount || 8} parejas.
-          </p>
-
-          <div className="flex flex-col gap-2.5 pt-2">
-            <button
-              type="button"
-              onClick={handleStartGame}
-              className="w-full py-3.5 px-5 rounded-full bg-[#f2be71] text-[#121115] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md hover:brightness-105"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span>Intentar de Nuevo</span>
-            </button>
-
-            {onSecondChance && (
+          {/* Puntos paginadores inferiores o botón de victoria */}
+          {hasWon ? (
+            <div className="pt-1">
               <button
                 type="button"
-                onClick={onSecondChance}
-                className="w-full py-3 px-4 rounded-full bg-[#201f23] border border-[#363439] text-[#ccc3d8] hover:text-white text-xs font-semibold cursor-pointer"
+                onClick={handleClaimReward}
+                className="w-full py-3 px-5 rounded-full bg-gradient-to-r from-pink-600 via-rose-500 to-pink-600 hover:brightness-110 active:scale-98 text-white font-black text-xs uppercase tracking-wider shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                Desbloquear 2ª Oportunidad en WhatsApp
+                <Trophy className="w-4 h-4 text-white" />
+                <span>¡TODAS LAS PAREJAS! RECLAMAR PREMIO</span>
               </button>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-2 py-1 text-xs text-purple-300">
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
+              <span className="w-2 h-2 rounded-full bg-purple-700" />
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1023,3 +1023,32 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Física fluida de Plinko a 60 FPS completada, diseño idéntico a la imagen original, 2ª Oportunidad VIP unificada y tipografía profesional sin fuentes infantiles.
 - Observaciones: Pruebas visuales en Edge CDP verificadas ('verify_plinko_fluid_board.png', 'verify_plinko_fluid_dropping.png', 'verify_games_hub_unified.png'), 'bun run build' con 0 errores TypeScript y sincronización en ambos repositorios.
+
+## Nueva sesión
+- Fecha: 2026-10-02 12:30
+- Solicitud: Asegurar que todos los juegos tengan rigurosamente sus DOS CARAS diferenciadas y que sean idénticos a los diseños originales suministrados.
+- Decisiones clave:
+  1. Jackpot (Tragaperras Aeropuerto):
+     - Cara 1: Máquina tragaperras de salidas internacionales con 10 bombillas incandescentes intermitentes, marquesina LED 'JACKPOT', 3 rodillos mecánicos con avión, tren, maleta, coche y bici, palanca, botón 'JUGAR' y 5 aviones en la base.
+     - Cara 2: Pantalla de premio 'Boarding Pass / Billete de Avión' azul y amarillo con avión despegando al sol, '¡Enhorabuena! Este es tu premio: 2 billetes de avión' y cupón desprendible blanco con perforaciones circulares y código de canje en mostrador.
+  2. Descubre y Gana (Día de Muertos / Triplete):
+     - Cara 1: Portada festiva con frasco de perfume de cristal con calavera de azúcar, velas encendidas, flores de cempasúchil, papel picado y botón cápsula '?? PARTICIPA ??'.
+     - Cara 2: Tablero 3x3 tradicional con marco de papel picado, 3 píldoras superiores de intentos ('[ ?? Verde ] [ ?? Rojo ] [ ?? Verde ]'), casillas florales y destape de figuras de perfume, calavera y huesos.
+  3. Memory de Halloween:
+     - Cara 1: Portada nocturna mágica con fantasmita blanco sonriente flotante, luna llena dorada radiante, murciélagos, ramas misteriosas, botón fucsia '¡JUGAR!' y gran calabaza iluminada en la base.
+     - Cara 2: Tablero 4x4 con barra superior fucsia e icono de cuadrícula 3x3, marcadores '?? TIEMPO' y '?? PUNTUACIÓN', 16 cartas con reverso naranja calabaza y frente con los 8 iconos festivos.
+  4. Raspa y Gana (Navidad):
+     - Cara 1: Portada roja rubí con guirnaldas, luces festivas, esferas, icono de regalo, botón verde cápsula '¡PARTICIPA! >' y atmósfera acogedora.
+     - Cara 2: Tarjeta de regalo roja con marco dorado biselado, '¡PREMIO! KIT NAVIDEÑO', lámina rascable plateada con textura escarchada de alta sensibilidad táctil, revelado progresivo del kit navideño y botón para canjear voucher.
+  5. Suelta la Bola y Gana (Plinko Navidad):
+     - Cara 1: Portada exterior con letrero de madera en nieve 'SUELTA LA BOLA Y GANA', tutorial en 2 pasos ilustrado ('1. Suelta la bola -> 2. Sigue el recorrido') y botón rojo 'JUGAR'.
+     - Cara 2: Tablero vertical con faroles iluminados, campana central, triángulo de lanzamiento, 11 filas densas de clavijas 3D, botón central pulsante 'SOLTAR LA BOLA' y 7 casillas de premios con divisores y luces.
+  6. Selector interactivo superior: Cada juego cuenta con un interruptor superior discreto ('[ Cara 1 ] [ Cara 2 ]') para que el administrador y el comensal puedan alternar entre ambas caras en el simulador móvil en tiempo real.
+- Pendientes:
+  - Ninguno. Todos los 5 juegos cuentan con sus 2 caras idénticas a las imágenes originales, verificadas visualmente.
+
+## Validación completada
+- Fecha: 2026-10-02 12:35
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Los 5 juegos promocionales cuentan con sus DOS CARAS exactas a las capturas de referencia, tanto en su portada de captación como en su tablero de juego y canje de voucher.
+- Observaciones: Pruebas visuales completadas en Edge CDP para las 10 caras ('verify_jackpot_face1_reels.png', 'verify_jackpot_face2_boarding_pass.png', 'verify_pick_win_face1_perfume.png', 'verify_pick_win_face2_board3x3.png', 'verify_memory_face1_ghost.png', 'verify_memory_face2_cards4x4.png', 'verify_scratch_face1_welcome.png', 'verify_scratch_face2_card.png', 'verify_plinko_face1_cabin.png', 'verify_plinko_face2_board.png'). Compilación Vite con 0 errores TypeScript y réplica sincronizada.

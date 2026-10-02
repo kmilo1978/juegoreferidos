@@ -15,14 +15,16 @@ interface StepJackpotGameProps {
   onWinPrize: (prizeName: string, prizeValue: string) => void;
   customSettings?: Partial<JackpotSettings>;
   isStandAlone?: boolean;
+  initialFace?: "face1" | "face2";
 }
 
 export function StepJackpotGame({
-  participantName = "Invitado",
+  participantName = "Invitado VIP",
   tableNumber = "Mesa 1",
   onWinPrize,
   customSettings,
   isStandAlone = false,
+  initialFace = "face1",
 }: StepJackpotGameProps) {
   const [settings] = useState<JackpotSettings>(() => ({
     ...DEFAULT_JACKPOT_SETTINGS,
@@ -31,41 +33,45 @@ export function StepJackpotGame({
 
   const theme = JACKPOT_THEMES[settings.themeId] || JACKPOT_THEMES.travel_vip;
 
-  // Estados: "idle" | "spinning" | "won" | "gameover"
-  const [gameState, setGameState] = useState<"idle" | "spinning" | "won" | "gameover">("idle");
+  // Cara activa: "face1" (Tragaperras en sala de salidas) o "face2" (Boarding Pass / Resultado de premio)
+  const [activeFace, setActiveFace] = useState<"face1" | "face2">(initialFace);
+
+  // Estados de juego dentro de la máquina: "idle" | "spinning" | "gameover"
+  const [isSpinning, setIsSpinning] = useState(false);
   const [attemptsLeft, setAttemptsLeft] = useState<number>(settings.maxAttempts);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(settings.soundEnabled);
 
-  // Rodillos: cada uno muestra 3 posiciones [arriba, centro, abajo]
+  // Símbolos
   const jackpotSymbol = theme.symbols.find((s) => s.isJackpot) || theme.symbols[0];
   const otherSymbols = theme.symbols.filter((s) => !s.isJackpot);
 
+  // Configuración de los 3 rodillos idéntica a la imagen de referencia:
+  // Reel 1: Tren, Avión, Coche
+  // Reel 2: Maleta, Avión, Bici
+  // Reel 3: Bici, Avión, Tren
   const [reels, setReels] = useState<JackpotSymbol[][]>([
-    [otherSymbols[0] || jackpotSymbol, jackpotSymbol, otherSymbols[1] || jackpotSymbol],
-    [otherSymbols[1] || jackpotSymbol, jackpotSymbol, otherSymbols[2] || jackpotSymbol],
-    [otherSymbols[2] || jackpotSymbol, jackpotSymbol, otherSymbols[0] || jackpotSymbol],
+    [otherSymbols[1] || jackpotSymbol, jackpotSymbol, otherSymbols[2] || jackpotSymbol], // Tren, Avión, Coche
+    [otherSymbols[0] || jackpotSymbol, jackpotSymbol, otherSymbols[3] || jackpotSymbol], // Maleta, Avión, Bici
+    [otherSymbols[3] || jackpotSymbol, jackpotSymbol, otherSymbols[1] || jackpotSymbol], // Bici, Avión, Tren
   ]);
 
   const [spinningReels, setSpinningReels] = useState<boolean[]>([false, false, false]);
   const spinIntervalRef = useRef<any>(null);
 
   const handleSpin = () => {
-    if (gameState === "spinning" || attemptsLeft <= 0) return;
+    if (isSpinning || attemptsLeft <= 0) return;
 
     const newAttempts = attemptsLeft - 1;
     setAttemptsLeft(newAttempts);
-    setGameState("spinning");
+    setIsSpinning(true);
     setSpinningReels([true, true, true]);
 
-    // Decidir si esta tirada es ganadora (según winProbability o si es el último intento)
-    const isWin = Math.random() * 100 < settings.winProbability || (newAttempts === 0 && Math.random() > 0.3);
-
-    // Sonido de giro de rodillos
+    // Sonido de giro
     let spinAudioInterval = setInterval(() => {
       if (soundEnabled) jackpotAudio.playReelSpinClick();
     }, 90);
 
-    // Animación de rotación rápida de símbolos
+    // Animación de rodillos girando
     spinIntervalRef.current = setInterval(() => {
       setReels(() => [
         [
@@ -86,16 +92,16 @@ export function StepJackpotGame({
       ]);
     }, 60);
 
-    // Secuencia de parada progresiva de los 3 rodillos (Reel 1 a los 1.2s, Reel 2 a los 1.9s, Reel 3 a los 2.7s)
+    // Secuencia de parada progresiva de los 3 rodillos
     setTimeout(() => {
       setSpinningReels([false, true, true]);
       if (soundEnabled) jackpotAudio.playReelStop(0);
-    }, 1200);
+    }, 1100);
 
     setTimeout(() => {
       setSpinningReels([false, false, true]);
       if (soundEnabled) jackpotAudio.playReelStop(1);
-    }, 1900);
+    }, 1700);
 
     setTimeout(() => {
       clearInterval(spinIntervalRef.current);
@@ -103,44 +109,35 @@ export function StepJackpotGame({
       setSpinningReels([false, false, false]);
       if (soundEnabled) jackpotAudio.playReelStop(2);
 
+      // Decidir si esta tirada es ganadora
+      const isWin = Math.random() * 100 < settings.winProbability || newAttempts === 0;
+
       if (isWin) {
-        // Fijar exactamente 3 símbolos de Jackpot en la línea central
+        // Fijar exactamente 3 aviones alineados al centro (Idéntico a la foto derecha)
         setReels([
-          [otherSymbols[0] || jackpotSymbol, jackpotSymbol, otherSymbols[1] || jackpotSymbol],
           [otherSymbols[1] || jackpotSymbol, jackpotSymbol, otherSymbols[2] || jackpotSymbol],
-          [otherSymbols[2] || jackpotSymbol, jackpotSymbol, otherSymbols[0] || jackpotSymbol],
+          [otherSymbols[0] || jackpotSymbol, jackpotSymbol, otherSymbols[3] || jackpotSymbol],
+          [otherSymbols[3] || jackpotSymbol, jackpotSymbol, otherSymbols[1] || jackpotSymbol],
         ]);
 
+        if (soundEnabled) jackpotAudio.playJackpotWin();
+        confetti({
+          particleCount: 80,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ["#38bdf8", "#f59e0b", "#fbbf24", "#ffffff"],
+        });
+
+        // Transición fluida a la CARA 2 (Boarding Pass) tras festejar la combinación
         setTimeout(() => {
-          setGameState("won");
-          if (soundEnabled) jackpotAudio.playJackpotWin();
-          confetti({
-            particleCount: 100,
-            spread: 90,
-            origin: { y: 0.6 },
-            colors: ["#f59e0b", "#fbbf24", "#38bdf8", "#ffffff"],
-          });
-        }, 500);
+          setIsSpinning(false);
+          setActiveFace("face2");
+        }, 1200);
       } else {
-        // Combinación no ganadora
-        const nonWinReel3 = otherSymbols[Math.floor(Math.random() * otherSymbols.length)] || theme.symbols[1];
-        setReels([
-          [otherSymbols[0], jackpotSymbol, otherSymbols[1]],
-          [otherSymbols[1], jackpotSymbol, otherSymbols[2]],
-          [jackpotSymbol, nonWinReel3, otherSymbols[0]], // Rompe la línea central
-        ]);
-
-        if (newAttempts <= 0) {
-          setTimeout(() => {
-            setGameState("gameover");
-            if (soundEnabled) jackpotAudio.playMiss();
-          }, 600);
-        } else {
-          setGameState("idle");
-          if (soundEnabled) jackpotAudio.playMiss();
-        }
+        setIsSpinning(false);
+        if (soundEnabled) jackpotAudio.playMiss();
       }
-    }, 2700);
+    }, 2400);
   };
 
   useEffect(() => {
@@ -150,91 +147,140 @@ export function StepJackpotGame({
   }, []);
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      {/* ============================================================ */}
-      {/* 1. PANTALLA PRINCIPAL: MÁQUINA DE JACKPOT                    */}
-      {/* ============================================================ */}
-      {(gameState === "idle" || gameState === "spinning") && (
-        <div className="relative rounded-3xl overflow-hidden border border-[#363439] shadow-2xl bg-gradient-to-b from-[#0a0f1d] via-[#091322] to-[#040810] text-center p-4 sm:p-5 flex flex-col items-center justify-between min-h-[640px]">
-          {/* Top Bar: Aeropuerto / Cartel de Salidas */}
-          <div className="w-full bg-[#1e293b]/90 border border-[#334155] rounded-xl px-3 py-1.5 flex items-center justify-between shadow-md mb-2">
-            <span className="text-[11px] font-mono font-black text-[#fbbf24] tracking-wider uppercase flex items-center gap-1.5">
-              <span>{theme.topHeader}</span>
+    <div className="w-full max-w-[390px] mx-auto select-none">
+      {/* SELECTOR DISCRETO DE LAS DOS CARAS (Cara 1: Tragaperras / Cara 2: Boarding Pass) */}
+      <div className="flex items-center justify-between bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-1 mb-2">
+        <button
+          type="button"
+          onClick={() => setActiveFace("face1")}
+          className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+            activeFace === "face1"
+              ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-black shadow-md"
+              : "text-white/70 hover:text-white"
+          }`}
+        >
+          <span>🎰 Cara 1: Tragaperras</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveFace("face2")}
+          className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+            activeFace === "face2"
+              ? "bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-md"
+              : "text-white/70 hover:text-white"
+          }`}
+        >
+          <span>✈️ Cara 2: Boarding Pass</span>
+        </button>
+      </div>
+
+      {/* ============================================================== */}
+      {/* CARA 1: MÁQUINA DE JACKPOT EN SALIDAS INTERNACIONALES (FOTO DERECHA) */}
+      {/* ============================================================== */}
+      {activeFace === "face1" && (
+        <div className="relative rounded-[32px] overflow-hidden border-4 border-[#2b292e] shadow-2xl bg-gradient-to-b from-[#09152b] via-[#050c1b] to-[#02050b] text-white p-4 flex flex-col justify-between min-h-[640px]">
+          {/* Fondo de terminal nocturna con silueta de avión despegando */}
+          <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/30 via-transparent to-black pointer-events-none" />
+
+          {/* Barra superior con avión volando en el cielo y botón menú hamburguesa azul */}
+          <div className="relative z-10 w-full flex items-center justify-between pb-1">
+            <div className="flex items-center gap-2">
+              <span className="text-xl filter drop-shadow-[0_0_8px_rgba(56,189,248,0.8)]">✈️</span>
+              <span className="text-[11px] font-mono font-bold text-sky-300 tracking-wider">
+                {tableNumber} · {participantName}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                className="w-7 h-7 rounded-full bg-black/40 border border-sky-400/30 text-sky-300 flex items-center justify-center transition-all cursor-pointer"
+                title="Audio"
+              >
+                {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 opacity-50" />}
+              </button>
+
+              <div className="w-8 h-8 rounded-xl bg-blue-600/80 border border-sky-300/40 flex items-center justify-center text-white shadow-md">
+                <span className="text-sm font-bold">☰</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Cartel de señalética de aeropuerto: Icono amarillo + SALIDAS INTERNACIONALES */}
+          <div className="relative z-10 mx-auto my-1.5 bg-[#f59e0b] text-neutral-950 font-black px-3.5 py-1 rounded-xl shadow-lg border border-amber-200 flex items-center gap-2 max-w-[280px]">
+            <div className="w-6 h-6 rounded-lg bg-black/90 flex items-center justify-center text-amber-400 text-xs">
+              ✈️
+            </div>
+            <span className="text-[11px] sm:text-xs font-mono tracking-wider font-extrabold uppercase">
+              SALIDAS INTERNACIONALES
             </span>
-            {/* Audio Toggle */}
-            <button
-              type="button"
-              onClick={() => setSoundEnabled(!soundEnabled)}
-              className="text-[#94a3b8] hover:text-white p-1 cursor-pointer"
-              title={soundEnabled ? "Silenciar" : "Activar sonido"}
-            >
-              {soundEnabled ? <Volume2 className="w-4 h-4 text-[#38bdf8]" /> : <VolumeX className="w-4 h-4 opacity-50" />}
-            </button>
           </div>
 
-          {/* Marquesina LED Digital: ✖ JACKPOT ✖ */}
-          <div className="w-full py-2.5 px-4 bg-[#020617] border-2 border-[#1e293b] rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.25)] flex items-center justify-center gap-3">
-            <span className="text-[#f59e0b] animate-pulse">✖</span>
-            <h2 className="text-2xl sm:text-3xl font-black font-mono tracking-[0.2em] text-[#fbbf24] filter drop-shadow-[0_0_12px_rgba(251,191,36,0.9)]">
-              {theme.marqueeText}
+          {/* Marquesina LED atornillada: ✖ JACKPOT ✖ con tipografía de matriz punteada */}
+          <div className="relative z-10 my-1 py-1.5 px-4 bg-[#0a0f1d] border-2 border-slate-700 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.3)] flex items-center justify-center gap-3">
+            <span className="text-sky-400 font-bold text-xs">✖</span>
+            <h2 className="text-2xl sm:text-3xl font-mono font-black tracking-[0.25em] text-[#fbbf24] filter drop-shadow-[0_0_12px_rgba(251,191,36,0.9)]">
+              JACKPOT
             </h2>
-            <span className="text-[#f59e0b] animate-pulse">✖</span>
+            <span className="text-sky-400 font-bold text-xs">✖</span>
           </div>
 
-          {/* MÁQUINA TRAGAPERRAS DORADA CON BOMBILLAS ILUMINADAS */}
-          <div className="relative my-3 w-full p-3 sm:p-4 rounded-3xl bg-gradient-to-b from-[#fef08a] via-[#f59e0b] to-[#78350f] shadow-[0_0_35px_rgba(245,158,11,0.45)] border-2 border-[#fef08a]">
-            {/* Fila de Bombillas Animadas (Marco Superior) */}
-            <div className="flex justify-between px-2 pb-2">
-              {Array.from({ length: 9 }).map((_, i) => (
+          {/* MÁQUINA TRAGAPERRAS DORADA CON 10 BOMBILLAS INCANDESCENTES PERIMETRALES */}
+          <div className="relative z-10 my-2 p-2 sm:p-2.5 rounded-3xl bg-gradient-to-b from-[#fef08a] via-[#f59e0b] to-[#78350f] border-3 border-amber-200 shadow-[0_0_35px_rgba(245,158,11,0.5)]">
+            {/* Fila superior de bombillas iluminadas */}
+            <div className="flex justify-around pb-1.5 px-2">
+              {Array.from({ length: 7 }).map((_, i) => (
                 <div
-                  key={i}
-                  className={`w-2.5 h-2.5 rounded-full border border-yellow-200 shadow-md ${
-                    i % 2 === 0 ? "bg-[#fffbeb] shadow-[0_0_6px_#fff]" : "bg-[#f59e0b] animate-ping"
-                  }`}
+                  key={`top-bulb-${i}`}
+                  className="w-2.5 h-2.5 rounded-full bg-amber-100 border border-amber-300 shadow-[0_0_8px_rgba(254,240,138,1)] animate-pulse"
                 />
               ))}
             </div>
 
-            {/* CONTENEDOR DE LOS 3 RODILLOS GIRATORIOS */}
-            <div className="relative bg-[#090d16] rounded-2xl p-2 border-2 border-[#451a03] shadow-inner overflow-hidden">
-              {/* Flechas indicadoras de la línea central de pago */}
-              <div className="absolute left-1 top-1/2 -translate-y-1/2 text-lg text-[#fbbf24] z-20 filter drop-shadow animate-pulse">
+            {/* CONTENEDOR DE LOS 3 RODILLOS DE CASINO */}
+            <div className="relative bg-[#020617] rounded-2xl p-1.5 border-2 border-[#451a03] shadow-inner overflow-hidden">
+              {/* Flechas indicadoras doradas de la línea central ganadora */}
+              <div className="absolute left-0.5 top-1/2 -translate-y-1/2 text-sm text-[#fbbf24] z-20 animate-pulse">
                 ▶
               </div>
-              <div className="absolute right-1 top-1/2 -translate-y-1/2 text-lg text-[#fbbf24] z-20 filter drop-shadow animate-pulse">
+              <div className="absolute right-0.5 top-1/2 -translate-y-1/2 text-sm text-[#fbbf24] z-20 animate-pulse">
                 ◀
               </div>
 
-              {/* Línea horizontal tenue que marca el premio central */}
-              <div className="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-[2px] bg-gradient-to-r from-transparent via-[#fbbf24]/50 to-transparent pointer-events-none z-10" />
-
-              <div className="grid grid-cols-3 gap-2">
-                {[0, 1, 2].map((reelIdx) => {
-                  const isSpinning = spinningReels[reelIdx];
-                  const reelItems = reels[reelIdx] || [jackpotSymbol, jackpotSymbol, jackpotSymbol];
+              {/* Los 3 Rodillos */}
+              <div className="grid grid-cols-3 gap-1.5">
+                {[0, 1, 2].map((rIdx) => {
+                  const items = reels[rIdx] || [jackpotSymbol, jackpotSymbol, jackpotSymbol];
+                  const spinning = spinningReels[rIdx];
 
                   return (
                     <div
-                      key={reelIdx}
-                      className="bg-gradient-to-b from-[#1e293b] via-[#0f172a] to-[#1e293b] rounded-xl border border-[#334155] p-1 flex flex-col items-center justify-between h-44 sm:h-48 shadow-inner overflow-hidden"
+                      key={rIdx}
+                      className="bg-gradient-to-b from-[#0f2347] via-[#071329] to-[#0f2347] rounded-xl border border-sky-800/60 p-1 flex flex-col items-center justify-between h-40 sm:h-44 shadow-inner"
                     >
                       {/* Símbolo Superior */}
-                      <div className="opacity-35 scale-80 filter blur-[0.3px] transition-all">
-                        <span className="text-3xl filter drop-shadow">{reelItems[0]?.emoji}</span>
+                      <div className="opacity-40 scale-85 transition-all">
+                        <span className="text-2xl filter drop-shadow">{items[0]?.emoji}</span>
                       </div>
 
-                      {/* SÍMBOLO CENTRAL (LÍNEA DE PREMIO GANADOR) */}
+                      {/* SÍMBOLO CENTRAL: PREMIO DE LÍNEA (FONDO DORADO PARA EL AVIÓN) */}
                       <div
-                        className={`w-full py-2.5 rounded-lg bg-gradient-to-b from-[#fef08a]/20 via-[#f59e0b]/25 to-[#fef08a]/20 border border-[#fbbf24]/40 flex items-center justify-center transition-all ${
-                          isSpinning ? "animate-pulse scale-95 opacity-80" : "scale-105 shadow-[0_0_15px_rgba(251,191,36,0.3)]"
+                        className={`w-full py-2 rounded-lg flex items-center justify-center transition-all ${
+                          spinning
+                            ? "animate-pulse opacity-75"
+                            : "bg-gradient-to-b from-[#fef08a] via-[#f59e0b] to-[#d97706] shadow-[0_0_15px_rgba(245,158,11,0.6)] border border-amber-100 scale-105"
                         }`}
                       >
-                        <span className="text-4xl filter drop-shadow-md">{reelItems[1]?.emoji}</span>
+                        <span className="text-3xl filter drop-shadow-md">
+                          {items[1]?.isJackpot ? "✈️" : items[1]?.emoji}
+                        </span>
                       </div>
 
                       {/* Símbolo Inferior */}
-                      <div className="opacity-35 scale-80 filter blur-[0.3px] transition-all">
-                        <span className="text-3xl filter drop-shadow">{reelItems[2]?.emoji}</span>
+                      <div className="opacity-40 scale-85 transition-all">
+                        <span className="text-2xl filter drop-shadow">{items[2]?.emoji}</span>
                       </div>
                     </div>
                   );
@@ -242,150 +288,140 @@ export function StepJackpotGame({
               </div>
             </div>
 
-            {/* Fila de Bombillas (Marco Inferior) */}
-            <div className="flex justify-between px-2 pt-2">
-              {Array.from({ length: 9 }).map((_, i) => (
+            {/* Fila inferior de bombillas iluminadas */}
+            <div className="flex justify-around pt-1.5 px-2">
+              {Array.from({ length: 7 }).map((_, i) => (
                 <div
-                  key={i}
-                  className={`w-2.5 h-2.5 rounded-full border border-yellow-200 shadow-md ${
-                    i % 2 !== 0 ? "bg-[#fffbeb] shadow-[0_0_6px_#fff]" : "bg-[#f59e0b] animate-ping"
-                  }`}
+                  key={`bot-bulb-${i}`}
+                  className="w-2.5 h-2.5 rounded-full bg-amber-100 border border-amber-300 shadow-[0_0_8px_rgba(254,240,138,1)] animate-pulse"
                 />
               ))}
             </div>
           </div>
 
-          {/* Instrucción del Reto */}
-          <div className="space-y-1 mb-2">
-            <span className="text-[11px] font-black uppercase tracking-wider text-[#fbbf24] block">
-              {theme.targetInstruction}
+          {/* Instrucción con avión dorado: CONSIGUE TRES AVIONES EN LÍNEA */}
+          <div className="relative z-10 flex items-center justify-center gap-2 my-1 text-xs">
+            <span className="w-8 h-[1px] bg-amber-400/50" />
+            <span className="font-bold uppercase tracking-wider text-amber-300 font-['Epilogue'] text-[11px]">
+              CONSIGUE TRES AVIONES EN LÍNEA
             </span>
+            <span className="w-8 h-[1px] bg-amber-400/50" />
           </div>
 
-          {/* BOTÓN LUMINOSO JUGAR */}
-          <div className="w-full space-y-3">
+          {/* BOTÓN CÁPSULA NEGRO CON BORDE DORADO: JUGAR */}
+          <div className="relative z-10 my-1">
             <button
               type="button"
               onClick={handleSpin}
-              disabled={gameState === "spinning" || attemptsLeft <= 0}
-              className={`w-full py-4 px-6 rounded-full font-black text-base uppercase tracking-widest transition-all duration-200 transform shadow-xl cursor-pointer flex items-center justify-center gap-2 border-2 ${
-                gameState === "spinning"
-                  ? "bg-[#334155] text-[#94a3b8] border-[#475569] cursor-not-allowed scale-98"
-                  : "bg-gradient-to-r from-[#f59e0b] via-[#fbbf24] to-[#f59e0b] text-[#121115] border-[#fef08a] hover:scale-102 active:scale-98 shadow-[0_8px_30px_rgba(245,158,11,0.5)]"
-              }`}
+              disabled={isSpinning || attemptsLeft <= 0}
+              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-b from-[#1e293b] via-[#0f172a] to-[#020617] hover:brightness-110 active:scale-98 border-2 border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.4)] text-white font-extrabold text-sm uppercase tracking-widest cursor-pointer transition-all flex items-center justify-center gap-2"
             >
-              <Sparkles className="w-5 h-5" />
-              <span>{gameState === "spinning" ? "GIRANDO RODILLOS..." : "JUGAR"}</span>
+              <span>{isSpinning ? "GIRANDO..." : "JUGAR"}</span>
             </button>
+          </div>
 
-            {/* INDICADOR DE VIDAS / INTENTOS RESTANTES (Estilo 5 aviones de la foto) */}
-            <div className="flex items-center justify-center gap-3 pt-1">
-              {Array.from({ length: settings.maxAttempts }).map((_, idx) => {
-                const isAvailable = idx < attemptsLeft;
-                return (
-                  <span
-                    key={idx}
-                    className={`text-xl transition-all ${
-                      isAvailable
-                        ? "text-[#fbbf24] filter drop-shadow-[0_0_8px_rgba(251,191,36,0.8)] scale-110"
-                        : "text-[#334155] opacity-30"
-                    }`}
-                  >
-                    ✈️
-                  </span>
-                );
-              })}
-            </div>
+          {/* BASE: 5 AVIONCITOS DORADOS INDICADORES (IDÉNTICO A LA FOTO DERECHA) */}
+          <div className="relative z-10 flex items-center justify-center gap-3 pt-1">
+            {Array.from({ length: 5 }).map((_, idx) => (
+              <span
+                key={idx}
+                className="text-base text-amber-400 filter drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]"
+              >
+                ✈️
+              </span>
+            ))}
           </div>
         </div>
       )}
 
-      {/* ============================================================ */}
-      {/* 2. PANTALLA DE VICTORIA: BOARDING PASS / BILLETE DE PREMIO    */}
-      {/* ============================================================ */}
-      {gameState === "won" && (
-        <div className="rounded-3xl border border-[#38bdf8]/50 bg-gradient-to-b from-[#0c2445] via-[#091a32] to-[#040e1c] p-6 text-center shadow-2xl space-y-5 animate-scale-up">
-          {/* Avión en Vuelo */}
-          <div className="flex flex-col items-center">
-            <span className="text-6xl animate-bounce filter drop-shadow-[0_8px_20px_rgba(56,189,248,0.5)]">
-              ✈️
-            </span>
-            <h3 className="text-2xl font-black text-white font-['Epilogue'] tracking-tight mt-2">
-              ¡Enhorabuena, {participantName}!
-            </h3>
-            <p className="text-xs text-[#94a3b8]">Este es tu premio ganado en la máquina de Jackpot:</p>
+      {/* ============================================================== */}
+      {/* CARA 2: BOARDING PASS / BILLETE DE AVIÓN (FOTO IZQUIERDA)       */}
+      {/* ============================================================== */}
+      {activeFace === "face2" && (
+        <div className="relative rounded-[32px] overflow-hidden border-4 border-[#2b292e] shadow-2xl bg-gradient-to-b from-[#0284c7] via-[#0369a1] to-[#082f49] text-white p-4 flex flex-col justify-between min-h-[640px]">
+          {/* Cabecera: Gran avión blanco despegando majestuosamente hacia el cielo soleado */}
+          <div className="relative z-10 pt-2 text-center space-y-1">
+            <div className="relative inline-block mx-auto">
+              <span className="text-6xl filter drop-shadow-[0_8px_20px_rgba(255,255,255,0.7)] animate-bounce inline-block">
+                🛫
+              </span>
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl font-black text-white font-['Epilogue'] tracking-tight drop-shadow-md">
+              ¡Enhorabuena!
+            </h2>
+            <div className="w-12 h-1 bg-amber-400 mx-auto rounded-full shadow-sm" />
+            <p className="text-xs text-sky-100 font-medium">Este es tu premio:</p>
           </div>
 
-          {/* BILLETE / BOARDING PASS VIP DORADO Y AZUL (Fiel a la foto) */}
-          <div className="relative rounded-2xl bg-gradient-to-r from-[#0284c7] via-[#0369a1] to-[#075985] p-1 border-2 border-[#38bdf8] shadow-2xl overflow-hidden text-left">
-            <div className="bg-[#0f172a] rounded-[14px] p-4 text-white space-y-3 relative">
-              {/* Cabecera del Billete */}
-              <div className="flex items-center justify-between border-b border-[#334155] pb-2">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-[#38bdf8] font-bold">
-                  BOARDING PASS · VOUCHER VIP
+          {/* TARJETA BOARDING PASS AZUL Y AMARILLA (IDÉNTICA A LA IMAGEN) */}
+          <div className="relative z-10 my-auto rounded-3xl overflow-hidden shadow-2xl border-2 border-white/20 bg-gradient-to-b from-[#0284c7] to-[#0369a1]">
+            {/* Pestaña superior amarilla: ✈ PREMIO */}
+            <div className="bg-[#fbbf24] px-4 py-2 flex items-center gap-2 text-neutral-950 font-black">
+              <span className="text-sm">✈</span>
+              <span className="text-xs font-mono tracking-wider uppercase">PREMIO</span>
+            </div>
+
+            {/* Sección azul con Mapamundi y 2 Billetes de avión */}
+            <div className="p-5 text-white relative space-y-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-5xl font-black text-[#fef08a] font-['Epilogue'] drop-shadow-md">
+                  2
                 </span>
-                <span className="text-xs font-mono font-bold text-[#fbbf24] bg-[#fbbf24]/15 px-2 py-0.5 rounded">
-                  {tableNumber}
-                </span>
+                <div className="text-left font-extrabold text-lg leading-tight uppercase tracking-tight text-white">
+                  billetes<br />de avión
+                </div>
               </div>
 
-              {/* Nombre del Premio Destacado */}
-              <div className="space-y-1">
-                <span className="text-[11px] text-[#94a3b8] font-bold uppercase block">✈ PREMIO:</span>
-                <h4 className="text-xl font-black text-[#fbbf24] tracking-tight">
-                  {settings.rewardPrizeName}
-                </h4>
-                <p className="text-xs text-[#38bdf8] font-mono font-bold">
-                  Valoración: {settings.rewardPrizeValue}
+              {/* Silueta de avión volando con estela punteada */}
+              <div className="flex items-center gap-2 text-xs text-sky-200/90 pt-1">
+                <span>✈️</span>
+                <span className="font-mono text-[11px] font-bold">Ruta Directa · Vuelo Especial</span>
+              </div>
+            </div>
+
+            {/* LÍNEA DIVISORIA CON PERFORACIONES DE TICKET (CUPÓN DESPRENDIBLE) */}
+            <div className="relative flex items-center justify-between px-2 bg-white text-slate-800">
+              <div className="w-4 h-4 rounded-full bg-[#0369a1] -ml-4" />
+              <div className="flex-1 border-t-2 border-dashed border-slate-300 mx-2" />
+              <div className="w-4 h-4 rounded-full bg-[#0369a1] -mr-4" />
+            </div>
+
+            {/* Cupón inferior blanco con icono de ticket azul recortado */}
+            <div className="bg-white p-4 text-slate-800 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-sky-600 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-md">
+                🎫
+              </div>
+              <div className="text-left leading-tight">
+                <p className="text-xs font-bold text-slate-900 font-['Epilogue']">
+                  {settings.rewardPrizeName || "Dos billetes en clase turista para el destino que tú elijas."}
+                </p>
+                <p className="text-[10px] text-slate-500 font-medium mt-0.5">
+                  Válido para canjear en mostrador o caja · {tableNumber}
                 </p>
               </div>
-
-              <div className="pt-2 border-t border-[#334155] flex items-center justify-between text-[11px] text-[#94a3b8]">
-                <span>Válido para canjear en caja</span>
-                <span className="text-[#fbbf24] font-bold font-mono">100% CONFIRMADO</span>
-              </div>
             </div>
           </div>
 
-          {/* Botón Reclamar */}
-          <button
-            type="button"
-            onClick={() => onWinPrize(settings.rewardPrizeName, settings.rewardPrizeValue)}
-            className="w-full py-4 px-6 rounded-full text-[#121115] bg-[#fbbf24] font-black text-sm uppercase tracking-wider hover:brightness-105 active:scale-98 shadow-xl cursor-pointer flex items-center justify-center gap-2"
-          >
-            <Trophy className="w-5 h-5" />
-            <span>Emitir mi Voucher Oficial</span>
-          </button>
-        </div>
-      )}
+          {/* Botón Reclamar Voucher Oficial */}
+          <div className="relative z-10 pt-2 space-y-2">
+            <button
+              type="button"
+              onClick={() => onWinPrize(settings.rewardPrizeName, settings.rewardPrizeValue)}
+              className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:brightness-110 active:scale-98 text-neutral-950 font-black text-xs uppercase tracking-wider shadow-[0_4px_20px_rgba(245,158,11,0.5)] transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Trophy className="w-4 h-4 text-neutral-950" />
+              <span>RECLAMAR MI BILLETE VIP</span>
+            </button>
 
-      {/* ============================================================ */}
-      {/* 3. PANTALLA DE REINTENTO / INTENTOS AGOTADOS                  */}
-      {/* ============================================================ */}
-      {gameState === "gameover" && (
-        <div className="rounded-3xl border border-[#363439] bg-[#0d131f] p-6 text-center shadow-2xl space-y-5 animate-scale-up">
-          <div className="text-5xl">🎰</div>
-
-          <div className="space-y-2">
-            <h3 className="text-xl font-black text-white font-['Epilogue']">
-              ¡Casi logras la combinación!
-            </h3>
-            <p className="text-xs text-[#94a3b8] max-w-xs mx-auto">
-              Se han agotado los {settings.maxAttempts} intentos en la máquina de Jackpot. ¡Puedes recargar y probar de nuevo!
-            </p>
+            <button
+              type="button"
+              onClick={() => setActiveFace("face1")}
+              className="w-full py-2 text-center text-xs text-sky-200 hover:text-white font-medium cursor-pointer"
+            >
+              Volver a la máquina de juego ➔
+            </button>
           </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              setAttemptsLeft(settings.maxAttempts);
-              setGameState("idle");
-            }}
-            className="w-full py-3.5 px-6 rounded-full text-[#121115] bg-[#fbbf24] font-black text-xs uppercase tracking-wider hover:brightness-105 active:scale-98 cursor-pointer flex items-center justify-center gap-2 shadow-lg"
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span>Volver a Intentar</span>
-          </button>
         </div>
       )}
     </div>
