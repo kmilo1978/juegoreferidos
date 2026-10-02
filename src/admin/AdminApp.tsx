@@ -27,6 +27,7 @@ import { GamePrecisionConfig } from "./pages/games/GamePrecisionConfig";
 import { GameScratchConfig } from "./pages/games/GameScratchConfig";
 import { GameMemoryConfig } from "./pages/games/GameMemoryConfig";
 import { GamePickAndWinConfig } from "./pages/games/GamePickAndWinConfig";
+import { GameJackpotConfig } from "./pages/games/GameJackpotConfig";
 import { GameSecondChanceConfig } from "./pages/games/GameSecondChanceConfig";
 
 // Blindaje global
@@ -107,6 +108,7 @@ export function AdminApp() {
             <Route path="games/scratch" element={<GameScratchConfig />} />
             <Route path="games/memory" element={<GameMemoryConfig />} />
             <Route path="games/pick-win" element={<GamePickAndWinConfig />} />
+            <Route path="games/jackpot" element={<GameJackpotConfig />} />
             <Route path="games/second-chance" element={<GameSecondChanceConfig />} />
             <Route path="game-mode" element={<GamesHub />} />
             <Route path="demo" element={<Demo />} />

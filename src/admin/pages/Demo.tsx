@@ -24,7 +24,11 @@ import {
   Sliders,
   ChevronDown,
   Award,
+  Flame,
+  Brain,
+  Coins,
 } from "lucide-react";
+import { FunnelSequenceService } from "../../lib/funnelSequenceService";
 
 interface DeviceProfile {
   id: string;
@@ -108,12 +112,20 @@ export function Demo() {
   const [isLandscape, setIsLandscape] = useState<boolean>(false);
   const [selectedStep, setSelectedStep] = useState<number>(1);
   const [selectedTable, setSelectedTable] = useState<string>("1");
-  const [selectedGame, setSelectedGame] = useState<"ruleta" | "precision">("ruleta");
+  const [selectedGame, setSelectedGame] = useState<"ruleta" | "precision" | "scratch" | "memory" | "pick-win" | "jackpot">("ruleta");
+  const [funnelSteps, setFunnelSteps] = useState(() => FunnelSequenceService.getSequence());
   const [customHost, setCustomHost] = useState<string>(
     typeof window !== "undefined" ? window.location.hostname : "localhost"
   );
   const [copiedLink, setCopiedLink] = useState(false);
   const [keyReset, setKeyReset] = useState(0);
+
+  useEffect(() => {
+    const unsub = FunnelSequenceService.subscribe((seq) => {
+      setFunnelSteps(seq);
+    });
+    return unsub;
+  }, []);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -137,6 +149,14 @@ export function Demo() {
 
     if (game === "precision") {
       params.set("juego", "precision");
+    } else if (game === "scratch") {
+      params.set("juego", "scratch");
+    } else if (game === "memory") {
+      params.set("juego", "memory");
+    } else if (game === "pick-win") {
+      params.set("juego", "pick-win");
+    } else if (game === "jackpot") {
+      params.set("juego", "jackpot");
     }
 
     return `/?${params.toString()}`;
@@ -148,7 +168,7 @@ export function Demo() {
   const qrTargetUrl = (() => {
     const port = typeof window !== "undefined" && window.location.port ? `:${window.location.port}` : ":5173";
     const protocol = typeof window !== "undefined" ? window.location.protocol : "http:";
-    return `${protocol}//${customHost}${port}/?mesa=${selectedTable}&demo=true`;
+    return `${protocol}//${customHost}${port}/?mesa=${selectedTable}&demo=true&juego=${selectedGame}`;
   })();
 
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(
@@ -169,17 +189,30 @@ export function Demo() {
     setTimeout(() => setCopiedLink(false), 2500);
   };
 
-  // Pasos disponibles en el recorrido interactivo
-  const stepsList = [
-    { num: 1, name: "Bienvenida & Mesa", icon: Users, desc: "Identificación del comensal y mesa asignada" },
-    { num: 2, name: "Validación de Redes", icon: Sparkles, desc: "Seguimiento en Instagram o prueba sin redes" },
-    { num: 3, name: "Minijuego en Vivo", icon: Trophy, desc: "Giro de la Ruleta o Reto del Cronómetro" },
-    { num: 4, name: "Voucher & Canje PIN", icon: Gift, desc: "Premio ganado, voucher con QR y validación de caja" },
-    { num: 5, name: "Embudo Calificación", icon: Star, desc: "1-3★ WhatsApp privado gerencia vs 4-5★ Google Maps" },
-    { num: 6, name: "Segunda Oportunidad", icon: Timer, desc: "Reto del cronómetro de precisión (10.00s)" },
-    { num: 7, name: "Sellos VIP & Sorteo", icon: Award, desc: "Progreso de visitas, sellos acumulados y boleto" },
-    { num: 8, name: "Misiones & Embajador", icon: Target, desc: "Desafíos sociales, TripAdvisor, TikTok y comunidad" },
-  ];
+  const getStepIcon = (id: string) => {
+    switch (id) {
+      case "step_user_data": return Users;
+      case "step_instagram": return Sparkles;
+      case "step_game": return Trophy;
+      case "step_voucher": return Gift;
+      case "step_feedback": return Star;
+      case "step_second_chance": return Timer;
+      case "step_stamps": return Award;
+      case "step_missions": return Target;
+      default: return Play;
+    }
+  };
+
+  // Pasos calculados desde la secuencia modular configurada
+  const stepsList = funnelSteps.map((step, idx) => ({
+    num: step.defaultStepNumber,
+    pos: idx + 1,
+    id: step.id,
+    name: step.label,
+    icon: getStepIcon(step.id),
+    desc: step.description,
+    enabled: step.enabled,
+  }));
 
   // Cálculo de dimensiones activas
   const activeWidth = currentDevice.width === 0 ? "100%" : isLandscape ? `${currentDevice.height}px` : `${currentDevice.width}px`;
@@ -430,27 +463,79 @@ export function Demo() {
                 <button
                   type="button"
                   onClick={() => setSelectedGame("ruleta")}
-                  className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     selectedGame === "ruleta"
                       ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
                       : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
                   }`}
                 >
                   <Trophy className="w-3.5 h-3.5" />
-                  <span>Ruleta de la Fortuna</span>
+                  <span>Ruleta Fortuna</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setSelectedGame("precision")}
-                  className={`p-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     selectedGame === "precision"
                       ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
                       : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
                   }`}
                 >
                   <Timer className="w-3.5 h-3.5" />
-                  <span>Cronómetro 10.00s</span>
+                  <span>Cronómetro 10s</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedGame("scratch")}
+                  className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    selectedGame === "scratch"
+                      ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
+                      : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
+                  }`}
+                >
+                  <Flame className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Raspa y Gana</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedGame("memory")}
+                  className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    selectedGame === "memory"
+                      ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
+                      : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
+                  }`}
+                >
+                  <Brain className="w-3.5 h-3.5 text-pink-400" />
+                  <span>Memoria</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedGame("pick-win")}
+                  className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    selectedGame === "pick-win"
+                      ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
+                      : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Descubre y Gana</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedGame("jackpot")}
+                  className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    selectedGame === "jackpot"
+                      ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
+                      : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
+                  }`}
+                >
+                  <Coins className="w-3.5 h-3.5 text-yellow-400" />
+                  <span>Jackpot Slots</span>
                 </button>
               </div>
             </div>

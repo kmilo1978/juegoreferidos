@@ -883,3 +883,38 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Juego Descubre y Gana (Día de Muertos / Triplete) implementado con diseño idéntico a la referencia, arquitectura 100% modular y versión móvil nativa. Sincronizado en ambos repositorios.
 - Observaciones: Verificado mediante capturas reales en Edge CDP y compilación limpia.
+
+## Nueva sesión
+- Fecha: 2026-10-02 10:25
+- Solicitud: El clásico juego de Jackpot adaptado a experiencias de marca... cada juego debe tener la opción de agregarlo a una secuencia y escoger dónde va si está activo o desactivado y en la simulación poder mover de posición. Clarificar Segunda Oportunidad & Viralidad y dotar de simulador a cada juego.
+- Decisiones clave:
+  1. Creación del motor de Jackpot 'src/lib/jackpotData.ts':
+     - Presets temáticos: Salidas Internacionales (Viajes VIP / Aviones idéntico a la imagen de referencia con aviones, maletas, tren bala, coches y motos), Cafetería Gourmet y Restaurante.
+     - Efectos de sonido mecánicos Web Audio API: giro mecánico de carretes, freno progresivo por rodillo y cascada de monedas / fanfarria de victoria.
+  2. Creación del componente móvil 'src/components/qr-game/StepJackpotGame.tsx':
+     - Diseño 100% móvil smartphone (390x844 px) calcado a la imagen de referencia.
+     - Marquesina retroiluminada LED '✖ JACKPOT ✖', marco dorado con bombillas parpadeantes, 3 carretes con parada asíncrona escalonada, línea central dorada, botón de acción 'JUGAR' y 5 vidas/aviones.
+     - Pantalla de victoria con Billete de Avión / Boarding Pass troquelado oficial con código único de canje.
+  3. Creación del Gestor de Secuencia del Embudo 'src/lib/funnelSequenceService.ts' y 'src/admin/pages/games/GameSequenceManager.tsx':
+     - Permite reordenar los 8 pasos del embudo mediante flechas arriba/abajo (▲ / ▼).
+     - Permite activar o desactivar pasos individuales con switch interactivo.
+     - Persistencia reactiva sincronizada automáticamente con el simulador multidispositivo '/demo'.
+     - Integrado como pestaña 'Secuencia del Embudo' en el Catálogo de Juegos (GamesHub).
+  4. Clarificación y Simulador de Segunda Oportunidad 'src/admin/pages/games/GameSecondChanceConfig.tsx':
+     - Explicación didáctica y comprensible en 3 pilares: 1. Sin Frustración, 2. Viralidad en WhatsApp, 3. Nuevos Clientes.
+     - Pestañas duales con configuración y Simulador Móvil en Vivo.
+  5. Conexión de rutas y módulos:
+     - 'src/admin/AdminLayout.tsx' con icono Coins y entrada en el submenú de juegos.
+     - 'src/admin/AdminApp.tsx' con la ruta '/games/jackpot'.
+     - 'src/App.tsx' con renderizado de 'StepJackpotGame' en el Paso 3 y parámetro URL '?juego=jackpot'.
+     - 'src/admin/pages/Demo.tsx' con selector ampliado a los 6 juegos y botones dinámicos según el orden del Gestor de Secuencia.
+  6. Compilación de Vite limpia con 0 errores TypeScript.
+  7. Validación visual con Edge CDP capturando: GamesHub con Jackpot, pestaña de Secuencia del Embudo, configuración de Jackpot, didáctica de Segunda Oportunidad, y smartphone con máquina de rodillos y victoria con Boarding Pass troquelado.
+- Pendientes:
+  - Ninguno. Sistema 100% modular y sincronizado.
+
+## Validación completada
+- Fecha: 2026-10-02 10:25
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Máquina de Jackpot (Tragaperras), Gestor visual de secuencia del embudo y aclaración con simulador de la 2ª Oportunidad implementados y validados.
+- Observaciones: Pruebas visuales aprobadas, compilación exitosa y sincronización en ambos repositorios.

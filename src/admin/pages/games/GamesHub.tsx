@@ -15,7 +15,9 @@ import {
   Share2,
   Zap,
   Brain,
+  ListOrdered,
 } from "lucide-react";
+import { GameSequenceManager } from "./GameSequenceManager";
 
 interface GameInfo {
   id: string;
@@ -30,6 +32,7 @@ interface GameInfo {
 }
 
 export function GamesHub() {
+  const [activeTab, setActiveTab] = useState<"catalog" | "sequence">("catalog");
   const [activeGameMode, setActiveGameMode] = useState<string>("roulette");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -92,6 +95,17 @@ export function GamesHub() {
       badge: "Especial Día de Muertos",
     },
     {
+      id: "jackpot",
+      name: "Máquina de Jackpot (Tragaperras)",
+      category: "Gran Premio & Expectación",
+      icon: Sparkles,
+      route: "/games/jackpot",
+      description: "El clásico juego de 3 rodillos giratorios de casino de lujo. Consigue 3 aviones o 3 símbolos de la casa en línea para ganar el gran premio.",
+      status: activeGameMode === "jackpot" ? "activo" : "disponible",
+      accentColor: "#f59e0b",
+      badge: "Especial Viajes / VIP",
+    },
+    {
       id: "second-chance",
       name: "2ª Oportunidad Viral",
       category: "Revancha & Viralidad",
@@ -126,7 +140,7 @@ export function GamesHub() {
         body: JSON.stringify({ gameMode: mode }),
       });
       if (res.ok) {
-        setSuccess(`✓ Juego activo en mesas actualizado a: ${mode === "roulette" ? "Ruleta de Premios" : mode === "precision" ? "Cronómetro 10s" : mode === "scratch" ? "Raspa y Gana" : mode === "memory" ? "Juego de Memoria" : "Descubre y Gana (Día de Muertos)"}`);
+        setSuccess(`✓ Juego activo en mesas actualizado a: ${mode === "roulette" ? "Ruleta de Premios" : mode === "precision" ? "Cronómetro 10s" : mode === "scratch" ? "Raspa y Gana" : mode === "memory" ? "Juego de Memoria" : mode === "jackpot" ? "Máquina de Jackpot" : "Descubre y Gana (Día de Muertos)"}`);
         setTimeout(() => setSuccess(null), 3500);
       }
     } catch {
@@ -150,13 +164,43 @@ export function GamesHub() {
           </p>
         </div>
 
-        <Link
-          to="/demo"
-          className="bg-[#201f23] hover:bg-[#2b292e] border border-[#f2be71]/40 text-[#f2be71] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
-        >
-          <Smartphone className="w-4 h-4" />
-          <span>Probar en Simulador Móvil</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          {/* Pestañas: Catálogo vs Secuencia */}
+          <div className="flex bg-[#201f23] p-1 rounded-xl border border-[#363439]">
+            <button
+              type="button"
+              onClick={() => setActiveTab("catalog")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === "catalog"
+                  ? "bg-[#f2be71] text-[#121115]"
+                  : "text-[#ccc3d8] hover:text-white"
+              }`}
+            >
+              <Gamepad2 className="w-3.5 h-3.5" />
+              <span>Catálogo de Juegos</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("sequence")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === "sequence"
+                  ? "bg-[#f2be71] text-[#121115]"
+                  : "text-[#ccc3d8] hover:text-white"
+              }`}
+            >
+              <ListOrdered className="w-3.5 h-3.5" />
+              <span>Secuencia del Embudo</span>
+            </button>
+          </div>
+
+          <Link
+            to="/demo"
+            className="bg-[#201f23] hover:bg-[#2b292e] border border-[#f2be71]/40 text-[#f2be71] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+          >
+            <Smartphone className="w-4 h-4" />
+            <span>Simulador Móvil</span>
+          </Link>
+        </div>
       </div>
 
       {success && (
@@ -166,31 +210,37 @@ export function GamesHub() {
         </div>
       )}
 
-      {/* 2. SELECTOR DE JUEGO ACTIVO EN MESA */}
-      <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 shadow-lg space-y-4">
-        <div className="flex items-center justify-between border-b border-[#2b292e] pb-3">
-          <div>
-            <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#f2be71]" />
-              <span>Juego Principal Activo en las Mesas</span>
-            </h3>
-            <p className="text-[11px] text-[#ccc3d8]">
-              Define qué juego se abre automáticamente cuando el cliente escanea el QR o acerca su teléfono al chip NFC en la mesa.
-            </p>
-          </div>
-          <span className="text-[10px] font-mono font-bold text-[#121115] bg-[#f2be71] px-2.5 py-1 rounded-full uppercase">
-            {activeGameMode === "roulette" ? "Ruleta Activa" : activeGameMode === "precision" ? "Precisión Activa" : activeGameMode === "scratch" ? "Raspa Activo" : activeGameMode === "memory" ? "Memoria Activa" : "Descubre y Gana Activo"}
-          </span>
-        </div>
+      {/* RENDERIZADO SEGÚN PESTAÑA */}
+      {activeTab === "sequence" ? (
+        <GameSequenceManager />
+      ) : (
+        <>
+          {/* 2. SELECTOR DE JUEGO ACTIVO EN MESA */}
+          <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 shadow-lg space-y-4">
+            <div className="flex items-center justify-between border-b border-[#2b292e] pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-[#f2be71]" />
+                  <span>Juego Principal Activo en las Mesas</span>
+                </h3>
+                <p className="text-[11px] text-[#ccc3d8]">
+                  Define qué juego se abre automáticamente cuando el cliente escanea el QR o acerca su teléfono al chip NFC en la mesa.
+                </p>
+              </div>
+              <span className="text-[10px] font-mono font-bold text-[#121115] bg-[#f2be71] px-2.5 py-1 rounded-full uppercase">
+                {activeGameMode === "roulette" ? "Ruleta Activa" : activeGameMode === "precision" ? "Precisión Activa" : activeGameMode === "scratch" ? "Raspa Activo" : activeGameMode === "memory" ? "Memoria Activa" : activeGameMode === "jackpot" ? "Jackpot Activo" : "Descubre y Gana Activo"}
+              </span>
+            </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          {[
-            { id: "roulette", name: "Ruleta de Premios", icon: RotateCw, desc: "Girar y ganar por azar" },
-            { id: "precision", name: "Cronómetro 10.000s", icon: Timer, desc: "Frenar el tiempo con destreza" },
-            { id: "scratch", name: "Raspa y Gana", icon: Flame, desc: "Descubrir rascando la pantalla" },
-            { id: "memory", name: "Juego de Memoria", icon: Brain, desc: "Parejas Halloween contra reloj" },
-            { id: "pick-win", name: "Descubre y Gana", icon: Sparkles, desc: "3 iguales Día de Muertos" },
-          ].map((mode) => {
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+              {[
+                { id: "roulette", name: "Ruleta", icon: RotateCw, desc: "Girar y ganar azar" },
+                { id: "precision", name: "Cronómetro 10s", icon: Timer, desc: "Frenar a los 10.000s" },
+                { id: "scratch", name: "Raspa y Gana", icon: Flame, desc: "Rasca con el dedo" },
+                { id: "memory", name: "Memoria", icon: Brain, desc: "Parejas Halloween" },
+                { id: "pick-win", name: "Descubre y Gana", icon: Sparkles, desc: "3 iguales Día Muertos" },
+                { id: "jackpot", name: "Jackpot", icon: Sparkles, desc: "3 rodillos en línea" },
+              ].map((mode) => {
             const isSelected = activeGameMode === mode.id;
             return (
               <button
@@ -293,6 +343,8 @@ export function GamesHub() {
           })}
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }

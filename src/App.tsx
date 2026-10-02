@@ -20,6 +20,7 @@ import { StepRouletteWheel } from "./components/qr-game/StepRouletteWheel";
 import { StepPrecisionTimer } from "./components/qr-game/StepPrecisionTimer";
 import { StepMemoryGame } from "./components/qr-game/StepMemoryGame";
 import { StepPickAndWin } from "./components/qr-game/StepPickAndWin";
+import { StepJackpotGame } from "./components/qr-game/StepJackpotGame";
 import { StepPrizeClaim } from "./components/qr-game/StepPrizeClaim";
 import { StepSecondChanceShare } from "./components/qr-game/StepSecondChanceShare";
 import { StepSecondChanceVerify } from "./components/qr-game/StepSecondChanceVerify";
@@ -95,6 +96,9 @@ function JuegoQrPage() {
         return 3;
       }
       if (params.get("juego") === "pick-win" || params.get("test") === "pick-win" || params.get("juego") === "descubre") {
+        return 3;
+      }
+      if (params.get("juego") === "jackpot" || params.get("test") === "jackpot" || params.get("juego") === "tragaperras") {
         return 3;
       }
       if (params.get("reset") === "1") {
@@ -233,10 +237,11 @@ function JuegoQrPage() {
 
   // Configuración de modalidad de juego activa (Ruleta vs Precisión 10s vs Memoria vs Descubre y Gana vs Híbrido)
   const [gameConfig, setGameConfig] = useState<GameConfig>(() => GameConfigService.getGameConfig());
-  const [chosenGameMode, setChosenGameMode] = useState<"roulette" | "precision" | "memory" | "scratch" | "pick-win" | null>(() => {
+  const [chosenGameMode, setChosenGameMode] = useState<"roulette" | "precision" | "memory" | "scratch" | "pick-win" | "jackpot" | null>(() => {
     if (typeof window !== "undefined") {
       const p = new URLSearchParams(window.location.search);
       const j = p.get("juego") || p.get("test") || p.get("modo");
+      if (j === "jackpot" || j === "tragaperras" || j === "slots") return "jackpot";
       if (j === "memory" || j === "memoria") return "memory";
       if (j === "pick-win" || j === "descubre" || j === "muertos") return "pick-win";
       if (j === "precision") return "precision";
@@ -657,10 +662,31 @@ function JuegoQrPage() {
             </div>
           )}
 
-          {/* PASO 3: MINIJUEGO ACTIVO (RULETA, PRECISIÓN, MEMORIA HALLOWEEN O DESCUBRE Y GANA DÍA DE MUERTOS) */}
+          {/* PASO 3: MINIJUEGO ACTIVO (RULETA, PRECISIÓN, MEMORIA, DESCUBRE Y GANA, JACKPOT) */}
           {currentStep === 3 && (
             <div>
-              {(chosenGameMode === "pick-win" || (!chosenGameMode && gameConfig.gameMode === "pick-win")) ? (
+              {(chosenGameMode === "jackpot" || (!chosenGameMode && gameConfig.gameMode === "jackpot")) ? (
+                <StepJackpotGame
+                  participantName={participant?.fullName || "Invitado"}
+                  tableNumber={session.tableNumber}
+                  onWinPrize={(prizeName, prizeValue) => {
+                    const won: GamePrize = {
+                      id: "prize-jackpot",
+                      name: prizeName || "Billete VIP / Boarding Pass de Temporada",
+                      nameEn: prizeName || "VIP Boarding Pass Reward",
+                      value: prizeValue || "$50.000 COP",
+                      color: "#f59e0b",
+                      probability: 100,
+                      type: "special_experience",
+                      textColor: "#ffffff",
+                      active: true,
+                      terms: "Presenta el billete troquelado en caja para reclamar tu premio.",
+                      termsEn: "Present boarding pass at cashier to claim.",
+                    };
+                    handlePrizeWon(won);
+                  }}
+                />
+              ) : (chosenGameMode === "pick-win" || (!chosenGameMode && gameConfig.gameMode === "pick-win")) ? (
                 <StepPickAndWin
                   participantName={participant?.fullName || "Invitado"}
                   tableNumber={session.tableNumber}

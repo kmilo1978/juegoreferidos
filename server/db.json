@@ -149,6 +149,37 @@
   ],
   "logs": [
     {
+      "id": "mur43ax8r92",
+      "timestamp": "10:22:19 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur43aom3b4",
+      "timestamp": "10:22:19 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mur3ypgjzkd",
+      "timestamp": "10:18:45 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "mur3yp6vrmr",
+      "timestamp": "10:18:44 a. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
+      "id": "mur39zpt10s",
+      "timestamp": "9:59:31 a. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
       "id": "mur39zmyu1i",
       "timestamp": "9:59:31 a. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
@@ -426,34 +457,6 @@
       "id": "muq43lcai63",
       "timestamp": "5:34:46 p. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "muq43jjnzok",
-      "timestamp": "5:34:44 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "muq43jirzgj",
-      "timestamp": "5:34:44 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "muq43dzi5p1",
-      "timestamp": "5:34:37 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "muq43dy6pt6",
-      "timestamp": "5:34:37 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "muq40ckkgq4",
-      "timestamp": "5:32:15 p. m.",
-      "method": "GET",
-      "url": "/api/stamps/3165212283",
-      "status": 200,
-      "detail": "Consulta de sellos para +3165212283: 1/15"
     }
   ],
   "settings": {
@@ -578,7 +581,7 @@
     "secondChance": {
       "enabled": true,
       "prizeName": "Postre Artesanal de Autor Gratis",
-      "prizeDescription": "Porci�n de Tarta Vasca artesanal reci�n horneada",
+      "prizeDescription": "Porción de Tarta Vasca artesanal recién horneada",
       "prizeValue": "$18.000 COP",
       "claimTerms": "Válido hoy en caja presentando tu código único de ganador.",
       "prizeImageUrl": "/src/assets/tarta-vasca.jpg",
@@ -1188,8 +1191,36 @@
     "baseDomain": "http://localhost:5173",
     "stats": {
       "nfcScans": 28,
-      "qrScans": 100,
+      "qrScans": 104,
       "lastScans": [
+        {
+          "id": "scan_1790954539538",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "10:22 a. m."
+        },
+        {
+          "id": "scan_1790954539530",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "10:22 a. m."
+        },
+        {
+          "id": "scan_1790954325160",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "10:18 a. m."
+        },
+        {
+          "id": "scan_1790954325089",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "10:18 a. m."
+        },
         {
           "id": "scan_1790953171902",
           "mesa": 1,
@@ -1301,34 +1332,6 @@
           "origen": "qr",
           "device": "Android",
           "timestamp": "06:51 p. m."
-        },
-        {
-          "id": "scan_1790898527405",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "06:48 p. m."
-        },
-        {
-          "id": "scan_1790898527102",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "06:48 p. m."
-        },
-        {
-          "id": "scan_1790898166381",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "06:42 p. m."
-        },
-        {
-          "id": "scan_1790898166241",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "06:42 p. m."
         }
       ]
     }
