@@ -950,3 +950,27 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Juego 'Suelta y Gana' (Plinko / Pachinko) implementado con diseño idéntico a la imagen navideña de referencia, 100% móvil, modular y configurable.
 - Observaciones: Verificado mediante capturas reales en Edge CDP, compilación limpia y sincronización en ambos repositorios.
+## Nueva sesión
+- Fecha: 2026-10-02 10:55
+- Solicitud: la ruleta el juego precision todos deben de tener simulador
+- Decisiones clave:
+  1. Estandarización de Simuladores Móviles en Vivo:
+     - Todos los juegos del catálogo ahora cuentan con el switch dual en cabecera: '[Configuración] | [Probar Simulador]'.
+     - El simulador renderiza exactamente la experiencia del comensal en un marco de smartphone (390 × 844 px) con dynamic island, sombras profundas y física interactiva real.
+  2. Implementación en Ruleta ('GameRouletteConfig.tsx'):
+     - Marco de smartphone móvil ejecutando la ruleta con los sectores y colores configurados, giro con física real y detección de premio ganado.
+  3. Implementación en Reto de Precisión ('GamePrecisionConfig.tsx'):
+     - Marco de smartphone móvil ejecutando 'StepPrecisionTimer' a 10.000s con los márgenes de tolerancia en milisegundos y botón pulsador háptico.
+  4. Implementación en Raspa y Gana ('GameScratchConfig.tsx'):
+     - Marco de smartphone móvil con lámina metalizada táctil, raspado continuo con dedo o ratón, barra de progreso porcentual, animación de confeti al descubrir el premio y botón de canje de voucher.
+  5. Verificación de Compilación y Calidad:
+     - Compilación Vite con TypeScript exitosa (0 errores).
+     - Validación visual mediante Edge CDP con capturas: 'verify_roulette_simulator.png', 'verify_precision_simulator.png' y 'verify_scratch_simulator.png'.
+- Pendientes:
+  - Ninguno. Todos los juegos disponen de su simulador interactivo.
+
+## Validación completada
+- Fecha: 2026-10-02 10:55
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Integración completa de simuladores de smartphone en Ruleta, Reto de Precisión y Raspa y Gana, logrando una experiencia 100% interactiva en todo el catálogo de juegos.
+- Observaciones: Pruebas visuales aprobadas con Edge CDP, cero menciones a Bliss Soul y compilación Vite verificada.
