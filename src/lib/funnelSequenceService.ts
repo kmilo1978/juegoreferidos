@@ -13,6 +13,7 @@ export interface FunnelStepItem {
   iconName: string;
   enabled: boolean;
   canDisable?: boolean;
+  defaultStepNumber: number;
 }
 
 export const DEFAULT_FUNNEL_STEPS: FunnelStepItem[] = [
@@ -25,6 +26,7 @@ export const DEFAULT_FUNNEL_STEPS: FunnelStepItem[] = [
     iconName: "Users",
     enabled: true,
     canDisable: true,
+    defaultStepNumber: 1,
   },
   {
     id: "step_instagram",
@@ -35,6 +37,7 @@ export const DEFAULT_FUNNEL_STEPS: FunnelStepItem[] = [
     iconName: "Sparkles",
     enabled: true,
     canDisable: true,
+    defaultStepNumber: 2,
   },
   {
     id: "step_game",
@@ -45,6 +48,7 @@ export const DEFAULT_FUNNEL_STEPS: FunnelStepItem[] = [
     iconName: "Gamepad2",
     enabled: true,
     canDisable: false, // El juego central es el corazón del embudo
+    defaultStepNumber: 3,
   },
   {
     id: "step_voucher",
@@ -55,6 +59,7 @@ export const DEFAULT_FUNNEL_STEPS: FunnelStepItem[] = [
     iconName: "Gift",
     enabled: true,
     canDisable: true,
+    defaultStepNumber: 4,
   },
   {
     id: "step_feedback",
@@ -65,6 +70,7 @@ export const DEFAULT_FUNNEL_STEPS: FunnelStepItem[] = [
     iconName: "Star",
     enabled: true,
     canDisable: true,
+    defaultStepNumber: 5,
   },
   {
     id: "step_second_chance",
@@ -75,6 +81,7 @@ export const DEFAULT_FUNNEL_STEPS: FunnelStepItem[] = [
     iconName: "Share2",
     enabled: true,
     canDisable: true,
+    defaultStepNumber: 6,
   },
   {
     id: "step_stamps",
@@ -85,6 +92,7 @@ export const DEFAULT_FUNNEL_STEPS: FunnelStepItem[] = [
     iconName: "Award",
     enabled: true,
     canDisable: true,
+    defaultStepNumber: 7,
   },
   {
     id: "step_missions",
@@ -95,6 +103,7 @@ export const DEFAULT_FUNNEL_STEPS: FunnelStepItem[] = [
     iconName: "Target",
     enabled: true,
     canDisable: true,
+    defaultStepNumber: 8,
   },
 ];
 
@@ -108,14 +117,46 @@ export class FunnelSequenceService {
       if (stored) {
         const parsed = JSON.parse(stored) as FunnelStepItem[];
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Asegurar que todos los pasos por defecto estén presentes
-          const existingIds = new Set(parsed.map((p) => p.id));
+          // Asegurar que todos los pasos por defecto estén presentes y tengan defaultStepNumber
+          const stepNumberMap = new Map(DEFAULT_FUNNEL_STEPS.map((d) => [d.id, d.defaultStepNumber]));
+          const sanitized = parsed.map((p, idx) => ({
+            ...p,
+            defaultStepNumber: p.defaultStepNumber || stepNumberMap.get(p.id) || (idx + 1),
+          }));
+          const existingIds = new Set(sanitized.map((p) => p.id));
           const missing = DEFAULT_FUNNEL_STEPS.filter((d) => !existingIds.has(d.id));
-          return [...parsed, ...missing];
+          return [...sanitized, ...missing];
         }
       }
     } catch {}
     return DEFAULT_FUNNEL_STEPS;
+  }
+
+  static subscribe(callback: (steps: FunnelStepItem[]) => void): () => void {
+    if (typeof window === "undefined") return () => {};
+
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent<FunnelStepItem[]>;
+      if (customEvent.detail) {
+        callback(customEvent.detail);
+      } else {
+        callback(this.getSequence());
+      }
+    };
+
+    const storageHandler = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) {
+        callback(this.getSequence());
+      }
+    };
+
+    window.addEventListener("funnel-sequence-changed", handler);
+    window.addEventListener("storage", storageHandler);
+
+    return () => {
+      window.removeEventListener("funnel-sequence-changed", handler);
+      window.removeEventListener("storage", storageHandler);
+    };
   }
 
   static saveSequence(steps: FunnelStepItem[]) {

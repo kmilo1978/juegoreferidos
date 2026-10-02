@@ -207,11 +207,12 @@ export function Demo() {
   };
 
   // Pasos calculados desde la secuencia modular configurada
+  // Pasos calculados desde la secuencia modular configurada
   const stepsList = funnelSteps.map((step, idx) => ({
-    num: step.defaultStepNumber,
+    num: (step as any).defaultStepNumber || (idx + 1),
     pos: idx + 1,
-    id: step.id,
-    name: step.label,
+    id: step.id || `step_${idx + 1}`,
+    name: (step as any).name || (step as any).label || (step as any).shortLabel || `Paso ${idx + 1}`,
     icon: getStepIcon(step.id),
     desc: step.description,
     enabled: step.enabled,
@@ -285,7 +286,7 @@ export function Demo() {
             const isSelected = selectedStep === step.num;
             return (
               <button
-                key={step.num}
+                key={step.id || `step-btn-${step.num}`}
                 type="button"
                 onClick={() => setSelectedStep(step.num)}
                 className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-1.5 ${

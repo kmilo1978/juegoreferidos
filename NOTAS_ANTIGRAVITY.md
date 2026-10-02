@@ -1098,3 +1098,13 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Auditoría profunda, técnica y funcional completada exitosamente. Sistema de configuración modular de 16 funcionalidades, motor de temas centralizado, módulo FAQ con buscador y matrices de auditoría implementados y certificados.
 - Observaciones: Pruebas visuales completadas en Edge CDP ('verify_config_brand_tab.png', 'verify_config_modules_tab.png', 'verify_config_colors_tab.png', 'verify_config_validation_tab.png', 'verify_faq_overview.png'). Compilación Vite exitosa con 0 errores TypeScript en ambos repositorios.
+## Auto-corrección y Validación completada
+- Fecha: 2026-10-02 14:50
+- Resultado: Aprobado (score: 10/10)
+- Diagnóstico del error: Al acceder a '/admin.html#/demo', la pantalla mostraba 'Aviso del Dashboard: FunnelSequenceService.subscribe is not a function' dentro del ErrorBoundary.
+- Causa raíz: El componente 'Demo.tsx' invocaba 'FunnelSequenceService.subscribe' para escuchar cambios dinámicos de los pasos del embudo, pero dicho método no estaba implementado en 'funnelSequenceService.ts' (solo existía el despacho de eventos 'CustomEvent' sin método de suscripción público). Además, los elementos del paso requerían 'defaultStepNumber' para indexación unívoca de teclas.
+- Solución aplicada:
+  1. Se implementó 'FunnelSequenceService.subscribe(callback)' con soporte reactivo a eventos 'funnel-sequence-changed' y sincronización cross-tab vía 'storage' event.
+  2. Se agregó 'defaultStepNumber' (pasos 1 al 8) en la interfaz 'FunnelStepItem' y 'DEFAULT_FUNNEL_STEPS'.
+  3. Se blindó el mapeo en 'Demo.tsx' con 'key' única ('step.id || step-btn-') y fallbacks para títulos y números de paso.
+- Re-verificación: Captura exitosa en Edge CDP ('debug_demo_page.png') con iframe cargando activamente el frontend comensal en iPhone 15 Pro, barra de fases, selectores de modelos y 0 errores en consola.
