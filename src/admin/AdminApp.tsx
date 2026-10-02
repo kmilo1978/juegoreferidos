@@ -25,6 +25,7 @@ import { GamesHub } from "./pages/games/GamesHub";
 import { GameRouletteConfig } from "./pages/games/GameRouletteConfig";
 import { GamePrecisionConfig } from "./pages/games/GamePrecisionConfig";
 import { GameScratchConfig } from "./pages/games/GameScratchConfig";
+import { GameMemoryConfig } from "./pages/games/GameMemoryConfig";
 import { GameSecondChanceConfig } from "./pages/games/GameSecondChanceConfig";
 
 // Blindaje global
@@ -103,6 +104,7 @@ export function AdminApp() {
             <Route path="games/roulette" element={<GameRouletteConfig />} />
             <Route path="games/precision" element={<GamePrecisionConfig />} />
             <Route path="games/scratch" element={<GameScratchConfig />} />
+            <Route path="games/memory" element={<GameMemoryConfig />} />
             <Route path="games/second-chance" element={<GameSecondChanceConfig />} />
             <Route path="game-mode" element={<GamesHub />} />
             <Route path="demo" element={<Demo />} />

@@ -807,3 +807,28 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Submenú modular de juegos implementado y validado con capturas en Edge. Arquitectura 100% modular y extensible.
 - Observaciones: Sincronizado en ambos repositorios locales y remoto en GitHub.
+
+## Nueva sesión
+- Fecha: 2026-10-02 09:25
+- Solicitud: crea un juego de memoria ahora sera de halloween pero luego se pueda personalizar para cualquier cosa con tiempo, parejas, ranking, sonidos, formulario y premios
+- Decisiones clave:
+  1. Creación del motor de datos y audio nativo 'src/lib/memoryGameData.ts':
+     - Sintetizador de efectos sonoros Web Audio API (flip, match, error y fanfarria de victoria) sin dependencias externas pesadas.
+     - 3 temáticas completas: Halloween Espeluznante (por defecto, fiel a la imagen de referencia con reverso de calabaza, ilustraciones de poción, gato negro, sombrero de bruja, fantasma, araña, escoba, etc.), Cafetería & Repostería Gourmet, y Restaurante & Trattoria.
+  2. Creación del componente jugable 'src/components/qr-game/StepMemoryGame.tsx':
+     - Portada de bienvenida idéntica a la imagen de referencia con luna, fantasma flotante, calabazas con iluminación y botón fucsia brillante '#ff007f' de ¡JUGAR!
+     - Tablero interactivo responsivo en cuadrícula 4x4 (16 cartas = 8 parejas) con giro 3D fluido, cronómetro regresivo a décimas de segundo, puntuación con racha, control de sonido y pantalla de victoria con confeti dorado y emisión de voucher.
+  3. Creación de la pantalla administrativa 'src/admin/pages/games/GameMemoryConfig.tsx':
+     - Pestaña 1: Configuración de temática, selector de dificultad (4, 6 u 8 parejas), slider de tiempo (20s a 90s), toggle de sonido y formulario de premio.
+     - Pestaña 2: Simulador interactivo en vivo con mockup de teléfono móvil.
+  4. Integración en el submenú de juegos en 'src/admin/AdminLayout.tsx' (ícono Brain, badge de 6 dinámicas), en 'src/admin/AdminApp.tsx' (ruta '/games/memory') y en 'src/admin/pages/games/GamesHub.tsx' como opción seleccionable para juego principal en mesas.
+  5. Compilación Vite 100% exitosa con 0 errores de TypeScript.
+  6. Validación visual con Edge CDP capturando pantalla de configuración, portada de bienvenida y tablero de juego 4x4 activo.
+- Pendientes:
+  - Ninguno. Módulo 100% operativo y modular.
+
+## Validación completada
+- Fecha: 2026-10-02 09:25
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Juego de memoria implementado con temática Halloween y motor 100% personalizable para cualquier marca o temporada. Validado con compilación y capturas en Edge CDP.
+- Observaciones: Sincronizado en ambos repositorios locales y en GitHub.
