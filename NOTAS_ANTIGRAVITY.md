@@ -974,3 +974,33 @@
 - Resultado: Aprobado (score: 10/10)
 - Resumen: Integración completa de simuladores de smartphone en Ruleta, Reto de Precisión y Raspa y Gana, logrando una experiencia 100% interactiva en todo el catálogo de juegos.
 - Observaciones: Pruebas visuales aprobadas con Edge CDP, cero menciones a Bliss Soul y compilación Vite verificada.
+
+## Nueva sesión
+- Fecha: 2026-10-02 11:10
+- Solicitud: adapta el raspa y gana (Recompensa a tu público repartiendo premios aleatorios con una promoción rasca y gana en formato virtual... rascar de forma digital una imagen deslizándose por la pantalla... premio directo o mensaje de consolación... totalmente personalizable con tu imagen corporativa, basado en la imagen navideña de referencia).
+- Decisiones clave:
+  1. Motor de datos y configuración 'src/lib/scratchGameData.ts':
+     - Presets de estilo: Especial Navidad & Reyes (inspirado 100% en la foto adjunta), Café & Repostería Gourmet y Cyber Neón.
+     - Parámetros configurables: Copys de portada, copys de victoria ('¡Enhorabuena! Te ha tocado un premio navideño'), copys de consolación ('¡Casi lo tienes!'), porcentaje para auto-revelar (50%), tamaño de pincel rascador y lista de premios ponderados por probabilidad.
+     - Motor de audio nativo Web Audio API: sonido de fricción/raspado táctil y fanfarria triunfal al revelar premio.
+     - Persistencia en localStorage mediante 'ScratchGameConfigService'.
+  2. Componente móvil 'src/components/qr-game/StepScratchGame.tsx':
+     - Formato 100% móvil smartphone (390 × 844 px).
+     - Pantalla 1 (Bienvenida / Foto izquierda): Fondo rojo oscuro navideño, guirnaldas superiores con luces cálidas y esferas doradas/rojas, paisaje nevado inferior con farol y regalos, textos '¡Rasca y descubre si te ha tocado premio!' y botón verde con relieve '¡PARTICIPA! >'.
+     - Pantalla 2 (Tarjeta de Raspado / Foto derecha): Fondo marfil/crema con guirnalda, cabecera '¡Enhorabuena!', tarjeta roja con borde dorado y copos de nieve, encabezado '¡PREMIO! / KIT NAVIDEÑO', lámina plateada escarchada para raspar con dedo/ratón y barra de progreso.
+     - Al superar el 50%, animación de confeti y composición gráfica del Kit Navideño (caja de regalo, taza con malvaviscos, guantes de lana, bastón de caramelo y galleta de estrella).
+  3. Panel de Administración 'src/admin/pages/games/GameScratchConfig.tsx':
+     - Pestaña 'Configuración': selector de temas, copys de portada/victoria/consolación, sliders de sensibilidad y tabla de premios con probabilidades.
+     - Pestaña 'Probar Simulador': marco de smartphone interactivo ejecutando 'StepScratchGame'.
+  4. Integración en el embudo ('src/App.tsx' y 'src/admin/pages/games/GamesHub.tsx'):
+     - Paso 3 del embudo con soporte para 'scratch' y parámetros '?juego=scratch' o '?juego=raspa'.
+  5. Compilación Vite exitosa (0 errores TypeScript).
+  6. Pruebas visuales en Edge CDP: 'verify_scratch_navidad_welcome.png', 'verify_scratch_navidad_card.png', 'verify_scratch_navidad_scratched.png' y 'verify_scratch_admin_config.png'.
+- Pendientes:
+  - Ninguno. Módulo 100% adaptado y funcional.
+
+## Validación completada
+- Fecha: 2026-10-02 11:10
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Juego 'Raspa y Gana' adaptado con absoluta fidelidad a la imagen de referencia navideña, con física táctil de raspado, mensajes de premio/consolación, 100% personalizable y con simulador móvil.
+- Observaciones: Pruebas visuales aprobadas con Edge CDP, compilación limpia y sincronización en ambos repositorios.

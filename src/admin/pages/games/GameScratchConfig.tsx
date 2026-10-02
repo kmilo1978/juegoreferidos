@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Flame,
@@ -7,196 +7,88 @@ import {
   AlertCircle,
   ArrowLeft,
   Sparkles,
-  Gift,
-  RotateCcw,
-  Eye,
   Sliders,
   Smartphone,
+  Eye,
+  Plus,
+  Trash2,
   Trophy,
+  Palette,
 } from "lucide-react";
-import confetti from "canvas-confetti";
+import {
+  ScratchGameSettings,
+  DEFAULT_SCRATCH_SETTINGS,
+  SCRATCH_THEMES,
+  ScratchGameConfigService,
+  ScratchPrize,
+} from "@/lib/scratchGameData";
+import { StepScratchGame } from "@/components/qr-game/StepScratchGame";
 
 export function GameScratchConfig() {
   const [activeTab, setActiveTab] = useState<"settings" | "simulator">("settings");
-  const [simulatorKey, setSimulatorKey] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<ScratchGameSettings>(() => {
+    return ScratchGameConfigService.getSettings();
+  });
+
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [simulatorKey, setSimulatorKey] = useState(1);
 
-  // Configuración de Raspa y Gana
-  const [scratchPercentThreshold, setScratchPercentThreshold] = useState<number>(60);
-  const [foilColor, setFoilColor] = useState<string>("#d4af37"); // Dorado clásico
-  const [brushSize, setBrushSize] = useState<number>(30);
-  const [hiddenRewardText, setHiddenRewardText] = useState<string>("¡Ganaste 2x1 en Bebidas Especiales!");
-  const [secretCode, setSecretCode] = useState<string>("RASPA-VIP-77");
+  const activeTheme = SCRATCH_THEMES[settings.themeId] || SCRATCH_THEMES.navidad;
 
-  // Canvas interactivo de prueba (en configuración)
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [isScratching, setIsScratching] = useState(false);
-  const [scratchedPercent, setScratchedPercent] = useState(0);
-  const [isRevealed, setIsRevealed] = useState(false);
-
-  // Canvas para el simulador móvil
-  const mobileCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [mobileIsScratching, setMobileIsScratching] = useState(false);
-  const [mobileScratchedPercent, setMobileScratchedPercent] = useState(0);
-  const [mobileIsRevealed, setMobileIsRevealed] = useState(false);
-
-  // Inicializar o resetear el canvas de lámina dorada (configuración)
-  const initCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // Pintar lámina con degradado
-    const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    grad.addColorStop(0, foilColor);
-    grad.addColorStop(0.5, "#fff2b2");
-    grad.addColorStop(1, foilColor);
-
-    ctx.globalCompositeOperation = "source-over";
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Texto sobre la lámina
-    ctx.fillStyle = "#121115";
-    ctx.font = "bold 13px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("✨ RASPA CON TU DEDO O RATÓN ✨", canvas.width / 2, canvas.height / 2 + 5);
-
-    setScratchedPercent(0);
-    setIsRevealed(false);
-  };
-
-  // Inicializar canvas móvil
-  const initMobileCanvas = () => {
-    const canvas = mobileCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    grad.addColorStop(0, foilColor);
-    grad.addColorStop(0.3, "#fff2b2");
-    grad.addColorStop(0.7, foilColor);
-    grad.addColorStop(1, "#c59d28");
-
-    ctx.globalCompositeOperation = "source-over";
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Textos decorativos sobre la lámina
-    ctx.fillStyle = "#121115";
-    ctx.font = "bold 14px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("✨ RASPA AQUÍ CON TU DEDO ✨", canvas.width / 2, canvas.height / 2 - 10);
-    ctx.font = "11px sans-serif";
-    ctx.fillText("Descubre tu premio sorpresa en mesa", canvas.width / 2, canvas.height / 2 + 15);
-
-    setMobileScratchedPercent(0);
-    setMobileIsRevealed(false);
-  };
-
-  useEffect(() => {
-    initCanvas();
-    if (activeTab === "simulator") {
-      setTimeout(initMobileCanvas, 50);
-    }
-  }, [foilColor, activeTab, simulatorKey]);
-
-  // Manejo de raspado interactivo en el canvas de config
-  const handleScratch = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isScratching && e.type !== "mousedown" && e.type !== "touchstart") return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.beginPath();
-    ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    setScratchedPercent((prev) => {
-      const next = Math.min(100, prev + 2.5);
-      if (next >= scratchPercentThreshold) {
-        setIsRevealed(true);
-      }
-      return next;
-    });
-  };
-
-  // Manejo de raspado en canvas móvil
-  const handleMobileScratch = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!mobileIsScratching && e.type !== "mousedown" && e.type !== "touchstart") return;
-    const canvas = mobileCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.beginPath();
-    ctx.arc(x, y, (brushSize * 1.2) / 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    setMobileScratchedPercent((prev) => {
-      const next = Math.min(100, prev + 3);
-      if (next >= scratchPercentThreshold && !mobileIsRevealed) {
-        setMobileIsRevealed(true);
-        confetti({
-          particleCount: 50,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
-      }
-      return next;
-    });
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = () => {
     setSaving(true);
     setError(null);
     setSuccess(null);
 
     try {
-      const res = await fetch("/api/game-config", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          scratchConfig: {
-            scratchPercentThreshold,
-            foilColor,
-            brushSize,
-            hiddenRewardText,
-            secretCode,
-          },
-        }),
-      });
-      if (!res.ok) throw new Error("Error al guardar configuración de Raspa y Gana");
+      ScratchGameConfigService.saveSettings(settings);
       setSuccess("✓ Módulo de Raspa y Gana guardado correctamente.");
       setSimulatorKey((k) => k + 1);
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
+      setError(err instanceof Error ? err.message : "Error al guardar");
     } finally {
       setSaving(false);
     }
   };
+
+  const handleAddPrize = () => {
+    const newPrize: ScratchPrize = {
+      id: `prize-${Date.now()}`,
+      name: "Nuevo Regalo Especial",
+      badge: "¡PREMIO!",
+      category: "SORPRESA",
+      value: "$20.000 COP",
+      icon: "🎁",
+      description: "Detalle o experiencia exclusiva de la casa.",
+      isConsolation: false,
+      probability: 10,
+    };
+    setSettings((prev) => ({
+      ...prev,
+      prizes: [...prev.prizes, newPrize],
+    }));
+  };
+
+  const handleRemovePrize = (id: string) => {
+    if (settings.prizes.length <= 1) return;
+    setSettings((prev) => ({
+      ...prev,
+      prizes: prev.prizes.filter((p) => p.id !== id),
+    }));
+  };
+
+  const handlePrizeChange = (index: number, field: keyof ScratchPrize, value: unknown) => {
+    setSettings((prev) => {
+      const next = [...prev.prizes];
+      next[index] = { ...next[index], [field]: value };
+      return { ...prev, prizes: next };
+    });
+  };
+
+  const totalProb = settings.prizes.reduce((acc, p) => acc + (p.probability || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -212,11 +104,11 @@ export function GameScratchConfig() {
           </Link>
           <div>
             <h2 className="text-xl font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <Flame className="w-5 h-5 text-[#ec4899]" />
+              <Flame className="w-5 h-5 text-[#ef4444]" />
               <span>Módulo: Raspa y Gana Digital (Scratch & Win)</span>
             </h2>
             <p className="text-xs text-[#ccc3d8]">
-              Configura tarjetas digitales rascables con física táctil en pantalla para premiar a tus comensales con misterio.
+              Promoción rascable táctil para smartphones inspirada en la campaña navideña. Personaliza copys, premios y láminas.
             </p>
           </div>
         </div>
@@ -228,7 +120,7 @@ export function GameScratchConfig() {
               onClick={() => setActiveTab("settings")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "settings"
-                  ? "bg-[#ec4899] text-white font-bold"
+                  ? "bg-[#ef4444] text-white font-bold"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -241,7 +133,7 @@ export function GameScratchConfig() {
               onClick={() => setActiveTab("simulator")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "simulator"
-                  ? "bg-[#ec4899] text-white font-bold"
+                  ? "bg-[#ef4444] text-white font-bold"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -254,7 +146,7 @@ export function GameScratchConfig() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="bg-[#ec4899] text-white font-bold px-5 py-2.5 rounded-xl text-xs hover:brightness-105 transition-all shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            className="bg-[#ef4444] text-white font-bold px-5 py-2.5 rounded-xl text-xs hover:brightness-105 transition-all shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             <span>{saving ? "Guardando..." : "Guardar Raspa y Gana"}</span>
@@ -276,143 +168,304 @@ export function GameScratchConfig() {
         </div>
       )}
 
-      {/* 2. PESTAÑA 1: CONFIGURACIÓN */}
+      {/* 2. CONTENIDO CONDICIONAL POR PESTAÑAS */}
       {activeTab === "settings" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* PARÁMETROS DE LA TARJETA */}
+        <div className="space-y-6">
+          {/* A. SELECTOR DE TEMAS */}
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 shadow-lg space-y-4">
             <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2 border-b border-[#2b292e] pb-3">
-              <Sliders className="w-4 h-4 text-[#ec4899]" />
-              <span>Física de Raspado & Lámina</span>
+              <Palette className="w-4 h-4 text-[#ef4444]" />
+              <span>Tema Visual & Estilo de Lámina</span>
             </h3>
 
-            <div className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-[#ccc3d8]">
-                    Porcentaje Raspado para Revelar Automáticamente
-                  </label>
-                  <span className="font-mono text-xs font-bold text-[#f2be71]">{scratchPercentThreshold}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="30"
-                  max="85"
-                  step="5"
-                  value={scratchPercentThreshold}
-                  onChange={(e) => setScratchPercentThreshold(parseInt(e.target.value, 10))}
-                  className="w-full accent-[#f2be71] cursor-pointer"
-                />
-                <span className="text-[10px] text-[#ccc3d8] mt-1 block">
-                  Cuando el cliente raspa más de este porcentaje, el premio se descubre con una animación festiva.
-                </span>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {Object.values(SCRATCH_THEMES).map((th) => (
+                <button
+                  key={th.id}
+                  type="button"
+                  onClick={() => setSettings((prev) => ({ ...prev, themeId: th.id }))}
+                  className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    settings.themeId === th.id
+                      ? "border-[#ef4444] bg-[#ef4444]/10 shadow-[0_0_15px_rgba(239,68,68,0.2)]"
+                      : "border-[#363439] bg-[#201f23] hover:border-[#ef4444]/40"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-[#e6e1e7]">{th.name}</span>
+                    <span
+                      className="w-3.5 h-3.5 rounded-full"
+                      style={{ backgroundColor: th.primaryColor }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-[#ccc3d8]">
+                    Lámina {th.foilType === "silver" ? "Plateada Escarchada" : th.foilType === "gold" ? "Dorada Metálica" : "Neón"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
 
-              <div>
-                <label className="text-xs font-semibold text-[#ccc3d8] block mb-1">
-                  Color de la Lámina Rascable
-                </label>
-                <div className="flex items-center gap-3">
+          {/* B. COPYS Y TEXTOS DE LA EXPERIENCIA MÓVIL */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 shadow-lg space-y-4">
+              <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2 border-b border-[#2b292e] pb-3">
+                <Sparkles className="w-4 h-4 text-[#f59e0b]" />
+                <span>Textos de Portada (Foto Izquierda)</span>
+              </h3>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-semibold text-[#ccc3d8] block mb-1">
+                    Título de Bienvenida
+                  </label>
                   <input
-                    type="color"
-                    value={foilColor}
-                    onChange={(e) => setFoilColor(e.target.value)}
-                    className="w-10 h-10 rounded-xl cursor-pointer bg-transparent border-0"
+                    type="text"
+                    value={settings.welcomeTitle}
+                    onChange={(e) => setSettings({ ...settings, welcomeTitle: e.target.value })}
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl px-4 py-2.5 w-full focus:border-[#ef4444]/60 focus:outline-none"
                   />
-                  <div className="flex gap-2">
-                    {[
-                      { name: "Oro Lujo", hex: "#d4af37" },
-                      { name: "Plata Satinada", hex: "#c0c0c0" },
-                      { name: "Cobre Rosa", hex: "#b76e79" },
-                      { name: "Esmeralda", hex: "#10b981" },
-                    ].map((p) => (
-                      <button
-                        key={p.hex}
-                        type="button"
-                        onClick={() => setFoilColor(p.hex)}
-                        className="px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer"
-                        style={{
-                          backgroundColor: foilColor === p.hex ? p.hex : "#201f23",
-                          color: foilColor === p.hex ? "#121115" : "#e6e1e7",
-                          borderColor: foilColor === p.hex ? p.hex : "#363439",
-                        }}
-                      >
-                        {p.name}
-                      </button>
-                    ))}
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-[#ccc3d8] block mb-1">
+                    Subtítulo de Invitación
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.welcomeSubtitle}
+                    onChange={(e) => setSettings({ ...settings, welcomeSubtitle: e.target.value })}
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl px-4 py-2.5 w-full focus:border-[#ef4444]/60 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-[#ccc3d8] block mb-1">
+                    Texto del Botón Principal
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.welcomeButtonText}
+                    onChange={(e) => setSettings({ ...settings, welcomeButtonText: e.target.value })}
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl px-4 py-2.5 w-full focus:border-[#ef4444]/60 focus:outline-none font-bold"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 shadow-lg space-y-4">
+              <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2 border-b border-[#2b292e] pb-3">
+                <Trophy className="w-4 h-4 text-[#ef4444]" />
+                <span>Textos de Victoria y Consolación</span>
+              </h3>
+
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[11px] font-semibold text-[#10b981] block mb-1">
+                      Título Victoria
+                    </label>
+                    <input
+                      type="text"
+                      value={settings.winTitle}
+                      onChange={(e) => setSettings({ ...settings, winTitle: e.target.value })}
+                      className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl px-3 py-2 w-full focus:border-[#10b981]/60 focus:outline-none font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-[#f59e0b] block mb-1">
+                      Título Consolación
+                    </label>
+                    <input
+                      type="text"
+                      value={settings.consolationTitle}
+                      onChange={(e) => setSettings({ ...settings, consolationTitle: e.target.value })}
+                      className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl px-3 py-2 w-full focus:border-[#f59e0b]/60 focus:outline-none font-bold"
+                    />
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="text-xs font-semibold text-[#ccc3d8] block mb-1">
-                  Premio o Mensaje Oculto Bajo la Lámina
-                </label>
-                <input
-                  type="text"
-                  value={hiddenRewardText}
-                  onChange={(e) => setHiddenRewardText(e.target.value)}
-                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl px-4 py-2.5 w-full focus:border-[#ec4899]/60 focus:outline-none"
-                />
+                <div>
+                  <label className="text-xs font-semibold text-[#ccc3d8] block mb-1">
+                    Subtítulo Victoria
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.winSubtitle}
+                    onChange={(e) => setSettings({ ...settings, winSubtitle: e.target.value })}
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl px-4 py-2 w-full focus:border-[#ef4444]/60 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-[#ccc3d8] block mb-1">
+                    Subtítulo Consolación
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.consolationSubtitle}
+                    onChange={(e) => setSettings({ ...settings, consolationSubtitle: e.target.value })}
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl px-4 py-2 w-full focus:border-[#ef4444]/60 focus:outline-none"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* SIMULADOR RÁPIDO EN CONFIGURACIÓN */}
+          {/* C. PARÁMETROS TÉCNICOS DE RASPADO */}
+          <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 shadow-lg space-y-4">
+            <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2 border-b border-[#2b292e] pb-3">
+              <Sliders className="w-4 h-4 text-[#ef4444]" />
+              <span>Sensibilidad de Raspado Táctil</span>
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-semibold text-[#ccc3d8]">
+                    Porcentaje para Auto-Revelar
+                  </label>
+                  <span className="font-mono text-xs font-bold text-[#ef4444]">{settings.revealThresholdPercent}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="30"
+                  max="80"
+                  step="5"
+                  value={settings.revealThresholdPercent}
+                  onChange={(e) => setSettings({ ...settings, revealThresholdPercent: parseInt(e.target.value, 10) })}
+                  className="w-full accent-[#ef4444] cursor-pointer"
+                />
+                <span className="text-[10px] text-[#ccc3d8] mt-1 block">
+                  Al raspar este porcentaje, la lámina restante se desvanece y estalla el confeti.
+                </span>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-semibold text-[#ccc3d8]">
+                    Grosor del Pincel Rascador
+                  </label>
+                  <span className="font-mono text-xs font-bold text-amber-400">{settings.brushSize} px</span>
+                </div>
+                <input
+                  type="range"
+                  min="20"
+                  max="55"
+                  step="5"
+                  value={settings.brushSize}
+                  onChange={(e) => setSettings({ ...settings, brushSize: parseInt(e.target.value, 10) })}
+                  className="w-full accent-amber-400 cursor-pointer"
+                />
+                <span className="text-[10px] text-[#ccc3d8] mt-1 block">
+                  Ajusta el radio del trazo al deslizar el dedo por la pantalla táctil del móvil.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* D. PREMIOS CONFIGURADOS */}
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 shadow-lg space-y-4">
             <div className="flex items-center justify-between border-b border-[#2b292e] pb-3">
-              <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2">
-                <Eye className="w-4 h-4 text-[#ec4899]" />
-                <span>Vista Previa de la Lámina</span>
-              </h3>
+              <div>
+                <h3 className="text-sm font-bold text-[#e6e1e7]">
+                  Premios y Probabilidades de Asignación
+                </h3>
+                <p className="text-[11px] text-[#ccc3d8]">
+                  Suma total actual: <strong className={totalProb === 100 ? "text-[#10b981]" : "text-amber-400"}>{totalProb}%</strong>
+                </p>
+              </div>
+
               <button
                 type="button"
-                onClick={initCanvas}
-                className="text-[11px] text-[#f2be71] hover:underline flex items-center gap-1 cursor-pointer"
+                onClick={handleAddPrize}
+                className="bg-[#201f23] hover:bg-[#2b292e] border border-[#ef4444]/40 text-[#ef4444] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
               >
-                <RotateCcw className="w-3 h-3" />
-                <span>Reiniciar</span>
+                <Plus className="w-3.5 h-3.5" />
+                <span>Agregar Premio</span>
               </button>
             </div>
 
-            <div className="relative w-full max-w-[340px] mx-auto h-[200px] rounded-2xl overflow-hidden border border-[#f2be71]/40 shadow-2xl bg-gradient-to-b from-[#2a2215] to-[#141317]">
-              <div className="absolute inset-0 p-6 flex flex-col items-center justify-center text-center space-y-2 z-0">
-                <Sparkles className="w-8 h-8 text-[#f2be71] animate-bounce" />
-                <h4 className="text-sm font-black text-[#ffddb1] uppercase font-['Epilogue']">
-                  {hiddenRewardText}
-                </h4>
-                <span className="font-mono text-xs text-[#f2be71] bg-[#f2be71]/15 px-3 py-1 rounded-full border border-[#f2be71]/30 font-bold">
-                  {secretCode}
-                </span>
-                <p className="text-[10px] text-[#ccc3d8]">Válido hoy en caja con tu mesa</p>
-              </div>
+            <div className="space-y-3">
+              {settings.prizes.map((prize, idx) => (
+                <div
+                  key={prize.id}
+                  className="bg-[#201f23] border border-[#363439] rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-[#ef4444]/40 transition-colors"
+                >
+                  <div className="flex items-center gap-2.5 w-full sm:w-auto flex-1">
+                    <span className="text-2xl p-2 rounded-xl bg-[#1c1b1f] border border-[#363439]">
+                      {prize.icon}
+                    </span>
 
-              <canvas
-                ref={canvasRef}
-                width={340}
-                height={200}
-                onMouseDown={(e) => {
-                  setIsScratching(true);
-                  handleScratch(e);
-                }}
-                onMouseUp={() => setIsScratching(false)}
-                onMouseLeave={() => setIsScratching(false)}
-                onMouseMove={handleScratch}
-                onTouchStart={(e) => {
-                  setIsScratching(true);
-                  handleScratch(e);
-                }}
-                onTouchEnd={() => setIsScratching(false)}
-                onTouchMove={handleScratch}
-                className={`absolute inset-0 w-full h-full z-10 cursor-crosshair transition-opacity duration-500 ${
-                  isRevealed ? "opacity-0 pointer-events-none" : "opacity-100"
-                }`}
-              />
-            </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={prize.badge}
+                          onChange={(e) => handlePrizeChange(idx, "badge", e.target.value)}
+                          placeholder="¡PREMIO!"
+                          className="bg-[#1c1b1f] border border-[#363439] text-[#f59e0b] text-[10px] font-bold rounded-md px-2 py-0.5 w-24 focus:outline-none"
+                        />
+                        <input
+                          type="text"
+                          value={prize.category}
+                          onChange={(e) => handlePrizeChange(idx, "category", e.target.value)}
+                          placeholder="KIT NAVIDEÑO"
+                          className="bg-[#1c1b1f] border border-[#363439] text-[#ccc3d8] text-[10px] uppercase font-bold rounded-md px-2 py-0.5 w-32 focus:outline-none"
+                        />
+                      </div>
 
-            <div className="flex items-center justify-between text-xs text-[#ccc3d8] pt-2">
-              <span>Progreso: <strong className="text-[#f2be71]">{Math.round(scratchedPercent)}%</strong></span>
-              {isRevealed && <span className="text-[#10b981] font-bold">✓ ¡Premio Revelado!</span>}
+                      <input
+                        type="text"
+                        value={prize.name}
+                        onChange={(e) => handlePrizeChange(idx, "name", e.target.value)}
+                        placeholder="Nombre del premio"
+                        className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] text-xs font-bold rounded-lg px-3 py-1 w-full focus:border-[#ef4444]/60 focus:outline-none"
+                      />
+
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={prize.value}
+                          onChange={(e) => handlePrizeChange(idx, "value", e.target.value)}
+                          placeholder="Valor (ej: $45.000 COP)"
+                          className="bg-[#1c1b1f] border border-[#363439] text-[#f2be71] text-[11px] rounded-lg px-2.5 py-1 w-32 focus:outline-none"
+                        />
+                        <input
+                          type="text"
+                          value={prize.description}
+                          onChange={(e) => handlePrizeChange(idx, "description", e.target.value)}
+                          placeholder="Descripción breve..."
+                          className="bg-[#1c1b1f] border border-[#363439] text-[#ccc3d8] text-[11px] rounded-lg px-2.5 py-1 flex-1 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] text-[#ccc3d8]">Prob:</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={prize.probability}
+                        onChange={(e) => handlePrizeChange(idx, "probability", parseInt(e.target.value, 10) || 0)}
+                        className="w-16 bg-[#1c1b1f] border border-[#363439] text-[#ef4444] font-mono text-xs font-bold rounded-lg px-2 py-1 text-center focus:outline-none"
+                      />
+                      <span className="text-xs text-[#ccc3d8] font-mono">%</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePrize(prize.id)}
+                      disabled={settings.prizes.length <= 1}
+                      className="w-8 h-8 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-500/40 text-red-400 flex items-center justify-center transition-colors cursor-pointer shrink-0 disabled:opacity-40"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -422,7 +475,7 @@ export function GameScratchConfig() {
       {activeTab === "simulator" && (
         <div className="flex flex-col items-center justify-center p-4 bg-[#141317] rounded-3xl border border-[#363439]">
           <div className="flex items-center gap-2 mb-4 text-xs text-[#ccc3d8]">
-            <Smartphone className="w-4 h-4 text-[#ec4899]" />
+            <Smartphone className="w-4 h-4 text-[#ef4444]" />
             <span>Simulador de Raspa y Gana Móvil (Smartphone 390 × 844 px)</span>
           </div>
 
@@ -433,105 +486,15 @@ export function GameScratchConfig() {
             {/* Dynamic Island superior */}
             <div className="w-24 h-4 bg-black rounded-full mx-auto mb-2 shrink-0 border border-white/10" />
 
-            <div className="flex-1 overflow-y-auto no-scrollbar rounded-2xl flex flex-col justify-between p-4 bg-gradient-to-b from-[#18151c] via-[#0f0e12] to-[#18151c]">
-              {/* Header móvil */}
-              <div className="text-center space-y-1.5 pt-2">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ec4899]/15 border border-[#ec4899]/30 text-[#ec4899] text-[11px] font-bold">
-                  <Flame className="w-3.5 h-3.5" />
-                  <span>JUEGO EXCLUSIVO EN MESA</span>
-                </div>
-                <h3 className="text-lg font-black text-[#e6e1e7] font-['Epilogue'] tracking-tight">
-                  Raspa & Descubre
-                </h3>
-                <p className="text-xs text-[#ccc3d8] leading-tight max-w-[280px] mx-auto">
-                  Desliza tu dedo sobre la lámina dorada para revelar tu regalo especial de hoy.
-                </p>
-              </div>
-
-              {/* Tarjeta móvil rascable */}
-              <div className="relative w-full max-w-[320px] mx-auto h-[260px] rounded-3xl overflow-hidden border-2 border-[#f2be71]/50 shadow-[0_0_30px_rgba(242,190,113,0.2)] bg-gradient-to-br from-[#2a1e12] via-[#1c1815] to-[#121115]">
-                {/* Capa de premio */}
-                <div className="absolute inset-0 p-5 flex flex-col items-center justify-center text-center space-y-3 z-0">
-                  <div className="w-14 h-14 rounded-2xl bg-[#f2be71]/20 border border-[#f2be71]/50 flex items-center justify-center text-3xl shadow-inner">
-                    🎁
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-[10px] uppercase tracking-widest text-[#f2be71] font-bold">
-                      ¡Premio Desbloqueado!
-                    </span>
-                    <h4 className="text-base font-black text-[#ffddb1] leading-snug font-['Epilogue']">
-                      {hiddenRewardText}
-                    </h4>
-                  </div>
-
-                  <div className="bg-[#121115]/90 border border-[#f2be71]/40 rounded-xl px-4 py-1.5">
-                    <span className="font-mono text-xs font-bold text-[#f2be71] tracking-wider">
-                      CÓDIGO: {secretCode}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Capa rascable Canvas */}
-                <canvas
-                  ref={mobileCanvasRef}
-                  width={320}
-                  height={260}
-                  onMouseDown={(e) => {
-                    setMobileIsScratching(true);
-                    handleMobileScratch(e);
-                  }}
-                  onMouseUp={() => setMobileIsScratching(false)}
-                  onMouseLeave={() => setMobileIsScratching(false)}
-                  onMouseMove={handleMobileScratch}
-                  onTouchStart={(e) => {
-                    setMobileIsScratching(true);
-                    handleMobileScratch(e);
-                  }}
-                  onTouchEnd={() => setMobileIsScratching(false)}
-                  onTouchMove={handleMobileScratch}
-                  className={`absolute inset-0 w-full h-full z-10 cursor-pointer transition-opacity duration-700 ${
-                    mobileIsRevealed ? "opacity-0 pointer-events-none" : "opacity-100"
-                  }`}
-                />
-              </div>
-
-              {/* Indicador de progreso móvil y acciones */}
-              <div className="space-y-3 pb-2">
-                <div className="bg-[#201f23] p-3 rounded-2xl border border-[#363439] space-y-2">
-                  <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="text-[#ccc3d8]">Progreso del raspado:</span>
-                    <span className="font-mono font-bold text-[#f2be71]">{Math.round(mobileScratchedPercent)}%</span>
-                  </div>
-                  <div className="w-full bg-[#141317] h-2 rounded-full overflow-hidden border border-[#363439]">
-                    <div
-                      className="bg-gradient-to-r from-[#ec4899] to-[#f2be71] h-full transition-all duration-150"
-                      style={{ width: `${Math.min(100, (mobileScratchedPercent / scratchPercentThreshold) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-
-                {mobileIsRevealed ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      alert(`¡Voucher generado!\nPremio: ${hiddenRewardText}\nCódigo: ${secretCode}`);
-                    }}
-                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#10b981] to-[#059669] text-white font-black text-xs tracking-wider uppercase shadow-lg shadow-emerald-500/20 active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <Trophy className="w-4 h-4" />
-                    <span>Canjear Voucher en Mesa</span>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={initMobileCanvas}
-                    className="w-full py-2.5 rounded-xl bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[#f2be71] text-xs font-semibold border border-[#363439] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Reiniciar Tarjeta Rascable</span>
-                  </button>
-                )}
-              </div>
+            <div className="flex-1 overflow-y-auto no-scrollbar rounded-2xl flex flex-col justify-center">
+              <StepScratchGame
+                customSettings={settings}
+                participantName="Laura Gómez (Demo)"
+                tableNumber="Mesa 04"
+                onWinPrize={(name, val) => {
+                  alert(`¡Premio reclamado en Raspa y Gana!\n${name} (${val})\nCódigo emitido en mesa.`);
+                }}
+              />
             </div>
           </div>
         </div>

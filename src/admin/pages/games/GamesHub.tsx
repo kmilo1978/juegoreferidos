@@ -65,14 +65,14 @@ export function GamesHub() {
     },
     {
       id: "scratch",
-      name: "Raspa y Gana Digital (Scratch)",
+      name: "Raspa y Gana Digital (Scratch & Win)",
       category: "Misterio & Sorpresa Táctil",
       icon: Flame,
       route: "/games/scratch",
-      description: "El comensal raspa con su dedo una lámina dorada sobre la pantalla táctil para descubrir su regalo o descuento sorpresa.",
+      description: "El comensal raspa con su dedo una lámina sobre la pantalla táctil para descubrir su regalo o mensaje de consolación. Edición Especial Navidad y personalizable.",
       status: activeGameMode === "scratch" ? "activo" : "disponible",
-      accentColor: "#ec4899",
-      badge: "Nueva Dinámica",
+      accentColor: "#ef4444",
+      badge: "Especial Navidad & Campañas",
     },
     {
       id: "memory",

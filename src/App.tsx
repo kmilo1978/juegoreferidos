@@ -22,6 +22,7 @@ import { StepMemoryGame } from "./components/qr-game/StepMemoryGame";
 import { StepPickAndWin } from "./components/qr-game/StepPickAndWin";
 import { StepJackpotGame } from "./components/qr-game/StepJackpotGame";
 import { StepPlinkoGame } from "./components/qr-game/StepPlinkoGame";
+import { StepScratchGame } from "./components/qr-game/StepScratchGame";
 import { StepPrizeClaim } from "./components/qr-game/StepPrizeClaim";
 import { StepSecondChanceShare } from "./components/qr-game/StepSecondChanceShare";
 import { StepSecondChanceVerify } from "./components/qr-game/StepSecondChanceVerify";
@@ -103,6 +104,9 @@ function JuegoQrPage() {
         return 3;
       }
       if (params.get("juego") === "plinko" || params.get("test") === "plinko" || params.get("juego") === "suelta") {
+        return 3;
+      }
+      if (params.get("juego") === "scratch" || params.get("test") === "scratch" || params.get("juego") === "raspa" || params.get("juego") === "rasca") {
         return 3;
       }
       if (params.get("reset") === "1") {
@@ -250,7 +254,7 @@ function JuegoQrPage() {
       if (j === "memory" || j === "memoria") return "memory";
       if (j === "pick-win" || j === "descubre" || j === "muertos") return "pick-win";
       if (j === "precision") return "precision";
-      if (j === "scratch") return "scratch";
+      if (j === "scratch" || j === "raspa" || j === "rasca") return "scratch";
       if (j === "ruleta" || j === "roulette") return "roulette";
     }
     return null;
@@ -380,6 +384,10 @@ function JuegoQrPage() {
       } else if (params.get("juego") === "pick-win" || params.get("test") === "pick-win" || params.get("juego") === "descubre") {
         sessionStorage.removeItem("juego_won_prize");
         setChosenGameMode("pick-win");
+        setCurrentStep(3);
+      } else if (params.get("juego") === "scratch" || params.get("test") === "scratch" || params.get("juego") === "raspa" || params.get("juego") === "rasca") {
+        sessionStorage.removeItem("juego_won_prize");
+        setChosenGameMode("scratch");
         setCurrentStep(3);
       } else if (params.get("reset") === "1") {
         sessionStorage.removeItem("juego_won_prize");
@@ -750,6 +758,27 @@ function JuegoQrPage() {
                   participantName={participant?.fullName || "Invitado"}
                   tableNumber={session.tableNumber}
                   onPrizeWon={handlePrizeWon}
+                />
+              ) : (chosenGameMode === "scratch" || (!chosenGameMode && gameConfig.gameMode === "scratch")) ? (
+                <StepScratchGame
+                  participantName={participant?.fullName || "Invitado"}
+                  tableNumber={session.tableNumber}
+                  onWinPrize={(prizeName, prizeValue) => {
+                    const won: GamePrize = {
+                      id: "prize-scratch",
+                      name: prizeName || "Kit Navideño Especial de la Casa",
+                      nameEn: prizeName || "Holiday Special Kit",
+                      value: prizeValue || "$45.000 COP",
+                      color: "#dc2626",
+                      probability: 100,
+                      type: "special_experience",
+                      textColor: "#ffffff",
+                      active: true,
+                      terms: "Presenta tu pantalla al camarero o en caja para reclamarlo.",
+                      termsEn: "Present at cashier to claim.",
+                    };
+                    handlePrizeWon(won);
+                  }}
                 />
               ) : (
                 <StepRouletteWheel
