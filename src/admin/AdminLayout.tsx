@@ -21,6 +21,11 @@ import {
   Sun,
   Moon,
   Radio,
+  ChevronDown,
+  RotateCw,
+  Timer,
+  Flame,
+  Share2,
 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
@@ -74,6 +79,32 @@ export function AdminLayout() {
       .catch(() => {});
   }, []);
 
+  const [gamesSubmenuOpen, setGamesSubmenuOpen] = useState(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash || "";
+      if (hash.includes("/games") || hash.includes("/game-mode") || hash.includes("/demo")) return true;
+      const saved = localStorage.getItem("admin_games_submenu");
+      if (saved !== null) return saved === "true";
+    }
+    return true;
+  });
+
+  const toggleGamesSubmenu = () => {
+    setGamesSubmenuOpen((prev) => {
+      const next = !prev;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("admin_games_submenu", String(next));
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (location.pathname.startsWith("/games") || location.pathname === "/game-mode" || location.pathname === "/demo") {
+      setGamesSubmenuOpen(true);
+    }
+  }, [location.pathname]);
+
   const title = useMemo(() => {
     switch (location.pathname) {
       case "/": return "Operaciones & Métricas";
@@ -81,8 +112,14 @@ export function AdminLayout() {
       case "/prizes": return "Premios de Ruleta & Vouchers";
       case "/stamps": return "Tarjeta de 15 Sellos & Sorteo";
       case "/missions": return "Misiones & Embajadores";
+      case "/contest": return "Sorteo VIP Fin de Mes";
       case "/reputation": return "Embudo de Reputación";
-      case "/game-mode": return "Mecánicas de Juego & 2ª Oportunidad";
+      case "/games": return "Catálogo Modular de Juegos & Dinámicas";
+      case "/games/roulette": return "Ruleta de Premios & Probabilidades";
+      case "/games/precision": return "Reto Cronómetro de Precisión 10s";
+      case "/games/scratch": return "Raspa y Gana Digital (Scratch & Win)";
+      case "/games/second-chance": return "Segunda Oportunidad Viral (WhatsApp)";
+      case "/game-mode": return "Catálogo Modular de Juegos";
       case "/demo": return "Simulador Frontend (Demo en Vivo)";
       case "/nfc": return "Asistente NFC & Mesas Contactless";
       case "/wifi": return "Portal Cautivo WiFi & Kiosko";
@@ -97,6 +134,14 @@ export function AdminLayout() {
       default: return "Panel Administrativo";
     }
   }, [location.pathname]);
+
+  const gamesSubmenuItems = [
+    { path: "/games", label: "Catálogo de Juegos (Hub)", icon: Gamepad2, end: true },
+    { path: "/games/roulette", label: "Ruleta de Premios", icon: RotateCw },
+    { path: "/games/precision", label: "Reto Precisión 10s", icon: Timer },
+    { path: "/games/scratch", label: "Raspa y Gana (Scratch)", icon: Flame },
+    { path: "/games/second-chance", label: "2ª Oportunidad Viral", icon: Share2 },
+  ];
 
   const navGroups = [
     {
@@ -113,9 +158,9 @@ export function AdminLayout() {
     },
     {
       group: "Juego & Captación",
+      hasGamesSubmenu: true,
       items: [
         { path: "/demo", label: "Simulador Frontend (Demo)", icon: Smartphone },
-        { path: "/game-mode", label: "Mecánica & 2ª Op.", icon: Gamepad2 },
         { path: "/nfc", label: "Asistente NFC Mesas", icon: Radio },
         { path: "/wifi", label: "Portal WiFi / Kiosko", icon: Wifi },
         { path: "/channels", label: "Canales & WhatsApp", icon: MessageCircle },
@@ -134,6 +179,8 @@ export function AdminLayout() {
       ],
     },
   ];
+
+  const isAnyGameActive = location.pathname.startsWith("/games") || location.pathname === "/game-mode";
 
   const brandInitials = brand.name
     ? brand.name
@@ -172,7 +219,62 @@ export function AdminLayout() {
               <span className="px-3 text-[10px] uppercase font-bold tracking-wider text-[#958da1]">
                 {group.group}
               </span>
+
               <div className="mt-1 space-y-0.5">
+                {/* SUBMENÚ MODULAR DE JUEGOS */}
+                {group.hasGamesSubmenu && (
+                  <div className="space-y-0.5 mb-1">
+                    <button
+                      type="button"
+                      onClick={toggleGamesSubmenu}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                        isAnyGameActive
+                          ? "bg-[#252220] text-[#f2be71] border border-[#f2be71]/30"
+                          : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Gamepad2 className={`w-4 h-4 shrink-0 ${isAnyGameActive ? "text-[#f2be71]" : "text-[#ccc3d8]"}`} />
+                        <span className="truncate font-bold">Juegos & Dinámicas</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-[9px] font-mono font-bold bg-[#f2be71]/15 text-[#f2be71] px-1.5 py-0.5 rounded-full border border-[#f2be71]/30">
+                          {gamesSubmenuItems.length}
+                        </span>
+                        <ChevronDown
+                          className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                            gamesSubmenuOpen ? "rotate-0 text-[#f2be71]" : "-rotate-90 text-[#958da1]"
+                          }`}
+                        />
+                      </div>
+                    </button>
+
+                    {/* ELEMENTOS HIJOS DEL SUBMENÚ DE JUEGOS */}
+                    {gamesSubmenuOpen && (
+                      <div className="ml-3 pl-2.5 border-l-2 border-[#363439] space-y-0.5 py-1 animate-fade-in">
+                        {gamesSubmenuItems.map((sub) => (
+                          <NavLink
+                            key={sub.path}
+                            to={sub.path}
+                            end={sub.end}
+                            className={({ isActive }) =>
+                              `flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                                isActive
+                                  ? "bg-[#2b292e] text-[#f2be71] font-bold border-l-2 border-[#f2be71] shadow-xs"
+                                  : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
+                              }`
+                            }
+                          >
+                            <sub.icon className="w-3.5 h-3.5 shrink-0 opacity-80" />
+                            <span className="truncate">{sub.label}</span>
+                          </NavLink>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* ÍTEMS DIRECTOS NORMALES */}
                 {group.items.map((item) => (
                   <NavLink
                     key={item.path}

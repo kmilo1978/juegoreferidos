@@ -21,6 +21,11 @@ import { Analytics } from "./pages/Analytics";
 import { Contest } from "./pages/Contest";
 import { Demo } from "./pages/Demo";
 import { NfcAssistant } from "./pages/NfcAssistant";
+import { GamesHub } from "./pages/games/GamesHub";
+import { GameRouletteConfig } from "./pages/games/GameRouletteConfig";
+import { GamePrecisionConfig } from "./pages/games/GamePrecisionConfig";
+import { GameScratchConfig } from "./pages/games/GameScratchConfig";
+import { GameSecondChanceConfig } from "./pages/games/GameSecondChanceConfig";
 
 // Blindaje global
 if (typeof window !== "undefined") {
@@ -93,9 +98,14 @@ export function AdminApp() {
             <Route path="contest" element={<Contest />} />
             <Route path="reputation" element={<Reputation />} />
 
-            {/* Juego & Captación */}
+            {/* Juego & Captación (Submenú de Juegos Modulares) */}
+            <Route path="games" element={<GamesHub />} />
+            <Route path="games/roulette" element={<GameRouletteConfig />} />
+            <Route path="games/precision" element={<GamePrecisionConfig />} />
+            <Route path="games/scratch" element={<GameScratchConfig />} />
+            <Route path="games/second-chance" element={<GameSecondChanceConfig />} />
+            <Route path="game-mode" element={<GamesHub />} />
             <Route path="demo" element={<Demo />} />
-            <Route path="game-mode" element={<GameMode />} />
             <Route path="nfc" element={<NfcAssistant />} />
             <Route path="wifi" element={<WifiPortal />} />
             <Route path="channels" element={<Channels />} />
