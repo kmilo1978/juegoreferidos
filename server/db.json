@@ -149,6 +149,36 @@
   ],
   "logs": [
     {
+      "id": "murgdl8b68z",
+      "timestamp": "4:06:14 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "murekfblqtp",
+      "timestamp": "3:15:34 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "murekfbfhvb",
+      "timestamp": "3:15:34 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "murekeebxg0",
+      "timestamp": "3:15:33 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "murekebupbs",
+      "timestamp": "3:15:33 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "murdmw393y3",
+      "timestamp": "2:49:29 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
       "id": "murdmw2qch1",
       "timestamp": "2:49:29 p. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
@@ -387,39 +417,6 @@
     {
       "id": "mur8e0cnibn",
       "timestamp": "12:22:37 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8dx3g3if",
-      "timestamp": "12:22:33 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8dx2hntm",
-      "timestamp": "12:22:33 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8dt9f6nn",
-      "timestamp": "12:22:28 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8dt86h9x",
-      "timestamp": "12:22:28 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8dsxz40e",
-      "timestamp": "12:22:27 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mur8cfrl3p7",
-      "timestamp": "12:21:24 p. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
     }
   ],
@@ -881,7 +878,42 @@
         "openRate": 65,
         "status": "ENVIADO"
       }
-    ]
+    ],
+    "geofencingConfig": {
+      "enabled": true,
+      "venue": {
+        "name": "Tu Restaurante & Café",
+        "address": "Zona Gourmet / Principal",
+        "latitude": 4.6756,
+        "longitude": -74.0538
+      },
+      "option1_web_radius": {
+        "enabled": true,
+        "radiusMeters": 2000,
+        "requestLocationOnPlay": true,
+        "promptTitle": "¡Recibe regalos cuando estés cerca!",
+        "promptBody": "Activa tu ubicación para enterarte de sorpresas y postres gratis al pasar cerca de nuestro restaurante."
+      },
+      "option2_background_realtime": {
+        "enabled": true,
+        "geofenceRadiusMeters": 400,
+        "cooldownHours": 48,
+        "scheduleStart": "11:30",
+        "scheduleEnd": "22:00",
+        "messageTitle": "🍰 ¡Estás a 2 cuadras de {restaurante}!",
+        "messageBody": "Ven hoy y disfruta un café de cortesía mostrando esta notificación al sentarte.",
+        "actionUrl": "http://localhost:5173/?promo=geofence",
+        "capacitorPackage": "@capacitor-community/onesignal-location"
+      },
+      "option3_venue_physical": {
+        "enabled": true,
+        "triggerType": "wifi_or_nfc",
+        "welcomeDelaySeconds": 60,
+        "messageTitle": "✨ ¡Qué alegría verte de nuevo en {restaurante}!",
+        "messageBody": "Hoy tu mesa tiene 10% de descuento en platos fuertes o doble sello en tu pasaporte VIP.",
+        "actionUrl": "http://localhost:5173/?mesa=1"
+      }
+    }
   },
   "tables": [
     {
@@ -1155,8 +1187,50 @@
     "baseDomain": "http://localhost:5173",
     "stats": {
       "nfcScans": 28,
-      "qrScans": 174,
+      "qrScans": 180,
       "lastScans": [
+        {
+          "id": "scan_1790975175011",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "04:06 p. m."
+        },
+        {
+          "id": "scan_1790975174836",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "04:06 p. m."
+        },
+        {
+          "id": "scan_1790972134543",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "03:15 p. m."
+        },
+        {
+          "id": "scan_1790972134535",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "03:15 p. m."
+        },
+        {
+          "id": "scan_1790972133259",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "03:15 p. m."
+        },
+        {
+          "id": "scan_1790972133248",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "03:15 p. m."
+        },
         {
           "id": "scan_1790970569959",
           "mesa": 1,
@@ -1254,48 +1328,6 @@
           "origen": "qr",
           "device": "Android",
           "timestamp": "01:13 p. m."
-        },
-        {
-          "id": "scan_1790964613092",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "01:10 p. m."
-        },
-        {
-          "id": "scan_1790964612781",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "01:10 p. m."
-        },
-        {
-          "id": "scan_1790964301333",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "01:05 p. m."
-        },
-        {
-          "id": "scan_1790964301280",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "01:05 p. m."
-        },
-        {
-          "id": "scan_1790963231789",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "12:47 p. m."
-        },
-        {
-          "id": "scan_1790963231736",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "12:47 p. m."
         }
       ]
     }

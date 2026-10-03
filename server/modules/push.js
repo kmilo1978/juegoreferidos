@@ -583,5 +583,114 @@ export function handlePush(req, res, pathname, url) {
     return true;
   }
 
+  // 11. API: CONFIGURACIÓN DE GEOFENCING & LOCALIZACIÓN (/api/push/geofencing)
+  if (pathname === "/api/push/geofencing") {
+    if (!db.settings.geofencingConfig) {
+      db.settings.geofencingConfig = {
+        enabled: true,
+        venue: {
+          name: db.settings.brand?.name || "Restaurante & Café",
+          address: "Zona Gourmet / Principal",
+          latitude: 4.6756,
+          longitude: -74.0538,
+        },
+        option1_web_radius: {
+          enabled: true,
+          radiusMeters: 2000,
+          requestLocationOnPlay: true,
+          promptTitle: "¡Recibe regalos cuando estés cerca!",
+          promptBody: "Activa tu ubicación para enterarte de sorpresas y postres gratis al pasar cerca de nuestro restaurante.",
+        },
+        option2_background_realtime: {
+          enabled: true,
+          geofenceRadiusMeters: 400,
+          cooldownHours: 48,
+          scheduleStart: "11:30",
+          scheduleEnd: "22:00",
+          messageTitle: "🍰 ¡Estás a 2 cuadras de {restaurante}!",
+          messageBody: "Ven hoy y disfruta un café de cortesía mostrando esta notificación al sentarte.",
+          actionUrl: "http://localhost:5173/?promo=geofence",
+          capacitorPackage: "@capacitor-community/onesignal-location",
+        },
+        option3_venue_physical: {
+          enabled: true,
+          triggerType: "wifi_or_nfc",
+          welcomeDelaySeconds: 60,
+          messageTitle: "✨ ¡Qué alegría verte de nuevo en {restaurante}!",
+          messageBody: "Hoy tu mesa tiene 10% de descuento en platos fuertes o doble sello en tu pasaporte VIP.",
+          actionUrl: "http://localhost:5173/?mesa=1",
+        },
+      };
+      saveDb();
+    }
+
+    if (req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ success: true, config: db.settings.geofencingConfig }));
+      return true;
+    }
+
+    if (req.method === "POST") {
+      let body = "";
+      req.on("data", (chunk) => (body += chunk));
+      req.on("end", () => {
+        try {
+          const updated = JSON.parse(body || "{}");
+          db.settings.geofencingConfig = {
+            ...(db.settings.geofencingConfig || {}),
+            ...updated,
+          };
+          saveDb();
+          logRequest("POST", "/api/push/geofencing", 200, "Configuración de Geofencing & Localización actualizada");
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: true, config: db.settings.geofencingConfig }));
+        } catch (err) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: false, error: err.message }));
+        }
+      });
+      return true;
+    }
+  }
+
+  // 12. API: SIMULADOR DE DISPARO DE GEOFENCING (/api/push/geofencing/test-trigger)
+  if (pathname === "/api/push/geofencing/test-trigger" && req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { optionId } = JSON.parse(body || "{}");
+        const cfg = db.settings.geofencingConfig || {};
+        let triggerTitle = "📍 Notificación por Proximidad";
+        let triggerBody = "Un comensal ha cruzado la geovalla configurada.";
+
+        if (optionId === "option1") {
+          triggerTitle = "🎯 [Radio Web] Comensal en zona de influencia";
+          triggerBody = `Detectado suscriptor dentro del radio de ${(cfg.option1_web_radius?.radiusMeters || 2000) / 1000} km.`;
+        } else if (optionId === "option2") {
+          triggerTitle = cfg.option2_background_realtime?.messageTitle?.replace("{restaurante}", db.settings.brand?.name || "el local") || "🍰 ¡Estás a 2 cuadras!";
+          triggerBody = cfg.option2_background_realtime?.messageBody || "Ven hoy y disfruta un café de cortesía.";
+        } else if (optionId === "option3") {
+          triggerTitle = cfg.option3_venue_physical?.messageTitle?.replace("{restaurante}", db.settings.brand?.name || "el local") || "✨ ¡Bienvenido a tu mesa!";
+          triggerBody = cfg.option3_venue_physical?.messageBody || "Beneficio del día activo en tu cuenta.";
+        }
+
+        logRequest("TEST", "/api/push/geofencing/test-trigger", 200, `Simulación de Geofencing ejecutada (${optionId}): ${triggerTitle}`);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({
+          success: true,
+          triggeredAt: new Date().toLocaleTimeString("es-CO"),
+          title: triggerTitle,
+          body: triggerBody,
+          optionId,
+        }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return true;
+  }
+
   return false;
 }

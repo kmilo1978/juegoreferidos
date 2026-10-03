@@ -1108,3 +1108,22 @@
   2. Se agregó 'defaultStepNumber' (pasos 1 al 8) en la interfaz 'FunnelStepItem' y 'DEFAULT_FUNNEL_STEPS'.
   3. Se blindó el mapeo en 'Demo.tsx' con 'key' única ('step.id || step-btn-') y fallbacks para títulos y números de paso.
 - Re-verificación: Captura exitosa en Edge CDP ('debug_demo_page.png') con iframe cargando activamente el frontend comensal en iPhone 15 Pro, barra de fases, selectores de modelos y 0 errores en consola.
+## Nueva sesión
+- Fecha: 2026-10-03 16:55
+- Solicitud: Implementar en el módulo push todas las opciones de Geofencing y localización con OneSignal, correctamente diferenciadas.
+- Decisiones clave:
+  1. Se diseñó e implementó la suite completa de Geofencing en el módulo Push ('src/admin/components/GeofencingPanel.tsx' y 'src/admin/pages/Push.tsx') organizando 3 estrategias claramente diferenciadas:
+     - Opción 1: Segmentación por Radio Geográfico (100% Web sin descargas): Configuración de coordenadas de la sede, sliders de radio (500m a 10km), solicitud amigable de permiso en mesa ('OneSignal.Location.setShared(true)') y cálculo de comensales alcanzables en vivo.
+     - Opción 2: Geofencing en Tiempo Real de Segundo Plano (App Instalada / PWA con Capacitor & OneSignal Location SDK): Disparo automático por sensor GPS al cruzar la geovalla de 300-500m (pantalla apagada o en bolsillo), ventana horaria de apertura comercial y regla de enfriamiento anti-spam (máximo 1 vez cada 48h).
+     - Opción 3: Micro-Geofencing en Sala (Presencia Física por WiFi / NFC en Mesa): 100% certero al sentarse en el salón o conectarse al portal cautivo WiFi, con retardo programable y beneficio de bienvenida inmediato.
+  2. Incorporación de Radar 2D Interactivo con círculos concéntricos, centro comercial y puntos de clientes detectados según la opción activa.
+  3. Integración en el formulario de Redacción de Campañas Push con los nuevos segmentos de audiencia: '📍 Comensales en Radio Cercano (Geofence < 2 km)' y '📶 Clientes Conectados al WiFi en Sala Hoy'.
+  4. Endpoints en backend RESTful: '/api/push/geofencing' (GET/POST) y '/api/push/geofencing/test-trigger' (POST).
+- Pendientes:
+  - Ninguno. Módulo 100% operativo, verificado visualmente en Edge CDP y sincronizado.
+
+## Validación completada
+- Fecha: 2026-10-03 16:55
+- Resultado: Aprobado (score: 10/10)
+- Resumen: Suite de Geofencing y Notificaciones por Proximidad implementada en el módulo Push con 3 opciones diferenciadas, radar en vivo y persistencia.
+- Observaciones: Pruebas visuales completadas en Edge CDP ('verify_geofencing_option1_web_radius.png', 'verify_geofencing_option2_realtime.png', 'verify_geofencing_full_controls.png'). Compilaciones 'bun run build' exitosas en ambos repositorios.

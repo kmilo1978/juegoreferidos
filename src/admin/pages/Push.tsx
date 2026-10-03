@@ -25,8 +25,11 @@ import {
   ShieldCheck,
   RefreshCw,
   ChevronRight,
+  Navigation,
+  MapPin,
 } from "lucide-react";
 import { ImageUploader } from "../components/ImageUploader";
+import { GeofencingPanel } from "../components/GeofencingPanel";
 
 interface ActionButton {
   id: string;
@@ -150,7 +153,7 @@ const DEFAULT_FLOWS: PushFlow[] = [
 
 export function Push() {
   const [activeTab, setActiveTab] = useState<
-    "history" | "broadcast" | "calendar" | "subscribers" | "flows" | "drafts" | "credentials"
+    "history" | "broadcast" | "calendar" | "subscribers" | "flows" | "drafts" | "credentials" | "geofencing"
   >("history");
 
   const [campaigns, setCampaigns] = useState<PushCampaign[]>([]);
@@ -711,6 +714,19 @@ export function Push() {
         >
           <Key className="w-4 h-4" />
           <span>OneSignal</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("geofencing")}
+          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+            activeTab === "geofencing"
+              ? "bg-[#2b292e] text-[#f2be71] border-b-2 border-[#f2be71]"
+              : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
+          }`}
+        >
+          <Navigation className="w-4 h-4 text-[#f2be71]" />
+          <span>📍 Geofencing & Geolocalización</span>
         </button>
       </div>
 
@@ -1384,6 +1400,8 @@ export function Push() {
                   className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2.5 w-full text-xs"
                 >
                   <option value="all">👥 Todos los Suscriptores ({activeSubscribersCount})</option>
+                  <option value="geofence_near">📍 Comensales en Radio Cercano (Geofence &lt; 2 km)</option>
+                  <option value="venue_wifi">📶 Clientes Conectados al WiFi en Sala Hoy</option>
                   <option value="table_active">🪑 Comensales en Mesa Hoy</option>
                   <option value="inactive_7d">⏳ Inactivos (+7 Días sin Visitar)</option>
                   <option value="vip">🌟 Clientes VIP (+5 Sellos Acumulados)</option>
@@ -1751,6 +1769,9 @@ export function Push() {
           </div>
         </form>
       )}
+
+      {/* 8. PESTAÑA: GEOFENCING & NOTIFICACIONES POR PROXIMIDAD */}
+      {activeTab === "geofencing" && <GeofencingPanel />}
     </div>
   );
 }
