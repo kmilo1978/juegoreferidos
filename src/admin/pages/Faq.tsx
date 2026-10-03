@@ -21,6 +21,20 @@ import {
   Terminal,
   Server,
   Key,
+  Briefcase,
+  TrendingUp,
+  CheckCircle2,
+  Target,
+  Presentation,
+  QrCode,
+  MapPin,
+  Award,
+  Zap,
+  Share2,
+  Flame,
+  DollarSign,
+  Users2,
+  ArrowRight,
 } from "lucide-react";
 
 interface FaqItem {
@@ -34,11 +48,179 @@ interface FaqItem {
   codeSnippet?: string;
 }
 
+interface BusinessPitchStep {
+  number: number;
+  title: string;
+  stageBadge: string;
+  badgeColor: string;
+  restaurantProblem: string;
+  pitchToOwner: string;
+  realLifeExample: string;
+  businessMetric: string;
+  demoRoute: string;
+  demoLabel: string;
+}
+
 export function Faq() {
+  const [activeMode, setActiveMode] = useState<"pitch" | "faq">("pitch");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "dev">("all");
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set(["faq-1", "faq-2"]));
+  const [expandedPitchStep, setExpandedPitchStep] = useState<number | null>(1);
+
+  const businessPitchSteps: BusinessPitchStep[] = [
+    {
+      number: 1,
+      title: "Atracción & Entrada Cero-Fricción",
+      stageBadge: "MOMENTO 1 · CONTACTO",
+      badgeColor: "bg-blue-500/20 text-blue-400 border-blue-500/40",
+      restaurantProblem:
+        "El 95% de los comensales se niega a descargar una app pesada solo para comer o tomar un café. Las tarjetas de cartón y volantes de papel se pierden o terminan en la basura.",
+      pitchToOwner:
+        "«No le pidas a tu cliente que instale nada. Le colocamos un sticker elegante de acrílico con chip NFC y código QR en cada mesa. El comensal solo acerca su teléfono o apunta su cámara, y en 1 solo segundo se abre la experiencia exclusiva de tu restaurante directamente en su navegador».",
+      realLifeExample:
+        "Mesa 4. Una pareja pide dos cafés. Ven un sticker dorado con la frase 'Toca aquí con tu celular y gana un postre de la casa'. El cliente apoya su iPhone y se abre la pantalla al instante.",
+      businessMetric: "100% de tasa de apertura sin fricción ni descargas en App Store o Google Play.",
+      demoRoute: "/?paso=1&demo=true",
+      demoLabel: "Probar Escaneo en Mesa (Paso 1)",
+    },
+    {
+      number: 2,
+      title: "Captación Consentida de Datos para CRM",
+      stageBadge: "MOMENTO 2 · CAPTACIÓN",
+      badgeColor: "bg-purple-500/20 text-purple-400 border-purple-500/40",
+      restaurantProblem:
+        "Un restaurante promedio atiende entre 1.000 y 3.000 comensales al mes, pero cuando pagan la cuenta se van y el dueño no tiene su teléfono para volver a invitarlos.",
+      pitchToOwner:
+        "«Convierte a clientes anónimos en una base de datos propia de alto valor. Para desbloquear el juego y recibir su beneficio de mesa, el cliente ingresa su nombre y su número de WhatsApp. En 5 segundos tienes su contacto consentido para campañas futuras sin costo».",
+      realLifeExample:
+        "El comensal ve: 'Ingresa tu nombre y WhatsApp para guardar tu premio'. Escribe 'Carlos Gómez, 300 123 4567' y pulsa 'Continuar'. Queda registrado en tu panel administrativo.",
+      businessMetric: "Captura de 300 a 800 números de WhatsApp calificados por mes por sede.",
+      demoRoute: "/?paso=1&demo=true",
+      demoLabel: "Ver Formulario de Captura",
+    },
+    {
+      number: 3,
+      title: "Viralidad Orgánica en Redes Sociales",
+      stageBadge: "MOMENTO 3 · VISIBILIDAD",
+      badgeColor: "bg-pink-500/20 text-pink-400 border-pink-500/40",
+      restaurantProblem:
+        "Pagar publicidad en Facebook o Instagram es cada día más caro y la mayoría de seguidores en redes nunca visitan el local físico.",
+      pitchToOwner:
+        "«Pon a tus clientes a hacerte publicidad gratis ante sus propios amigos locales. Para activar el juego o multiplicar sus premios, el sistema los invita a seguir tu cuenta o compartir una foto de su plato etiquetándote en Instagram Stories».",
+      realLifeExample:
+        "Carlos toma una foto al plato de pasta o a la hamburguesa, pulsa 'Subir historia a Instagram con @turestaurante' y el sistema valida su participación.",
+      businessMetric: "Cientos de menciones reales de clientes locales que viven o trabajan cerca de tu negocio.",
+      demoRoute: "/?paso=2&demo=true",
+      demoLabel: "Ver Validación Social (Paso 2)",
+    },
+    {
+      number: 4,
+      title: "Gamificación & Adrenalina en Mesa",
+      stageBadge: "MOMENTO 4 · EXPERIENCIA",
+      badgeColor: "bg-amber-500/20 text-amber-400 border-amber-500/40",
+      restaurantProblem:
+        "Los minutos de espera entre el pedido y la llegada de la comida suelen ser aburridos o generar impaciencia en los comensales.",
+      pitchToOwner:
+        "«Transforma la espera en un momento memorable y divertido. El cliente gira una Ruleta luminosa con efectos sonoros, raspa una tarjeta digital o juega a la memoria. Siempre gana un beneficio gastronómico calculado con tu propio margen de ganancia».",
+      realLifeExample:
+        "La ruleta gira con animación física y sonido de casino. La aguja se detiene en 'Porción de Tarta Vasca' o 'Café Gourmet'. Toda la mesa festeja y comenta la experiencia.",
+      businessMetric: "Aumenta la satisfacción en mesa y reduce la percepción del tiempo de espera en cocina.",
+      demoRoute: "/?paso=3&demo=true",
+      demoLabel: "Probar Ruleta & Minijuegos (Paso 3)",
+    },
+    {
+      number: 5,
+      title: "Voucher Único con PIN & Aumento de Ticket",
+      stageBadge: "MOMENTO 5 · CONVERSIÓN",
+      badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40",
+      restaurantProblem:
+        "Los dueños temen regalar comida descontroladamente o que los comensales hagan trampa mostrando capturas de pantalla viejas.",
+      pitchToOwner:
+        "«Cero trampas y aumento de consumo. El sistema emite un voucher con código único alfanumérico (ej: REST-4821) y cuenta regresiva de vencimiento. Para aplicarlo, el mesero o cajero ingresa un PIN de 4 dígitos en el móvil del cliente. Además, puedes condicionarlo a un consumo mínimo (ej: postre gratis en cuentas mayores a $30.000)».",
+      realLifeExample:
+        "Carlos llama al mesero: 'Me gané este capuchino'. El mesero verifica que consumió el plato fuerte, digita su PIN '1978' en el teléfono de Carlos y el cupón queda marcado como CANJEADO con fecha y hora exacta.",
+      businessMetric: "Aumento del ticket promedio entre un 15% y un 28% gracias a consumos adicionales condicionados.",
+      demoRoute: "/?paso=4&demo=true",
+      demoLabel: "Ver Voucher de Canje (Paso 4)",
+    },
+    {
+      number: 6,
+      title: "Blindaje de Reputación 5 Estrellas en Google Maps",
+      stageBadge: "MOMENTO 6 · REPUTACIÓN",
+      badgeColor: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40",
+      restaurantProblem:
+        "Un cliente insatisfecho corre a dejar una reseña de 1 estrella en Google Maps, mientras que los clientes felices casi nunca se toman el tiempo de opinar.",
+      pitchToOwner:
+        "«Implementamos un filtro inteligente de reputación: el comensal califica con estrellas su experiencia. Si califica con 4 o 5 estrellas, se le redirige automáticamente a tu perfil de Google Maps para que deje su reseña pública. Si califica con 1 a 3 estrellas, se canaliza de forma privada a un WhatsApp de gerencia para resolver su queja antes de que dañe tu reputación en internet».",
+      realLifeExample:
+        "Carlos califica con 5 estrellas el servicio. El sistema le agradece y abre Google Maps con 5 estrellas preseleccionadas para publicar su opinión en 2 clics.",
+      businessMetric: "Posiciona tu restaurante en el Top 3 de Google Maps en tu ciudad, atrayendo turistas y clientes nuevos cada día.",
+      demoRoute: "/?paso=5&demo=true",
+      demoLabel: "Probar Embudo de Reseñas (Paso 5)",
+    },
+    {
+      number: 7,
+      title: "La 2ª Oportunidad Viral (WhatsApp Status)",
+      stageBadge: "MOMENTO 7 · VIRALIDAD",
+      badgeColor: "bg-teal-500/20 text-teal-400 border-teal-500/40",
+      restaurantProblem:
+        "El 'boca a boca' tradicional es lento y difícil de medir.",
+      pitchToOwner:
+        "«Si el comensal no ganó el premio mayor en la ruleta, le ofrecemos una Segunda Oportunidad: compartir su experiencia en su Estado de WhatsApp para desbloquear el Reto de Precisión 10 Segundos. Sus amigos y familiares ven tu restaurante en sus estados».",
+      realLifeExample:
+        "Carlos pulsa 'Compartir en mi Estado de WhatsApp'. 80 contactos ven la historia con la foto del local. Al volver, se activa el cronómetro donde debe frenar en 10.00 exactos para ganar.",
+      businessMetric: "Efecto bola de nieve: 1 comensal comparte y atrae en promedio a 2.4 nuevos clientes de su círculo cercano.",
+      demoRoute: "/?paso=6&demo=true",
+      demoLabel: "Probar Reto de Precisión (Paso 6)",
+    },
+    {
+      number: 8,
+      title: "Fidelización Cero-Fricción con One-Tap Stamp",
+      stageBadge: "MOMENTO 8 · RECURRENCIA",
+      badgeColor: "bg-amber-400/20 text-[#f2be71] border-[#f2be71]/40",
+      restaurantProblem:
+        "Los clientes pierden las tarjetas de papel con sellos de tinta o las lavan en el pantalón. Las apps de puntos requieren login y contraseñas que el cliente olvida.",
+      pitchToOwner:
+        "«El teléfono del comensal es su tarjeta VIP permanente. En su segunda visita en adelante, cuando vuelve a apoyar el móvil en el sticker NFC de la mesa, el sistema lo reconoce de inmediato: '¡Qué alegría verte de nuevo, Carlos!', le suma automáticamente su sello de la visita de hoy sin pedir formularios repetitivos, y le muestra qué tan cerca está de su próximo gran premio (Sellos 5, 10 y 15)».",
+      realLifeExample:
+        "Carlos vuelve al local 8 días después con unos amigos. Apoya su celular en la mesa. La pantalla dice '¡Bienvenido de nuevo Carlos! +1 Sello registrado hoy'. Ya lleva 4 sellos y sabe que en la próxima visita gana postre gratis.",
+      businessMetric: "Incrementa la frecuencia de visita recurrente en un 38% y fideliza al comensal para que no se vaya a la competencia.",
+      demoRoute: "/?paso=7&modo=sello_nfc&demo=true",
+      demoLabel: "Probar One-Tap Stamp en Vivo (Paso 7)",
+    },
+    {
+      number: 9,
+      title: "Misiones Gamificadas & Embajadores VIP",
+      stageBadge: "MOMENTO 9 · RETENCIÓN",
+      badgeColor: "bg-red-500/20 text-red-400 border-red-500/40",
+      restaurantProblem:
+        "Los días martes y miércoles en la tarde el salón tiene mesas vacías y el personal está ocioso.",
+      pitchToOwner:
+        "«Activa misiones temáticas para llenar el salón en horas muertas: 'Ven un martes con 3 amigos y gana Doble Sello', o 'Haz una reseña en video y desbloquea el estatus de Embajador VIP'. Además, cada visita acumula tickets para un gran Sorteo Mensual que mantiene la expectativa viva todo el mes».",
+      realLifeExample:
+        "El cliente entra al Paso 8 y ve: 'Misión Almuerzo con Amigos (+2 sellos extra)'. Decide organizar su reunión de trabajo en tu restaurante para completar la misión.",
+      businessMetric: "Llena horas y días valle (lunes a jueves) con incentivos controlados.",
+      demoRoute: "/?paso=8&demo=true",
+      demoLabel: "Ver Misiones VIP (Paso 8)",
+    },
+    {
+      number: 10,
+      title: "Geofencing & Notificaciones Push sin Costo",
+      stageBadge: "MOMENTO 10 · REACTIVACIÓN",
+      badgeColor: "bg-indigo-500/20 text-indigo-400 border-indigo-500/40",
+      restaurantProblem:
+        "Enviar SMS masivos cuesta dinero y los correos electrónicos se van a la carpeta de spam.",
+      pitchToOwner:
+        "«Reactivación automática en el bolsillo del cliente. Gracias a OneSignal y Geofencing, si un cliente camina a 500 metros de tu local a la hora del almuerzo, o si lleva 10 días sin visitarte, su celular recibe una notificación push: '¡Hola Carlos! Tu mesa favorita está lista hoy con 2x1 en cafés de 3 a 6 PM'. Todo sin pagar tarifas por mensaje».",
+      realLifeExample:
+        "Viernes a la 1:15 PM. Carlos camina a dos cuadras del restaurante. Le vibra el teléfono con la foto de la especialidad del chef del día. Entra al local a almorzar.",
+      businessMetric: "Costo por mensaje $0 y tasa de apertura 4 veces superior al correo electrónico tradicional.",
+      demoRoute: "/admin/push",
+      demoLabel: "Ver Panel de Geofencing & Push",
+    },
+  ];
 
   const toggleExpand = (id: string) => {
     setExpandedIds((prev) => {
@@ -286,41 +468,254 @@ export function Faq() {
 
   return (
     <div className="space-y-6">
-      {/* 1. ENCABEZADO Y PRESENTACIÓN */}
+      {/* 1. ENCABEZADO Y SELECTOR DE VISTA: GUÍA COMERCIAL VS PREGUNTAS TÉCNICAS */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#363439] pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="px-2.5 py-0.5 rounded-full bg-[#f2be71]/15 text-[#f2be71] border border-[#f2be71]/30 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
               <BookOpen className="w-3.5 h-3.5" />
-              BASE DE CONOCIMIENTO & FAQ
+              CENTRO DE CONOCIMIENTO & VENTAS
             </span>
-            <span className="text-xs text-[#958da1]">Documentación Integral del Sistema</span>
+            <span className="text-xs text-[#958da1]">Guías Operativas y Argumentario Comercial</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[#e6e1e7] font-['Epilogue'] tracking-tight">
-            Preguntas Frecuentes & Guía de Uso
+            {activeMode === "pitch"
+              ? "Guía Paso a Paso para Vender a Negocios Gastronómicos"
+              : "Preguntas Frecuentes & Documentación Técnica"}
           </h1>
           <p className="text-xs sm:text-sm text-[#ccc3d8] mt-1 max-w-2xl">
-            Encuentra respuestas claras y detalladas sobre el funcionamiento de cada módulo, configuración visual, bases de datos, seguridad y mejores prácticas operativas.
+            {activeMode === "pitch"
+              ? "El argumento comercial completo, etapa por etapa, con el problema del dueño, el guión para venderle y ejemplos reales de la vida cotidiana en mesa."
+              : "Respuestas claras sobre el funcionamiento modular, configuración de marca, bases de datos, seguridad por PIN y mantenimiento del sistema."}
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* SELECTOR MAESTRO DE MODO */}
+        <div className="flex items-center p-1 rounded-2xl bg-[#1c1b1f] border border-[#363439] shrink-0">
           <button
             type="button"
-            onClick={expandAll}
-            className="py-2 px-3.5 rounded-xl bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-white border border-[#363439] text-xs font-bold transition-all cursor-pointer"
+            onClick={() => setActiveMode("pitch")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeMode === "pitch"
+                ? "bg-[#f2be71] text-[#121115] shadow-lg shadow-[#f2be71]/20 font-black"
+                : "text-[#ccc3d8] hover:text-white"
+            }`}
           >
-            Expandir Todas
+            <Briefcase className="w-4 h-4" />
+            <span>Guía de Venta a Negocios (Pitch)</span>
           </button>
           <button
             type="button"
-            onClick={collapseAll}
-            className="py-2 px-3.5 rounded-xl bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-white border border-[#363439] text-xs font-bold transition-all cursor-pointer"
+            onClick={() => setActiveMode("faq")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              activeMode === "faq"
+                ? "bg-[#f2be71] text-[#121115] shadow-lg shadow-[#f2be71]/20 font-black"
+                : "text-[#ccc3d8] hover:text-white"
+            }`}
           >
-            Colapsar Todas
+            <HelpCircle className="w-4 h-4" />
+            <span>Preguntas Frecuentes (FAQ)</span>
           </button>
         </div>
       </div>
+
+      {/* ======================================================== */}
+      {/* VISTA 1: GUÍA PASO A PASO PARA VENDER EL SISTEMA A NEGOCIOS */}
+      {/* ======================================================== */}
+      {activeMode === "pitch" && (
+        <div className="space-y-6">
+          {/* Banner de Valor Comercial */}
+          <div className="p-6 rounded-3xl bg-gradient-to-r from-[#201f23] via-[#1c1b1f] to-[#2b292e] border border-[#f2be71]/40 shadow-xl relative overflow-hidden">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="space-y-2 max-w-2xl">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f2be71]/20 text-[#f2be71] text-xs font-bold font-mono">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span>EL ARGUMENTARIO COMERCIAL EN 1 MINUTO</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-[#e6e1e7] font-['Epilogue']">
+                  ¿Por qué cualquier restaurante, cafetería o bar necesita este sistema hoy?
+                </h3>
+                <p className="text-xs sm:text-sm text-[#ccc3d8] leading-relaxed">
+                  Los restaurantes sufren 3 grandes dolores: <strong className="text-[#e6e1e7]">1)</strong> Pierden el contacto de sus comensales al pagar la cuenta, <strong className="text-[#e6e1e7]">2)</strong> Tienen mesas vacías de lunes a jueves, y <strong className="text-[#e6e1e7]">3)</strong> Dependen de pagar comisiones del 30% a apps de domicilios o pauta cara en redes. Este sistema resuelve los tres problemas convirtiendo cada mesa en un canal propio de fidelización y ventas.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 w-full md:w-auto shrink-0 text-xs">
+                <div className="p-3.5 rounded-2xl bg-[#141317] border border-[#363439] flex flex-col gap-1">
+                  <span className="text-[10px] uppercase font-bold text-[#f2be71]">Retención</span>
+                  <span className="text-xl font-bold font-['Epilogue'] text-[#e6e1e7]">+38%</span>
+                  <span className="text-[10px] text-[#958da1]">Visitas recurrentes</span>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-[#141317] border border-[#363439] flex flex-col gap-1">
+                  <span className="text-[10px] uppercase font-bold text-[#10b981]">Base Propia</span>
+                  <span className="text-xl font-bold font-['Epilogue'] text-[#e6e1e7]">+500</span>
+                  <span className="text-[10px] text-[#958da1]">WhatsApp/mes</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Timeline de los 10 Pasos con Casos Reales */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base sm:text-lg font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
+                <Target className="w-5 h-5 text-[#f2be71]" />
+                <span>Las 10 Etapas del Viaje del Comensal (De Visitante Casual a Cliente Fiel)</span>
+              </h3>
+              <span className="text-xs text-[#958da1]">Haz clic en cada paso para ver el guión de venta</span>
+            </div>
+
+            <div className="space-y-3">
+              {businessPitchSteps.map((step) => {
+                const isExpanded = expandedPitchStep === step.number;
+                return (
+                  <div
+                    key={step.number}
+                    className={`rounded-2xl border transition-all ${
+                      isExpanded
+                        ? "bg-[#1c1b1f] border-[#f2be71]/60 shadow-xl"
+                        : "bg-[#1c1b1f] border-[#363439] hover:border-[#f2be71]/30"
+                    }`}
+                  >
+                    {/* Fila Encabezado del Paso */}
+                    <button
+                      type="button"
+                      onClick={() => setExpandedPitchStep(isExpanded ? null : step.number)}
+                      className="w-full p-4 sm:p-5 flex items-center justify-between gap-4 text-left cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div
+                          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center font-black text-sm shrink-0 transition-transform ${
+                            isExpanded
+                              ? "bg-[#f2be71] text-[#121115] scale-105 shadow-md"
+                              : "bg-[#201f23] border border-[#363439] text-[#ccc3d8]"
+                          }`}
+                        >
+                          {step.number}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border ${step.badgeColor}`}
+                            >
+                              {step.stageBadge}
+                            </span>
+                          </div>
+                          <h4 className="text-sm sm:text-base font-bold text-[#e6e1e7] truncate font-['Epilogue']">
+                            {step.title}
+                          </h4>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="hidden sm:inline-block text-xs font-semibold text-[#f2be71]">
+                          {isExpanded ? "Ocultar Detalles" : "Ver Pitch & Ejemplo"}
+                        </span>
+                        {isExpanded ? (
+                          <ChevronUp className="w-5 h-5 text-[#f2be71]" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-[#958da1]" />
+                        )}
+                      </div>
+                    </button>
+
+                    {/* Cuerpo Desplegable del Paso */}
+                    {isExpanded && (
+                      <div className="px-4 sm:px-6 pb-6 pt-2 border-t border-[#363439]/70 space-y-4 animate-in fade-in">
+                        {/* 1. El Problema del Restaurante */}
+                        <div className="p-4 rounded-xl bg-[#201f23] border border-red-500/30 space-y-1.5">
+                          <span className="text-[11px] font-mono font-bold uppercase text-red-400 flex items-center gap-1.5">
+                            <span>❌ EL PROBLEMA DEL NEGOCIO HOY:</span>
+                          </span>
+                          <p className="text-xs sm:text-sm text-[#ccc3d8] leading-relaxed">
+                            {step.restaurantProblem}
+                          </p>
+                        </div>
+
+                        {/* 2. Cómo Explicárselo al Dueño (El Pitch) */}
+                        <div className="p-4 rounded-xl bg-[#141317] border border-[#f2be71]/40 space-y-2">
+                          <span className="text-[11px] font-mono font-bold uppercase text-[#f2be71] flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>CÓMO EXPLICÁRSELO AL DUEÑO (EL GUION COMERCIAL):</span>
+                          </span>
+                          <p className="text-xs sm:text-sm text-[#e6e1e7] leading-relaxed italic font-serif">
+                            {step.pitchToOwner}
+                          </p>
+                        </div>
+
+                        {/* 3. Ejemplo Real de la Vida en Mesa & Métrica */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                          <div className="p-4 rounded-xl bg-[#201f23] border border-[#363439] space-y-1.5">
+                            <span className="font-mono text-[10px] font-bold uppercase text-[#ccc3d8] flex items-center gap-1">
+                              <span>🍽️ CASO PRÁCTICO EN SALA:</span>
+                            </span>
+                            <p className="text-[#ccc3d8] leading-relaxed">
+                              {step.realLifeExample}
+                            </p>
+                          </div>
+
+                          <div className="p-4 rounded-xl bg-[#0d2e1f] border border-[#10b981]/40 space-y-1.5">
+                            <span className="font-mono text-[10px] font-bold uppercase text-[#10b981] flex items-center gap-1">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>IMPACTO ECONÓMICO / MÉTRICA:</span>
+                            </span>
+                            <p className="text-emerald-300 font-semibold leading-relaxed">
+                              {step.businessMetric}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Botón para Probar en el Demo */}
+                        <div className="pt-2 flex items-center justify-between flex-wrap gap-2">
+                          <span className="text-[11px] text-[#958da1]">
+                            Puedes mostrar esta pantalla en vivo durante tu reunión con el cliente.
+                          </span>
+                          <a
+                            href={step.demoRoute}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-2 rounded-xl btn-gold text-xs font-bold text-[#121115] hover:brightness-105 active:scale-95 transition-all flex items-center gap-1.5 shadow-md"
+                          >
+                            <span>{step.demoLabel}</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* VISTA 2: BASE DE PREGUNTAS FRECUENTES TÉCNICAS & OPERATIVAS */}
+      {/* ======================================================== */}
+      {activeMode === "faq" && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-[#958da1]">
+              Consultas sobre arquitectura, base de datos, seguridad y configuración de canales.
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={expandAll}
+                className="py-1.5 px-3 rounded-lg bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-white border border-[#363439] text-xs font-bold transition-all cursor-pointer"
+              >
+                Expandir Todas
+              </button>
+              <button
+                type="button"
+                onClick={collapseAll}
+                className="py-1.5 px-3 rounded-lg bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-white border border-[#363439] text-xs font-bold transition-all cursor-pointer"
+              >
+                Colapsar Todas
+              </button>
+            </div>
+          </div>
 
       {/* 2. BARRA DE BÚSQUEDA Y FILTRO POR ROL */}
       <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-4 space-y-3">
@@ -489,6 +884,8 @@ export function Faq() {
           })
         )}
       </div>
+    </div>
+  )}
 
       {/* 4. FOOTER INFORMATIVO PARA SOPORTE */}
       <div className="bg-gradient-to-r from-[#1c1b1f] via-[#201f23] to-[#1c1b1f] border border-[#363439] rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
