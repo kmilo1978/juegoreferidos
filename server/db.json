@@ -149,6 +149,107 @@
   ],
   "logs": [
     {
+      "id": "muszbb5prst",
+      "timestamp": "5:44:07 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszbb53oe4",
+      "timestamp": "5:44:07 p. m.",
+      "method": "GET",
+      "url": "/api/stamps/573001234567",
+      "status": 200,
+      "detail": "Consulta de sellos para +573001234567: 3/15"
+    },
+    {
+      "id": "muszb9knge8",
+      "timestamp": "5:44:05 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszb9j8mzr",
+      "timestamp": "5:44:05 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszb8fqdnp",
+      "timestamp": "5:44:03 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszb8f3lsf",
+      "timestamp": "5:44:03 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszb76ultj",
+      "timestamp": "5:44:02 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszb75xpw6",
+      "timestamp": "5:44:02 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszb5h3pab",
+      "timestamp": "5:43:59 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszb5gqre3",
+      "timestamp": "5:43:59 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszb2qf0a3",
+      "timestamp": "5:43:56 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszb2po1ur",
+      "timestamp": "5:43:56 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszaz4xq1m",
+      "timestamp": "5:43:51 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszaz2ygvp",
+      "timestamp": "5:43:51 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszawmme3n",
+      "timestamp": "5:43:48 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "muszawmgcdo",
+      "timestamp": "5:43:48 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "musywn1yk5m",
+      "timestamp": "5:32:42 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "musywmwqeho",
+      "timestamp": "5:32:42 p. m.",
+      "method": "Lectura de mesa 1 vía QR (Android)"
+    },
+    {
+      "id": "musywmn5dxu",
+      "timestamp": "5:32:42 p. m.",
+      "method": "POST",
+      "url": "/api/tables",
+      "status": 200,
+      "detail": "Mesas actualizadas en tiempo real"
+    },
+    {
       "id": "murgdl8b68z",
       "timestamp": "4:06:14 p. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
@@ -313,110 +414,6 @@
     {
       "id": "mur8o64wrbr",
       "timestamp": "12:30:31 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8nty71ni",
-      "timestamp": "12:30:15 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8ntxhvl7",
-      "timestamp": "12:30:15 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8nm2u5ne",
-      "timestamp": "12:30:05 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8nm1mg4c",
-      "timestamp": "12:30:05 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8jeyba2m",
-      "timestamp": "12:26:49 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8jew7z6v",
-      "timestamp": "12:26:49 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8jajyrak",
-      "timestamp": "12:26:44 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8jaifw3o",
-      "timestamp": "12:26:43 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8j5xzt40",
-      "timestamp": "12:26:38 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8j5wa4zg",
-      "timestamp": "12:26:37 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8j5ss63l",
-      "timestamp": "12:26:37 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mur8io51d83",
-      "timestamp": "12:26:14 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8io4vc6u",
-      "timestamp": "12:26:14 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8inuf96y",
-      "timestamp": "12:26:14 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mur8gnqmcng",
-      "timestamp": "12:24:41 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8gnpfzno",
-      "timestamp": "12:24:41 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8gnoedpk",
-      "timestamp": "12:24:41 p. m.",
-      "method": "POST",
-      "url": "/api/tables",
-      "status": 200,
-      "detail": "Mesas actualizadas en tiempo real"
-    },
-    {
-      "id": "mur8e0hj0l3",
-      "timestamp": "12:22:37 p. m.",
-      "method": "Lectura de mesa 1 vía QR (Android)"
-    },
-    {
-      "id": "mur8e0cnibn",
-      "timestamp": "12:22:37 p. m.",
       "method": "Lectura de mesa 1 vía QR (Android)"
     }
   ],
@@ -1187,8 +1184,134 @@
     "baseDomain": "http://localhost:5173",
     "stats": {
       "nfcScans": 28,
-      "qrScans": 180,
+      "qrScans": 198,
       "lastScans": [
+        {
+          "id": "scan_1791067447367",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:44 p. m."
+        },
+        {
+          "id": "scan_1791067447352",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:44 p. m."
+        },
+        {
+          "id": "scan_1791067445282",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:44 p. m."
+        },
+        {
+          "id": "scan_1791067445249",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:44 p. m."
+        },
+        {
+          "id": "scan_1791067443814",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:44 p. m."
+        },
+        {
+          "id": "scan_1791067443803",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:44 p. m."
+        },
+        {
+          "id": "scan_1791067442184",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:44 p. m."
+        },
+        {
+          "id": "scan_1791067442179",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:44 p. m."
+        },
+        {
+          "id": "scan_1791067439980",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:43 p. m."
+        },
+        {
+          "id": "scan_1791067439976",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:43 p. m."
+        },
+        {
+          "id": "scan_1791067436437",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:43 p. m."
+        },
+        {
+          "id": "scan_1791067436411",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:43 p. m."
+        },
+        {
+          "id": "scan_1791067431771",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:43 p. m."
+        },
+        {
+          "id": "scan_1791067431685",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:43 p. m."
+        },
+        {
+          "id": "scan_1791067428525",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:43 p. m."
+        },
+        {
+          "id": "scan_1791067428518",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:43 p. m."
+        },
+        {
+          "id": "scan_1791066762762",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:32 p. m."
+        },
+        {
+          "id": "scan_1791066762575",
+          "mesa": 1,
+          "origen": "qr",
+          "device": "Android",
+          "timestamp": "05:32 p. m."
+        },
         {
           "id": "scan_1790975175011",
           "mesa": 1,
@@ -1202,132 +1325,6 @@
           "origen": "qr",
           "device": "Android",
           "timestamp": "04:06 p. m."
-        },
-        {
-          "id": "scan_1790972134543",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "03:15 p. m."
-        },
-        {
-          "id": "scan_1790972134535",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "03:15 p. m."
-        },
-        {
-          "id": "scan_1790972133259",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "03:15 p. m."
-        },
-        {
-          "id": "scan_1790972133248",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "03:15 p. m."
-        },
-        {
-          "id": "scan_1790970569959",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "02:49 p. m."
-        },
-        {
-          "id": "scan_1790970569951",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "02:49 p. m."
-        },
-        {
-          "id": "scan_1790970456376",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "02:47 p. m."
-        },
-        {
-          "id": "scan_1790970454693",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "02:47 p. m."
-        },
-        {
-          "id": "scan_1790970445288",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "02:47 p. m."
-        },
-        {
-          "id": "scan_1790970444706",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "02:47 p. m."
-        },
-        {
-          "id": "scan_1790970288734",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "02:44 p. m."
-        },
-        {
-          "id": "scan_1790970288687",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "02:44 p. m."
-        },
-        {
-          "id": "scan_1790969598595",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "02:33 p. m."
-        },
-        {
-          "id": "scan_1790969598204",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "02:33 p. m."
-        },
-        {
-          "id": "scan_1790964887474",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "01:14 p. m."
-        },
-        {
-          "id": "scan_1790964886645",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "01:14 p. m."
-        },
-        {
-          "id": "scan_1790964832529",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "01:13 p. m."
-        },
-        {
-          "id": "scan_1790964832446",
-          "mesa": 1,
-          "origen": "qr",
-          "device": "Android",
-          "timestamp": "01:13 p. m."
         }
       ]
     }

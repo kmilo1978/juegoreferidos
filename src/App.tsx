@@ -112,6 +112,15 @@ function JuegoQrPage() {
       if (params.get("reset") === "1") {
         return 1;
       }
+
+      // ⚡ RECONOCIMIENTO INTELIGENTE: Si viene por NFC de mesa o es cliente recurrente registrado
+      const isNfcStampRequest = params.get("modo") === "sello_nfc" || params.get("modo") === "sello" || params.get("nfc") === "1";
+      const hasRegisteredCustomer = Boolean(localStorage.getItem("juegoreferidos_registered_participant"));
+
+      if (isNfcStampRequest || (hasRegisteredCustomer && !params.get("paso"))) {
+        return 7; // Directo al Pasaporte de Sellos VIP
+      }
+
       try {
         const savedStep = sessionStorage.getItem("juego_current_step");
         if (savedStep) {
@@ -130,6 +139,8 @@ function JuegoQrPage() {
       try {
         const saved = sessionStorage.getItem("juego_participant");
         if (saved) return JSON.parse(saved);
+        const registered = localStorage.getItem("juegoreferidos_registered_participant");
+        if (registered) return JSON.parse(registered);
         const p = new URLSearchParams(window.location.search);
         if (p.get("demo") === "true") {
           return { fullName: "Laura Gómez (Comensal Demo)", whatsapp: "573001234567" };
@@ -487,6 +498,11 @@ function JuegoQrPage() {
     }
 
     setParticipant(data);
+    try {
+      localStorage.setItem("juegoreferidos_registered_participant", JSON.stringify(data));
+    } catch {
+      // ignore
+    }
     // Verificar si el paso 2 (Redes / Foto) está activo en el checklist
     if (isStepActive("step_social")) {
       setCurrentStep(2);
@@ -917,6 +933,16 @@ function JuegoQrPage() {
                     setCurrentStep(6);
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
+                  onPlayMiniGame={() => {
+                    setCurrentStep(3);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  isNfcScan={
+                    typeof window !== "undefined" &&
+                    (new URLSearchParams(window.location.search).get("modo") === "sello_nfc" ||
+                      new URLSearchParams(window.location.search).get("nfc") === "1" ||
+                      new URLSearchParams(window.location.search).get("origen") === "nfc")
+                  }
                 />
               </div>
             )}

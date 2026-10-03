@@ -335,34 +335,134 @@ export function AdminConfig() {
         </div>
       )}
 
-      {/* BARRA DE PESTAÑAS DEL SISTEMA MODULAR */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-[#363439] pb-3">
-        {[
-          { id: "brand", label: "Marca & Ruleta", icon: Sparkles },
-          { id: "modules", label: "16 Módulos ON/OFF", icon: LayoutGrid },
-          { id: "colors", label: "Colores & Estados", icon: Palette },
-          { id: "typography", label: "Tipografía & Escala", icon: Type },
-          { id: "geometry", label: "Radios & Sombras", icon: SlidersHorizontal },
-          { id: "validation", label: "Auditoría & Reset", icon: ShieldCheck },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTopTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTopTab(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                isActive
-                  ? "bg-[#f2be71] text-[#121115] shadow-lg shadow-[#f2be71]/20 font-bold"
-                  : "bg-[#1c1b1f] text-[#ccc3d8] hover:text-[#e6e1e7] hover:bg-[#252429] border border-[#363439]"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
+      {/* BARRA DE PESTAÑAS DEL SISTEMA MODULAR ORGANIZADA EN 3 PILARES */}
+      <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-3 shadow-md space-y-3">
+        {/* Nivel 1: Selector de Categoría Maestra */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-[#363439]/70 pb-3">
+          {[
+            {
+              id: "design",
+              label: "🎨 Identidad Visual & Diseño",
+              badge: "Marca, Colores & Fuentes",
+              tabs: ["brand", "colors", "typography", "geometry"],
+              defaultTab: "brand",
+            },
+            {
+              id: "modules_group",
+              label: "🧩 Módulos del Sistema",
+              badge: "16 Interruptores ON/OFF",
+              tabs: ["modules"],
+              defaultTab: "modules",
+            },
+            {
+              id: "quality",
+              label: "🛡️ Calidad & Respaldo",
+              badge: "Auditoría & Reset",
+              tabs: ["validation"],
+              defaultTab: "validation",
+            },
+          ].map((cat) => {
+            const isCatActive = cat.tabs.includes(activeTopTab);
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => {
+                  if (!isCatActive) setActiveTopTab(cat.defaultTab as any);
+                }}
+                className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                  isCatActive
+                    ? "bg-[#f2be71] text-[#121115] shadow-lg shadow-[#f2be71]/20 font-black"
+                    : "bg-[#201f23] text-[#ccc3d8] hover:text-[#e6e1e7] hover:bg-[#2b292e] border border-[#363439]"
+                }`}
+              >
+                <span>{cat.label}</span>
+                <span
+                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                    isCatActive
+                      ? "bg-[#121115]/20 text-[#121115] font-black"
+                      : "bg-[#141317] text-[#f2be71]"
+                  }`}
+                >
+                  {cat.badge}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Nivel 2: Subpestañas contextuales */}
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          {["brand", "colors", "typography", "geometry"].includes(activeTopTab) && (
+            <>
+              <button
+                type="button"
+                onClick={() => setActiveTopTab("brand")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeTopTab === "brand"
+                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Marca, Logo & Ruleta</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTopTab("colors")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeTopTab === "colors"
+                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
+                }`}
+              >
+                <Palette className="w-3.5 h-3.5" />
+                <span>Colores, Botones & Fondos</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTopTab("typography")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeTopTab === "typography"
+                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
+                }`}
+              >
+                <Type className="w-3.5 h-3.5" />
+                <span>Tipografía & Google Fonts</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTopTab("geometry")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeTopTab === "geometry"
+                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
+                }`}
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                <span>Bordes, Radios & Sombras</span>
+              </button>
+            </>
+          )}
+
+          {activeTopTab === "modules" && (
+            <div className="text-xs text-[#ccc3d8] flex items-center gap-2 px-1">
+              <LayoutGrid className="w-3.5 h-3.5 text-[#f2be71]" />
+              <span>Activa o desactiva de forma modular cualquiera de los 16 módulos del sistema sin alterar la base de datos.</span>
+            </div>
+          )}
+
+          {activeTopTab === "validation" && (
+            <div className="text-xs text-[#ccc3d8] flex items-center gap-2 px-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#10b981]" />
+              <span>Diagnóstico en tiempo real de contraste, coherencia visual y opción de restablecer valores de fábrica.</span>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

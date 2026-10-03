@@ -198,6 +198,73 @@ export function Faq() {
       relatedRoute: "/databases",
       relatedRouteLabel: "Gestión de Copias & Sincronización",
     },
+    {
+      id: "faq-11",
+      category: "integrations",
+      targetRole: "both",
+      question: "¿Cómo funciona el Geofencing y la segmentación por ubicación en el sistema?",
+      answer: [
+        "El módulo de Notificaciones Push incorpora una suite de Geofencing con 3 modalidades claramente diferenciadas para ajustarse a cada caso de negocio:",
+        "1. Opción 1: Geofencing por Radio Web (Latitud, Longitud y Radio en metros/km). Segmenta a los suscriptores web que se encuentren dentro de la zona geográfica configurada (ej: 500m a la redonda de la sede).",
+        "2. Opción 2: Geofencing Real-Time Mobile con @capacitor-community/onesignal-location. Para aplicaciones móviles empaquetadas (Android / iOS), activa el monitoreo de cercanía en segundo plano y dispara alertas automáticas cuando el comensal entra o sale del polígono del restaurante.",
+        "3. Opción 3: Geofencing por Presencia Física (WiFi Cautivo + NFC/QR en Mesas). Identifica con 100% de certeza que el cliente está físicamente sentado en el salón consumiendo, sin depender del GPS satelital.",
+      ],
+      relatedRoute: "/push",
+      relatedRouteLabel: "Ver Panel de Geofencing & Push",
+    },
+    {
+      id: "faq-12",
+      category: "integrations",
+      targetRole: "both",
+      question: "¿Cuál es la diferencia entre Google Geofence y OneSignal? ¿Es necesario configurarlo por separado?",
+      answer: [
+        "NO es necesario configurar Google Geofencing por separado. OneSignal ya consume e implementa internamente la API de Google Geofencing en dispositivos Android.",
+        "Google Geofencing API es el servicio de bajo nivel de Google Play Services que optimiza el consumo de batería al monitorear perímetros geográficos.",
+        "OneSignal abstrae toda esa complejidad: al definir tu radio y coordenadas en el panel de control o mediante el plugin de Capacitor, OneSignal se encarga de registrar el perímetro en Google Play Services (en Android) y en CoreLocation (en iOS), entregando la notificación en el momento exacto.",
+      ],
+      relatedRoute: "/push",
+      relatedRouteLabel: "Configuración de Geofencing",
+    },
+    {
+      id: "faq-13",
+      category: "integrations",
+      targetRole: "both",
+      question: "¿Qué son los Beacons Bluetooth y por qué nuestro sistema NO los necesita?",
+      answer: [
+        "Los Beacons son pequeños transmisores de hardware Bluetooth (BLE) que funcionan con pilas o baterías y emiten una señal constante de proximidad a pocos metros.",
+        "Desventajas de los Beacons tradicionales: Requieren inversión en hardware físico costoso, cambio frecuente de pilas, fallan por interferencias electromagnéticas y obligan al usuario a tener Bluetooth encendido y otorgar permisos invasivos.",
+        "Por qué nuestro sistema es superior: Sustituimos los Beacons mediante calcomanías NFC pasivas colocadas en cada mesa (cuestan centavos, no usan baterías y duran años) junto con el portal de bienvenida WiFi y el Geofencing de OneSignal. El cliente obtiene una experiencia más rápida, fluida y sin costo de mantenimiento de hardware.",
+      ],
+      relatedRoute: "/nfc",
+      relatedRouteLabel: "Ver Asistente NFC en Mesas",
+    },
+    {
+      id: "faq-14",
+      category: "modules",
+      targetRole: "both",
+      question: "¿Cómo funciona la experiencia One-Tap Stamp (Visita 1 vs Visita 2 en adelante)?",
+      answer: [
+        "El sistema implementa un flujo inteligente de 2 vías para eliminar la fricción en clientes frecuentes:",
+        "• Visita 1 (Cliente Nuevo): Al escanear el QR o acercar el móvil al chip NFC por primera vez, realiza el embudo completo: Registro de Nombre y WhatsApp -> Foto o seguimiento en redes -> Minijuego de la Casa -> Cupón de bienvenida -> Primer sello en el pasaporte -> Reseña en Google.",
+        "• Visita 2 en adelante (Cliente Recurrente): El sistema reconoce automáticamente el dispositivo del cliente. Al acercar el móvil al chip NFC o escanear el QR de la mesa, salta de inmediato al Paso 7 (Pasaporte de Fidelización VIP), muestra un banner personalizado ('¡Qué alegría verte de nuevo, {nombre}!') y le añade +1 Sello automáticamente.",
+        "• Juego Opcional: Si el cliente recurrente desea probar suerte ese día, dispone de un botón directo 'Jugar Minijuego de la Casa' para acceder a la Ruleta, Memoria o Raspa.",
+      ],
+      relatedRoute: "/nfc",
+      relatedRouteLabel: "Asistente NFC & Sellos",
+    },
+    {
+      id: "faq-15",
+      category: "security",
+      targetRole: "both",
+      question: "¿Cómo se previenen los fraudes y los sellos duplicados en el One-Tap Stamp?",
+      answer: [
+        "1. Regla de 1 Sello por Día / por Cliente: El sistema guarda la fecha del último estampado tanto en el dispositivo como en los registros del servidor. Si el cliente vuelve a escanear en la misma jornada, se le muestra su saldo actual sin sumar sellos duplicados.",
+        "2. Identificación por WhatsApp: Toda la acumulación queda vinculada al número telefónico validado del cliente.",
+        "3. Validación de Premios por PIN del Personal: Aunque el cliente acumule sellos en su teléfono, el canje físico de los premios mayores (sellos 5, 10 o 15) requiere obligatoriamente que el mesero o cajero introduzca su PIN de 4 dígitos en el modal de verificación.",
+      ],
+      relatedRoute: "/security",
+      relatedRouteLabel: "Control de Seguridad & PINs",
+    },
   ];
 
   const filteredFaqs = useMemo(() => {

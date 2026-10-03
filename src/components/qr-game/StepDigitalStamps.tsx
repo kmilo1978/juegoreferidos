@@ -24,6 +24,8 @@ interface StepDigitalStampsProps {
   customerWhatsapp?: string | undefined;
   onProceedToMissions: () => void;
   onBackToSecondChance?: () => void;
+  onPlayMiniGame?: () => void;
+  isNfcScan?: boolean;
 }
 
 export function StepDigitalStamps({
@@ -31,6 +33,8 @@ export function StepDigitalStamps({
   customerWhatsapp = "",
   onProceedToMissions,
   onBackToSecondChance,
+  onPlayMiniGame,
+  isNfcScan = false,
 }: StepDigitalStampsProps) {
   const { t } = useLanguage();
   const cleanPhone = (customerWhatsapp || "").replace(/\D/g, "");
@@ -40,6 +44,8 @@ export function StepDigitalStamps({
   const [selectedReward, setSelectedReward] = useState<StampReward | null>(null);
   const [showAllCatalog, setShowAllCatalog] = useState(false);
   const [isWalletOpen, setIsWalletOpen] = useState(false);
+  const [justStamped, setJustStamped] = useState(false);
+  const [isReturning, setIsReturning] = useState(false);
   const isHappyHourActive = StampService.isHappyHour();
 
   const totalRequired = StampService.getTotalRequired();
@@ -66,6 +72,32 @@ export function StepDigitalStamps({
     setStampCard(card);
   }, [cleanPhone]);
 
+  // ⚡ LÓGICA DE RECONOCIMIENTO & SELLADO AUTOMÁTICO ONE-TAP (NFC / QR RECURRENTE)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const today = new Date().toLocaleDateString("es-CO");
+    const stampKey = `juegoreferidos_last_stamp_date_${cleanPhone || "client"}`;
+    const lastStamped = localStorage.getItem(stampKey);
+
+    const hasStoredCustomer = Boolean(localStorage.getItem("juegoreferidos_registered_participant"));
+    const isCustomerReturning = hasStoredCustomer || isNfcScan || Boolean(customerWhatsapp && cleanPhone.length > 6);
+    setIsReturning(isCustomerReturning);
+
+    // Si es cliente recurrente o llegó por NFC en mesa y no ha sellado hoy:
+    if (isCustomerReturning && lastStamped !== today) {
+      try {
+        const updated = StampService.addStamp(cleanPhone);
+        setStampCard(updated);
+        localStorage.setItem(stampKey, today);
+        setJustStamped(true);
+        const timer = setTimeout(() => setJustStamped(false), 9000);
+        return () => clearTimeout(timer);
+      } catch {
+        // ignore
+      }
+    }
+  }, [cleanPhone, isNfcScan]);
+
   return (
     <div className="w-full max-w-lg mx-auto flex flex-col gap-5 text-left">
       {/* 1. ENCABEZADO DE LA ETAPA 7: PASAPORTE DE SELLOS VIP */}
@@ -78,6 +110,32 @@ export function StepDigitalStamps({
               {t("Paso 7 de 8 · Pasaporte de Fidelización VIP", "Step 7 of 8 · VIP Loyalty Passport")}
             </span>
           </div>
+
+          {/* Banner de Reconocimiento y Sellado One-Tap */}
+          {isReturning && (
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#2b292e] via-[#1c1b1f] to-[#201f23] border border-[#f2be71]/50 text-xs flex flex-col gap-1.5 shadow-md">
+              <div className="flex items-center justify-between">
+                <span className="text-[#f2be71] font-bold text-xs flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  {t(`¡Qué alegría verte de nuevo, ${customerName}!`, `Great to see you again, ${customerName}!`)}
+                </span>
+                {justStamped ? (
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 font-bold text-[10px] animate-pulse">
+                    ✨ +1 Sello Registrado Hoy
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded-full bg-[#141317] border border-[#363439] text-[#ccc3d8] text-[10px]">
+                    Visita de hoy al día
+                  </span>
+                )}
+              </div>
+              <p className="text-[#ccc3d8] text-[11px]">
+                {justStamped
+                  ? t("Tu visita en mesa se estampó automáticamente en tu tarjeta digital.", "Your dining visit has been stamped onto your digital card.")
+                  : t("Tus visitas acumuladas se mantienen guardadas en este dispositivo.", "Your accumulated dining stamps remain active on this device.")}
+              </p>
+            </div>
+          )}
 
           <h2 className="font-headline-xl-mobile text-2xl sm:text-3xl text-[#e6e1e7] tracking-tight mt-1">
             {t("Tu Tarjeta de", "Your Digital")}{" "}
@@ -107,6 +165,30 @@ export function StepDigitalStamps({
               <span>
                 {t("Horas Felices (3 PM a 6 PM): Cada visita en la tarde te otorga Doble Sello (x2)", "Happy Hours (3 PM to 6 PM): Afternoon visits earn Double Stamps (x2)")}
               </span>
+            </div>
+          )}
+
+          {/* CTA Opción de jugar minijuego hoy */}
+          {onPlayMiniGame && (
+            <div className="mt-1 p-3 rounded-2xl bg-[#0f0e12] border border-[#f2be71]/30 flex items-center justify-between gap-3 shadow-sm">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xl">🎰</span>
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-[#e6e1e7]">
+                    {t("¿Quieres probar suerte hoy?", "Want to play today?")}
+                  </span>
+                  <span className="text-[10px] text-[#ccc3d8]">
+                    {t("Juega Ruleta, Raspa o Reto de la Casa", "Play Roulette, Scratch or precision game")}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={onPlayMiniGame}
+                className="px-3 py-1.5 rounded-xl btn-gold text-xs font-bold text-[#121115] hover:brightness-105 active:scale-95 transition-all cursor-pointer shrink-0 shadow-sm"
+              >
+                {t("Jugar Minijuego", "Play Game")}
+              </button>
             </div>
           )}
         </div>

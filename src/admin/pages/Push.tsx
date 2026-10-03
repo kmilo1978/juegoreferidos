@@ -623,111 +623,181 @@ export function Push() {
         </div>
       </div>
 
-      {/* Pestañas de Navegación */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-[#363439] pb-2">
-        <button
-          type="button"
-          onClick={() => setActiveTab("history")}
-          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-            activeTab === "history"
-              ? "bg-[#2b292e] text-[#f2be71] border-b-2 border-[#f2be71]"
-              : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
-          }`}
-        >
-          <BarChart3 className="w-4 h-4" />
-          <span>Historial & Aperturas ({campaigns.length})</span>
-        </button>
+      {/* NAVEGACIÓN MODULAR EN 3 SUBCATEGORÍAS PRINCIPALES */}
+      <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-3 shadow-md space-y-3">
+        {/* Nivel 1: Selector de Categoría Principal */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-[#363439]/70 pb-3">
+          {[
+            {
+              id: "campaigns",
+              label: "📢 Campañas & Envíos",
+              badge: `${campaigns.length} avisos`,
+              tabs: ["history", "broadcast", "calendar", "drafts"],
+              defaultTab: "history",
+            },
+            {
+              id: "automation",
+              label: "📍 Automatización & Geofencing",
+              badge: "3 Opciones GPS",
+              tabs: ["geofencing", "flows"],
+              defaultTab: "geofencing",
+            },
+            {
+              id: "audience",
+              label: "👥 Audiencia & Configuración",
+              badge: `${activeSubscribersCount} activos`,
+              tabs: ["subscribers", "credentials"],
+              defaultTab: "subscribers",
+            },
+          ].map((cat) => {
+            const isCategoryActive = cat.tabs.includes(activeTab);
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => {
+                  if (!isCategoryActive) setActiveTab(cat.defaultTab as any);
+                }}
+                className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                  isCategoryActive
+                    ? "bg-[#f2be71] text-[#121115] shadow-lg shadow-[#f2be71]/20 font-black"
+                    : "bg-[#201f23] text-[#ccc3d8] hover:text-[#e6e1e7] hover:bg-[#2b292e] border border-[#363439]"
+                }`}
+              >
+                <span>{cat.label}</span>
+                <span
+                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                    isCategoryActive
+                      ? "bg-[#121115]/20 text-[#121115] font-black"
+                      : "bg-[#141317] text-[#f2be71]"
+                  }`}
+                >
+                  {cat.badge}
+                </span>
+              </button>
+            );
+          })}
+        </div>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("broadcast")}
-          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-            activeTab === "broadcast"
-              ? "bg-[#2b292e] text-[#f2be71] border-b-2 border-[#f2be71]"
-              : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
-          }`}
-        >
-          <Send className="w-4 h-4" />
-          <span>Nueva Campaña / Redactar</span>
-        </button>
+        {/* Nivel 2: Subpestañas contextuales de la categoría activa */}
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          {(["history", "broadcast", "calendar", "drafts"].includes(activeTab) ||
+            (!["geofencing", "flows", "subscribers", "credentials"].includes(activeTab))) && (
+            <>
+              <button
+                type="button"
+                onClick={() => setActiveTab("history")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeTab === "history"
+                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
+                }`}
+              >
+                <BarChart3 className="w-3.5 h-3.5" />
+                <span>Historial & Aperturas ({campaigns.length})</span>
+              </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("calendar")}
-          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-            activeTab === "calendar"
-              ? "bg-[#2b292e] text-[#f2be71] border-b-2 border-[#f2be71]"
-              : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
-          }`}
-        >
-          <Calendar className="w-4 h-4" />
-          <span>Horarios & Calendario</span>
-        </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("broadcast")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeTab === "broadcast"
+                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
+                }`}
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>Redactar Notificación</span>
+              </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("subscribers")}
-          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-            activeTab === "subscribers"
-              ? "bg-[#2b292e] text-[#f2be71] border-b-2 border-[#f2be71]"
-              : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
-          }`}
-        >
-          <Users className="w-4 h-4" />
-          <span>Suscriptores & Bajas ({activeSubscribersCount}/{unsubscribedCount})</span>
-        </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("calendar")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeTab === "calendar"
+                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Calendario de Horarios</span>
+              </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("flows")}
-          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-            activeTab === "flows"
-              ? "bg-[#2b292e] text-[#f2be71] border-b-2 border-[#f2be71]"
-              : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
-          }`}
-        >
-          <Zap className="w-4 h-4" />
-          <span>Flujos Automáticos</span>
-        </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("drafts")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeTab === "drafts"
+                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>Plantillas Guardadas ({drafts.length})</span>
+              </button>
+            </>
+          )}
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("drafts")}
-          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-            activeTab === "drafts"
-              ? "bg-[#2b292e] text-[#f2be71] border-b-2 border-[#f2be71]"
-              : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
-          }`}
-        >
-          <Layers className="w-4 h-4" />
-          <span>Plantillas ({drafts.length})</span>
-        </button>
+          {["geofencing", "flows"].includes(activeTab) && (
+            <>
+              <button
+                type="button"
+                onClick={() => setActiveTab("geofencing")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeTab === "geofencing"
+                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
+                }`}
+              >
+                <Navigation className="w-3.5 h-3.5 text-[#f2be71]" />
+                <span>📍 Geofencing & Geolocalización (3 Opciones)</span>
+              </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("credentials")}
-          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-            activeTab === "credentials"
-              ? "bg-[#2b292e] text-[#f2be71] border-b-2 border-[#f2be71]"
-              : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
-          }`}
-        >
-          <Key className="w-4 h-4" />
-          <span>OneSignal</span>
-        </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("flows")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeTab === "flows"
+                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
+                }`}
+              >
+                <Zap className="w-3.5 h-3.5" />
+                <span>Flujos Automáticos de Bienvenida</span>
+              </button>
+            </>
+          )}
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("geofencing")}
-          className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-            activeTab === "geofencing"
-              ? "bg-[#2b292e] text-[#f2be71] border-b-2 border-[#f2be71]"
-              : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
-          }`}
-        >
-          <Navigation className="w-4 h-4 text-[#f2be71]" />
-          <span>📍 Geofencing & Geolocalización</span>
-        </button>
+          {["subscribers", "credentials"].includes(activeTab) && (
+            <>
+              <button
+                type="button"
+                onClick={() => setActiveTab("subscribers")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeTab === "subscribers"
+                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
+                }`}
+              >
+                <Users className="w-3.5 h-3.5" />
+                <span>Lista de Suscriptores & Bajas ({activeSubscribersCount}/{unsubscribedCount})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("credentials")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeTab === "credentials"
+                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
+                }`}
+              >
+                <Key className="w-3.5 h-3.5" />
+                <span>Credenciales & API OneSignal</span>
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* 1. PESTAÑA PRINCIPAL: HISTORIAL DETALLADO DE ENVÍOS & APERTURAS */}

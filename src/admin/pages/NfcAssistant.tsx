@@ -492,6 +492,69 @@ export function NfcAssistant() {
                 </div>
               </div>
             </div>
+
+            {/* Estrategia One-Tap Stamp (Visita 1 vs Visita Recurrente) */}
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-[#201f23] via-[#1c1b1f] to-[#2b292e] border border-[#f2be71]/40 space-y-4">
+              <div className="flex items-center justify-between border-b border-[#363439] pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-[#f2be71]/20 border border-[#f2be71]/50 text-[#f2be71] flex items-center justify-center font-bold">
+                    ⚡
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-[#e6e1e7]">
+                      Estrategia "One-Tap Stamp": Reconocimiento Cero-Fricción
+                    </h4>
+                    <p className="text-[11px] text-[#ccc3d8]">
+                      Cómo el chip NFC convierte a clientes casuales en comensales fieles sin formularios repetitivos.
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full bg-[#684400]/40 text-[#f2be71] border border-[#f2be71]/40 text-[10px] font-mono font-bold">
+                  MODO ONE-TAP
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div className="p-4 rounded-xl bg-[#141317] border border-[#363439] space-y-2">
+                  <span className="font-mono text-[10px] uppercase font-bold text-[#f2be71] block">
+                    Primera Visita · Cliente Nuevo
+                  </span>
+                  <p className="text-[#ccc3d8] leading-relaxed">
+                    Al acercar su teléfono por primera vez, el sistema despliega el <strong>embudo de captación</strong>:
+                  </p>
+                  <ul className="space-y-1 text-[#ccc3d8]/90 pl-3 list-disc">
+                    <li>Pide Nombre y WhatsApp (para CRM).</li>
+                    <li>Invita a seguir en redes o compartir foto.</li>
+                    <li>Dispara el Minijuego interactivo y entrega su cupón.</li>
+                    <li>Activa su Pasaporte de Sellos con la visita #1.</li>
+                  </ul>
+                </div>
+
+                <div className="p-4 rounded-xl bg-[#141317] border border-[#10b981]/40 space-y-2">
+                  <span className="font-mono text-[10px] uppercase font-bold text-[#10b981] block">
+                    Segunda Visita en Adelante · Cliente Frecuente
+                  </span>
+                  <p className="text-[#ccc3d8] leading-relaxed">
+                    El teléfono recuerda la identidad del comensal. Al acercar el móvil al chip NFC:
+                  </p>
+                  <ul className="space-y-1 text-[#ccc3d8]/90 pl-3 list-disc">
+                    <li>Salta automáticamente directo al <strong>Paso 7 (Sellos VIP)</strong>.</li>
+                    <li>Suma <strong>+1 Sello en el acto</strong> sin pedir formularios.</li>
+                    <li>Muestra saludo cariñoso: <em>"¡Qué alegría verte de nuevo, Laura!"</em>.</li>
+                    <li>Ofrece un botón opcional para jugar minijuegos si lo desea.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-[#0f0e12] border border-[#363439] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+                <span className="text-[#ccc3d8]">
+                  💡 <strong>URL recomendada grabada en chip:</strong> <code className="text-[#f2be71] font-mono bg-[#1c1b1f] px-2 py-0.5 rounded">https://tudominio.com/?mesa=1&origen=nfc&modo=sello_nfc</code>
+                </span>
+                <span className="text-[#10b981] text-[11px] font-bold">
+                  ✓ Sello automático activo
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       )}
