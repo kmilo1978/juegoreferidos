@@ -422,15 +422,76 @@ export function handleLoyalty(req, res, pathname, url) {
   }
 
   // 4. API: CONSULTAR SELLOS (GET /api/stamps/:whatsapp)
-  if (req.method === "GET" && pathname.startsWith("/api/stamps/")) {
+  if (req.method === "GET" && pathname.startsWith("/api/stamps/") && !pathname.endsWith("/add")) {
     const whatsapp = pathname.replace("/api/stamps/", "").replace(/\D/g, "");
     const customer = db.customers[whatsapp];
-    const stamps = customer ? customer.stamps : 1;
+    const stamps = customer ? customer.stamps : 0;
 
     logRequest("GET", pathname, 200, `Consulta de sellos para +${whatsapp}: ${stamps}/15`);
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ whatsapp, stamps, totalRequired: 15 }));
+    res.end(JSON.stringify({
+      whatsapp,
+      stamps,
+      totalRequired: 15,
+      lastStampDate: customer?.lastStampDate || null,
+    }));
       return true;
+  }
+
+  // 4.1 API: SELLADO ONE-TAP (POST /api/stamps/add)
+  // Fuente de verdad del sellado por visita. Aplica anti-duplicado diario en el
+  // SERVIDOR (no solo en el navegador): un mismo cliente no suma más de un sello
+  // por día natural. Devuelve el total real para que el frontend lo refleje.
+  if (req.method === "POST" && pathname === "/api/stamps/add") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const data = JSON.parse(body || "{}");
+        const whatsapp = (data.whatsapp || "").replace(/\D/g, "");
+        if (!whatsapp || whatsapp.length < 7) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: false, error: "WhatsApp inválido" }));
+          return;
+        }
+
+        const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+        if (!db.customers[whatsapp]) {
+          db.customers[whatsapp] = {
+            fullName: data.fullName || "Comensal",
+            whatsapp,
+            stamps: 0,
+            lastVisit: new Date().toISOString(),
+          };
+        }
+        const customer = db.customers[whatsapp];
+
+        // Anti-duplicado diario: si ya se selló hoy, devolver el total sin sumar.
+        const alreadyToday = customer.lastStampDate === today;
+        let added = false;
+        if (!alreadyToday) {
+          customer.stamps = Math.min(15, (customer.stamps || 0) + 1);
+          customer.lastStampDate = today;
+          customer.lastVisit = new Date().toISOString();
+          added = true;
+          saveDb();
+        }
+
+        logRequest("POST", "/api/stamps/add", 200, `Sello One-Tap +${whatsapp}: ${added ? "sumado" : "ya sellado hoy"} (${customer.stamps}/15)`);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({
+          success: true,
+          added,
+          alreadyStampedToday: alreadyToday,
+          stamps: customer.stamps,
+          totalRequired: 15,
+        }));
+      } catch (err) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return true;
   }
 
   return false;

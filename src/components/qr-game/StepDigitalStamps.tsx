@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { StampService, StampCardState, StampReward } from "@/lib/stampService";
 import { clientConfig } from "@/config/clientConfig";
+import { apiUrl } from "@/lib/apiClient";
 import { AddToHomeScreenModal } from "./AddToHomeScreenModal";
 import { DigitalWalletPassModal } from "./DigitalWalletPassModal";
 
@@ -66,37 +67,81 @@ export function StepDigitalStamps({
             ? "grid-cols-4 sm:grid-cols-6"
             : "grid-cols-5";
 
+  // Sincronizar el conteo de sellos desde el BACKEND (fuente de verdad).
+  // El servicio local (StampService/localStorage) queda como caché de respaldo
+  // para funcionar en modo degradado si el backend no responde.
   useEffect(() => {
-    // Sincronizar estado de sellos desde la base de datos o servicio local
-    const card = StampService.getCustomerStampCard(cleanPhone);
-    setStampCard(card);
+    let cancelled = false;
+    if (!cleanPhone || cleanPhone.length < 7) {
+      setStampCard(StampService.getCustomerStampCard(cleanPhone));
+      return;
+    }
+    fetch(apiUrl(`/stamps/${cleanPhone}`))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        // Reconstruir el estado de la tarjeta usando el total real del backend.
+        setStampCard(StampService.applyServerStamps(cleanPhone, data.stamps));
+      })
+      .catch(() => {
+        // Modo degradado: usar la caché local.
+        if (!cancelled) setStampCard(StampService.getCustomerStampCard(cleanPhone));
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [cleanPhone]);
 
   // ⚡ LÓGICA DE RECONOCIMIENTO & SELLADO AUTOMÁTICO ONE-TAP (NFC / QR RECURRENTE)
+  // El sellado se registra en el BACKEND, que aplica el anti-duplicado diario
+  // de forma autoritativa (el servidor manda, no el navegador).
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const today = new Date().toLocaleDateString("es-CO");
-    const stampKey = `juegoreferidos_last_stamp_date_${cleanPhone || "client"}`;
-    const lastStamped = localStorage.getItem(stampKey);
 
     const hasStoredCustomer = Boolean(localStorage.getItem("juegoreferidos_registered_participant"));
     const isCustomerReturning = hasStoredCustomer || isNfcScan || Boolean(customerWhatsapp && cleanPhone.length > 6);
     setIsReturning(isCustomerReturning);
 
-    // Si es cliente recurrente o llegó por NFC en mesa y no ha sellado hoy:
-    if (isCustomerReturning && lastStamped !== today) {
-      try {
-        const updated = StampService.addStamp(cleanPhone);
-        setStampCard(updated);
-        localStorage.setItem(stampKey, today);
-        setJustStamped(true);
-        const timer = setTimeout(() => setJustStamped(false), 9000);
-        return () => clearTimeout(timer);
-      } catch {
-        // ignore
-      }
-    }
-  }, [cleanPhone, isNfcScan]);
+    if (!isCustomerReturning || !cleanPhone || cleanPhone.length < 7) return;
+
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let cancelled = false;
+
+    fetch(apiUrl("/stamps/add"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ whatsapp: cleanPhone, fullName: customerName }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data || !data.success) return;
+        setStampCard(StampService.applyServerStamps(cleanPhone, data.stamps));
+        if (data.added) {
+          setJustStamped(true);
+          timer = setTimeout(() => setJustStamped(false), 9000);
+        }
+      })
+      .catch(() => {
+        // Modo degradado: sellar en local si el backend no responde.
+        const today = new Date().toLocaleDateString("es-CO");
+        const stampKey = `juegoreferidos_last_stamp_date_${cleanPhone || "client"}`;
+        if (localStorage.getItem(stampKey) !== today) {
+          try {
+            setStampCard(StampService.addStamp(cleanPhone));
+            localStorage.setItem(stampKey, today);
+            setJustStamped(true);
+            timer = setTimeout(() => setJustStamped(false), 9000);
+          } catch {
+            /* ignore */
+          }
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [cleanPhone, isNfcScan, customerWhatsapp, customerName]);
 
   return (
     <div className="w-full max-w-lg mx-auto flex flex-col gap-5 text-left">

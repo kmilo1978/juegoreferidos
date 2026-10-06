@@ -353,6 +353,50 @@ export class StampService {
   }
 
   /**
+   * Fija el conteo de sellos recibido del BACKEND (fuente de verdad) y
+   * lo cachea en localStorage. Devuelve el StampCardState resultante.
+   * Se usa para que la UI refleje siempre el total autoritativo del servidor.
+   */
+  static applyServerStamps(whatsapp: string, serverStamps: number): StampCardState {
+    const totalRequired = this.getTotalRequired();
+    const milestones = this.getMilestoneRewards();
+    const currentStamps = Math.max(0, Math.min(totalRequired, Number(serverStamps) || 0));
+
+    const isRewardUnlocked = currentStamps >= totalRequired;
+    const nextMilestone = this.getNextMilestone(currentStamps);
+    const unlockedRewards = milestones.filter((m) => currentStamps >= m.stamp);
+
+    const state: StampCardState = {
+      currentStamps,
+      totalRequired,
+      mode: totalRequired,
+      rewardTitle: nextMilestone.reward.title,
+      nextReward: nextMilestone.reward,
+      unlockedRewards,
+      isRewardUnlocked,
+      historyVisits: [new Date().toLocaleDateString("es-CO")],
+    };
+
+    if (typeof window !== "undefined") {
+      try {
+        // Preservar historial previo si existe
+        const prev = localStorage.getItem(this.getKey(whatsapp));
+        if (prev) {
+          const parsed = JSON.parse(prev);
+          if (Array.isArray(parsed.historyVisits)) {
+            state.historyVisits = parsed.historyVisits;
+          }
+        }
+        localStorage.setItem(this.getKey(whatsapp), JSON.stringify(state));
+      } catch {
+        /* ignore */
+      }
+    }
+
+    return state;
+  }
+
+  /**
    * Canjea el premio de sellos y reinicia el ciclo para la siguiente tarjeta
    */
   static resetAfterRedemption(whatsapp: string): StampCardState {
