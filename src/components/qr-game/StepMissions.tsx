@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
 import {
@@ -167,6 +167,14 @@ export function StepMissions({
   const baseCard = StampService.getCustomerStampCard(cleanPhone);
   const [syncedStamps, setSyncedStamps] = useState<number>(() => Math.max(baseCard.currentStamps || 3, 3));
 
+  // Timeout que oculta el estado "misión enviada", cancelable al desmontar
+  const successTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
+    };
+  }, []);
+
   // Cargar misiones dinámicas desde el backend
   const loadMissionsData = () => {
     fetch("/api/missions")
@@ -281,7 +289,8 @@ export function StepMissions({
         setSuccessMissionId(mission.id);
         setMissionUrls((prev) => ({ ...prev, [mission.id]: "" }));
         loadMissionsData();
-        setTimeout(() => {
+        if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
+        successTimeoutRef.current = setTimeout(() => {
           setSuccessMissionId(null);
         }, 5000);
       } else {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { GamePrize, WonPrize } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { apiUrl, getAuthToken, loginWithPin, onAuthExpired } from "@/lib/apiClient";
@@ -192,7 +192,7 @@ export function AdminPanelModal({
       const updated = TableManagerService.resetTable(num);
       setTablesList(updated);
       setTableFeedback(`¡Mesa ${num} liberada y lista para recibir clientes!`);
-      setTimeout(() => setTableFeedback(null), 3500);
+      pushTimeout(() => setTableFeedback(null), 3500);
     }
   };
 
@@ -204,7 +204,7 @@ export function AdminPanelModal({
     });
     setTablesList(updated);
     setTableFeedback(`¡Configuración de Mesa ${selectedTableToEdit} guardada con éxito!`);
-    setTimeout(() => setTableFeedback(null), 3500);
+    pushTimeout(() => setTableFeedback(null), 3500);
   };
 
   const [activePin, setActivePin] = useState(() => getActiveCashierPin());
@@ -256,7 +256,7 @@ export function AdminPanelModal({
     const updated = GameConfigService.saveGameConfig(updates);
     setModalGameConfig(updated);
     setGameConfigSaveFeedback("¡Mecánica de juego actualizada y sincronizada en todas las mesas!");
-    setTimeout(() => setGameConfigSaveFeedback(null), 3500);
+    pushTimeout(() => setGameConfigSaveFeedback(null), 3500);
   };
 
   // Estados de Control de Acceso por Roles (RBAC 3 Niveles: Owner, Admin, Cashier)
@@ -273,6 +273,21 @@ export function AdminPanelModal({
       setPinError("Tu sesión expiró. Ingresa tu PIN nuevamente.");
     });
     return unsubscribe;
+  }, []);
+
+  // Registro central de los setTimeout de feedback efímero (mensajes "guardado",
+  // etc.) para cancelarlos al desmontar y evitar setState tras desmontaje.
+  const feedbackTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const pushTimeout = (fn: () => void, ms: number) => {
+    const id = setTimeout(fn, ms);
+    feedbackTimeoutsRef.current.push(id);
+    return id;
+  };
+  useEffect(() => {
+    return () => {
+      feedbackTimeoutsRef.current.forEach(clearTimeout);
+      feedbackTimeoutsRef.current = [];
+    };
   }, []);
   const [masterPin, setMasterPin] = useState<string>(() => getMasterAdminPin());
   const [managerPin, setManagerPin] = useState<string>(() => getManagerAdminPin());
@@ -357,7 +372,7 @@ export function AdminPanelModal({
       setMasterPin(newMasterPinInput);
       setNewMasterPinInput("");
       setPinChangeFeedback("¡PIN Maestro de Dueño actualizado con éxito!");
-      setTimeout(() => setPinChangeFeedback(null), 3000);
+      pushTimeout(() => setPinChangeFeedback(null), 3000);
       fetch(apiUrl("/config"), {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
@@ -374,7 +389,7 @@ export function AdminPanelModal({
       setManagerPin(newManagerPinInput);
       setNewManagerPinInput("");
       setPinChangeFeedback("¡PIN de Administrador actualizado con éxito!");
-      setTimeout(() => setPinChangeFeedback(null), 3000);
+      pushTimeout(() => setPinChangeFeedback(null), 3000);
       fetch(apiUrl("/config"), {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
@@ -391,7 +406,7 @@ export function AdminPanelModal({
       setActivePin(newCashierPinInput);
       setNewCashierPinInput("");
       setPinChangeFeedback("¡PIN de Cajero actualizado con éxito!");
-      setTimeout(() => setPinChangeFeedback(null), 3000);
+      pushTimeout(() => setPinChangeFeedback(null), 3000);
       fetch(apiUrl("/config"), {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
@@ -438,7 +453,7 @@ export function AdminPanelModal({
     StampService.saveStampRewards(stampRewards);
     StampService.setGlobalMode(stampGlobalMode);
     setStampSaveFeedback("¡Recompensas e iconos de la tarjeta de sellos guardados con éxito!");
-    setTimeout(() => setStampSaveFeedback(null), 3500);
+    pushTimeout(() => setStampSaveFeedback(null), 3500);
 
     // Sincronizar en segundo plano con el servidor backend REST
     try {
@@ -462,7 +477,7 @@ export function AdminPanelModal({
       setVisitIcon("☕");
       setStampRewards([...def]);
       setStampSaveFeedback("Catálogo e iconos de sellos restaurados a valores originales.");
-      setTimeout(() => setStampSaveFeedback(null), 3500);
+      pushTimeout(() => setStampSaveFeedback(null), 3500);
     }
   };
 
@@ -483,7 +498,7 @@ export function AdminPanelModal({
     try {
       const res = await syncBrandWithComposio(brandConfig);
       setBrandSyncStatus({ loading: false, msg: res.message, success: res.success });
-      setTimeout(() => {
+      pushTimeout(() => {
         setBrandSyncStatus({ loading: false });
       }, 4000);
     } catch (err: any) {
@@ -2517,7 +2532,7 @@ Presenta este código al momento de pagar:
                           const newPin = generateNewCashierPin();
                           setActivePin(newPin);
                           setPinChangeFeedback(`¡Nuevo PIN de turno generado: ${newPin}!`);
-                          setTimeout(() => setPinChangeFeedback(null), 3500);
+                          pushTimeout(() => setPinChangeFeedback(null), 3500);
                         }}
                         className="px-2.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1 transition-colors shadow-xs"
                       >
@@ -3406,7 +3421,7 @@ Presenta este código al momento de pagar:
                         channels: pushChannels,
                       });
                       setBroadcastStatus({ loading: false, msg: result.message, success: result.success });
-                      setTimeout(() => setBroadcastStatus({ loading: false }), 4500);
+                      pushTimeout(() => setBroadcastStatus({ loading: false }), 4500);
                     }}
                     className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all disabled:opacity-50"
                   >
