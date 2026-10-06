@@ -266,12 +266,12 @@ const DEFAULT_SETTINGS = {
       syncReputation: true,
       syncMissions: true,
     },
-    status: "connected",
-    lastPing: "10:00:00 a. m.",
+    status: "disconnected",
+    lastPing: null,
     stats: {
-      totalPings: 12,
-      eventsDispatched: 24,
-      lastLatencyMs: 38,
+      totalPings: 0,
+      eventsDispatched: 0,
+      lastLatencyMs: 0,
     },
   },
   security: {

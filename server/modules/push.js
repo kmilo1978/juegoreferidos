@@ -653,7 +653,12 @@ export function handlePush(req, res, pathname, url) {
     }
   }
 
-  // 12. API: SIMULADOR DE DISPARO DE GEOFENCING (/api/push/geofencing/test-trigger)
+  // 12. API: DISPARO DE GEOFENCING (/api/push/geofencing/test-trigger)
+  //  - option1 (radio web): dispara un broadcast REAL (crea campaña push), que es
+  //    lo que realmente ocurre en producción con la segmentación por radio web.
+  //  - option2/option3 (background/Capacitor y presencia física): requieren una
+  //    app NATIVA que no existe en este proyecto todavía. Se devuelven como
+  //    simulated:true con una nota honesta — NO se finge que dispararon algo real.
   if (pathname === "/api/push/geofencing/test-trigger" && req.method === "POST") {
     let body = "";
     req.on("data", (chunk) => (body += chunk));
@@ -661,28 +666,68 @@ export function handlePush(req, res, pathname, url) {
       try {
         const { optionId } = JSON.parse(body || "{}");
         const cfg = db.settings.geofencingConfig || {};
-        let triggerTitle = "📍 Notificación por Proximidad";
-        let triggerBody = "Un comensal ha cruzado la geovalla configurada.";
+        const brandName = db.settings.brand?.name || "el local";
 
         if (optionId === "option1") {
-          triggerTitle = "🎯 [Radio Web] Comensal en zona de influencia";
-          triggerBody = `Detectado suscriptor dentro del radio de ${(cfg.option1_web_radius?.radiusMeters || 2000) / 1000} km.`;
-        } else if (optionId === "option2") {
-          triggerTitle = cfg.option2_background_realtime?.messageTitle?.replace("{restaurante}", db.settings.brand?.name || "el local") || "🍰 ¡Estás a 2 cuadras!";
-          triggerBody = cfg.option2_background_realtime?.messageBody || "Ven hoy y disfruta un café de cortesía.";
-        } else if (optionId === "option3") {
-          triggerTitle = cfg.option3_venue_physical?.messageTitle?.replace("{restaurante}", db.settings.brand?.name || "el local") || "✨ ¡Bienvenido a tu mesa!";
-          triggerBody = cfg.option3_venue_physical?.messageBody || "Beneficio del día activo en tu cuenta.";
+          // Disparo REAL: registrar una campaña push como lo haría el broadcast.
+          const title = "🎯 ¡Estás cerca de " + brandName + "!";
+          const bodyMsg = cfg.option1_web_radius?.promptBody
+            || "Pasa a visitarnos y disfruta un beneficio especial de hoy.";
+
+          if (!db.settings.pushCampaigns) db.settings.pushCampaigns = [];
+          const activeSubscribers = (db.webPushSubscriptions || []).filter((s) => s.status !== "UNSUBSCRIBED");
+          const campaign = {
+            id: "camp_geo_" + Date.now(),
+            title,
+            body: bodyMsg,
+            url: cfg.option2_background_realtime?.actionUrl || "/?promo=geofence",
+            segment: "Radio Web (Geofencing)",
+            scheduleType: "immediate",
+            scheduledDate: new Date().toISOString().split("T")[0],
+            scheduledTime: new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }),
+            sentAt: new Date().toLocaleString("es-CO"),
+            status: "ENVIADO",
+            sentCount: activeSubscribers.length,
+            deliveredCount: activeSubscribers.length,
+            openedCount: 0,
+            openRate: 0,
+            clickedCount: 0,
+            channels: { push: true, webhook: true },
+            origin: "geofencing_radio_web",
+          };
+          db.settings.pushCampaigns.unshift(campaign);
+          if (db.settings.pushCampaigns.length > 50) db.settings.pushCampaigns.pop();
+          saveDb();
+
+          logRequest("PUSH", "/api/push/geofencing/test-trigger", 200, `📍 Geofencing radio web: broadcast real a ${activeSubscribers.length} suscriptores`);
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({
+            success: true,
+            simulated: false,
+            triggeredAt: new Date().toLocaleTimeString("es-CO"),
+            title,
+            body: bodyMsg,
+            recipients: activeSubscribers.length,
+            optionId,
+            note: "Campaña push por radio web registrada y enviada a los suscriptores activos.",
+          }));
+          return;
         }
 
-        logRequest("TEST", "/api/push/geofencing/test-trigger", 200, `Simulación de Geofencing ejecutada (${optionId}): ${triggerTitle}`);
+        // option2 / option3: requieren app nativa (Etapa 2). No simular éxito real.
+        const previewTitle =
+          optionId === "option2"
+            ? (cfg.option2_background_realtime?.messageTitle || "🍰 ¡Estás a 2 cuadras!").replace("{restaurante}", brandName)
+            : (cfg.option3_venue_physical?.messageTitle || "✨ ¡Bienvenido a tu mesa!").replace("{restaurante}", brandName);
+
+        logRequest("PUSH", "/api/push/geofencing/test-trigger", 200, `Geofencing ${optionId}: vista previa (requiere app nativa)`);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({
           success: true,
-          triggeredAt: new Date().toLocaleTimeString("es-CO"),
-          title: triggerTitle,
-          body: triggerBody,
+          simulated: true,
           optionId,
+          title: previewTitle,
+          note: "Requiere app nativa (Capacitor/OneSignal) — Etapa 2. Esto es solo una vista previa del mensaje, no se envió nada.",
         }));
       } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });

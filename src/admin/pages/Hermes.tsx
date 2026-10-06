@@ -53,10 +53,16 @@ export function Hermes() {
         headers: getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {},
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Fallo en ping");
+      // El backend hace un ping REAL: puede responder 200 con success:false
+      // (p. ej. timeout o error de red). Tratamos ambos como fallo honesto.
+      if (!res.ok || data.success === false) {
+        throw new Error(data.error || "No se pudo verificar la conexión con Hermes");
+      }
       setTestResult(data);
+      setError(null);
       fetchData();
     } catch (err) {
+      setTestResult(null);
       setError(err instanceof Error ? err.message : "Error en ping");
     } finally {
       setTesting(false);
