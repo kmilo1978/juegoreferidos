@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   PickAndWinSettings,
   DEFAULT_PICK_AND_WIN_SETTINGS,
@@ -6,8 +6,9 @@ import {
   PickItem,
   pickAudio,
 } from "@/lib/pickAndWinData";
-import { Sparkles, Trophy, RotateCcw, Volume2, VolumeX, CheckCircle, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Trophy, Volume2, VolumeX, ThumbsUp, ThumbsDown } from "lucide-react";
 import confetti from "canvas-confetti";
+import { brandConfettiColors } from "@/lib/brandService";
 
 interface TileState {
   index: number;
@@ -29,7 +30,6 @@ export function StepPickAndWin({
   tableNumber = "Mesa 1",
   onWinPrize,
   customSettings,
-  isStandAlone = false,
   initialFace = "face1",
 }: StepPickAndWinProps) {
   const [settings] = useState<PickAndWinSettings>(() => ({
@@ -44,12 +44,15 @@ export function StepPickAndWin({
 
   const [tiles, setTiles] = useState<TileState[]>([]);
   const [attemptsLeft, setAttemptsLeft] = useState<number>(settings.maxAttempts);
-  // Historial de 3 indicadores superiores: true = acierto, false = fallo
-  const [attemptHistory, setAttemptHistory] = useState<boolean[]>([true, false, true]);
+  // Historial real de intentos: true = acierto, false = fallo. Empieza vacío y
+  // crece conforme el jugador destapa casillas (antes mostraba datos falsos).
+  const [attemptHistory, setAttemptHistory] = useState<boolean[]>([]);
   const [revealedItemsCount, setRevealedItemsCount] = useState<Record<string, number>>({});
   const [soundEnabled, setSoundEnabled] = useState<boolean>(settings.soundEnabled);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [hasWon, setHasWon] = useState(false);
+  // setTimeout de victoria/reset, para cancelarlos al desmontar
+  const tileTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // Inicializar tablero 3x3 (9 casillas) con 3 premios garantizados en la baraja
   const setupBoard = () => {
@@ -83,6 +86,7 @@ export function StepPickAndWin({
     setTiles(initialTiles);
     setAttemptsLeft(settings.maxAttempts);
     setRevealedItemsCount({});
+    setAttemptHistory([]);
     setIsProcessing(false);
     setHasWon(false);
   };
@@ -90,6 +94,14 @@ export function StepPickAndWin({
   useEffect(() => {
     setupBoard();
   }, [settings]);
+
+  // Limpieza de los setTimeout de victoria/reset al desmontar
+  useEffect(() => {
+    return () => {
+      tileTimeoutsRef.current.forEach(clearTimeout);
+      tileTimeoutsRef.current = [];
+    };
+  }, []);
 
   const handleStart = () => {
     setupBoard();
@@ -107,9 +119,9 @@ export function StepPickAndWin({
     const newTiles = tiles.map((t) => (t.index === tile.index ? { ...t, isRevealed: true } : t));
     setTiles(newTiles);
 
-    const isMatch = tile.item.isPrize;
-    const newHistory = [...attemptHistory.slice(0, 2), isMatch];
-    setAttemptHistory(newHistory);
+    const isMatch = Boolean(tile.item.isPrize);
+    // Acumula el resultado real del intento (hasta maxAttempts entradas)
+    setAttemptHistory((prev) => [...prev, isMatch].slice(-settings.maxAttempts));
 
     if (isMatch) {
       if (soundEnabled) pickAudio.playFoundTarget();
@@ -126,26 +138,26 @@ export function StepPickAndWin({
     const currentMatches = newCount[tile.item.id] || 0;
 
     if (currentMatches >= theme.targetCount) {
-      setTimeout(() => {
+      tileTimeoutsRef.current.push(setTimeout(() => {
         setHasWon(true);
         if (soundEnabled) pickAudio.playVictory();
         confetti({
           particleCount: 80,
           spread: 80,
           origin: { y: 0.6 },
-          colors: ["#e6007e", "#fbbf24", "#ea580c", "#ffffff"],
+          colors: brandConfettiColors(["#e6007e", "#ea580c", "#ffffff"]),
         });
         setIsProcessing(false);
-      }, 600);
+      }, 600));
       return;
     }
 
     const newAttempts = attemptsLeft - 1;
     setAttemptsLeft(newAttempts);
 
-    setTimeout(() => {
+    tileTimeoutsRef.current.push(setTimeout(() => {
       setIsProcessing(false);
-    }, 300);
+    }, 300));
   };
 
   return (
@@ -296,11 +308,16 @@ export function StepPickAndWin({
                 type="button"
                 onClick={() => setSoundEnabled(!soundEnabled)}
                 className="w-7 h-7 rounded-full bg-neutral-900 border border-amber-400/30 text-amber-300 flex items-center justify-center transition-all cursor-pointer"
+                title={soundEnabled ? "Silenciar sonido" : "Activar sonido"}
+                aria-label={soundEnabled ? "Silenciar sonido" : "Activar sonido"}
               >
                 {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 opacity-50" />}
               </button>
 
-              <div className="w-8 h-8 rounded-xl bg-orange-600/80 border border-amber-300/40 flex items-center justify-center text-white shadow-md">
+              <div
+                className="w-8 h-8 rounded-xl bg-orange-600/80 border border-amber-300/40 flex items-center justify-center text-white shadow-md"
+                aria-hidden="true"
+              >
                 <span className="text-sm font-bold">☰</span>
               </div>
             </div>
@@ -360,7 +377,7 @@ export function StepPickAndWin({
                   >
                     {tile.isRevealed ? (
                       <span className="text-3xl sm:text-4xl animate-scale-up filter drop-shadow">
-                        {tile.item.id === "perfume" ? "🧴" : tile.item.id === "calavera" ? "💀" : "🦴"}
+                        {tile.item.emoji}
                       </span>
                     ) : (
                       <span className="text-2xl filter drop-shadow animate-pulse">

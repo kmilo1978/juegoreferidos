@@ -116,6 +116,32 @@ export function applyBrandColors(primaryColor: string, bgColor?: string) {
 }
 
 /**
+ * Devuelve el dorado de marca (--gold) y su variante clara (--gold-light) como
+ * valores hex concretos, resueltos desde las variables CSS en tiempo de ejecución.
+ *
+ * canvas-confetti NO entiende `var(--gold)`, necesita colores literales. Esta
+ * utilidad permite que los efectos de confetti sigan el color de marca sin
+ * hardcodear el dorado por defecto en cada juego.
+ *
+ * @param extra Colores adicionales (temáticos) para mezclar con el dorado.
+ */
+export function brandConfettiColors(extra: string[] = []): string[] {
+  const fallbackGold = "#f2be71";
+  const fallbackGoldLight = "#ffddb1";
+  if (typeof window === "undefined" || !document?.documentElement) {
+    return [fallbackGold, fallbackGoldLight, ...extra];
+  }
+  try {
+    const styles = getComputedStyle(document.documentElement);
+    const gold = styles.getPropertyValue("--gold").trim() || fallbackGold;
+    const goldLight = styles.getPropertyValue("--gold-light").trim() || fallbackGoldLight;
+    return [gold, goldLight, ...extra];
+  } catch {
+    return [fallbackGold, fallbackGoldLight, ...extra];
+  }
+}
+
+/**
  * Guarda la configuración de marca en localStorage y actualiza la aplicación en tiempo real
  */
 export function saveBrandConfig(newConfig: BrandIdentityConfig): void {

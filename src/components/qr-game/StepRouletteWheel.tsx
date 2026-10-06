@@ -23,6 +23,9 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
   const [rotationAngle, setRotationAngle] = useState(0);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // Timers del giro, para cancelarlos si el componente se desmonta a mitad
+  const tickIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const resultTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activePrizes = prizes.filter((p) => p.active);
   const numSegments = activePrizes.length;
@@ -162,7 +165,7 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
 
     setIsSpinning(true);
 
-    const tickInterval = setInterval(() => {
+    tickIntervalRef.current = setInterval(() => {
       playRouletteTickSound();
     }, 120);
 
@@ -173,8 +176,8 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
 
     setRotationAngle(finalAngle);
 
-    setTimeout(() => {
-      clearInterval(tickInterval);
+    resultTimeoutRef.current = setTimeout(() => {
+      if (tickIntervalRef.current) clearInterval(tickIntervalRef.current);
       setIsSpinning(false);
       setHasSpun(true);
       setWonPrize(prize);
@@ -182,6 +185,15 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
       fireConfetti();
     }, 5000);
   };
+
+  // Cancelar el tick de sonido y el timeout de resultado al desmontar
+  // (p. ej. si el comensal sale o reinicia mientras la ruleta gira)
+  useEffect(() => {
+    return () => {
+      if (tickIntervalRef.current) clearInterval(tickIntervalRef.current);
+      if (resultTimeoutRef.current) clearTimeout(resultTimeoutRef.current);
+    };
+  }, []);
 
   return (
     <div className="w-full flex flex-col gap-6">

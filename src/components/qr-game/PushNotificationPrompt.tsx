@@ -1,5 +1,5 @@
 import { clientConfig } from "@/config/clientConfig";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Bell, BellRing, BellOff, CheckCircle2, Sparkles, X, Coffee, ShieldCheck, AlertCircle } from "lucide-react";
 import { playVictoryFanfareSound } from "../../lib/soundEffects";
 
@@ -32,6 +32,8 @@ export function PushNotificationPrompt({
   const [success, setSuccess] = useState(false);
   const [unsubscribedSuccess, setUnsubscribedSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  // Timeout de autocierre tras suscribirse, cancelable al cerrar/desmontar
+  const autoCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window) {
@@ -41,6 +43,13 @@ export function PushNotificationPrompt({
       }
     }
   }, [isOpen]);
+
+  // Cancelar el timeout de autocierre al desmontar
+  useEffect(() => {
+    return () => {
+      if (autoCloseTimeoutRef.current) clearTimeout(autoCloseTimeoutRef.current);
+    };
+  }, []);
 
   if (!isOpen) return null;
 
@@ -100,7 +109,7 @@ export function PushNotificationPrompt({
 
         if (onSubscribed) onSubscribed();
 
-        setTimeout(() => {
+        autoCloseTimeoutRef.current = setTimeout(() => {
           onClose();
         }, 2500);
       } else if (permission === "denied") {

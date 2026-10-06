@@ -266,6 +266,7 @@ export function getMissionBrandLogo(missionId: string, className = "w-7 h-7"): R
       return <InstagramIcon className={className} />;
     case "m_whatsapp_status":
     case "m_whatsapp_community":
+    case "m_whatsapp_community_vip":
     case "m_whatsapp":
       return <WhatsAppIcon className={className} />;
     case "m_referrals":

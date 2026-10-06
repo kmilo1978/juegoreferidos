@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import confetti from "canvas-confetti";
 import {
   Gift,
-  Sparkles,
   ArrowRight,
   RotateCcw,
   Trophy,
@@ -10,6 +9,7 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
+import { brandConfettiColors } from "@/lib/brandService";
 import {
   ScratchGameSettings,
   ScratchGameConfigService,
@@ -31,7 +31,6 @@ export function StepScratchGame({
   participantName = "Invitado Especial",
   tableNumber = "Mesa VIP",
   onWinPrize,
-  onExit,
   customSettings,
   initialFace = "face1",
 }: StepScratchGameProps) {
@@ -51,8 +50,17 @@ export function StepScratchGame({
   // Cara activa: "face1" (Portada navideña) o "face2" (Tarjeta de raspado)
   const [activeFace, setActiveFace] = useState<"face1" | "face2">(initialFace);
   const [selectedPrize, setSelectedPrize] = useState<ScratchPrize>(() => {
+    // Premio de respaldo si la configuración llega sin premios (evita crash)
+    const fallbackPrize: ScratchPrize = {
+      id: "fallback",
+      name: "Premio Sorpresa",
+      value: "Cortesía de la casa",
+      probability: 100,
+      isConsolation: false,
+    } as ScratchPrize;
+
     // Selección por probabilidad ponderada
-    const prizes = settings.prizes.length ? settings.prizes : [settings.prizes[0]];
+    const prizes = settings.prizes && settings.prizes.length ? settings.prizes : [fallbackPrize];
     const totalProb = prizes.reduce((acc, p) => acc + (p.probability || 10), 0);
     let rand = Math.random() * (totalProb || 100);
     for (const p of prizes) {
@@ -178,7 +186,7 @@ export function StepScratchGame({
           particleCount: 60,
           spread: 80,
           origin: { y: 0.55 },
-          colors: ["#f59e0b", "#ef4444", "#10b981", "#ffffff"],
+          colors: brandConfettiColors(["#ef4444", "#10b981", "#ffffff"]),
         });
       }
       return next;
@@ -186,10 +194,10 @@ export function StepScratchGame({
   };
 
   const handleClaim = () => {
+    // En producción onWinPrize siempre está presente (lo pasa App.tsx).
+    // Si falta (uso aislado del componente), no hacemos nada en vez de un alert de debug.
     if (onWinPrize) {
       onWinPrize(selectedPrize.name, selectedPrize.value);
-    } else {
-      alert(`¡Voucher activado con éxito!\n${selectedPrize.name} (${selectedPrize.value})`);
     }
   };
 
@@ -325,7 +333,8 @@ export function StepScratchGame({
           type="button"
           onClick={() => setSoundMuted(!soundMuted)}
           className="w-7 h-7 rounded-full bg-amber-200/80 hover:bg-amber-300 text-amber-900 flex items-center justify-center transition-all cursor-pointer"
-          title="Activar/Silenciar sonido"
+          title={soundMuted ? "Activar sonido" : "Silenciar sonido"}
+          aria-label={soundMuted ? "Activar sonido" : "Silenciar sonido"}
         >
           {soundMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
         </button>

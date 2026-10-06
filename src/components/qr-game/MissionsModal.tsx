@@ -143,7 +143,7 @@ const DEFAULT_MISSIONS: MissionItem[] = [
     active: true,
   },
   {
-    id: "m_whatsapp_community",
+    id: "m_whatsapp_community_vip",
     category: "Comunidad Exclusiva",
     title: "Unirse a la Comunidad VIP de WhatsApp",
     rewardStamps: 2,

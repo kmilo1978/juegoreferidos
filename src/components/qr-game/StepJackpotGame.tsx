@@ -6,7 +6,7 @@ import {
   JackpotSymbol,
   jackpotAudio,
 } from "@/lib/jackpotData";
-import { Sparkles, Trophy, RotateCcw, Volume2, VolumeX, ArrowRight, Plane } from "lucide-react";
+import { Trophy, Volume2, VolumeX } from "lucide-react";
 import confetti from "canvas-confetti";
 
 interface StepJackpotGameProps {
@@ -23,7 +23,6 @@ export function StepJackpotGame({
   tableNumber = "Mesa 1",
   onWinPrize,
   customSettings,
-  isStandAlone = false,
   initialFace = "face1",
 }: StepJackpotGameProps) {
   const [settings] = useState<JackpotSettings>(() => ({
@@ -56,7 +55,10 @@ export function StepJackpotGame({
   ]);
 
   const [spinningReels, setSpinningReels] = useState<boolean[]>([false, false, false]);
-  const spinIntervalRef = useRef<any>(null);
+  const spinIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const spinAudioIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Todos los setTimeout de la secuencia de parada, para poder cancelarlos al desmontar
+  const spinTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const handleSpin = () => {
     if (isSpinning || attemptsLeft <= 0) return;
@@ -67,7 +69,7 @@ export function StepJackpotGame({
     setSpinningReels([true, true, true]);
 
     // Sonido de giro
-    let spinAudioInterval = setInterval(() => {
+    spinAudioIntervalRef.current = setInterval(() => {
       if (soundEnabled) jackpotAudio.playReelSpinClick();
     }, 90);
 
@@ -93,19 +95,19 @@ export function StepJackpotGame({
     }, 60);
 
     // Secuencia de parada progresiva de los 3 rodillos
-    setTimeout(() => {
+    spinTimeoutsRef.current.push(setTimeout(() => {
       setSpinningReels([false, true, true]);
       if (soundEnabled) jackpotAudio.playReelStop(0);
-    }, 1100);
+    }, 1100));
 
-    setTimeout(() => {
+    spinTimeoutsRef.current.push(setTimeout(() => {
       setSpinningReels([false, false, true]);
       if (soundEnabled) jackpotAudio.playReelStop(1);
-    }, 1700);
+    }, 1700));
 
-    setTimeout(() => {
-      clearInterval(spinIntervalRef.current);
-      clearInterval(spinAudioInterval);
+    spinTimeoutsRef.current.push(setTimeout(() => {
+      if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
+      if (spinAudioIntervalRef.current) clearInterval(spinAudioIntervalRef.current);
       setSpinningReels([false, false, false]);
       if (soundEnabled) jackpotAudio.playReelStop(2);
 
@@ -129,20 +131,26 @@ export function StepJackpotGame({
         });
 
         // Transición fluida a la CARA 2 (Boarding Pass) tras festejar la combinación
-        setTimeout(() => {
+        spinTimeoutsRef.current.push(setTimeout(() => {
           setIsSpinning(false);
           setActiveFace("face2");
-        }, 1200);
+        }, 1200));
       } else {
         setIsSpinning(false);
         if (soundEnabled) jackpotAudio.playMiss();
       }
-    }, 2400);
+    }, 2400));
   };
 
+  // Limpieza de TODOS los timers al desmontar: intervalos de animación/audio y
+  // los setTimeout de la secuencia de parada. Evita audio huérfano y setState
+  // tras desmontaje si el comensal sale a mitad del giro.
   useEffect(() => {
     return () => {
       if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
+      if (spinAudioIntervalRef.current) clearInterval(spinAudioIntervalRef.current);
+      spinTimeoutsRef.current.forEach(clearTimeout);
+      spinTimeoutsRef.current = [];
     };
   }, []);
 
@@ -197,12 +205,16 @@ export function StepJackpotGame({
                 type="button"
                 onClick={() => setSoundEnabled(!soundEnabled)}
                 className="w-7 h-7 rounded-full bg-black/40 border border-sky-400/30 text-sky-300 flex items-center justify-center transition-all cursor-pointer"
-                title="Audio"
+                title={soundEnabled ? "Silenciar sonido" : "Activar sonido"}
+                aria-label={soundEnabled ? "Silenciar sonido" : "Activar sonido"}
               >
                 {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 opacity-50" />}
               </button>
 
-              <div className="w-8 h-8 rounded-xl bg-blue-600/80 border border-sky-300/40 flex items-center justify-center text-white shadow-md">
+              <div
+                className="w-8 h-8 rounded-xl bg-blue-600/80 border border-sky-300/40 flex items-center justify-center text-white shadow-md"
+                aria-hidden="true"
+              >
                 <span className="text-sm font-bold">☰</span>
               </div>
             </div>

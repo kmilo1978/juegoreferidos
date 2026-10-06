@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { WonPrize, SecondChanceConfig } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
@@ -38,14 +38,23 @@ export function StepPrizeClaim({
   const { lang, t } = useLanguage();
   const [copiedCode, setCopiedCode] = useState(false);
   const [isWalletOpen, setIsWalletOpen] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isUsed = prize.status === "UTILIZADO";
   const prizeDisplayName = lang === "en" ? prize.prizeNameEn : prize.prizeName;
 
+  // Cancelar el timeout de feedback "copiado" al desmontar
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
+
   const handleCopyCode = () => {
     navigator.clipboard?.writeText(prize.uniqueCode);
     setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 3000);
+    if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    copyTimeoutRef.current = setTimeout(() => setCopiedCode(false), 3000);
   };
 
   const handleShareWhatsApp = () => {

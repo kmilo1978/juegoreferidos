@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Lock, Delete, KeyRound, X, Sparkles, Check } from "lucide-react";
 import { verifyCashierPin, getActiveCashierPin } from "../../lib/tableSecurityService";
 
@@ -18,6 +18,16 @@ export function PinAuthModal({
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
   const [activeShiftPin] = useState(() => getActiveCashierPin());
+  // setTimeout de éxito/limpieza, cancelables al cerrar/desmontar
+  const authTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // Cancelar timeouts pendientes al desmontar
+  useEffect(() => {
+    return () => {
+      authTimeoutsRef.current.forEach(clearTimeout);
+      authTimeoutsRef.current = [];
+    };
+  }, []);
 
   if (!isOpen) return null;
 
@@ -27,11 +37,11 @@ export function PinAuthModal({
     setPin(fillPin);
     setError(false);
     if (verifyCashierPin(fillPin)) {
-      setTimeout(() => {
+      authTimeoutsRef.current.push(setTimeout(() => {
         onSuccess();
         onClose();
         setPin("");
-      }, 250);
+      }, 250));
     }
   };
 
@@ -43,14 +53,14 @@ export function PinAuthModal({
 
     if (nextPin.length === 4) {
       if (verifyCashierPin(nextPin)) {
-        setTimeout(() => {
+        authTimeoutsRef.current.push(setTimeout(() => {
           onSuccess();
           onClose();
           setPin("");
-        }, 200);
+        }, 200));
       } else {
         setError(true);
-        setTimeout(() => setPin(""), 600);
+        authTimeoutsRef.current.push(setTimeout(() => setPin(""), 600));
       }
     }
   };
