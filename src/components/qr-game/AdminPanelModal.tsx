@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GamePrize, WonPrize } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
-import { apiUrl, getAuthToken, loginWithPin } from "@/lib/apiClient";
+import { apiUrl, getAuthToken, loginWithPin, onAuthExpired } from "@/lib/apiClient";
 import {
   X,
   BarChart3,
@@ -263,6 +263,17 @@ export function AdminPanelModal({
   const [authenticatedRole, setAuthenticatedRole] = useState<"owner" | "admin" | "cashier" | null>(null);
   const [pinInput, setPinInput] = useState<string>("");
   const [pinError, setPinError] = useState<string | null>(null);
+
+  // Si el backend rechaza el token (sesión expirada a las 12h o servidor
+  // reiniciado), volver a la pantalla de PIN para re-autenticar.
+  useEffect(() => {
+    const unsubscribe = onAuthExpired(() => {
+      setAuthenticatedRole(null);
+      setPinInput("");
+      setPinError("Tu sesión expiró. Ingresa tu PIN nuevamente.");
+    });
+    return unsubscribe;
+  }, []);
   const [masterPin, setMasterPin] = useState<string>(() => getMasterAdminPin());
   const [managerPin, setManagerPin] = useState<string>(() => getManagerAdminPin());
   const [newMasterPinInput, setNewMasterPinInput] = useState<string>("");

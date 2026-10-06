@@ -75,6 +75,7 @@ export async function apiPost<T = any>(path: string, body?: unknown): Promise<T>
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   if (!res.ok) {
+    if (res.status === 401 && getAuthToken()) handleAuthExpired();
     let detail = "";
     try {
       const data = await res.json();
@@ -130,4 +131,44 @@ export async function logout(): Promise<void> {
     /* ignore */
   }
   clearAuthToken();
+}
+
+export const AUTH_EXPIRED_EVENT = "admin-auth-expired";
+
+/**
+ * Marca la sesión admin como expirada: limpia el token y notifica a la UI
+ * (vía un evento de window) para que vuelva a pedir el PIN.
+ */
+export function handleAuthExpired(): void {
+  clearAuthToken();
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT));
+  }
+}
+
+/** Suscribe un callback al evento de sesión expirada. Devuelve la función de limpieza. */
+export function onAuthExpired(cb: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  const handler = () => cb();
+  window.addEventListener(AUTH_EXPIRED_EVENT, handler);
+  return () => window.removeEventListener(AUTH_EXPIRED_EVENT, handler);
+}
+
+/**
+ * `fetch` con token de admin que detecta expiración de sesión: si el backend
+ * responde 401 (token vencido o servidor reiniciado), limpia el token y emite
+ * el evento para que el panel re-pida el PIN. Devuelve la Response tal cual.
+ */
+export async function authFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  const token = getAuthToken();
+  const headers: Record<string, string> = {
+    ...(init.headers as Record<string, string> | undefined),
+  };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  const res = await fetch(apiUrl(path), { ...init, headers });
+  if (res.status === 401 && token) {
+    // Teníamos token pero el backend lo rechazó: la sesión caducó.
+    handleAuthExpired();
+  }
+  return res;
 }
