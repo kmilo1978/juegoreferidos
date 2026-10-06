@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Loader2, MessageCircle, Instagram, MapPin, Save, Share2, Users } from "lucide-react";
+import { apiUrl, getAuthToken } from "../../lib/apiClient";
 
 export function Channels() {
   const [config, setConfig] = useState<any>(null);
@@ -18,7 +19,7 @@ export function Channels() {
 
   const fetchData = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/config");
+      const res = await fetch(apiUrl("/config"));
       if (!res.ok) throw new Error("Error al cargar canales");
       const data = await res.json();
       setConfig(data.settings);
@@ -50,9 +51,9 @@ export function Channels() {
     setSuccess(null);
 
     try {
-      const res = await fetch("http://localhost:3001/api/config", {
+      const res = await fetch(apiUrl("/config"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({
           channels: {
             whatsappNumber,

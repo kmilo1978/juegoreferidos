@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Loader2, Bot, Save, Zap, CheckCircle2, Activity, Send } from "lucide-react";
+import { apiUrl as buildApiUrl, getAuthToken } from "../../lib/apiClient";
 
 export function Hermes() {
   const [hermes, setHermes] = useState<any>(null);
@@ -19,7 +20,7 @@ export function Hermes() {
 
   const fetchData = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/hermes/config");
+      const res = await fetch(buildApiUrl("/hermes/config"));
       if (!res.ok) throw new Error("Error al cargar Hermes");
       const data = await res.json();
       setHermes(data.hermes);
@@ -47,7 +48,10 @@ export function Hermes() {
     setTesting(true);
     setTestResult(null);
     try {
-      const res = await fetch("http://localhost:3001/api/hermes/test", { method: "POST" });
+      const res = await fetch(buildApiUrl("/hermes/test"), {
+        method: "POST",
+        headers: getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {},
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Fallo en ping");
       setTestResult(data);
@@ -66,9 +70,9 @@ export function Hermes() {
     setSuccess(null);
 
     try {
-      const res = await fetch("http://localhost:3001/api/hermes/config", {
+      const res = await fetch(buildApiUrl("/hermes/config"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({
           hermes: {
             apiUrl,

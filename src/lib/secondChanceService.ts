@@ -4,9 +4,10 @@ import {
   PrecisionDifficulty,
 } from "../components/qr-game/gameTypes";
 import { DIFFICULTY_SETTINGS } from "./gameConfigService";
+import { apiUrl, getAuthToken } from "./apiClient";
 
 const STORAGE_KEY = "juegoreferidos_second_chance_config";
-const BACKEND_URL = "http://localhost:3001/api/second-chance-config";
+const BACKEND_URL = apiUrl("/second-chance-config");
 
 export class SecondChanceService {
   /**
@@ -78,10 +79,14 @@ export class SecondChanceService {
         console.error("Error guardando secondChanceConfig local:", e);
       }
 
-      // Enviar al servidor en segundo plano
+      // Enviar al servidor en segundo plano (endpoint protegido: requiere token)
+      const token = getAuthToken();
       fetch(BACKEND_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ secondChance: updated }),
       }).catch(() => {});
     }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { GamePrize, WonPrize } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
+import { apiUrl, getAuthToken, loginWithPin } from "@/lib/apiClient";
 import {
   X,
   BarChart3,
@@ -304,11 +305,16 @@ export function AdminPanelModal({
       setAuthenticatedRole(role);
       setPinError(null);
       setPinInput("");
+      // Obtener token de sesión del backend para autorizar los POST protegidos.
+      // Es best-effort: si el backend no responde, la UI sigue funcionando en
+      // modo local, pero las escrituras al servidor requerirán el token.
+      loginWithPin(pin).catch(() => {});
       if (!canAccessTab(activeTab)) {
         setActiveTab("stats");
       }
     } else {
-      setPinError("PIN no reconocido. Ingresa 8888 (Dueño), 5555 (Admin) o 1978 (Cajero).");
+      // No revelar los PINs válidos en el mensaje de error.
+      setPinError("PIN no reconocido. Verifica tu PIN e inténtalo de nuevo.");
       setPinInput("");
     }
   };
@@ -341,9 +347,9 @@ export function AdminPanelModal({
       setNewMasterPinInput("");
       setPinChangeFeedback("¡PIN Maestro de Dueño actualizado con éxito!");
       setTimeout(() => setPinChangeFeedback(null), 3000);
-      fetch("http://localhost:3001/api/config", {
+      fetch(apiUrl("/config"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({ security: { masterAdminPin: newMasterPinInput } }),
       }).catch(() => {});
     } else {
@@ -358,9 +364,9 @@ export function AdminPanelModal({
       setNewManagerPinInput("");
       setPinChangeFeedback("¡PIN de Administrador actualizado con éxito!");
       setTimeout(() => setPinChangeFeedback(null), 3000);
-      fetch("http://localhost:3001/api/config", {
+      fetch(apiUrl("/config"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({ security: { managerAdminPin: newManagerPinInput } }),
       }).catch(() => {});
     } else {
@@ -375,9 +381,9 @@ export function AdminPanelModal({
       setNewCashierPinInput("");
       setPinChangeFeedback("¡PIN de Cajero actualizado con éxito!");
       setTimeout(() => setPinChangeFeedback(null), 3000);
-      fetch("http://localhost:3001/api/config", {
+      fetch(apiUrl("/config"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({ security: { cashierPin: newCashierPinInput } }),
       }).catch(() => {});
     } else {
@@ -395,9 +401,9 @@ export function AdminPanelModal({
     };
     setRolePermissions(updated);
     saveRolePermissions(updated);
-    fetch("http://localhost:3001/api/config", {
+    fetch(apiUrl("/config"), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
       body: JSON.stringify({ security: { roles: updated } }),
     }).catch(() => {});
   };
@@ -425,9 +431,9 @@ export function AdminPanelModal({
 
     // Sincronizar en segundo plano con el servidor backend REST
     try {
-      fetch("http://localhost:3001/api/config", {
+      fetch(apiUrl("/config"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({
           visitIcon,
           stampRewards,

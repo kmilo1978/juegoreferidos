@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { ImageUploader } from "../components/ImageUploader";
 import { ColorPaletteSelector } from "../components/ColorPaletteSelector";
+import { apiUrl, getAuthToken } from "../../lib/apiClient";
 import {
   CURATED_GOOGLE_FONTS_HEADING,
   CURATED_GOOGLE_FONTS_BODY,
@@ -89,7 +90,7 @@ export function AdminConfig() {
 
   const fetchData = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/config");
+      const res = await fetch(apiUrl("/config"));
       if (!res.ok) throw new Error("Error al cargar configuración de marca");
       const data = await res.json();
 
@@ -225,9 +226,9 @@ export function AdminConfig() {
     setSuccess(null);
 
     try {
-      const res = await fetch("http://localhost:3001/api/config", {
+      const res = await fetch(apiUrl("/config"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({
           brand: {
             name: brandName,

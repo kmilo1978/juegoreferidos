@@ -1,7 +1,8 @@
 import { GameConfig, DEFAULT_GAME_CONFIG, PrecisionDifficulty } from "../components/qr-game/gameTypes";
+import { apiUrl, getAuthToken } from "./apiClient";
 
 const STORAGE_KEY = "juegoreferidos_game_config";
-const BACKEND_URL = "http://localhost:3001/api/game-config";
+const BACKEND_URL = apiUrl("/game-config");
 
 export const DIFFICULTY_SETTINGS: Record<PrecisionDifficulty, { label: string; toleranceMs: number; rangeText: string; desc: string }> = {
   facil: {
@@ -90,10 +91,14 @@ export class GameConfigService {
         console.error("Error guardando gameConfig local:", e);
       }
 
-      // Enviar al servidor en segundo plano
+      // Enviar al servidor en segundo plano (endpoint protegido: requiere token)
+      const token = getAuthToken();
       fetch(BACKEND_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ gameConfig: updated }),
       }).catch(() => {});
     }

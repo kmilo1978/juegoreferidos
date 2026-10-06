@@ -11,6 +11,7 @@ import {
   Layers,
   Sparkles,
 } from "lucide-react";
+import { apiUrl, getAuthToken } from "../../lib/apiClient";
 
 export function Analytics() {
   const [loading, setLoading] = useState(true);
@@ -38,7 +39,7 @@ export function Analytics() {
 
   const fetchData = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/config");
+      const res = await fetch(apiUrl("/config"));
       if (!res.ok) throw new Error("Error al cargar analítica");
       const data = await res.json();
 
@@ -80,9 +81,9 @@ export function Analytics() {
     setSuccess(null);
 
     try {
-      const res = await fetch("http://localhost:3001/api/config", {
+      const res = await fetch(apiUrl("/config"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({
           analytics: {
             gtmId,

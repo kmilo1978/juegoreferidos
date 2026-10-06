@@ -8,6 +8,7 @@
  */
 
 import { clientConfig } from "../config/clientConfig";
+import { apiUrl, getAuthToken } from "./apiClient";
 
 export interface PushRuntimeConfig {
   enabled: boolean;
@@ -495,11 +496,15 @@ export class OneSignalService {
       }
     }
 
-    // 3. Fallback y registro en el backend local / webhook
+    // 3. Fallback y registro en el backend local / webhook (protegido: requiere token)
     try {
-      await fetch("http://localhost:3001/api/push/broadcast", {
+      const token = getAuthToken();
+      await fetch(apiUrl("/push/broadcast"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           title: payload.title,
           body: payload.body,

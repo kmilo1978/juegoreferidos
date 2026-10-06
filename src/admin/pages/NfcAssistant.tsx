@@ -19,6 +19,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { KpiCard } from "../components/KpiCard";
+import { apiUrl, getAuthToken } from "../../lib/apiClient";
 
 interface NfcTable {
   id: string;
@@ -64,7 +65,7 @@ export function NfcAssistant() {
 
   const fetchNfcData = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/nfc/stats");
+      const res = await fetch(apiUrl("/nfc/stats"));
       if (!res.ok) throw new Error("Error al obtener datos NFC");
       const data = await res.json();
       if (data.success) {
@@ -96,9 +97,9 @@ export function NfcAssistant() {
     e.preventDefault();
     setSavingDomain(true);
     try {
-      const res = await fetch("http://localhost:3001/api/nfc/config", {
+      const res = await fetch(apiUrl("/nfc/config"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({ baseDomain }),
       });
       if (!res.ok) throw new Error("Error al guardar dominio");

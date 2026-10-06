@@ -14,6 +14,7 @@ import {
   Share2,
   UserCheck,
 } from "lucide-react";
+import { apiUrl, getAuthToken } from "../../lib/apiClient";
 
 interface GameStepModule {
   id: string;
@@ -124,8 +125,8 @@ export function GameMode() {
   const fetchData = async () => {
     try {
       const [gameRes, scRes] = await Promise.all([
-        fetch("http://localhost:3001/api/game-config"),
-        fetch("http://localhost:3001/api/second-chance-config"),
+        fetch(apiUrl("/game-config")),
+        fetch(apiUrl("/second-chance-config")),
       ]);
 
       if (!gameRes.ok || !scRes.ok) throw new Error("Error al cargar configuración");
@@ -187,9 +188,9 @@ export function GameMode() {
 
     try {
       const [resGame, resSc] = await Promise.all([
-        fetch("http://localhost:3001/api/game-config", {
+        fetch(apiUrl("/game-config"), {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
           body: JSON.stringify({
             activeSteps,
             precisionTarget: Number(precisionTarget),
@@ -197,9 +198,9 @@ export function GameMode() {
             maxAttempts: Number(maxAttempts),
           }),
         }),
-        fetch("http://localhost:3001/api/second-chance-config", {
+        fetch(apiUrl("/second-chance-config"), {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
           body: JSON.stringify({
             enabled: scEnabled,
             prizeName: scPrizeName,
