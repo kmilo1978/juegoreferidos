@@ -17,6 +17,49 @@ import { db, DEFAULT_SETTINGS, logRequest, readBody } from "../state.js";
 const TOKEN_TTL_MS = 12 * 60 * 60 * 1000; // 12 horas
 const sessions = new Map(); // token -> { role, expiresAt }
 
+// --- Rate limiting del login (anti fuerza bruta de PIN) ---
+const MAX_ATTEMPTS = 5; // intentos fallidos permitidos por ventana
+const LOCK_MS = 5 * 60 * 1000; // bloqueo de 5 min al superar el máximo
+const ATTEMPT_WINDOW_MS = 5 * 60 * 1000; // ventana para contar intentos
+const loginAttempts = new Map(); // ip -> { count, firstAt, lockedUntil }
+
+function clientIp(req) {
+  // Respeta X-Forwarded-For si hay proxy; cae al socket.
+  const fwd = req.headers["x-forwarded-for"];
+  if (fwd) return String(fwd).split(",")[0].trim();
+  return req.socket?.remoteAddress || "unknown";
+}
+
+/** Devuelve { blocked, retryAfterMs } para la IP dada. */
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const rec = loginAttempts.get(ip);
+  if (rec?.lockedUntil && now < rec.lockedUntil) {
+    return { blocked: true, retryAfterMs: rec.lockedUntil - now };
+  }
+  return { blocked: false, retryAfterMs: 0 };
+}
+
+/** Registra un intento fallido; bloquea la IP si supera el máximo. */
+function registerFailedAttempt(ip) {
+  const now = Date.now();
+  let rec = loginAttempts.get(ip);
+  // Reiniciar la ventana si expiró
+  if (!rec || now - rec.firstAt > ATTEMPT_WINDOW_MS) {
+    rec = { count: 0, firstAt: now, lockedUntil: 0 };
+  }
+  rec.count += 1;
+  if (rec.count >= MAX_ATTEMPTS) {
+    rec.lockedUntil = now + LOCK_MS;
+  }
+  loginAttempts.set(ip, rec);
+}
+
+/** Limpia los intentos de una IP tras un login exitoso. */
+function clearAttempts(ip) {
+  loginAttempts.delete(ip);
+}
+
 function resolvePins() {
   const sec = db.settings?.security || DEFAULT_SETTINGS.security;
   return {
@@ -82,15 +125,33 @@ export function requireAuth(req, res) {
 export function handleAuth(req, res, pathname) {
   // POST /api/auth/login  { pin }
   if (pathname === "/api/auth/login" && req.method === "POST") {
+    const ip = clientIp(req);
+
+    // Freno anti fuerza bruta: si la IP está bloqueada, responder 429.
+    const rl = checkRateLimit(ip);
+    if (rl.blocked) {
+      const secs = Math.ceil(rl.retryAfterMs / 1000);
+      logRequest("POST", "/api/auth/login", 429, `Login bloqueado por rate-limit (IP ${ip}, ${secs}s)`);
+      res.writeHead(429, { "Content-Type": "application/json", "Retry-After": String(secs) });
+      res.end(JSON.stringify({
+        success: false,
+        error: `Demasiados intentos. Espera ${secs} segundos antes de volver a intentar.`,
+        retryAfterSeconds: secs,
+      }));
+      return;
+    }
+
     readBody(req)
       .then((data) => {
         const role = roleForPin(data.pin);
         if (!role) {
-          logRequest("POST", "/api/auth/login", 401, "Intento de login con PIN inválido");
+          registerFailedAttempt(ip);
+          logRequest("POST", "/api/auth/login", 401, `Intento de login con PIN inválido (IP ${ip})`);
           res.writeHead(401, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ success: false, error: "PIN incorrecto" }));
           return;
         }
+        clearAttempts(ip);
         const token = issueToken(role);
         logRequest("POST", "/api/auth/login", 200, `Sesión iniciada (rol: ${role})`);
         res.writeHead(200, { "Content-Type": "application/json" });

@@ -745,9 +745,14 @@ function JuegoQrPage() {
                       id: "prize-pick-win",
                       name: prizeName || "Regalo Especial Día de Muertos",
                       nameEn: prizeName || "Day of the Dead Special Reward",
+                      type: "special_experience",
                       value: prizeValue || "$20.000 COP",
                       color: "#e6007e",
+                      textColor: "#ffffff",
                       probability: 100,
+                      active: true,
+                      terms: "Presenta tu premio en caja para reclamarlo.",
+                      termsEn: "Show your prize at the cashier to redeem.",
                     };
                     handlePrizeWon(won);
                   }}
@@ -761,18 +766,22 @@ function JuegoQrPage() {
                       id: "prize-memory",
                       name: prizeName || "Postre o Cóctel Espeluznante",
                       nameEn: prizeName || "Spooky Treat",
+                      type: "free_item",
                       value: prizeValue || "$18.000 COP",
                       color: "#ff007f",
+                      textColor: "#ffffff",
                       probability: 100,
+                      active: true,
+                      terms: "Presenta tu premio en caja para reclamarlo.",
+                      termsEn: "Show your prize at the cashier to redeem.",
                     };
                     handlePrizeWon(won);
                   }}
                 />
               ) : (chosenGameMode === "precision" || (!chosenGameMode && gameConfig.gameMode === "precision")) ? (
                 <StepPrecisionTimer
-                  gameConfig={gameConfig}
+                  prizes={prizes}
                   participantName={participant?.fullName || "Invitado"}
-                  tableNumber={session.tableNumber}
                   onPrizeWon={handlePrizeWon}
                 />
               ) : (chosenGameMode === "scratch" || (!chosenGameMode && gameConfig.gameMode === "scratch")) ? (

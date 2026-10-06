@@ -40,6 +40,29 @@ function waitForServer(timeoutMs = 10000) {
 
 beforeAll(async () => {
   tmpDbFile = path.join(os.tmpdir(), `juegoreferidos-test-db-${Date.now()}.json`);
+
+  // Pre-sembrar un dispositivo WiFi YA EXPIRADO para probar el barrido activo.
+  const past = new Date(Date.now() - 60 * 60000).toISOString(); // hace 1 hora
+  fs.writeFileSync(
+    tmpDbFile,
+    JSON.stringify({
+      connectedDevices: [
+        {
+          id: "dev-expired-test",
+          mac: "AA:BB:CC:DD:EE:FF",
+          ip: "192.168.88.200",
+          fullName: "Sesión Expirada",
+          whatsapp: "573000000999",
+          connectedAt: past,
+          expiresAt: past, // vencida
+          status: "authorized",
+          hardware: "mikrotik",
+        },
+      ],
+    }),
+    "utf-8"
+  );
+
   child = spawn(process.execPath, [SERVER_ENTRY], {
     env: {
       ...process.env,
@@ -190,4 +213,160 @@ describe("Portal cautivo: no es fail-open", () => {
     expect(data.accessGranted).toBe(false); // pero el router no autorizó
     expect(data.routerHandshake.status).toBe("error");
   }, 15000);
+});
+
+describe("Rate limiting del login", () => {
+  // Usamos una IP distinta vía X-Forwarded-For para no colisionar con otros tests.
+  const ip = "203.0.113.77";
+  async function badLogin() {
+    return fetch(`${BASE}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Forwarded-For": ip },
+      body: JSON.stringify({ pin: "0000" }),
+    });
+  }
+
+  it("bloquea con 429 tras 5 intentos fallidos", async () => {
+    for (let i = 0; i < 5; i++) {
+      const r = await badLogin();
+      expect(r.status).toBe(401);
+    }
+    const blocked = await badLogin();
+    expect(blocked.status).toBe(429);
+    const data = await blocked.json();
+    expect(data.retryAfterSeconds).toBeGreaterThan(0);
+  });
+
+  it("una IP bloqueada no entra ni con PIN correcto", async () => {
+    const r = await fetch(`${BASE}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Forwarded-For": ip },
+      body: JSON.stringify({ pin: TEST_PINS.MASTER_ADMIN_PIN }),
+    });
+    expect(r.status).toBe(429);
+  });
+});
+
+describe("Expiración activa de sesiones WiFi", () => {
+  it("el dispositivo pre-sembrado ya vencido no aparece como activo", async () => {
+    const r = await fetch(`${BASE}/api/portal/status`);
+    const data = await r.json();
+    // El device expirado no debe contarse entre los activos.
+    const activeMacs = (data.connectedDevices || []).map((d) => d.mac);
+    expect(activeMacs).not.toContain("AA:BB:CC:DD:EE:FF");
+  });
+
+  it("el barrido marca el dispositivo vencido como expired en la lista completa", async () => {
+    const r = await fetch(`${BASE}/api/portal/devices`);
+    const data = await r.json();
+    const dev = (data.devices || []).find((d) => d.mac === "AA:BB:CC:DD:EE:FF");
+    expect(dev).toBeTruthy();
+    expect(dev.status).toBe("expired");
+  });
+});
+
+describe("Misiones", () => {
+  it("GET /api/missions devuelve el catálogo", async () => {
+    const r = await fetch(`${BASE}/api/missions`);
+    const data = await r.json();
+    expect(data.success).toBe(true);
+    expect(Array.isArray(data.missions)).toBe(true);
+    expect(data.missions.length).toBeGreaterThan(0);
+  });
+
+  it("submit crea una evidencia PENDIENTE y review la aprueba sumando sellos", async () => {
+    const wa = "573000000333";
+    const sub = await fetch(`${BASE}/api/missions/submit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        missionId: "m_tiktok",
+        customerName: "Tester",
+        customerWhatsapp: wa,
+        evidenceUrl: "https://www.tiktok.com/@tester/video/1",
+      }),
+    });
+    const subData = await sub.json();
+    expect(subData.success).toBe(true);
+    expect(subData.submission.status).toBe("PENDIENTE");
+
+    // Aprobar requiere token de admin (endpoint protegido).
+    const lr = await login(TEST_PINS.MASTER_ADMIN_PIN);
+    const { token } = await lr.json();
+    const rev = await fetch(`${BASE}/api/missions/review`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ submissionId: subData.submission.id, action: "approve" }),
+    });
+    const revData = await rev.json();
+    expect(revData.success).toBe(true);
+    expect(revData.submission.status).toBe("APROBADO");
+
+    // El cliente debe haber recibido sellos.
+    const stampsRes = await fetch(`${BASE}/api/stamps/${wa}`);
+    const stampsData = await stampsRes.json();
+    expect(stampsData.stamps).toBeGreaterThan(0);
+  }, 15000);
+
+  it("review requiere autenticación (sin token -> 401)", async () => {
+    const r = await fetch(`${BASE}/api/missions/review`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ submissionId: "x", action: "approve" }),
+    });
+    expect(r.status).toBe(401);
+  });
+});
+
+describe("Embudo de reputación", () => {
+  it("rating alto (5) se enruta a Google", async () => {
+    const r = await fetch(`${BASE}/api/reputation/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customerName: "Feliz", rating: 5, comment: "Excelente" }),
+    });
+    const data = await r.json();
+    expect(data.success).toBe(true);
+    expect(data.feedback.actionTaken).toBe("google");
+  });
+
+  it("rating bajo (2) se enruta a WhatsApp privado", async () => {
+    const r = await fetch(`${BASE}/api/reputation/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customerName: "Molesto", rating: 2, comment: "Lento" }),
+    });
+    const data = await r.json();
+    expect(data.success).toBe(true);
+    expect(data.feedback.actionTaken).toBe("whatsapp");
+  });
+});
+
+describe("Concurso mensual", () => {
+  it("GET /api/contest responde con la lista", async () => {
+    const r = await fetch(`${BASE}/api/contest`);
+    const data = await r.json();
+    expect(data.success).toBe(true);
+    expect(Array.isArray(data.contest)).toBe(true);
+  });
+
+  it("enter inscribe un participante", async () => {
+    const r = await fetch(`${BASE}/api/contest/enter`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customerName: "Embajador", customerWhatsapp: "573000000444", missionsCount: 5 }),
+    });
+    const data = await r.json();
+    expect(data.success).toBe(true);
+    expect(data.entry.customerName).toBe("Embajador");
+  });
+
+  it("draw (sorteo) requiere autenticación (sin token -> 401)", async () => {
+    const r = await fetch(`${BASE}/api/contest/draw`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    expect(r.status).toBe(401);
+  });
 });

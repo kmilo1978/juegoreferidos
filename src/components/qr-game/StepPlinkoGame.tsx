@@ -27,13 +27,13 @@ interface StepPlinkoGameProps {
 
 // 7 casillas fijas del diseño original navideño
 const CHRISTMAS_SLOTS: PlinkoSlot[] = [
-  { id: "slot-1", name: "Caja de Regalo Sorpresa", icon: "🎁", value: "$30.000 COP", probability: 15 },
-  { id: "slot-2", name: "Bastón Navideño Artesanal", icon: "🦯", value: "Cortesía", probability: 15 },
-  { id: "slot-3", name: "Galleta de Jengibre", icon: "🍪", value: "$8.500 COP", probability: 20 },
-  { id: "slot-4", name: "Postre Árbol Nevado", icon: "🎄", value: "$18.000 COP", probability: 15 },
-  { id: "slot-5", name: "Degustación Dulce", icon: "🎄", value: "$18.000 COP", probability: 15 },
-  { id: "slot-6", name: "Bota Navideña de Autor", icon: "🧦", value: "$25.000 COP", probability: 10 },
-  { id: "slot-7", name: "Gran Estrella de Oro", icon: "⭐", value: "$50.000 COP", probability: 10, isJackpot: true },
+  { id: "slot-1", name: "Caja de Regalo Sorpresa", nameEn: "Surprise Gift Box", icon: "🎁", value: "$30.000 COP", color: "#dc2626", probability: 15 },
+  { id: "slot-2", name: "Bastón Navideño Artesanal", nameEn: "Artisan Candy Cane", icon: "🦯", value: "Cortesía", color: "#16a34a", probability: 15 },
+  { id: "slot-3", name: "Galleta de Jengibre", nameEn: "Gingerbread Cookie", icon: "🍪", value: "$8.500 COP", color: "#b45309", probability: 20 },
+  { id: "slot-4", name: "Postre Árbol Nevado", nameEn: "Snowy Tree Dessert", icon: "🎄", value: "$18.000 COP", color: "#15803d", probability: 15 },
+  { id: "slot-5", name: "Degustación Dulce", nameEn: "Sweet Tasting", icon: "🎄", value: "$18.000 COP", color: "#0e7490", probability: 15 },
+  { id: "slot-6", name: "Bota Navideña de Autor", nameEn: "Signature Holiday Stocking", icon: "🧦", value: "$25.000 COP", color: "#be123c", probability: 10 },
+  { id: "slot-7", name: "Gran Estrella de Oro", nameEn: "Golden Star Jackpot", icon: "⭐", value: "$50.000 COP", color: "#f2be71", probability: 10, isGrandPrize: true },
 ];
 
 export function StepPlinkoGame({
