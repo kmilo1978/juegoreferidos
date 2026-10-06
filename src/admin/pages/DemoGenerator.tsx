@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Wand2,
   Copy,
@@ -14,6 +14,8 @@ import {
   Send,
   Loader2,
   Bot,
+  Upload,
+  X,
 } from "lucide-react";
 import { apiPost } from "../../lib/apiClient";
 
@@ -21,7 +23,8 @@ import { apiPost } from "../../lib/apiClient";
  * Generador de Demo Personalizado "desde la calle".
  *
  * Un comercial frente a un cliente potencial introduce nombre, color, teléfono
- * y (opcional) una URL de logo. La herramienta arma un enlace autoconfigurable
+ * y (opcional) un logo (subido como archivo o pegado como URL). La herramienta
+ * arma un enlace autoconfigurable
  * (?demo=true&brand=&color=&tel=&logo=) que, al abrirse, muestra la app con la
  * marca del prospecto aplicada en vivo (ver branding por querystring en
  * src/config/clientConfig.ts). Entrega enlace copiable, QR y envío por WhatsApp.
@@ -35,6 +38,9 @@ export function DemoGenerator() {
   const [copied, setCopied] = useState(false);
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<{ ok: boolean; text: string } | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const origin =
     typeof window !== "undefined" ? window.location.origin : "https://tudominio.com";
@@ -70,6 +76,53 @@ export function DemoGenerator() {
     const base = cleanTel ? `https://wa.me/${cleanTel}` : "https://wa.me/";
     return `${base}?text=${encodeURIComponent(msg)}`;
   }, [demoUrl, tel, brandName]);
+
+  // Sube un archivo de logo al backend y usa la URL pública devuelta.
+  // Convierte el archivo a data URL base64 y lo envía a /api/demo/upload-logo,
+  // que lo guarda en public/uploads y responde una ruta corta (/uploads/...).
+  const handleLogoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadError(null);
+
+    const sizeKb = Math.round(file.size / 1024);
+    if (sizeKb > 2048) {
+      setUploadError(`El logo pesa ${sizeKb} KB (máx. 2 MB). Comprímelo e intenta de nuevo.`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const dataUrl = ev.target?.result;
+      if (typeof dataUrl !== "string") return;
+      setUploading(true);
+      try {
+        const data = await apiPost<{ success: boolean; url?: string; error?: string }>(
+          "/demo/upload-logo",
+          { dataUrl }
+        );
+        if (data.success && data.url) {
+          // Guardamos la URL absoluta para que viaje bien en el querystring.
+          setLogoUrl(`${origin}${data.url}`);
+        } else {
+          setUploadError(data.error || "No se pudo subir el logo.");
+        }
+      } catch (err) {
+        setUploadError(err instanceof Error ? err.message : "Error subiendo el logo.");
+      } finally {
+        setUploading(false);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const clearLogo = () => {
+    setLogoUrl("");
+    setUploadError(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   // Envía el demo por WhatsApp a través de Hermes (conector omnicanal).
   // Si Hermes no está configurado, el backend responde fallback=true + waUrl
@@ -197,22 +250,95 @@ export function DemoGenerator() {
             />
           </div>
 
-          {/* Logo URL (opcional) */}
+          {/* Logo (opcional): subir archivo o pegar URL */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider flex items-center gap-1.5">
               <ImageIcon className="w-3.5 h-3.5 text-[var(--gold)]" />
-              URL del Logo (opcional)
+              Logo del Negocio (opcional)
             </label>
-            <input
-              type="url"
-              value={logoUrl}
-              onChange={(e) => setLogoUrl(e.target.value)}
-              placeholder="https://.../logo.png"
-              className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-sm focus:border-[var(--gold)] focus:outline-none"
-            />
-            <span className="text-[10px] text-[#958da1]">
-              Debe ser una imagen ya publicada en internet (URL pública). Si lo dejas vacío, se usa el emblema por defecto.
+
+            {logoUrl ? (
+              // Vista previa del logo asignado
+              <div className="flex items-center gap-3 bg-[#201f23] border border-[#363439] p-2.5 rounded-xl">
+                <div className="h-14 w-14 bg-[#141317] rounded-lg border border-[#2b292e] flex items-center justify-center p-1.5 overflow-hidden shrink-0">
+                  <img src={logoUrl} alt="Logo del negocio" className="max-h-full max-w-full object-contain" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[11px] text-[#e6e1e7] font-mono block truncate">{logoUrl}</span>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="bg-[#2b292e] hover:bg-[#363439] text-[var(--gold)] text-[11px] font-bold py-1 px-2.5 rounded-lg flex items-center gap-1 cursor-pointer transition-colors disabled:opacity-60"
+                    >
+                      <Upload className="w-3 h-3" />
+                      <span>Reemplazar</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={clearLogo}
+                      className="bg-[#2b1f20] hover:bg-[#3d2426] text-[#ff8f80] text-[11px] font-bold py-1 px-2.5 rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                      <span>Quitar</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {/* Zona de subida */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="w-full border-2 border-dashed border-[#363439] hover:border-[var(--gold)]/60 bg-[#141317]/60 hover:bg-[#201f23] rounded-xl p-3.5 text-center cursor-pointer transition-all flex items-center justify-center gap-2 text-[#ccc3d8] disabled:opacity-60 disabled:cursor-wait"
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-[var(--gold)]" />
+                      <span className="text-xs font-bold">Subiendo logo…</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 text-[var(--gold)]" />
+                      <span className="text-xs font-bold">Subir logo desde tu equipo</span>
+                    </>
+                  )}
+                </button>
+
+                {/* O pegar URL pública */}
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-[#958da1] uppercase font-bold shrink-0">O URL:</span>
+                  <input
+                    type="url"
+                    value={logoUrl}
+                    onChange={(e) => setLogoUrl(e.target.value)}
+                    placeholder="https://.../logo.png"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs font-mono focus:border-[var(--gold)] focus:outline-none"
+                  />
+                </div>
+              </div>
+            )}
+
+            <span className="text-[10px] text-[#958da1] block">
+              Sube una imagen (PNG, JPG, WebP, SVG — máx. 2 MB) o pega una URL pública. Si lo dejas vacío, se usa el emblema por defecto.
             </span>
+
+            {uploadError && (
+              <div className="bg-red-950/40 border border-red-500/50 text-red-300 text-[11px] px-3 py-2 rounded-lg">
+                {uploadError}
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif"
+              onChange={handleLogoFile}
+              className="hidden"
+            />
           </div>
 
           {/* Tagline (opcional) */}

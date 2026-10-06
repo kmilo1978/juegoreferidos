@@ -431,3 +431,77 @@ describe("Hermes: envío de demo por WhatsApp", () => {
     expect(data.success).toBe(false);
   });
 });
+
+describe("Subida de logo para el demo", () => {
+  async function authToken() {
+    const lr = await login(TEST_PINS.MASTER_ADMIN_PIN);
+    const { token } = await lr.json();
+    return token;
+  }
+
+  // PNG 1x1 transparente, válido, muy pequeño.
+  const PNG_1x1 =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+
+  it("upload-logo requiere autenticación (sin token -> 401)", async () => {
+    const r = await fetch(`${BASE}/api/demo/upload-logo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dataUrl: PNG_1x1 }),
+    });
+    expect(r.status).toBe(401);
+  });
+
+  it("sube un PNG válido y devuelve una ruta /uploads/ servible", async () => {
+    const token = await authToken();
+    const r = await fetch(`${BASE}/api/demo/upload-logo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ dataUrl: PNG_1x1 }),
+    });
+    expect(r.status).toBe(200);
+    const data = await r.json();
+    expect(data.success).toBe(true);
+    expect(data.url).toMatch(/^\/uploads\/logo-.*\.png$/);
+
+    // El archivo subido debe servirse públicamente (sin token).
+    const img = await fetch(`${BASE}${data.url}`);
+    expect(img.status).toBe(200);
+    expect(img.headers.get("content-type")).toBe("image/png");
+
+    // Limpieza del archivo de prueba.
+    const uploaded = path.join(__dirname, "..", "..", "public", "uploads", path.basename(data.url));
+    if (fs.existsSync(uploaded)) {
+      try { fs.unlinkSync(uploaded); } catch { /* ignore */ }
+    }
+  });
+
+  it("rechaza una dataUrl inválida con 400", async () => {
+    const token = await authToken();
+    const r = await fetch(`${BASE}/api/demo/upload-logo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ dataUrl: "esto-no-es-base64" }),
+    });
+    expect(r.status).toBe(400);
+    const data = await r.json();
+    expect(data.success).toBe(false);
+  });
+
+  it("rechaza un tipo de archivo no permitido con 400", async () => {
+    const token = await authToken();
+    const r = await fetch(`${BASE}/api/demo/upload-logo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ dataUrl: "data:application/pdf;base64,JVBERi0xLjQK" }),
+    });
+    expect(r.status).toBe(400);
+    const data = await r.json();
+    expect(data.success).toBe(false);
+  });
+
+  it("GET /uploads de un archivo inexistente devuelve 404", async () => {
+    const r = await fetch(`${BASE}/uploads/no-existe-12345.png`);
+    expect(r.status).toBe(404);
+  });
+});
