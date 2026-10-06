@@ -3,7 +3,6 @@ import confetti from "canvas-confetti";
 import {
   Volume2,
   VolumeX,
-  RotateCcw,
   CheckCircle2,
   Trophy,
   ArrowRight,
@@ -12,10 +11,10 @@ import {
 import {
   PlinkoConfigService,
   PlinkoGameSettings,
-  PLINKO_THEMES,
   plinkoAudio,
   PlinkoSlot,
 } from "../../lib/plinkoData";
+import { brandConfettiColors } from "../../lib/brandService";
 
 interface StepPlinkoGameProps {
   participantName?: string;
@@ -33,7 +32,7 @@ const CHRISTMAS_SLOTS: PlinkoSlot[] = [
   { id: "slot-4", name: "Postre Árbol Nevado", nameEn: "Snowy Tree Dessert", icon: "🎄", value: "$18.000 COP", color: "#15803d", probability: 15 },
   { id: "slot-5", name: "Degustación Dulce", nameEn: "Sweet Tasting", icon: "🎄", value: "$18.000 COP", color: "#0e7490", probability: 15 },
   { id: "slot-6", name: "Bota Navideña de Autor", nameEn: "Signature Holiday Stocking", icon: "🧦", value: "$25.000 COP", color: "#be123c", probability: 10 },
-  { id: "slot-7", name: "Gran Estrella de Oro", nameEn: "Golden Star Jackpot", icon: "⭐", value: "$50.000 COP", color: "#f2be71", probability: 10, isGrandPrize: true },
+  { id: "slot-7", name: "Gran Estrella de Oro", nameEn: "Golden Star Jackpot", icon: "⭐", value: "$50.000 COP", color: "#fbbf24", probability: 10, isGrandPrize: true },
 ];
 
 export function StepPlinkoGame({
@@ -61,6 +60,8 @@ export function StepPlinkoGame({
 
   // Referencias para el bucle continuo de animación fluida a 60 FPS
   const animFrameRef = useRef<number | null>(null);
+  // setTimeout de destello de clavija y transición final, para limpiar al desmontar
+  const dropTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // Estructura densa escalonada idéntica a la imagen original (11 filas alternadas de 6 y 5 clavijas)
   const pegGrid = [
@@ -79,10 +80,12 @@ export function StepPlinkoGame({
 
   const slots = settings.slots?.length === 7 ? settings.slots : CHRISTMAS_SLOTS;
 
-  // Limpiar requestAnimationFrame al desmontar
+  // Limpiar requestAnimationFrame y timeouts pendientes al desmontar
   useEffect(() => {
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      dropTimeoutsRef.current.forEach(clearTimeout);
+      dropTimeoutsRef.current = [];
     };
   }, []);
 
@@ -185,7 +188,7 @@ export function StepPlinkoGame({
       if (p0.pegId && currentSegment !== lastPegSoundIdx && segmentProgress > 0.4) {
         lastPegSoundIdx = currentSegment;
         setActivePegKey(p0.pegId);
-        setTimeout(() => setActivePegKey(null), 140);
+        dropTimeoutsRef.current.push(setTimeout(() => setActivePegKey(null), 140));
         if (soundOn) {
           const pitch = 0.8 + (currentSegment / segmentCount) * 0.5;
           plinkoAudio.playPegBounce(pitch);
@@ -207,12 +210,12 @@ export function StepPlinkoGame({
           particleCount: 50,
           spread: 70,
           origin: { y: 0.65 },
-          colors: ["#dc2626", "#16a34a", "#f59e0b", "#ffffff"],
+          colors: brandConfettiColors(["#dc2626", "#16a34a", "#ffffff"]),
         });
 
-        setTimeout(() => {
+        dropTimeoutsRef.current.push(setTimeout(() => {
           setScreenState("won");
-        }, 1200);
+        }, 1200));
       }
     };
 
@@ -220,10 +223,9 @@ export function StepPlinkoGame({
   };
 
   const handleClaim = () => {
+    // En producción onWinPrize siempre está presente (lo pasa App.tsx).
     if (wonSlot && onWinPrize) {
       onWinPrize(wonSlot.name, wonSlot.value);
-    } else {
-      alert(`¡Voucher activado!\n${wonSlot?.name} (${wonSlot?.value})`);
     }
   };
 
@@ -392,7 +394,8 @@ export function StepPlinkoGame({
                 type="button"
                 onClick={() => setSoundOn(!soundOn)}
                 className="w-7 h-7 rounded-full bg-red-950/60 border border-amber-400/40 text-amber-300 flex items-center justify-center transition-all cursor-pointer"
-                title="Activar/Silenciar sonido"
+                title={soundOn ? "Silenciar sonido" : "Activar sonido"}
+                aria-label={soundOn ? "Silenciar sonido" : "Activar sonido"}
               >
                 {soundOn ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 opacity-50" />}
               </button>
@@ -501,7 +504,8 @@ export function StepPlinkoGame({
                 type="button"
                 onClick={() => setSoundOn(!soundOn)}
                 className="w-7 h-7 rounded-full bg-red-600 hover:bg-red-700 border border-white text-white flex items-center justify-center shadow-lg cursor-pointer transition-all"
-                title="Sonido ambiente"
+                title={soundOn ? "Silenciar sonido" : "Activar sonido"}
+                aria-label={soundOn ? "Silenciar sonido" : "Activar sonido"}
               >
                 {soundOn ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
               </button>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   MEMORY_THEMES,
   MemoryThemePreset,
@@ -6,19 +6,9 @@ import {
   DEFAULT_MEMORY_SETTINGS,
   memoryAudio,
 } from "@/lib/memoryGameData";
-import {
-  Timer,
-  Trophy,
-  Volume2,
-  VolumeX,
-  RotateCcw,
-  Sparkles,
-  ArrowRight,
-  Gift,
-  CheckCircle2,
-  Flame,
-} from "lucide-react";
+import { Trophy, Volume2, VolumeX, RotateCcw, Clock } from "lucide-react";
 import confetti from "canvas-confetti";
+import { brandConfettiColors } from "@/lib/brandService";
 
 interface CardState {
   instanceId: string;
@@ -67,8 +57,11 @@ export function StepMemoryGame({
   const [soundEnabled, setSoundEnabled] = useState(settings.soundEnabled);
   const [streak, setStreak] = useState(0);
 
-  const timerRef = useRef<any>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // setTimeout de voltear/match/fallo, para cancelarlos al desmontar
+  const flipTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const hasWon = gameState === "won";
+  const hasTimedOut = gameState === "timeout";
 
   // Generar y barajar la baraja de parejas
   const setupDeck = () => {
@@ -177,7 +170,7 @@ export function StepMemoryGame({
 
       if (first.itemId === second.itemId) {
         // ¡PAREJA ENCONTRADA!
-        setTimeout(() => {
+        flipTimeoutsRef.current.push(setTimeout(() => {
           if (soundEnabled) memoryAudio.playMatch();
           const totalPairs = (settings.pairsCount || 8);
 
@@ -201,10 +194,10 @@ export function StepMemoryGame({
           const bonus = (streak + 1) * 25;
           setScore((s) => s + 100 + bonus);
           setStreak((st) => st + 1);
-        }, 450);
+        }, 450));
       } else {
         // FALLO: Voltear de nuevo
-        setTimeout(() => {
+        flipTimeoutsRef.current.push(setTimeout(() => {
           if (soundEnabled) memoryAudio.playError();
           setCards((prev) =>
             prev.map((c) =>
@@ -216,7 +209,7 @@ export function StepMemoryGame({
           setSelectedCards([]);
           setIsProcessingMatch(false);
           setStreak(0);
-        }, 850);
+        }, 850));
       }
     }
   };
@@ -228,13 +221,28 @@ export function StepMemoryGame({
       particleCount: 80,
       spread: 70,
       origin: { y: 0.6 },
-      colors: [theme.accentColor, "#f2be71", "#ffddb1", "#ffffff"],
+      // Dorado de marca (resuelto en runtime) + acento temático del juego
+      colors: brandConfettiColors([theme.accentColor, "#ffffff"]),
     });
   };
 
   const handleClaimReward = () => {
     onWinPrize(settings.rewardPrizeName, settings.rewardPrizeValue);
   };
+
+  // Reinicia la partida (reintento tras agotar el tiempo)
+  const handleRetry = () => {
+    setupDeck();
+    setGameState("playing");
+  };
+
+  // Limpieza de los setTimeout de volteo/match al desmontar
+  useEffect(() => {
+    return () => {
+      flipTimeoutsRef.current.forEach(clearTimeout);
+      flipTimeoutsRef.current = [];
+    };
+  }, []);
 
   return (
     <div className="w-full max-w-[390px] mx-auto select-none">
@@ -350,11 +358,16 @@ export function StepMemoryGame({
                 type="button"
                 onClick={() => setSoundEnabled(!soundEnabled)}
                 className="w-6 h-6 rounded-full bg-black/20 text-white flex items-center justify-center cursor-pointer"
+                title={soundEnabled ? "Silenciar sonido" : "Activar sonido"}
+                aria-label={soundEnabled ? "Silenciar sonido" : "Activar sonido"}
               >
                 {soundEnabled ? <Volume2 className="w-3 h-3" /> : <VolumeX className="w-3 h-3 opacity-50" />}
               </button>
 
-              <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-white text-xs font-bold">
+              <div
+                className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-white text-xs font-bold"
+                aria-hidden="true"
+              >
                 ⊞
               </div>
             </div>
@@ -389,7 +402,7 @@ export function StepMemoryGame({
                   key={card.instanceId}
                   type="button"
                   onClick={() => handleCardClick(card)}
-                  disabled={card.isMatched || isProcessingMatch || hasWon}
+                  disabled={card.isMatched || isProcessingMatch || hasWon || hasTimedOut}
                   className={`aspect-square rounded-2xl select-none transition-all duration-300 transform perspective-500 cursor-pointer ${
                     card.isMatched
                       ? "ring-2 ring-emerald-400 scale-98 shadow-md"
@@ -418,7 +431,7 @@ export function StepMemoryGame({
             })}
           </div>
 
-          {/* Puntos paginadores inferiores o botón de victoria */}
+          {/* Puntos paginadores inferiores, botón de victoria o panel de tiempo agotado */}
           {hasWon ? (
             <div className="pt-1">
               <button
@@ -429,6 +442,35 @@ export function StepMemoryGame({
                 <Trophy className="w-4 h-4 text-white" />
                 <span>¡TODAS LAS PAREJAS! RECLAMAR PREMIO</span>
               </button>
+            </div>
+          ) : hasTimedOut ? (
+            <div className="pt-1 space-y-2">
+              <div className="text-center">
+                <p className="text-sm font-black text-white font-['Epilogue'] flex items-center justify-center gap-1.5">
+                  <Clock className="w-4 h-4 text-pink-300" />
+                  <span>¡Se acabó el tiempo!</span>
+                </p>
+                <p className="text-[11px] text-purple-200/80 mt-0.5">
+                  Encontraste {matchesFound} de {Math.min(settings.pairsCount || 8, theme.items.length)} parejas.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleRetry}
+                className="w-full py-3 px-5 rounded-full bg-gradient-to-r from-pink-600 via-rose-500 to-pink-600 hover:brightness-110 active:scale-98 text-white font-black text-xs uppercase tracking-wider shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <RotateCcw className="w-4 h-4 text-white" />
+                <span>Intentar de Nuevo</span>
+              </button>
+              {onSecondChance && (
+                <button
+                  type="button"
+                  onClick={onSecondChance}
+                  className="w-full py-2 text-center text-xs text-pink-200 hover:text-white font-semibold cursor-pointer"
+                >
+                  Probar la 2ª Oportunidad ➔
+                </button>
+              )}
             </div>
           ) : (
             <div className="flex items-center justify-center gap-2 py-1 text-xs text-purple-300">
