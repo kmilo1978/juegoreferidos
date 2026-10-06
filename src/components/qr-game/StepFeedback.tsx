@@ -72,9 +72,11 @@ export function StepFeedback({
   const [highRatingCtaText, setHighRatingCtaText] = useState("Publicar Reseña en Google Maps");
 
   useEffect(() => {
+    let cancelled = false;
     fetch("/api/reputation")
       .then((res) => res.json())
       .then((data) => {
+        if (cancelled) return;
         if (data?.success && data?.config) {
           const cfg = data.config;
           if (cfg.googleBusinessUrl) setGoogleReviewUrl(cfg.googleBusinessUrl);
@@ -96,6 +98,9 @@ export function StepFeedback({
         }
       })
       .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const ratingLabels: Record<number, string> = {

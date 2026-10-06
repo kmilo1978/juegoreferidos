@@ -16,6 +16,10 @@ export function GoldenQRCode({ value, size = 240, className = "" }: GoldenQRCode
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Evita que la carga asíncrona del logo dibuje sobre un canvas ya
+    // re-renderizado (cambio de value/size) o desmontado.
+    let cancelled = false;
+
     // Generar código QR con tono Dorado Luxor y fondo blanco puro
     QRCode.toCanvas(
       canvas,
@@ -34,6 +38,7 @@ export function GoldenQRCode({ value, size = 240, className = "" }: GoldenQRCode
           console.error("Error al generar código QR:", err);
           return;
         }
+        if (cancelled) return;
 
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
@@ -43,6 +48,7 @@ export function GoldenQRCode({ value, size = 240, className = "" }: GoldenQRCode
         img.src = emblemaDorado;
         img.crossOrigin = "anonymous";
         img.onload = () => {
+          if (cancelled) return;
           const logoSize = Math.round(size * 0.22);
           const x = (size - logoSize) / 2;
           const y = (size - logoSize) / 2;
@@ -63,6 +69,10 @@ export function GoldenQRCode({ value, size = 240, className = "" }: GoldenQRCode
         };
       },
     );
+
+    return () => {
+      cancelled = true;
+    };
   }, [value, size]);
 
   return (

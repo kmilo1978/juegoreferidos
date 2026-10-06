@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { InstagramEvidence } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
 import { Reveal } from "@/components/shared/Reveal";
@@ -53,12 +53,21 @@ export function StepInstagramStory({
   const [hasActed, setHasActed] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cancelar el timeout de feedback "copiado" al desmontar
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
 
   const handleCopyMention = () => {
     navigator.clipboard?.writeText(instaHandle);
     setCopiedMention(true);
     setHasActed(true);
-    setTimeout(() => setCopiedMention(false), 3000);
+    if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    copyTimeoutRef.current = setTimeout(() => setCopiedMention(false), 3000);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
