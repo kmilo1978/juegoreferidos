@@ -370,3 +370,64 @@ describe("Concurso mensual", () => {
     expect(r.status).toBe(401);
   });
 });
+
+describe("Hermes: envío de demo por WhatsApp", () => {
+  async function authToken() {
+    const lr = await login(TEST_PINS.MASTER_ADMIN_PIN);
+    const { token } = await lr.json();
+    return token;
+  }
+
+  it("send-demo requiere autenticación (sin token -> 401)", async () => {
+    const r = await fetch(`${BASE}/api/hermes/send-demo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ demoUrl: "https://x.com/?demo=true", tel: "573001234567" }),
+    });
+    expect(r.status).toBe(401);
+  });
+
+  it("sin credenciales de Hermes responde fallback con enlace wa.me", async () => {
+    const token = await authToken();
+    const r = await fetch(`${BASE}/api/hermes/send-demo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        demoUrl: "https://midominio.com/?demo=true&brand=Cafe%20Luna",
+        brandName: "Café Luna",
+        tel: "57 300 123 4567",
+      }),
+    });
+    expect(r.status).toBe(200);
+    const data = await r.json();
+    expect(data.success).toBe(true);
+    expect(data.delivered).toBe(false);
+    expect(data.fallback).toBe(true);
+    // El tel se normaliza a solo dígitos en el enlace de WhatsApp.
+    expect(data.waUrl).toContain("https://wa.me/573001234567");
+  });
+
+  it("rechaza demoUrl inválida con 400", async () => {
+    const token = await authToken();
+    const r = await fetch(`${BASE}/api/hermes/send-demo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ demoUrl: "no-es-una-url", tel: "573001234567" }),
+    });
+    expect(r.status).toBe(400);
+    const data = await r.json();
+    expect(data.success).toBe(false);
+  });
+
+  it("rechaza envío sin número de WhatsApp con 400", async () => {
+    const token = await authToken();
+    const r = await fetch(`${BASE}/api/hermes/send-demo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ demoUrl: "https://midominio.com/?demo=true", tel: "" }),
+    });
+    expect(r.status).toBe(400);
+    const data = await r.json();
+    expect(data.success).toBe(false);
+  });
+});

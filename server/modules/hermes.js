@@ -115,6 +115,119 @@ export function handleHermes(req, res, pathname, url) {
     return true;
   }
 
+  // Enviar un enlace de demo personalizado por WhatsApp a través de Hermes.
+  // Si Hermes está configurado (apiUrl + apiKey), hace un POST real al conector
+  // omnicanal con la acción SEND_WHATSAPP. Si NO está configurado, responde con
+  // fallback=true y un enlace wa.me para que el frontend lo abra manualmente
+  // (así la herramienta de ventas nunca queda inservible).
+  if (pathname === "/api/hermes/send-demo" && req.method === "POST") {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      (async () => {
+        try {
+          const { demoUrl, brandName, tel, message } = JSON.parse(body || "{}");
+
+          // Validación de entrada
+          if (!demoUrl || !/^https?:\/\//i.test(String(demoUrl))) {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: "demoUrl inválida o ausente" }));
+            return;
+          }
+          const cleanTel = String(tel || "").replace(/[^0-9]/g, "");
+          if (!cleanTel) {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ success: false, error: "Falta el número de WhatsApp del destinatario" }));
+            return;
+          }
+
+          const text =
+            message ||
+            `¡Hola${brandName ? ` ${brandName}` : ""}! 👋 Te comparto una demo personalizada de tu sistema de fidelización y juegos en mesa:\n\n${demoUrl}\n\nÁbrela desde tu celular para probarla. 🎁`;
+
+          const hermes = db.settings.hermes || DEFAULT_SETTINGS.hermes;
+          if (!hermes.stats) hermes.stats = { totalPings: 0, eventsDispatched: 0, lastLatencyMs: 0 };
+
+          const waFallbackUrl = `https://wa.me/${cleanTel}?text=${encodeURIComponent(text)}`;
+
+          // Sin credenciales => fallback manual (no es un error del usuario).
+          if (!hermes.apiKey || !hermes.apiUrl) {
+            logRequest("HERMES", "/api/hermes/send-demo", 200, `🤖 [HERMES] Sin credenciales: fallback wa.me para ${cleanTel}`);
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({
+              success: true,
+              delivered: false,
+              fallback: true,
+              waUrl: waFallbackUrl,
+              message: "Hermes no está configurado. Abre el enlace de WhatsApp manualmente para enviar el demo.",
+            }));
+            return;
+          }
+
+          // Envío REAL vía Hermes (conector omnicanal) con timeout de 8s.
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 8000);
+          try {
+            const r = await fetch(hermes.apiUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${hermes.apiKey}`,
+              },
+              body: JSON.stringify({
+                action: "SEND_WHATSAPP",
+                agentId: hermes.agentId,
+                to: cleanTel,
+                text,
+                metadata: { kind: "demo-link", brandName: brandName || null, demoUrl },
+              }),
+              signal: controller.signal,
+            });
+            clearTimeout(timeout);
+
+            const ok = r.status < 400;
+            if (ok) {
+              hermes.stats.eventsDispatched = (hermes.stats.eventsDispatched || 0) + 1;
+              hermes.status = "connected";
+              hermes.lastPing = new Date().toLocaleTimeString("es-CO");
+              saveDb();
+            }
+            logRequest("HERMES", "/api/hermes/send-demo", r.status, `🤖 [HERMES] Envío demo a ${cleanTel} → HTTP ${r.status}`);
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({
+              success: ok,
+              delivered: ok,
+              fallback: !ok,
+              waUrl: ok ? undefined : waFallbackUrl,
+              httpStatus: r.status,
+              message: ok
+                ? `Demo enviado por WhatsApp a ${cleanTel} vía Hermes`
+                : `Hermes respondió HTTP ${r.status}. Usa el enlace de WhatsApp manual.`,
+            }));
+          } catch (err) {
+            clearTimeout(timeout);
+            const isAbort = err.name === "AbortError";
+            logRequest("HERMES", "/api/hermes/send-demo", 504, `🤖 [HERMES] ${isAbort ? "timeout" : err.message} al enviar demo`);
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({
+              success: false,
+              delivered: false,
+              fallback: true,
+              waUrl: waFallbackUrl,
+              error: isAbort
+                ? "Hermes no respondió en 8s (timeout). Usa el enlace de WhatsApp manual."
+                : `No se pudo enviar vía Hermes: ${err.message}. Usa el enlace manual.`,
+            }));
+          }
+        } catch (err) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ success: false, error: err.message }));
+        }
+      })();
+    });
+    return true;
+  }
+
   if (pathname === "/api/integrations/hermes/webhook" && req.method === "POST") {
     let body = "";
     req.on("data", (chunk) => (body += chunk));

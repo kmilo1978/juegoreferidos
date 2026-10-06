@@ -134,6 +134,7 @@ Composio es una integración **híbrida parcial**:
 Hermes se presenta como "agente IA & WhatsApp omnicanal", pero **el backend NO ejecuta IA**. Es un **conector/monitor**:
 - `GET/POST /api/hermes/config` (`server/modules/hermes.js`): guarda/lee la config (`apiUrl`, `apiKey`, `agentId`, `mode`, `events`).
 - `POST /api/hermes/test`: **ping HTTP real** a `apiUrl` con `Authorization: Bearer`, timeout 6s, mide latencia y actualiza `status`.
+- `POST /api/hermes/send-demo`: envía un enlace de demo por WhatsApp vía el conector (acción `SEND_WHATSAPP`), con fallback a `wa.me` si no hay credenciales. Ver sección 6.2.
 - `POST /api/integrations/hermes/webhook`: receptor "eco" que cuenta eventos entrantes (`eventsDispatched`).
 - Panel `src/admin/pages/Hermes.tsx`: formulario (endpoint, agentId, modo, token, prompt) + botón de ping + monitor de estado.
 
@@ -149,7 +150,7 @@ En resumen: Hermes es el **canal de salida/monitoreo** hacia un sistema externo 
 1. **Página del generador** — `src/admin/pages/DemoGenerator.tsx`, ruta `/demo-generator` (menú lateral: "Generador de Demo (Ventas)"). Formulario con nombre, color, WhatsApp, URL de logo (opcional) y eslogan (opcional).
 2. **Enlace autoconfigurable** — produce `…/?demo=true&brand=&color=&tel=&logo=&tagline=`. Un solo enlace, sin backend ni login.
 3. **Branding por querystring** — `getUrlBrandOverride()` en `src/config/clientConfig.ts` lee esos parámetros y los mezcla sobre la marca de `localStorage`, persistiéndolos. Corre antes de la auto-init de `brandService` (garantizado por el orden de import), así la app abre ya personalizada.
-4. **Compartir** — la página entrega QR (`api.qrserver.com`, sin dependencias nuevas), botón Copiar, Abrir y **enviar por WhatsApp** (`wa.me` con mensaje pre-redactado).
+4. **Compartir** — la página entrega QR (`api.qrserver.com`, sin dependencias nuevas), botón Copiar, Abrir, **enviar por WhatsApp** manual (`wa.me` con mensaje pre-redactado) y **envío automático vía Hermes** (ver abajo).
 
 **Validaciones de los parámetros** (en `getUrlBrandOverride`):
 - `color` → acepta con/sin `#`, valida `/^#[0-9a-fA-F]{6}$/`.
@@ -157,9 +158,16 @@ En resumen: Hermes es el **canal de salida/monitoreo** hacia un sistema externo 
 - `tel` → limpia todo lo que no sea dígito.
 - `ig` → antepone `@` si falta.
 
+**Envío automático vía Hermes (implementado):**
+- Endpoint `POST /api/hermes/send-demo` (`server/modules/hermes.js`, protegido por token admin en `index.js`). Recibe `{ demoUrl, brandName, tel }`.
+- Si Hermes está configurado (`apiUrl` + `apiKey`), hace un **POST real** al conector omnicanal con `action: "SEND_WHATSAPP"`, `to`, `text` y metadata del demo (timeout 8s). Incrementa `stats.eventsDispatched`.
+- Si Hermes **no** está configurado o falla/timeout, responde `fallback: true` + `waUrl` (enlace `wa.me`); el frontend lo abre para envío manual. Así la herramienta de ventas nunca queda sin salida.
+- En el panel: botón "Enviar automáticamente por Hermes" en `DemoGenerator.tsx`.
+- Validaciones del endpoint: `demoUrl` debe ser `https?://`; `tel` se normaliza a dígitos y es obligatorio (si falta → 400).
+- Tests: `server/__tests__/api.test.js` cubre auth requerida, fallback sin credenciales (enlace `wa.me` con tel normalizado) y rechazos 400.
+
 **Pendiente / opcional (a confirmar con el negocio):**
 - **Subida de archivo de logo** (hoy el logo se pasa como URL ya hospedada; subir un archivo requeriría almacenamiento + endpoint).
-- **Rol de Hermes (opcional):** una vez generado el enlace, Hermes podría ser el canal que lo **envía por WhatsApp** automáticamente al cliente — eso sí encaja con su naturaleza de conector.
 
 ---
 

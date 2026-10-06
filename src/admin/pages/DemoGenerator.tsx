@@ -11,7 +11,11 @@ import {
   Phone,
   Image as ImageIcon,
   Smartphone,
+  Send,
+  Loader2,
+  Bot,
 } from "lucide-react";
+import { apiPost } from "../../lib/apiClient";
 
 /**
  * Generador de Demo Personalizado "desde la calle".
@@ -29,6 +33,8 @@ export function DemoGenerator() {
   const [logoUrl, setLogoUrl] = useState("");
   const [tagline, setTagline] = useState("");
   const [copied, setCopied] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendResult, setSendResult] = useState<{ ok: boolean; text: string } | null>(null);
 
   const origin =
     typeof window !== "undefined" ? window.location.origin : "https://tudominio.com";
@@ -64,6 +70,56 @@ export function DemoGenerator() {
     const base = cleanTel ? `https://wa.me/${cleanTel}` : "https://wa.me/";
     return `${base}?text=${encodeURIComponent(msg)}`;
   }, [demoUrl, tel, brandName]);
+
+  // Envía el demo por WhatsApp a través de Hermes (conector omnicanal).
+  // Si Hermes no está configurado, el backend responde fallback=true + waUrl
+  // y abrimos el enlace de WhatsApp manual (nunca queda sin salida).
+  const handleSendViaHermes = async () => {
+    const cleanTel = tel.replace(/[^0-9]/g, "");
+    if (!cleanTel) {
+      setSendResult({ ok: false, text: "Escribe el WhatsApp del negocio para poder enviarlo." });
+      return;
+    }
+    setSending(true);
+    setSendResult(null);
+    try {
+      const data = await apiPost<{
+        success: boolean;
+        delivered?: boolean;
+        fallback?: boolean;
+        waUrl?: string;
+        message?: string;
+        error?: string;
+      }>("/hermes/send-demo", {
+        demoUrl,
+        brandName: brandName.trim(),
+        tel: cleanTel,
+      });
+
+      if (data.delivered) {
+        setSendResult({ ok: true, text: data.message || "Demo enviado por WhatsApp vía Hermes." });
+      } else if (data.fallback && data.waUrl) {
+        // Hermes no configurado o no disponible: abrimos WhatsApp manual.
+        window.open(data.waUrl, "_blank", "noopener,noreferrer");
+        setSendResult({
+          ok: true,
+          text: data.message || data.error || "Hermes no disponible: se abrió WhatsApp para enviarlo manualmente.",
+        });
+      } else {
+        setSendResult({ ok: false, text: data.error || data.message || "No se pudo enviar el demo." });
+      }
+    } catch (err) {
+      // Error de red/permiso: caemos al enlace manual que ya tenemos calculado.
+      window.open(whatsappShareUrl, "_blank", "noopener,noreferrer");
+      setSendResult({
+        ok: true,
+        text: `No se pudo contactar al servidor (${err instanceof Error ? err.message : "error"}). Se abrió WhatsApp manual.`,
+      });
+    } finally {
+      setSending(false);
+      setTimeout(() => setSendResult(null), 6000);
+    }
+  };
 
   const isReady = brandName.trim().length > 0;
 
@@ -240,6 +296,34 @@ export function DemoGenerator() {
                   <span>WhatsApp</span>
                 </a>
               </div>
+
+              {/* Enviar automáticamente vía Hermes */}
+              <button
+                type="button"
+                onClick={handleSendViaHermes}
+                disabled={sending}
+                className="w-full bg-[#d1bcff]/15 border border-[#d1bcff]/40 hover:bg-[#d1bcff]/25 text-[#d1bcff] text-xs font-bold rounded-xl px-3 py-3 flex items-center justify-center gap-2 cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-wait"
+              >
+                {sending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Bot className="w-4 h-4" />
+                )}
+                <Send className="w-3.5 h-3.5" />
+                <span>{sending ? "Enviando…" : "Enviar automáticamente por Hermes"}</span>
+              </button>
+
+              {sendResult && (
+                <div
+                  className={`text-[11px] rounded-xl px-3 py-2.5 border ${
+                    sendResult.ok
+                      ? "bg-[#14231b] border-[#10b981]/40 text-[#10b981]"
+                      : "bg-red-950/40 border-red-500/50 text-red-300"
+                  }`}
+                >
+                  {sendResult.text}
+                </div>
+              )}
 
               <div className="flex items-start gap-2 text-[11px] text-[#958da1] pt-1 border-t border-[#363439]/50">
                 <Smartphone className="w-3.5 h-3.5 text-[var(--gold)] shrink-0 mt-0.5" />
