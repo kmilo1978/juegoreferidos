@@ -23,7 +23,7 @@ Este documento consolida la hoja de ruta y los siguientes pasos estratégicos pa
 | :---: | :--- | :--- | :--- |
 | **2.1** | **Instalación de Portal Cautivo en Router (MikroTik / UniFi)** | Cargar la plantilla HTML optimizada del portal cautivo en el router del local para que los clientes que se conecten al Wi-Fi sean redirigidos automáticamente al minijuego de mesa antes de navegar. | Red / Wi-Fi |
 | **2.2** | **Impresión de Habladores Acrílicos de Mesa** | Generar y enviar a imprenta los diseños de mesa con los códigos QR dorados de autor para las 10 mesas del restaurante y el hablador de barra/caja. | Diseño / Sala |
-| **2.3** | **Capacitación Rápida al Personal de Caja y Meseros** | Entrenar a meseros y cajeros en el uso de los PINs de validación de 4 dígitos (`4321` / `9395`) para quemar cupones de ruleta y registrar sellos de visita de forma rápida. | Capacitación |
+| **2.3** | **Capacitación Rápida al Personal de Caja y Meseros** | Entrenar a meseros y cajeros en el uso del PIN de validación de caja (configurable en el panel) para quemar cupones de ruleta y registrar sellos de visita de forma rápida. <br>*Nota de seguridad:* los PINs de ejemplo antiguos (`4321`, `9395`, `0000`, `1234`) fueron **eliminados**; el PIN solo se revela en modo demo (`?demo=true`). | Capacitación |
 | **2.4** | **Sincronización Definitiva con Supabase Cloud** | Vincular las llaves de base de datos PostgreSQL en la pestaña *Bases de Datos* para contar con respaldo seguro en la nube de todas las sesiones y premios ganados. | Base de Datos |
 
 ---
@@ -55,3 +55,33 @@ Este documento consolida la hoja de ruta y los siguientes pasos estratégicos pa
   - **Modo Día y Modo Noche:** Conmutador en barra superior y lateral con persistencia en memoria y paleta bistro clara.
 - [x] **Backend Modular :3001:** Servidor ultraligero con persistencia en `db.json` y soporte de portal cautivo CNA.
 - [x] **Sincronización Total de Código:** Repositorios sincronizados en GitHub y réplicas locales limpias.
+
+---
+
+## 🔧 Constancia Técnica — Estado de Integraciones (actualizado 6 oct 2026)
+
+Tras las Etapas 1 → 6c (seguridad, modularidad, bugs de frontend, modales/PIN, documentación y Generador de Demo), el núcleo del producto está terminado y verificado (tsc 0 errores, 32/32 tests, build OK). Lo que resta para dejar de ser "demo" es **conectar las integraciones externas a servicios reales**. El código del lado del backend ya está listo y probado con su camino de respaldo (fallback); falta el servicio/credenciales del otro lado.
+
+### Pendiente real por integración
+
+| Integración | Estado hoy | Qué falta para que sea "real" | Bloqueante |
+| :--- | :--- | :--- | :--- |
+| **Hermes (WhatsApp omnicanal)** | Conector + monitor con ping real; endpoint `POST /api/hermes/send-demo` implementado con fallback a `wa.me`. | Un endpoint Hermes externo (Meta Cloud API / Twilio / gateway propio) que acepte la acción `SEND_WHATSAPP`. Configurar `apiUrl` + `apiKey` en el panel de Hermes. | Credenciales del proveedor WhatsApp |
+| **Composio (Sheets/CRM)** | Híbrido/parcial: la `apiKey` viaja desde el navegador (`x-api-key`); el backend aún no hace la llamada real. | Proxear la llamada por el backend (no exponer la apiKey en el cliente) y conectar una entidad/acción real (`GOOGLESHEETS_APPEND_ROW`). | Cuenta Composio + entidad conectada |
+| **Push / OneSignal** | Wiring listo; sin credenciales no envía. | Credenciales de OneSignal (App ID + REST API Key) y HTTPS en producción (requisito de Web Push). | Cuenta OneSignal + dominio HTTPS |
+| **Portal WiFi / Kiosko (MikroTik/UniFi)** | Handshake con el router real, fail-closed (no finge éxito). | Router/controlador real configurado + plantilla del portal cargada en el equipo. | Hardware de red en sitio |
+| **Supabase (opcional)** | Servicio cableado, no obligatorio. | Proyecto Supabase real + llaves PostgreSQL en la pestaña *Bases de Datos*. | Proyecto Supabase (si se usa) |
+
+### Subida de logo del demo — nota de despliegue
+El Generador de Demo guarda logos subidos en `public/uploads/` (ignorado por git salvo `.gitkeep`). En producción, asegurar que:
+- La carpeta `public/uploads/` sea **escribible** por el proceso del backend.
+- El host sirva la ruta `/uploads/*` (en dev la sirve el backend; en prod suele servirla el host del frontend junto a `public/`).
+- Frontend y backend compartan ese directorio o el logo se sirva desde el mismo origen donde se genera el demo (la URL guardada es absoluta sobre ese `origin`).
+
+### Orden recomendado para "hacer reales" las integraciones
+1. **Hermes** → mayor impacto comercial: el enlace de demo se envía solo por WhatsApp.
+2. **Composio** → los registros de clientes y boletos caen en Google Sheets/CRM en tiempo real.
+3. **Push / OneSignal** → requiere además el dominio HTTPS (tarea 1.1).
+4. **Portal WiFi** y **Supabase** → dependen de hardware/cuenta en sitio.
+
+> **Para avanzar con cualquiera de estas se necesitan las credenciales o el servicio externo correspondiente.** Sin eso, el backend queda listo y probado solo en su camino de respaldo, pero no se puede verificar el envío/sincronización real.
