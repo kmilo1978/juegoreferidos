@@ -53,8 +53,8 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-[#141317] flex items-center justify-center p-6 text-[#e6e1e7]">
-          <div className="bg-[#1c1b1f] border border-[#f2be71]/40 rounded-2xl p-8 max-w-md text-center space-y-4 shadow-2xl">
-            <h2 className="text-[#f2be71] font-bold text-xl font-['Epilogue']">Aviso del Dashboard</h2>
+          <div className="bg-[#1c1b1f] border border-[var(--gold)]/40 rounded-2xl p-8 max-w-md text-center space-y-4 shadow-2xl">
+            <h2 className="text-[var(--gold)] font-bold text-xl font-['Epilogue']">Aviso del Dashboard</h2>
             <p className="text-sm text-[#ccc3d8]">Hubo un detalle al renderizar los datos del servidor:</p>
             <div className="bg-[#0f0e12] p-3 rounded-xl text-xs text-red-400 font-mono text-left overflow-auto">
               {this.state.error}
@@ -67,7 +67,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
                   window.location.hash = "#/";
                   window.location.reload();
                 }}
-                className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-5 py-2.5 text-sm hover:brightness-105 cursor-pointer shadow-lg transition-all"
+                className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-5 py-2.5 text-sm hover:brightness-105 cursor-pointer shadow-lg transition-all"
               >
                 Recargar Dashboard
               </button>

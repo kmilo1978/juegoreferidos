@@ -73,10 +73,10 @@ export function AddToHomeScreenModal() {
       <button
         type="button"
         onClick={handleInstallClick}
-        className="w-full inline-flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl bg-[#1c1b1f] border border-[#f2be71]/40 hover:border-[#f2be71]/70 hover:bg-[#252429] text-[#f2be71] text-xs uppercase tracking-wider font-bold transition-all active:scale-98 cursor-pointer"
+        className="w-full inline-flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl bg-[#1c1b1f] border border-[var(--gold)]/40 hover:border-[var(--gold)]/70 hover:bg-[#252429] text-[var(--gold)] text-xs uppercase tracking-wider font-bold transition-all active:scale-98 cursor-pointer"
       >
-        <Smartphone className="h-4 w-4 text-[#f2be71] shrink-0" />
-        <span className="text-[#f2be71]">
+        <Smartphone className="h-4 w-4 text-[var(--gold)] shrink-0" />
+        <span className="text-[var(--gold)]">
           {t("Guardar Tarjeta en Pantalla de Inicio (1-Tap)", "Add Card to Home Screen (1-Tap)")}
         </span>
       </button>

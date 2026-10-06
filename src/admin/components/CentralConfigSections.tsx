@@ -118,14 +118,14 @@ export function CentralConfigSections({
           <div className="border-b border-[#2b292e] pb-3 flex items-center justify-between">
             <div>
               <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-                <LayoutGrid className="w-4 h-4 text-[#f2be71]" />
+                <LayoutGrid className="w-4 h-4 text-[var(--gold)]" />
                 <span>Gestión de Módulos Independientes (ON / OFF)</span>
               </h3>
               <p className="text-xs text-[#958da1] mt-0.5">
                 Enciende o apaga cualquier funcionalidad sin alterar el resto de la aplicación ni las sesiones activas en sala.
               </p>
             </div>
-            <span className="text-xs font-mono font-bold text-[#f2be71] bg-[#f2be71]/10 px-2.5 py-1 rounded-full border border-[#f2be71]/30">
+            <span className="text-xs font-mono font-bold text-[var(--gold)] bg-[var(--gold)]/10 px-2.5 py-1 rounded-full border border-[var(--gold)]/30">
               16 Módulos Disponibles
             </span>
           </div>
@@ -138,7 +138,7 @@ export function CentralConfigSections({
                   key={mod.id}
                   className={`p-3.5 rounded-xl border transition-all flex items-center justify-between gap-3 ${
                     isEnabled
-                      ? "bg-[#201f23] border-[#363439] hover:border-[#f2be71]/40"
+                      ? "bg-[#201f23] border-[#363439] hover:border-[var(--gold)]/40"
                       : "bg-[#141317] border-[#2b292e] opacity-60"
                   }`}
                 >
@@ -159,7 +159,7 @@ export function CentralConfigSections({
                     type="button"
                     onClick={() => handleToggleModule(mod.id)}
                     className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      isEnabled ? "bg-[#f2be71]" : "bg-[#363439]"
+                      isEnabled ? "bg-[var(--gold)]" : "bg-[#363439]"
                     }`}
                   >
                     <span
@@ -182,7 +182,7 @@ export function CentralConfigSections({
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-6 shadow-lg animate-fadeIn">
           <div className="border-b border-[#2b292e] pb-3">
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <Palette className="w-4 h-4 text-[#f2be71]" />
+              <Palette className="w-4 h-4 text-[var(--gold)]" />
               <span>Paleta Cromática Global & Colores de Estado</span>
             </h3>
             <p className="text-xs text-[#958da1] mt-0.5">
@@ -192,7 +192,7 @@ export function CentralConfigSections({
 
           {/* Colores Principales */}
           <div>
-            <h4 className="text-xs font-bold text-[#f2be71] uppercase tracking-wider mb-3">
+            <h4 className="text-xs font-bold text-[var(--gold)] uppercase tracking-wider mb-3">
               1. Colores de Marca & Superficie
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -232,7 +232,7 @@ export function CentralConfigSections({
 
           {/* Colores de Alerta y Estado */}
           <div>
-            <h4 className="text-xs font-bold text-[#f2be71] uppercase tracking-wider mb-3">
+            <h4 className="text-xs font-bold text-[var(--gold)] uppercase tracking-wider mb-3">
               2. Colores de Estados & Alertas del Sistema
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -275,7 +275,7 @@ export function CentralConfigSections({
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-6 shadow-lg animate-fadeIn">
           <div className="border-b border-[#2b292e] pb-3">
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <Type className="w-4 h-4 text-[#f2be71]" />
+              <Type className="w-4 h-4 text-[var(--gold)]" />
               <span>Escala Tipográfica, Tamaños & Espaciado</span>
             </h3>
             <p className="text-xs text-[#958da1] mt-0.5">
@@ -288,7 +288,7 @@ export function CentralConfigSections({
             <div className="bg-[#201f23] p-4 rounded-xl border border-[#363439] space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-[#e6e1e7]">Tamaño Base de Fuente</label>
-                <span className="font-mono text-xs font-bold text-[#f2be71] bg-[#141317] px-2 py-0.5 rounded">
+                <span className="font-mono text-xs font-bold text-[var(--gold)] bg-[#141317] px-2 py-0.5 rounded">
                   {config.typography.fontSizeBase} px
                 </span>
               </div>
@@ -299,7 +299,7 @@ export function CentralConfigSections({
                 step="1"
                 value={config.typography.fontSizeBase}
                 onChange={(e) => handleTypographyChange("fontSizeBase", parseInt(e.target.value) || 15)}
-                className="w-full accent-[#f2be71] cursor-pointer"
+                className="w-full accent-[var(--gold)] cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-[#958da1]">
                 <span>12px (Compacto)</span>
@@ -361,7 +361,7 @@ export function CentralConfigSections({
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-6 shadow-lg animate-fadeIn">
           <div className="border-b border-[#2b292e] pb-3">
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#f2be71]" />
+              <Layers className="w-4 h-4 text-[var(--gold)]" />
               <span>Geometría Visual: Bordes, Radios & Sombras</span>
             </h3>
             <p className="text-xs text-[#958da1] mt-0.5">
@@ -380,7 +380,7 @@ export function CentralConfigSections({
                   onClick={() => handleGeometryChange("borderRadius", rad)}
                   className={`w-full py-2 px-3 rounded-xl border text-xs text-left transition-all cursor-pointer flex items-center justify-between ${
                     config.geometry.borderRadius === rad
-                      ? "bg-[#2b292e] text-[#f2be71] border-[#f2be71] font-bold"
+                      ? "bg-[#2b292e] text-[var(--gold)] border-[var(--gold)] font-bold"
                       : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:bg-[#252429]"
                   }`}
                 >
@@ -402,7 +402,7 @@ export function CentralConfigSections({
                   onClick={() => handleGeometryChange("shadowLevel", sh)}
                   className={`w-full py-2 px-3 rounded-xl border text-xs text-left transition-all cursor-pointer flex items-center justify-between ${
                     config.geometry.shadowLevel === sh
-                      ? "bg-[#2b292e] text-[#f2be71] border-[#f2be71] font-bold"
+                      ? "bg-[#2b292e] text-[var(--gold)] border-[var(--gold)] font-bold"
                       : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:bg-[#252429]"
                   }`}
                 >
@@ -424,7 +424,7 @@ export function CentralConfigSections({
                   onClick={() => handleGeometryChange("borderWidth", bw)}
                   className={`w-full py-2 px-3 rounded-xl border text-xs text-left transition-all cursor-pointer flex items-center justify-between ${
                     config.geometry.borderWidth === bw
-                      ? "bg-[#2b292e] text-[#f2be71] border-[#f2be71] font-bold"
+                      ? "bg-[#2b292e] text-[var(--gold)] border-[var(--gold)] font-bold"
                       : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:bg-[#252429]"
                   }`}
                 >
@@ -444,7 +444,7 @@ export function CentralConfigSections({
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-6 shadow-lg animate-fadeIn">
           <div className="border-b border-[#2b292e] pb-3">
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#f2be71]" />
+              <ShieldCheck className="w-4 h-4 text-[var(--gold)]" />
               <span>Auditoría de Accesibilidad & Restauración</span>
             </h3>
             <p className="text-xs text-[#958da1] mt-0.5">
@@ -465,7 +465,7 @@ export function CentralConfigSections({
             </div>
 
             <div className="bg-[#201f23] p-4 rounded-xl border border-[#363439] space-y-2">
-              <div className="flex items-center gap-2 text-[#f2be71]">
+              <div className="flex items-center gap-2 text-[var(--gold)]">
                 <ShieldCheck className="w-4 h-4" />
                 <span className="text-xs font-bold uppercase tracking-wider">Validación de Sintaxis</span>
               </div>

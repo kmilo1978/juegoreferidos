@@ -150,7 +150,7 @@ export function GameExclusiveCustomizer() {
       <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 border-b border-[#363439] pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="px-2.5 py-0.5 rounded-full bg-[#f2be71]/15 text-[#f2be71] border border-[#f2be71]/30 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
+            <span className="px-2.5 py-0.5 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] border border-[var(--gold)]/30 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
               <Sliders className="w-3.5 h-3.5" />
               DEPARTAMENTO COMERCIAL & MARKETING
             </span>
@@ -180,7 +180,7 @@ export function GameExclusiveCustomizer() {
             href={`http://localhost:5173/?paso=3&juego=${selectedGameId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 xl:flex-initial py-2.5 px-4 rounded-xl bg-[#201f23] hover:bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/40 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="flex-1 xl:flex-initial py-2.5 px-4 rounded-xl bg-[#201f23] hover:bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/40 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             <span>Probar en Mesa</span>
@@ -190,7 +190,7 @@ export function GameExclusiveCustomizer() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 xl:flex-initial py-2.5 px-6 rounded-xl bg-gradient-to-r from-[#f2be71] to-[#ffddb1] text-[#121115] font-black text-xs uppercase tracking-wider hover:brightness-105 active:scale-98 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="flex-1 xl:flex-initial py-2.5 px-6 rounded-xl bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] text-[#121115] font-black text-xs uppercase tracking-wider hover:brightness-105 active:scale-98 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             {saving ? (
               <span className="w-3.5 h-3.5 border-2 border-[#121115] border-t-transparent rounded-full animate-spin" />
@@ -212,7 +212,7 @@ export function GameExclusiveCustomizer() {
 
       {/* 2. SELECTOR DE JUEGO COMERCIAL ACTIVO */}
       <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-4">
-        <label className="text-xs font-mono font-bold text-[#f2be71] uppercase tracking-wider block mb-3">
+        <label className="text-xs font-mono font-bold text-[var(--gold)] uppercase tracking-wider block mb-3">
           1. Selecciona la Dinámica a Personalizar para tu Campaña:
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
@@ -229,8 +229,8 @@ export function GameExclusiveCustomizer() {
                 }}
                 className={`py-3 px-3 rounded-xl border text-left transition-all flex flex-col justify-between cursor-pointer ${
                   isSelected
-                    ? "bg-[#2b292e] text-[#f2be71] border-[#f2be71] shadow-lg ring-1 ring-[#f2be71]"
-                    : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:border-[#f2be71]/50 hover:bg-[#252429]"
+                    ? "bg-[#2b292e] text-[var(--gold)] border-[var(--gold)] shadow-lg ring-1 ring-[var(--gold)]"
+                    : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:border-[var(--gold)]/50 hover:bg-[#252429]"
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
@@ -241,7 +241,7 @@ export function GameExclusiveCustomizer() {
                     <Icon className="w-4 h-4" />
                   </div>
                   {isSelected && (
-                    <span className="w-2 h-2 rounded-full bg-[#f2be71] animate-ping" />
+                    <span className="w-2 h-2 rounded-full bg-[var(--gold)] animate-ping" />
                   )}
                 </div>
                 <span className="text-xs font-bold leading-tight line-clamp-1">{g.name}</span>
@@ -263,7 +263,7 @@ export function GameExclusiveCustomizer() {
               onClick={() => setActiveTab("aesthetics")}
               className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTab === "aesthetics"
-                  ? "bg-[#f2be71] text-[#121115] shadow-md"
+                  ? "bg-[var(--gold)] text-[#121115] shadow-md"
                   : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
               }`}
             >
@@ -276,7 +276,7 @@ export function GameExclusiveCustomizer() {
               onClick={() => setActiveTab("narrative")}
               className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTab === "narrative"
-                  ? "bg-[#f2be71] text-[#121115] shadow-md"
+                  ? "bg-[var(--gold)] text-[#121115] shadow-md"
                   : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
               }`}
             >
@@ -289,7 +289,7 @@ export function GameExclusiveCustomizer() {
               onClick={() => setActiveTab("rules")}
               className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTab === "rules"
-                  ? "bg-[#f2be71] text-[#121115] shadow-md"
+                  ? "bg-[var(--gold)] text-[#121115] shadow-md"
                   : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
               }`}
             >
@@ -302,7 +302,7 @@ export function GameExclusiveCustomizer() {
               onClick={() => setActiveTab("prizes")}
               className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTab === "prizes"
-                  ? "bg-[#f2be71] text-[#121115] shadow-md"
+                  ? "bg-[var(--gold)] text-[#121115] shadow-md"
                   : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
               }`}
             >
@@ -315,7 +315,7 @@ export function GameExclusiveCustomizer() {
               onClick={() => setActiveTab("timing")}
               className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTab === "timing"
-                  ? "bg-[#f2be71] text-[#121115] shadow-md"
+                  ? "bg-[var(--gold)] text-[#121115] shadow-md"
                   : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
               }`}
             >
@@ -332,7 +332,7 @@ export function GameExclusiveCustomizer() {
             {activeTab === "aesthetics" && (
               <div className="space-y-4 animate-fadeIn">
                 <div className="border-b border-[#2b292e] pb-3">
-                  <h3 className="text-sm font-bold text-[#f2be71] font-['Epilogue'] flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-[var(--gold)] font-['Epilogue'] flex items-center gap-2">
                     <Palette className="w-4 h-4" />
                     Pilar 1: Estética, Texturas e Identidad Visual de Marca
                   </h3>
@@ -353,7 +353,7 @@ export function GameExclusiveCustomizer() {
                         themePreset: e.target.value as any,
                       })
                     }
-                    className="w-full bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 text-xs font-medium focus:border-[#f2be71]/60 focus:outline-none"
+                    className="w-full bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 text-xs font-medium focus:border-[var(--gold)]/60 focus:outline-none"
                   >
                     <option value="navidad">🎄 Especial Navidad & Fin de Año</option>
                     <option value="halloween">🎃 Especial Halloween & Noche Mágica</option>
@@ -485,7 +485,7 @@ export function GameExclusiveCustomizer() {
             {activeTab === "narrative" && (
               <div className="space-y-4 animate-fadeIn">
                 <div className="border-b border-[#2b292e] pb-3">
-                  <h3 className="text-sm font-bold text-[#f2be71] font-['Epilogue'] flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-[var(--gold)] font-['Epilogue'] flex items-center gap-2">
                     <FileText className="w-4 h-4" />
                     Pilar 2: Narrativa, Mensajes de Atracción y Copys
                   </h3>
@@ -561,7 +561,7 @@ export function GameExclusiveCustomizer() {
 
                 {/* Tutorial en 2 Pasos */}
                 <div className="bg-[#141317] border border-[#363439] rounded-xl p-3 space-y-2">
-                  <span className="text-[11px] font-bold text-[#f2be71] block">
+                  <span className="text-[11px] font-bold text-[var(--gold)] block">
                     Tutorial Rápido en 2 Pasos (Iconos ilustrados):
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -657,7 +657,7 @@ export function GameExclusiveCustomizer() {
             {activeTab === "rules" && (
               <div className="space-y-4 animate-fadeIn">
                 <div className="border-b border-[#2b292e] pb-3">
-                  <h3 className="text-sm font-bold text-[#f2be71] font-['Epilogue'] flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-[var(--gold)] font-['Epilogue'] flex items-center gap-2">
                     <Settings2 className="w-4 h-4" />
                     Pilar 3: Reglas del Juego, Dificultad y Asignación
                   </h3>
@@ -675,7 +675,7 @@ export function GameExclusiveCustomizer() {
                       onClick={() => handleUpdate("rules", { difficulty: dif })}
                       className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
                         currentProfile.rules.difficulty === dif
-                          ? "bg-[#2b292e] text-[#f2be71] border-[#f2be71] shadow-md font-bold"
+                          ? "bg-[#2b292e] text-[var(--gold)] border-[var(--gold)] shadow-md font-bold"
                           : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:bg-[#252429]"
                       }`}
                     >
@@ -716,7 +716,7 @@ export function GameExclusiveCustomizer() {
                   <div>
                     <label className="text-xs font-semibold text-[#ccc3d8] block mb-1 flex items-center justify-between">
                       <span>Probabilidad de Acierto Global:</span>
-                      <span className="font-mono text-xs text-[#f2be71] font-bold">
+                      <span className="font-mono text-xs text-[var(--gold)] font-bold">
                         {currentProfile.rules.winProbability}%
                       </span>
                     </label>
@@ -729,7 +729,7 @@ export function GameExclusiveCustomizer() {
                       onChange={(e) =>
                         handleUpdate("rules", { winProbability: parseInt(e.target.value) || 50 })
                       }
-                      className="w-full accent-[#f2be71] cursor-pointer"
+                      className="w-full accent-[var(--gold)] cursor-pointer"
                     />
                     <div className="flex justify-between text-[10px] text-[#958da1] mt-1">
                       <span>10% (Muy Difícil)</span>
@@ -760,7 +760,7 @@ export function GameExclusiveCustomizer() {
 
                   <div className="flex items-center justify-between pt-2 border-t border-[#2b292e]">
                     <div className="flex items-center gap-2">
-                      <Volume2 className="w-4 h-4 text-[#f2be71]" />
+                      <Volume2 className="w-4 h-4 text-[var(--gold)]" />
                       <span className="text-xs text-[#e6e1e7]">Efectos de Sonido Acústicos Táctiles</span>
                     </div>
                     <input
@@ -769,7 +769,7 @@ export function GameExclusiveCustomizer() {
                       onChange={(e) =>
                         handleUpdate("rules", { soundEnabled: e.target.checked })
                       }
-                      className="w-4 h-4 accent-[#f2be71] cursor-pointer"
+                      className="w-4 h-4 accent-[var(--gold)] cursor-pointer"
                     />
                   </div>
                 </div>
@@ -782,7 +782,7 @@ export function GameExclusiveCustomizer() {
             {activeTab === "prizes" && (
               <div className="space-y-4 animate-fadeIn">
                 <div className="border-b border-[#2b292e] pb-3">
-                  <h3 className="text-sm font-bold text-[#f2be71] font-['Epilogue'] flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-[var(--gold)] font-['Epilogue'] flex items-center gap-2">
                     <Gift className="w-4 h-4" />
                     Pilar 4: Catálogo de Premios, Stock y Vouchers
                   </h3>
@@ -793,7 +793,7 @@ export function GameExclusiveCustomizer() {
 
                 {/* Premio Principal */}
                 <div className="bg-[#141317] border border-[#363439] rounded-xl p-4 space-y-3">
-                  <span className="text-xs font-bold text-[#f2be71] block uppercase tracking-wider">
+                  <span className="text-xs font-bold text-[var(--gold)] block uppercase tracking-wider">
                     🏆 Premio Principal de Campaña:
                   </span>
 
@@ -823,7 +823,7 @@ export function GameExclusiveCustomizer() {
                         onChange={(e) =>
                           handleUpdate("prizes", { mainPrizeValue: e.target.value })
                         }
-                        className="w-full bg-[#201f23] border border-[#363439] text-[#f2be71] font-mono rounded-xl px-3 py-2 text-xs font-bold"
+                        className="w-full bg-[#201f23] border border-[#363439] text-[var(--gold)] font-mono rounded-xl px-3 py-2 text-xs font-bold"
                         placeholder="Ej: $150.000 COP"
                       />
                     </div>
@@ -923,7 +923,7 @@ export function GameExclusiveCustomizer() {
             {activeTab === "timing" && (
               <div className="space-y-4 animate-fadeIn">
                 <div className="border-b border-[#2b292e] pb-3">
-                  <h3 className="text-sm font-bold text-[#f2be71] font-['Epilogue'] flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-[var(--gold)] font-['Epilogue'] flex items-center gap-2">
                     <Clock className="w-4 h-4" />
                     Pilar 5: Duración de los Retos, Fechas de Campaña y Urgencia
                   </h3>
@@ -936,7 +936,7 @@ export function GameExclusiveCustomizer() {
                 <div>
                   <label className="text-xs font-semibold text-[#ccc3d8] block mb-1 flex items-center justify-between">
                     <span>Límite de Tiempo por Partida (Cronómetro en Vivo):</span>
-                    <span className="font-mono text-xs text-[#f2be71] font-bold">
+                    <span className="font-mono text-xs text-[var(--gold)] font-bold">
                       {currentProfile.timing.timeLimitSeconds === 0
                         ? "Sin límite de tiempo"
                         : `${currentProfile.timing.timeLimitSeconds} Segundos`}
@@ -951,7 +951,7 @@ export function GameExclusiveCustomizer() {
                     onChange={(e) =>
                       handleUpdate("timing", { timeLimitSeconds: parseInt(e.target.value) || 0 })
                     }
-                    className="w-full accent-[#f2be71] cursor-pointer"
+                    className="w-full accent-[var(--gold)] cursor-pointer"
                   />
                   <div className="flex justify-between text-[10px] text-[#958da1] mt-1">
                     <span>0s (Sin límite / Pausado)</span>
@@ -964,7 +964,7 @@ export function GameExclusiveCustomizer() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-semibold text-[#ccc3d8] block mb-1 flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-[#f2be71]" /> Fecha de Inicio de Campaña:
+                      <Calendar className="w-3.5 h-3.5 text-[var(--gold)]" /> Fecha de Inicio de Campaña:
                     </label>
                     <input
                       type="date"
@@ -1008,7 +1008,7 @@ export function GameExclusiveCustomizer() {
                       onChange={(e) =>
                         handleUpdate("timing", { urgencyTimerVisible: e.target.checked })
                       }
-                      className="w-4 h-4 accent-[#f2be71] cursor-pointer"
+                      className="w-4 h-4 accent-[var(--gold)] cursor-pointer"
                     />
                   </div>
 
@@ -1042,7 +1042,7 @@ export function GameExclusiveCustomizer() {
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-4">
             <div className="flex items-center justify-between mb-3 border-b border-[#2b292e] pb-2.5">
               <div className="flex items-center gap-2">
-                <Smartphone className="w-4 h-4 text-[#f2be71]" />
+                <Smartphone className="w-4 h-4 text-[var(--gold)]" />
                 <span className="text-xs font-bold text-[#e6e1e7]">Simulador Móvil en Vivo</span>
               </div>
               <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-500/40 px-2 py-0.5 rounded-full">
@@ -1057,7 +1057,7 @@ export function GameExclusiveCustomizer() {
                 onClick={() => setSimulatorFace("face1")}
                 className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
                   simulatorFace === "face1"
-                    ? "bg-[#f2be71] text-[#121115] shadow-xs"
+                    ? "bg-[var(--gold)] text-[#121115] shadow-xs"
                     : "text-[#ccc3d8] hover:text-white"
                 }`}
               >
@@ -1068,7 +1068,7 @@ export function GameExclusiveCustomizer() {
                 onClick={() => setSimulatorFace("face2")}
                 className={`flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
                   simulatorFace === "face2"
-                    ? "bg-[#f2be71] text-[#121115] shadow-xs"
+                    ? "bg-[var(--gold)] text-[#121115] shadow-xs"
                     : "text-[#ccc3d8] hover:text-white"
                 }`}
               >

@@ -310,7 +310,7 @@ export function PushNotificationPrompt({
                 type="button"
                 onClick={handleRequestPermission}
                 disabled={loading}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#d4af37] to-[#f2be71] text-neutral-950 font-bold text-sm shadow-md hover:brightness-105 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#d4af37] to-[var(--gold)] text-neutral-950 font-bold text-sm shadow-md hover:brightness-105 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">

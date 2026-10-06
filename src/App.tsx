@@ -42,6 +42,7 @@ import { SupabaseService } from "./lib/supabaseService";
 import { TableManagerService } from "./lib/tableManagerService";
 import { GameConfigService } from "./lib/gameConfigService";
 import { SecondChanceService } from "./lib/secondChanceService";
+import { normalizeActiveStepIds, LEGACY_STEP_ID_MAP } from "./lib/funnelSteps";
 import { MessageCircle, Sparkles, Timer, RotateCcw } from "lucide-react";
 import { site } from "./data/site";
 import { clientConfig } from "./config/clientConfig";
@@ -278,7 +279,10 @@ function JuegoQrPage() {
 
   const isStepActive = (stepId: string) => {
     if (!gameConfig.activeSteps || !Array.isArray(gameConfig.activeSteps)) return true;
-    return gameConfig.activeSteps.includes(stepId);
+    // Normalizar a ids canónicos para tolerar configuraciones antiguas
+    const activeIds = normalizeActiveStepIds(gameConfig.activeSteps);
+    const canonical = LEGACY_STEP_ID_MAP[stepId] ?? stepId;
+    return activeIds.includes(canonical as never);
   };
 
   // Registrar visita, cargar historial persistente y sincronizar configuración de juego
@@ -504,7 +508,7 @@ function JuegoQrPage() {
       // ignore
     }
     // Verificar si el paso 2 (Redes / Foto) está activo en el checklist
-    if (isStepActive("step_social")) {
+    if (isStepActive("step_instagram")) {
       setCurrentStep(2);
     } else {
       setCurrentStep(3);
@@ -644,7 +648,7 @@ function JuegoQrPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#141317] text-[#e6e1e7] flex flex-col selection:bg-[#f2be71]/30 selection:text-[#f2be71]">
+    <div className="min-h-screen bg-[#141317] text-[#e6e1e7] flex flex-col selection:bg-[var(--gold)]/30 selection:text-[var(--gold)]">
       {/* Cabecera guiada paso a paso */}
       <GameHeader
         session={session}
@@ -659,7 +663,7 @@ function JuegoQrPage() {
       />
 
       {/* Ambient background glow orbs estilo Stitch */}
-      <div className="pointer-events-none fixed -top-10 -right-20 w-80 h-80 rounded-full bg-[#f2be71]/5 blur-3xl" />
+      <div className="pointer-events-none fixed -top-10 -right-20 w-80 h-80 rounded-full bg-[var(--gold)]/5 blur-3xl" />
       <div className="pointer-events-none fixed top-72 -left-24 w-96 h-96 rounded-full bg-[#8a4fff]/5 blur-3xl" />
 
       {/* Contenido principal del embudo guiado paso a paso */}
@@ -827,7 +831,7 @@ function JuegoQrPage() {
                     onProceedToFeedback={() => {
                       if (isStepActive("step_feedback")) {
                         setCurrentStep(5);
-                      } else if (isStepActive("step_precision")) {
+                      } else if (isStepActive("step_second_chance")) {
                         setCurrentStep(6);
                       } else if (isStepActive("step_stamps")) {
                         setCurrentStep(7);
@@ -849,14 +853,14 @@ function JuegoQrPage() {
                         }}
                         className="btn-dark inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs transition-all cursor-pointer shadow-md active:scale-95"
                       >
-                        <RotateCcw className="h-3.5 w-3.5 text-[#f2be71]" />
+                        <RotateCcw className="h-3.5 w-3.5 text-[var(--gold)]" />
                         <span className="font-semibold">{t("🔄 Girar de Nuevo (Modo Demo)", "🔄 Spin Again (Demo Mode)")}</span>
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-10 bg-[#1c1b1f] rounded-2xl border border-[#f2be71]/30 p-6 sm:p-8 shadow-xl">
-                    <h3 className="font-headline-sm text-xl text-[#ffddb1] font-bold mb-2">
+                  <div className="text-center py-10 bg-[#1c1b1f] rounded-2xl border border-[var(--gold)]/30 p-6 sm:p-8 shadow-xl">
+                    <h3 className="font-headline-sm text-xl text-[var(--gold-light)] font-bold mb-2">
                       {t("¡Aún no has descubierto tu premio!", "You haven't unveiled your prize yet!")}
                     </h3>
                     <p className="text-sm text-[#ccc3d8] mb-6 max-w-sm mx-auto">
@@ -887,7 +891,7 @@ function JuegoQrPage() {
                   isStandAlone={false}
                   secondChanceConfig={secondChanceConfig}
                   onUnlockSecondChance={() => {
-                    if (isStepActive("step_precision")) {
+                    if (isStepActive("step_second_chance")) {
                       setCurrentStep(6);
                     } else if (isStepActive("step_stamps")) {
                       setCurrentStep(7);

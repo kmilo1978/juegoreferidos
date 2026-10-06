@@ -334,7 +334,7 @@ export function Sessions() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -348,7 +348,7 @@ export function Sessions() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-[#e6e1e7] font-bold text-2xl font-['Epilogue'] flex items-center gap-2">
-            <MapPin className="w-6 h-6 text-[#f2be71]" />
+            <MapPin className="w-6 h-6 text-[var(--gold)]" />
             Gestión de Mesas, Zonas & Códigos QR
           </h2>
           <p className="text-sm text-[#ccc3d8] mt-0.5">
@@ -360,9 +360,9 @@ export function Sessions() {
           <button
             type="button"
             onClick={() => setIsZonesModalOpen(true)}
-            className="bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[#f2be71] border border-[#363439] px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
+            className="bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[var(--gold)] border border-[#363439] px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
           >
-            <Settings2 className="w-4 h-4 text-[#f2be71]" />
+            <Settings2 className="w-4 h-4 text-[var(--gold)]" />
             <span>Configurar Ubicaciones ({zones.length})</span>
           </button>
 
@@ -375,7 +375,7 @@ export function Sessions() {
               setCustomZoneText("");
               setIsAddTableOpen(true);
             }}
-            className="bg-[#f2be71] hover:brightness-105 text-[#121115] px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer transition-all shadow-md"
+            className="bg-[var(--gold)] hover:brightness-105 text-[#121115] px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer transition-all shadow-md"
           >
             <Plus className="w-4 h-4" />
             <span>Agregar Mesa</span>
@@ -404,8 +404,8 @@ export function Sessions() {
           onClick={() => setSelectedZoneFilter("all")}
           className={`px-3.5 py-2 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
             selectedZoneFilter === "all"
-              ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/40"
-              : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#201f23]"
+              ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/40"
+              : "text-[#ccc3d8] hover:text-[var(--gold)] hover:bg-[#201f23]"
           }`}
         >
           <Layers className="w-3.5 h-3.5" />
@@ -424,8 +424,8 @@ export function Sessions() {
               onClick={() => setSelectedZoneFilter(z)}
               className={`px-3.5 py-2 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                 selectedZoneFilter === z
-                  ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/40"
-                  : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#201f23]"
+                  ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/40"
+                  : "text-[#ccc3d8] hover:text-[var(--gold)] hover:bg-[#201f23]"
               }`}
             >
               <MapPin className="w-3.5 h-3.5" />
@@ -464,12 +464,12 @@ export function Sessions() {
                 filteredTables.map((t) => (
                   <tr key={t.id} className="hover:bg-[#201f23]/40 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-bold text-[#f2be71] font-mono text-sm">{t.name}</div>
+                      <div className="font-bold text-[var(--gold)] font-mono text-sm">{t.name}</div>
                       <span className="text-[10px] text-[#958da1]">Número #{t.number}</span>
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#201f23] text-[#e6e1e7] font-semibold border border-[#363439]">
-                        <MapPin className="w-3 h-3 text-[#f2be71]" />
+                        <MapPin className="w-3 h-3 text-[var(--gold)]" />
                         {t.zone || "Sin asignar"}
                       </span>
                     </td>
@@ -494,14 +494,14 @@ export function Sessions() {
                     <td className="px-6 py-4">
                       <StatusBadge status={t.status} />
                     </td>
-                    <td className="px-6 py-4 text-[#ffddb1] font-medium">{t.prizeWon || "—"}</td>
+                    <td className="px-6 py-4 text-[var(--gold-light)] font-medium">{t.prizeWon || "—"}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         {/* Botón Ver QR */}
                         <button
                           type="button"
                           onClick={() => setSelectedTable(t)}
-                          className="bg-[#201f23] hover:bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/40 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="bg-[#201f23] hover:bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/40 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                           title="Ver y personalizar código QR"
                         >
                           <QrCode className="w-3.5 h-3.5" />
@@ -512,7 +512,7 @@ export function Sessions() {
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(t)}
-                          className="p-1.5 rounded-lg bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[#f2be71] transition-colors cursor-pointer border border-[#363439]"
+                          className="p-1.5 rounded-lg bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[var(--gold)] transition-colors cursor-pointer border border-[#363439]"
                           title="Editar nombre y ubicación de la mesa"
                         >
                           <Pencil className="w-3.5 h-3.5" />
@@ -550,10 +550,10 @@ export function Sessions() {
       {/* MODAL 1: GESTIONAR UBICACIONES / ZONAS */}
       {isZonesModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#1c1b1f] border border-[#f2be71]/40 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-2xl relative">
+          <div className="bg-[#1c1b1f] border border-[var(--gold)]/40 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-2xl relative">
             <div className="flex items-center justify-between border-b border-[#363439] pb-3">
               <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-[#f2be71]" />
+                <MapPin className="w-5 h-5 text-[var(--gold)]" />
                 <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue']">
                   Configurar Ubicaciones y Zonas del Local
                 </h3>
@@ -575,11 +575,11 @@ export function Sessions() {
                 value={newZoneInput}
                 onChange={(e) => setNewZoneInput(e.target.value)}
                 placeholder="Ej: Rooftop 360°, Terraza VIP, Barra 2..."
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 text-xs flex-1 focus:border-[#f2be71]/60 focus:outline-none"
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 text-xs flex-1 focus:border-[var(--gold)]/60 focus:outline-none"
               />
               <button
                 type="submit"
-                className="bg-[#f2be71] text-[#121115] font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer hover:brightness-105 active:scale-98 transition-all shrink-0"
+                className="bg-[var(--gold)] text-[#121115] font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer hover:brightness-105 active:scale-98 transition-all shrink-0"
               >
                 <Plus className="w-4 h-4" />
                 <span>Agregar Ubicación</span>
@@ -599,7 +599,7 @@ export function Sessions() {
                     className="flex items-center justify-between p-3 rounded-xl bg-[#201f23] border border-[#363439]"
                   >
                     <div className="flex items-center gap-2.5">
-                      <MapPin className="w-4 h-4 text-[#f2be71]" />
+                      <MapPin className="w-4 h-4 text-[var(--gold)]" />
                       <div>
                         <span className="text-xs font-bold text-[#e6e1e7]">{z}</span>
                         <span className="text-[11px] text-[#ccc3d8] block">
@@ -625,7 +625,7 @@ export function Sessions() {
               <button
                 type="button"
                 onClick={() => setIsZonesModalOpen(false)}
-                className="px-5 py-2 rounded-xl bg-[#201f23] text-[#f2be71] font-bold text-xs cursor-pointer hover:bg-[#2b292e]"
+                className="px-5 py-2 rounded-xl bg-[#201f23] text-[var(--gold)] font-bold text-xs cursor-pointer hover:bg-[#2b292e]"
               >
                 Listo
               </button>
@@ -637,10 +637,10 @@ export function Sessions() {
       {/* MODAL 2: EDITAR MESA Y UBICACIÓN */}
       {editingTable && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#1c1b1f] border border-[#f2be71]/40 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl relative">
+          <div className="bg-[#1c1b1f] border border-[var(--gold)]/40 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl relative">
             <div className="flex items-center justify-between border-b border-[#363439] pb-3">
               <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-                <Pencil className="w-4 h-4 text-[#f2be71]" />
+                <Pencil className="w-4 h-4 text-[var(--gold)]" />
                 Editar Mesa & Ubicación
               </h3>
               <button
@@ -662,7 +662,7 @@ export function Sessions() {
                   required
                   value={editTableName}
                   onChange={(e) => setEditTableName(e.target.value)}
-                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-semibold focus:border-[#f2be71]/60 focus:outline-none"
+                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-semibold focus:border-[var(--gold)]/60 focus:outline-none"
                 />
               </div>
 
@@ -674,7 +674,7 @@ export function Sessions() {
                   <button
                     type="button"
                     onClick={() => setEditCustomZoneMode(!editCustomZoneMode)}
-                    className="text-[10px] text-[#f2be71] hover:underline cursor-pointer"
+                    className="text-[10px] text-[var(--gold)] hover:underline cursor-pointer"
                   >
                     {editCustomZoneMode ? "Elegir de la lista" : "+ Escribir nueva zona"}
                   </button>
@@ -687,13 +687,13 @@ export function Sessions() {
                     value={editCustomZoneText}
                     onChange={(e) => setEditCustomZoneText(e.target.value)}
                     placeholder="Escribe el nombre de la nueva zona..."
-                    className="bg-[#201f23] border border-[#f2be71]/60 text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:outline-none"
+                    className="bg-[#201f23] border border-[var(--gold)]/60 text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:outline-none"
                   />
                 ) : (
                   <select
                     value={editTableZone}
                     onChange={(e) => setEditTableZone(e.target.value)}
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none"
                   >
                     {zones.map((z) => (
                       <option key={z} value={z}>
@@ -715,7 +715,7 @@ export function Sessions() {
                   required
                   value={editTableCapacity}
                   onChange={(e) => setEditTableCapacity(Number(e.target.value))}
-                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none"
+                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none"
                 />
               </div>
 
@@ -729,7 +729,7 @@ export function Sessions() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#f2be71] text-[#121115] font-bold shadow-md cursor-pointer hover:brightness-105"
+                  className="px-5 py-2 rounded-xl bg-[var(--gold)] text-[#121115] font-bold shadow-md cursor-pointer hover:brightness-105"
                 >
                   Guardar Cambios
                 </button>
@@ -742,10 +742,10 @@ export function Sessions() {
       {/* MODAL 3: AGREGAR NUEVA MESA */}
       {isAddTableOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#1c1b1f] border border-[#f2be71]/40 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl relative">
+          <div className="bg-[#1c1b1f] border border-[var(--gold)]/40 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl relative">
             <div className="flex items-center justify-between border-b border-[#363439] pb-3">
               <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-                <Plus className="w-5 h-5 text-[#f2be71]" />
+                <Plus className="w-5 h-5 text-[var(--gold)]" />
                 Agregar Nueva Mesa al Salón
               </h3>
               <button
@@ -772,7 +772,7 @@ export function Sessions() {
                     setNewTableNum(num);
                     setNewTableName(`Mesa ${num}`);
                   }}
-                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full font-mono text-sm font-bold focus:border-[#f2be71]/60 focus:outline-none"
+                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full font-mono text-sm font-bold focus:border-[var(--gold)]/60 focus:outline-none"
                 />
               </div>
 
@@ -786,7 +786,7 @@ export function Sessions() {
                   value={newTableName}
                   onChange={(e) => setNewTableName(e.target.value)}
                   placeholder="Ej: Mesa 11, Barra 1, Terraza 2"
-                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-semibold focus:border-[#f2be71]/60 focus:outline-none"
+                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-semibold focus:border-[var(--gold)]/60 focus:outline-none"
                 />
               </div>
 
@@ -798,7 +798,7 @@ export function Sessions() {
                   <button
                     type="button"
                     onClick={() => setCustomZoneMode(!customZoneMode)}
-                    className="text-[10px] text-[#f2be71] hover:underline cursor-pointer"
+                    className="text-[10px] text-[var(--gold)] hover:underline cursor-pointer"
                   >
                     {customZoneMode ? "Elegir de la lista" : "+ Escribir nueva zona"}
                   </button>
@@ -811,13 +811,13 @@ export function Sessions() {
                     value={customZoneText}
                     onChange={(e) => setCustomZoneText(e.target.value)}
                     placeholder="Escribe el nombre de la nueva zona..."
-                    className="bg-[#201f23] border border-[#f2be71]/60 text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:outline-none"
+                    className="bg-[#201f23] border border-[var(--gold)]/60 text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:outline-none"
                   />
                 ) : (
                   <select
                     value={newTableZone}
                     onChange={(e) => setNewTableZone(e.target.value)}
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none"
                   >
                     {zones.map((z) => (
                       <option key={z} value={z}>
@@ -839,7 +839,7 @@ export function Sessions() {
                   required
                   value={newTableCapacity}
                   onChange={(e) => setNewTableCapacity(Number(e.target.value))}
-                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none"
+                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none"
                 />
               </div>
 
@@ -853,7 +853,7 @@ export function Sessions() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#f2be71] text-[#121115] font-bold shadow-md cursor-pointer hover:brightness-105"
+                  className="px-5 py-2 rounded-xl bg-[var(--gold)] text-[#121115] font-bold shadow-md cursor-pointer hover:brightness-105"
                 >
                   Guardar Mesa
                 </button>
@@ -866,10 +866,10 @@ export function Sessions() {
       {/* MODAL 4: DISEÑADOR & PERSONALIZADOR DE CÓDIGO QR */}
       {selectedTable && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#1c1b1f] border border-[#f2be71]/40 rounded-3xl p-6 max-w-xl w-full space-y-6 shadow-2xl relative">
+          <div className="bg-[#1c1b1f] border border-[var(--gold)]/40 rounded-3xl p-6 max-w-xl w-full space-y-6 shadow-2xl relative">
             <div className="flex items-center justify-between border-b border-[#363439] pb-4">
               <div className="flex items-center gap-2.5">
-                <QrCode className="w-6 h-6 text-[#f2be71]" />
+                <QrCode className="w-6 h-6 text-[var(--gold)]" />
                 <div>
                   <h3 className="text-lg font-bold text-[#e6e1e7] font-['Epilogue']">
                     Hablador QR: {selectedTable.name}
@@ -934,7 +934,7 @@ export function Sessions() {
                       onChange={(e) => setQrColor(e.target.value)}
                       className="w-10 h-10 rounded-xl cursor-pointer bg-transparent border-0"
                     />
-                    <span className="font-mono text-[#f2be71] font-bold">{qrColor}</span>
+                    <span className="font-mono text-[var(--gold)] font-bold">{qrColor}</span>
                   </div>
                 </div>
 
@@ -961,7 +961,7 @@ export function Sessions() {
                     type="text"
                     value={qrCallToAction}
                     onChange={(e) => setQrCallToAction(e.target.value)}
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none"
                   />
                 </div>
 
@@ -995,7 +995,7 @@ export function Sessions() {
                 download={`QR-${selectedTable.name}.png`}
                 target="_blank"
                 rel="noreferrer"
-                className="bg-[#f2be71] hover:brightness-105 text-[#121115] px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-lg"
+                className="bg-[var(--gold)] hover:brightness-105 text-[#121115] px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer shadow-lg"
               >
                 <Download className="w-4 h-4" />
                 <span>Descargar Código QR (PNG)</span>

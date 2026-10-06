@@ -269,13 +269,13 @@ export function Dashboard() {
       {/* 2. LAS 4 TARJETAS DE IMPACTO KPI (DISEÑO STITCH) */}
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {/* KPI 1: Sesiones Hoy */}
-        <div className="bg-[#1c1b1f] p-5 rounded-2xl border border-[#363439] relative overflow-hidden flex flex-col justify-between hover:border-[#f2be71]/30 transition-colors">
+        <div className="bg-[#1c1b1f] p-5 rounded-2xl border border-[#363439] relative overflow-hidden flex flex-col justify-between hover:border-[var(--gold)]/30 transition-colors">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-[#ccc3d8]">Sesiones Hoy</p>
               <h3 className="text-3xl font-black text-[#e6e1e7] mt-1 font-mono">{totalSessions}</h3>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-[#201f23] flex items-center justify-center border border-[#f2be71]/30 text-[#f2be71] shadow-inner">
+            <div className="w-10 h-10 rounded-xl bg-[#201f23] flex items-center justify-center border border-[var(--gold)]/30 text-[var(--gold)] shadow-inner">
               <Gamepad2 className="w-5 h-5" />
             </div>
           </div>
@@ -289,18 +289,18 @@ export function Dashboard() {
         </div>
 
         {/* KPI 2: Premios Entregados */}
-        <div className="bg-[#1c1b1f] p-5 rounded-2xl border border-[#363439] relative overflow-hidden flex flex-col justify-between hover:border-[#f2be71]/40 transition-colors">
+        <div className="bg-[#1c1b1f] p-5 rounded-2xl border border-[#363439] relative overflow-hidden flex flex-col justify-between hover:border-[var(--gold)]/40 transition-colors">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-[#ccc3d8]">Premios Entregados</p>
-              <h3 className="text-3xl font-black text-[#f2be71] mt-1 font-mono">{totalPrizesCount}</h3>
+              <h3 className="text-3xl font-black text-[var(--gold)] mt-1 font-mono">{totalPrizesCount}</h3>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-[#684400]/30 border border-[#f2be71]/40 flex items-center justify-center text-[#f2be71] shadow-inner">
+            <div className="w-10 h-10 rounded-xl bg-[#684400]/30 border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)] shadow-inner">
               <Gift className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 text-[#f2be71] font-bold text-xs bg-[#684400]/30 px-2 py-0.5 rounded-full border border-[#f2be71]/30">
+            <span className="inline-flex items-center gap-1 text-[var(--gold)] font-bold text-xs bg-[#684400]/30 px-2 py-0.5 rounded-full border border-[var(--gold)]/30">
               +8
             </span>
             <span className="text-[11px] text-[#ccc3d8]">vouchers canjeados hoy</span>
@@ -354,7 +354,7 @@ export function Dashboard() {
               <h3 className="text-lg font-bold text-[#e6e1e7] font-['Epilogue']">
                 Sesiones de Juego — Últimos 14 Días
               </h3>
-              <span className="px-2 py-0.5 rounded-full bg-[#201f23] border border-[#363439] text-xs text-[#f2be71] font-mono">
+              <span className="px-2 py-0.5 rounded-full bg-[#201f23] border border-[#363439] text-xs text-[var(--gold)] font-mono">
                 11 Oct – 24 Oct
               </span>
             </div>
@@ -364,15 +364,15 @@ export function Dashboard() {
           {/* Leyenda de la Gráfica */}
           <div className="flex flex-wrap items-center gap-4 text-xs">
             <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded bg-[#f2be71] shadow-sm"></span>
+              <span className="w-3 h-3 rounded bg-[var(--gold)] shadow-sm"></span>
               <span className="text-[#e6e1e7] font-medium">Sesiones Doradas (Misiones)</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded bg-[#d1bcff] shadow-sm"></span>
               <span className="text-[#e6e1e7] font-medium">Sellos VIP (Lila)</span>
             </div>
-            <div className="px-3 py-1 rounded-xl bg-[#201f23] text-[#f2be71] font-semibold border border-[#363439] flex items-center gap-1.5 text-xs">
-              <Flame className="w-3.5 h-3.5 text-[#f2be71]" />
+            <div className="px-3 py-1 rounded-xl bg-[#201f23] text-[var(--gold)] font-semibold border border-[#363439] flex items-center gap-1.5 text-xs">
+              <Flame className="w-3.5 h-3.5 text-[var(--gold)]" />
               <span>Pico: Sáb 19 (310 partidas)</span>
             </div>
           </div>
@@ -407,14 +407,14 @@ export function Dashboard() {
               return (
                 <div key={i} className="group flex flex-col items-center gap-2 h-full justify-end cursor-pointer">
                   {/* Tooltip flotante al hacer hover */}
-                  <div className="text-[10px] text-[#f2be71] opacity-0 group-hover:opacity-100 transition-opacity font-mono font-bold -mb-1">
+                  <div className="text-[10px] text-[var(--gold)] opacity-0 group-hover:opacity-100 transition-opacity font-mono font-bold -mb-1">
                     {d.total}
                   </div>
 
                   {/* Barra apilada dual */}
                   <div
                     className={`w-full max-w-[28px] rounded-t-lg overflow-hidden flex flex-col transition-all group-hover:scale-105 group-hover:brightness-110 shadow-md ${
-                      d.isPeak ? "ring-2 ring-[#f2be71] shadow-[0_0_12px_rgba(242,190,113,0.3)]" : ""
+                      d.isPeak ? "ring-2 ring-[var(--gold)] shadow-[0_0_12px_rgba(242,190,113,0.3)]" : ""
                     }`}
                     style={{ height: `${totalHeightPercent}%` }}
                   >
@@ -425,7 +425,7 @@ export function Dashboard() {
                     />
                     {/* Parte Inferior: Misiones / Ruleta (Dorado) */}
                     <div
-                      className="w-full bg-[#f2be71] transition-all"
+                      className="w-full bg-[var(--gold)] transition-all"
                       style={{ height: `${misionesPercent}%` }}
                     />
                   </div>
@@ -433,7 +433,7 @@ export function Dashboard() {
                   {/* Etiqueta de Fecha */}
                   <span
                     className={`text-[10px] font-medium truncate w-full text-center transition-colors ${
-                      d.isToday ? "text-[#f2be71] font-bold" : "text-[#ccc3d8] group-hover:text-white"
+                      d.isToday ? "text-[var(--gold)] font-bold" : "text-[#ccc3d8] group-hover:text-white"
                     }`}
                   >
                     {d.date}
@@ -451,7 +451,7 @@ export function Dashboard() {
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-[#363439] pb-3">
             <h4 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-[#f2be71]" />
+              <BarChart3 className="w-4 h-4 text-[var(--gold)]" />
               <span>Embudo de Conversión en Mesa</span>
             </h4>
             <span className="text-xs text-[#10b981] font-mono font-bold">36.2% Retención Final</span>
@@ -459,8 +459,8 @@ export function Dashboard() {
 
           <div className="space-y-3 pt-2">
             {[
-              { etapa: "1. Escaneos de QR en Mesa", valor: "680 clientes", pct: 100, color: "bg-[#f2be71]" },
-              { etapa: "2. Registro y Giro de Ruleta", valor: "572 jugaron", pct: 84, color: "bg-[#ffddb1]" },
+              { etapa: "1. Escaneos de QR en Mesa", valor: "680 clientes", pct: 100, color: "bg-[var(--gold)]" },
+              { etapa: "2. Registro y Giro de Ruleta", valor: "572 jugaron", pct: 84, color: "bg-[var(--gold-light)]" },
               { etapa: "3. Obtención de Premio o Sello", valor: "420 ganaron", pct: 62, color: "bg-[#d1bcff]" },
               { etapa: "4. Canje Efectivo en Caja", valor: "247 validados", pct: 36, color: "bg-[#10b981]" },
             ].map((step, idx) => (
@@ -489,8 +489,8 @@ export function Dashboard() {
 
           <div className="space-y-3 pt-2">
             {[
-              { nombre: "Croissant Artesanal de Autor", count: 31, pct: 35, color: "bg-[#f2be71]" },
-              { nombre: "Café de Especialidad Gratis", count: 22, pct: 25, color: "bg-[#ffddb1]" },
+              { nombre: "Croissant Artesanal de Autor", count: 31, pct: 35, color: "bg-[var(--gold)]" },
+              { nombre: "Café de Especialidad Gratis", count: 22, pct: 25, color: "bg-[var(--gold-light)]" },
               { nombre: "Porción de Tarta Vasca", count: 18, pct: 20, color: "bg-[#d1bcff]" },
               { nombre: "10% de Descuento en Cuenta", count: 12, pct: 14, color: "bg-[#a3cafc]" },
               { nombre: "Cena de Autor para 2 (VIP)", count: 6, pct: 6, color: "bg-[#10b981]" },
@@ -498,7 +498,7 @@ export function Dashboard() {
               <div key={idx} className="space-y-1">
                 <div className="flex justify-between text-xs font-semibold">
                   <span className="text-[#e6e1e7] truncate">{p.nombre}</span>
-                  <span className="text-[#f2be71] font-mono shrink-0 ml-2">{p.count} entregados ({p.pct}%)</span>
+                  <span className="text-[var(--gold)] font-mono shrink-0 ml-2">{p.count} entregados ({p.pct}%)</span>
                 </div>
                 <div className="w-full bg-[#201f23] rounded-full h-2 overflow-hidden">
                   <div className={`h-full rounded-full ${p.color}`} style={{ width: `${p.pct}%` }} />
@@ -531,7 +531,7 @@ export function Dashboard() {
                 onClick={() => setActiveFilter(filter)}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold capitalize transition-all cursor-pointer ${
                   activeFilter === filter
-                    ? "bg-[#2b292e] text-[#f2be71] font-bold border border-[#f2be71]/30 shadow-sm"
+                    ? "bg-[#2b292e] text-[var(--gold)] font-bold border border-[var(--gold)]/30 shadow-sm"
                     : "text-[#ccc3d8] hover:text-white"
                 }`}
               >
@@ -557,10 +557,10 @@ export function Dashboard() {
             <tbody className="divide-y divide-[#363439]/50 text-xs">
               {liveEvents.map((ev) => (
                 <tr key={ev.id} className="hover:bg-[#201f23]/40 transition-colors">
-                  <td className="px-4 py-3.5 font-bold text-[#f2be71] font-mono">{ev.mesa}</td>
+                  <td className="px-4 py-3.5 font-bold text-[var(--gold)] font-mono">{ev.mesa}</td>
                   <td className="px-4 py-3.5 font-semibold text-[#e6e1e7]">{ev.cliente}</td>
                   <td className="px-4 py-3.5 text-[#ccc3d8] max-w-md truncate">{ev.accion}</td>
-                  <td className="px-4 py-3.5 font-semibold text-[#ffddb1]">{ev.recompensa}</td>
+                  <td className="px-4 py-3.5 font-semibold text-[var(--gold-light)]">{ev.recompensa}</td>
                   <td className="px-4 py-3.5 text-[#958da1] font-mono">{ev.tiempo}</td>
                   <td className="px-4 py-3.5 text-right">
                     <span

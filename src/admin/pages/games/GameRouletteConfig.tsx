@@ -100,14 +100,14 @@ export function GameRouletteConfig() {
         <div className="flex items-center gap-3">
           <Link
             to="/games"
-            className="w-8 h-8 rounded-xl bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] flex items-center justify-center text-[#ccc3d8] hover:text-[#f2be71] transition-all cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] flex items-center justify-center text-[#ccc3d8] hover:text-[var(--gold)] transition-all cursor-pointer"
             title="Volver al Catálogo de Juegos"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
             <h2 className="text-xl font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <RotateCw className="w-5 h-5 text-[#f2be71]" />
+              <RotateCw className="w-5 h-5 text-[var(--gold)]" />
               <span>Módulo: Ruleta de Premios & Probabilidades</span>
             </h2>
             <p className="text-xs text-[#ccc3d8]">
@@ -123,7 +123,7 @@ export function GameRouletteConfig() {
               onClick={() => setActiveTab("settings")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "settings"
-                  ? "bg-[#f2be71] text-[#121115]"
+                  ? "bg-[var(--gold)] text-[#121115]"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -136,7 +136,7 @@ export function GameRouletteConfig() {
               onClick={() => setActiveTab("simulator")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "simulator"
-                  ? "bg-[#f2be71] text-[#121115]"
+                  ? "bg-[var(--gold)] text-[#121115]"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -149,7 +149,7 @@ export function GameRouletteConfig() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="bg-[#f2be71] text-[#121115] font-bold px-5 py-2.5 rounded-xl text-xs hover:brightness-105 transition-all shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            className="bg-[var(--gold)] text-[#121115] font-bold px-5 py-2.5 rounded-xl text-xs hover:brightness-105 transition-all shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             <span>{saving ? "Guardando..." : "Guardar Ruleta"}</span>
@@ -199,7 +199,7 @@ export function GameRouletteConfig() {
             <button
               type="button"
               onClick={handleAddPrize}
-              className="bg-[#201f23] hover:bg-[#2b292e] border border-[#f2be71]/40 text-[#f2be71] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+              className="bg-[#201f23] hover:bg-[#2b292e] border border-[var(--gold)]/40 text-[var(--gold)] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Agregar Premio / Sector</span>
@@ -216,7 +216,7 @@ export function GameRouletteConfig() {
               {prizes.map((prize, idx) => (
                 <div
                   key={prize.id || idx}
-                  className="bg-[#201f23] border border-[#363439] rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-[#f2be71]/40 transition-colors"
+                  className="bg-[#201f23] border border-[#363439] rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-[var(--gold)]/40 transition-colors"
                 >
                   <div className="flex items-center gap-3 w-full sm:w-auto flex-1">
                     <input
@@ -241,7 +241,7 @@ export function GameRouletteConfig() {
                           setPrizes(next);
                         }}
                         placeholder="Nombre del premio"
-                        className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] text-xs font-bold rounded-lg px-3 py-1.5 w-full focus:border-[#f2be71]/60 focus:outline-none"
+                        className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] text-xs font-bold rounded-lg px-3 py-1.5 w-full focus:border-[var(--gold)]/60 focus:outline-none"
                       />
                       <input
                         type="text"
@@ -252,7 +252,7 @@ export function GameRouletteConfig() {
                           setPrizes(next);
                         }}
                         placeholder="Valor referencial (ej: $18.000 COP o Gratis)"
-                        className="bg-[#1c1b1f] border border-[#363439] text-[#ccc3d8] text-[11px] rounded-lg px-3 py-1 w-full focus:border-[#f2be71]/60 focus:outline-none"
+                        className="bg-[#1c1b1f] border border-[#363439] text-[#ccc3d8] text-[11px] rounded-lg px-3 py-1 w-full focus:border-[var(--gold)]/60 focus:outline-none"
                       />
                     </div>
                   </div>
@@ -270,7 +270,7 @@ export function GameRouletteConfig() {
                           next[idx].probability = parseInt(e.target.value, 10) || 0;
                           setPrizes(next);
                         }}
-                        className="w-16 bg-[#1c1b1f] border border-[#363439] text-[#f2be71] font-mono text-xs font-bold rounded-lg px-2 py-1 text-center focus:border-[#f2be71]/60 focus:outline-none"
+                        className="w-16 bg-[#1c1b1f] border border-[#363439] text-[var(--gold)] font-mono text-xs font-bold rounded-lg px-2 py-1 text-center focus:border-[var(--gold)]/60 focus:outline-none"
                       />
                       <span className="text-xs text-[#ccc3d8] font-mono">%</span>
                     </div>
@@ -295,7 +295,7 @@ export function GameRouletteConfig() {
       {activeTab === "simulator" && (
         <div className="flex flex-col items-center justify-center p-4 bg-[#141317] rounded-3xl border border-[#363439]">
           <div className="flex items-center gap-2 mb-4 text-xs text-[#ccc3d8]">
-            <Smartphone className="w-4 h-4 text-[#f2be71]" />
+            <Smartphone className="w-4 h-4 text-[var(--gold)]" />
             <span>Simulador de Ruleta Móvil (Smartphone 390 × 844 px)</span>
           </div>
 

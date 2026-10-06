@@ -309,8 +309,8 @@ export function StepMissions({
       <Reveal delay={0}>
         <div className="flex flex-col gap-2">
           {/* Badge superior */}
-          <div className="inline-flex items-center gap-1.5 self-start px-3 py-1 rounded-full bg-[#1c1b1f] border border-[#f2be71]/40 text-[#ffddb1] shadow-xs">
-            <Sparkles className="h-3.5 w-3.5 text-[#f2be71]" />
+          <div className="inline-flex items-center gap-1.5 self-start px-3 py-1 rounded-full bg-[#1c1b1f] border border-[var(--gold)]/40 text-[var(--gold-light)] shadow-xs">
+            <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" />
             <span className="font-label-sm text-[11px] font-bold tracking-wide">
               {t("Paso 8 de 8 · Desafíos & Misiones VIP", "Step 8 of 8 · VIP Missions & Challenges")}
             </span>
@@ -318,7 +318,7 @@ export function StepMissions({
 
           <h2 className="font-headline-xl-mobile text-2xl sm:text-3xl text-[#e6e1e7] tracking-tight mt-1">
             {t("Misiones para Ganar", "Missions to Earn")}{" "}
-            <span className="text-[#f2be71] italic font-serif">
+            <span className="text-[var(--gold)] italic font-serif">
               {t("+Sellos VIP", "+VIP Stamps")}
             </span>
           </h2>
@@ -336,13 +336,13 @@ export function StepMissions({
       <Reveal delay={50}>
         <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#363439] p-4 flex items-center justify-between gap-3 shadow-md">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-[#684400]/40 border border-[#f2be71]/30 flex items-center justify-center text-[#f2be71] shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#684400]/40 border border-[var(--gold)]/30 flex items-center justify-center text-[var(--gold)] shrink-0">
               <Trophy className="h-5 w-5" />
             </div>
             <div className="min-w-0">
               <div className="text-xs font-bold text-[#e6e1e7] flex items-center gap-1.5 flex-wrap">
                 <span className="truncate">{customerName}</span>
-                <span className="text-[10px] text-[#f2be71] bg-[#684400]/40 px-2 py-0.5 rounded-full border border-[#f2be71]/30 font-bold shrink-0">
+                <span className="text-[10px] text-[var(--gold)] bg-[#684400]/40 px-2 py-0.5 rounded-full border border-[var(--gold)]/30 font-bold shrink-0">
                   {currentStamps} / 15 {t("Sellos", "Stamps")}
                 </span>
               </div>
@@ -356,7 +356,7 @@ export function StepMissions({
             <button
               type="button"
               onClick={onBackToStamps}
-              className="px-3 py-2 rounded-xl bg-[#2b292e] hover:bg-[#363439] border border-[#49454e] text-xs font-bold text-[#f2be71] flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer"
+              className="px-3 py-2 rounded-xl bg-[#2b292e] hover:bg-[#363439] border border-[#49454e] text-xs font-bold text-[var(--gold)] flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t("Ver Tarjeta (Paso 7)", "View Card (Step 7)")}</span>
@@ -373,7 +373,7 @@ export function StepMissions({
             <span className="text-[10px] text-[#ccc3d8] uppercase font-bold tracking-wider">
               {t("Ganados", "Earned")}
             </span>
-            <span className="text-xl font-black text-[#f2be71] mt-0.5 font-mono">{currentStamps}</span>
+            <span className="text-xl font-black text-[var(--gold)] mt-0.5 font-mono">{currentStamps}</span>
             <span className="text-[9px] text-[#ccc3d8]/70 mt-0.5">en tarjeta</span>
           </div>
 
@@ -381,7 +381,7 @@ export function StepMissions({
             <span className="text-[10px] text-[#ccc3d8] uppercase font-bold tracking-wider">
               {t("Revisión", "Review")}
             </span>
-            <span className="text-xl font-black text-[#ffddb1] mt-0.5 font-mono">
+            <span className="text-xl font-black text-[var(--gold-light)] mt-0.5 font-mono">
               {pendingStamps > 0 ? `+${pendingStamps}` : "0"}
             </span>
             <span className="text-[9px] text-[#ccc3d8]/70 mt-0.5">&lt; 24 horas</span>
@@ -399,7 +399,7 @@ export function StepMissions({
 
       {/* 4. BANNER DE DESAFÍO EMBAJADOR — COLAPSABLE */}
       <Reveal delay={100}>
-        <div className="relative overflow-hidden rounded-2xl bg-[#1c1b1f] border border-[#f2be71]/30 shadow-lg">
+        <div className="relative overflow-hidden rounded-2xl bg-[#1c1b1f] border border-[var(--gold)]/30 shadow-lg">
           {/* Cabecera siempre visible — toca para expandir */}
           <button
             type="button"
@@ -407,11 +407,11 @@ export function StepMissions({
             className="w-full p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-[#201f23]/60 transition-colors text-left"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#684400]/40 border border-[#f2be71]/40 flex items-center justify-center shrink-0 text-lg">
+              <div className="w-9 h-9 rounded-xl bg-[#684400]/40 border border-[var(--gold)]/40 flex items-center justify-center shrink-0 text-lg">
                 👑
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-[10px] uppercase tracking-wider text-[#f2be71] font-bold">
+                <span className="text-[10px] uppercase tracking-wider text-[var(--gold)] font-bold">
                   {t("Gran Desafío Embajador", "Ambassador Challenge")}
                 </span>
                 <span className="text-xs font-semibold text-[#e6e1e7] truncate">
@@ -420,11 +420,11 @@ export function StepMissions({
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-[10px] font-mono text-[#f2be71]">
+              <span className="text-[10px] font-mono text-[var(--gold)]">
                 {submittedMissionIds.size}/{missions.length}
               </span>
               <ChevronDown
-                className={`h-4 w-4 text-[#f2be71] transition-transform duration-200 ${isChallengeOpen ? "rotate-180" : ""}`}
+                className={`h-4 w-4 text-[var(--gold)] transition-transform duration-200 ${isChallengeOpen ? "rotate-180" : ""}`}
               />
             </div>
           </button>
@@ -450,21 +450,21 @@ export function StepMissions({
                     <div className="bg-[#1b2f24] p-3 rounded-xl border border-emerald-500/30">
                       <span className="text-[10px] uppercase tracking-wider text-emerald-400 block font-bold">🎁 Premio Garantizado</span>
                       <strong className="text-xs text-white block mt-0.5 font-serif">Postre de Autor & Bono Regalo Dulce</strong>
-                      <span className="font-mono text-xs font-bold text-[#f2be71] block mt-1">Código: #AUTOR-EMBAJADOR-VIP</span>
+                      <span className="font-mono text-xs font-bold text-[var(--gold)] block mt-1">Código: #AUTOR-EMBAJADOR-VIP</span>
                       <span className="text-[10px] text-emerald-300/80 block mt-0.5">✓ Asegurado en mesa para tu próxima visita</span>
                     </div>
-                    <div className="bg-[#2a2216] p-3 rounded-xl border border-[#f2be71]/40">
-                      <span className="text-[10px] uppercase tracking-wider text-[#f2be71] block font-bold">👑 Boleto Sorteo Cena para 2</span>
+                    <div className="bg-[#2a2216] p-3 rounded-xl border border-[var(--gold)]/40">
+                      <span className="text-[10px] uppercase tracking-wider text-[var(--gold)] block font-bold">👑 Boleto Sorteo Cena para 2</span>
                       <strong className="text-xs text-white block mt-0.5 font-serif">Cena Degustación de Autor para 2</strong>
-                      <span className="font-mono text-xs font-bold text-[#f2be71] block mt-1">{ticketCode}</span>
-                      <span className="text-[10px] text-[#ffddb1]/80 block mt-0.5">✓ Candidato oficial (Sorteo último viernes)</span>
+                      <span className="font-mono text-xs font-bold text-[var(--gold)] block mt-1">{ticketCode}</span>
+                      <span className="text-[10px] text-[var(--gold-light)]/80 block mt-0.5">✓ Candidato oficial (Sorteo último viernes)</span>
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="bg-[#201f23] p-3 rounded-xl border border-[#363439] flex items-center justify-between text-xs">
                   <span className="text-[#ccc3d8]">Progreso del Desafío:</span>
-                  <span className="text-[#f2be71] font-mono font-bold">
+                  <span className="text-[var(--gold)] font-mono font-bold">
                     {submittedMissionIds.size} / {missions.length} misiones enviadas
                   </span>
                 </div>
@@ -511,7 +511,7 @@ export function StepMissions({
             return (
               <div
                 key={m.id}
-                className="rounded-2xl bg-[#1c1b1f] border border-[#2b292e] hover:border-[#f2be71]/40 transition-all overflow-hidden shadow-sm"
+                className="rounded-2xl bg-[#1c1b1f] border border-[#2b292e] hover:border-[var(--gold)]/40 transition-all overflow-hidden shadow-sm"
               >
                 {/* Cabecera de la misión */}
                 <div
@@ -524,7 +524,7 @@ export function StepMissions({
                     </div>
                     <div className="flex flex-col text-left min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="px-2 py-0.5 rounded-full bg-[#684400]/40 text-[#ffddb1] border border-[#f2be71]/30 text-[9px] font-bold">
+                        <span className="px-2 py-0.5 rounded-full bg-[#684400]/40 text-[var(--gold-light)] border border-[var(--gold)]/30 text-[9px] font-bold">
                           {m.badge}
                         </span>
                         <span className="text-[10px] text-[#ccc3d8] hidden sm:inline">{m.category}</span>
@@ -539,7 +539,7 @@ export function StepMissions({
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="px-2.5 py-1 rounded-full bg-[#684400]/50 text-[#f2be71] border border-[#f2be71]/40 text-[10px] font-bold font-mono">
+                    <span className="px-2.5 py-1 rounded-full bg-[#684400]/50 text-[var(--gold)] border border-[var(--gold)]/40 text-[10px] font-bold font-mono">
                       {m.rewardText}
                     </span>
                     {isExpanded ? (
@@ -557,13 +557,13 @@ export function StepMissions({
 
                     {/* Reglas e instrucciones */}
                     <div className="p-3 rounded-xl bg-[#201f23] border border-[#2b292e] space-y-1.5">
-                      <span className="text-[10px] uppercase font-bold text-[#f2be71] tracking-wider block">
+                      <span className="text-[10px] uppercase font-bold text-[var(--gold)] tracking-wider block">
                         📋 Instrucciones de Verificación:
                       </span>
                       <ul className="space-y-1 text-[11px] text-[#ccc3d8]/90 pl-1">
                         {m.rules.map((rule, idx) => (
                           <li key={idx} className="flex items-start gap-1.5">
-                            <span className="text-[#f2be71] font-bold">{idx + 1}.</span>
+                            <span className="text-[var(--gold)] font-bold">{idx + 1}.</span>
                             <span>{rule}</span>
                           </li>
                         ))}
@@ -571,7 +571,7 @@ export function StepMissions({
                     </div>
 
                     {/* Acciones: Abrir tarea + Pegar Enlace + Enviar */}
-                    <div className="p-3 rounded-xl bg-[#201f23] border border-[#f2be71]/30 flex flex-col gap-2.5">
+                    <div className="p-3 rounded-xl bg-[#201f23] border border-[var(--gold)]/30 flex flex-col gap-2.5">
                       <div className="flex items-center justify-between">
                         <label className="text-[10px] uppercase font-bold text-[#e6e1e7] tracking-wider">
                           {t("Enlace o Confirmación de tu Publicación:", "Post Link or Confirmation:")}
@@ -581,7 +581,7 @@ export function StepMissions({
                           onClick={() => handleOpenTask(m.actionUrl)}
                           className="btn-dark inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold cursor-pointer"
                         >
-                          <ExternalLink className="h-3 w-3 text-[#f2be71]" />
+                          <ExternalLink className="h-3 w-3 text-[var(--gold)]" />
                           <span>{t("↗ Abrir Tarea", "↗ Open Task")}</span>
                         </button>
                       </div>
@@ -592,7 +592,7 @@ export function StepMissions({
                           value={currentUrl}
                           onChange={(e) => handleUrlChange(m.id, e.target.value)}
                           placeholder={m.evidencePlaceholder}
-                          className="flex-1 bg-[#121115] border border-[#363439] rounded-xl px-3.5 py-2.5 text-xs text-[#e6e1e7] placeholder:text-[#ccc3d8]/40 focus:outline-hidden focus:border-[#f2be71]"
+                          className="flex-1 bg-[#121115] border border-[#363439] rounded-xl px-3.5 py-2.5 text-xs text-[#e6e1e7] placeholder:text-[#ccc3d8]/40 focus:outline-hidden focus:border-[var(--gold)]"
                         />
 
                         <button
@@ -632,8 +632,8 @@ export function StepMissions({
 
       {/* 7. TARJETA FINAL DE AGRADECIMIENTO */}
       <Reveal delay={200}>
-        <div className="rounded-3xl border border-[#f2be71]/30 bg-gradient-to-br from-[#201f23] via-[#1c1b1f] to-[#252329] p-6 text-center flex flex-col items-center gap-3 shadow-2xl relative overflow-hidden">
-          <div className="w-14 h-14 rounded-2xl bg-[#684400]/40 border border-[#f2be71]/40 flex items-center justify-center text-2xl shadow-md">
+        <div className="rounded-3xl border border-[var(--gold)]/30 bg-gradient-to-br from-[#201f23] via-[#1c1b1f] to-[#252329] p-6 text-center flex flex-col items-center gap-3 shadow-2xl relative overflow-hidden">
+          <div className="w-14 h-14 rounded-2xl bg-[#684400]/40 border border-[var(--gold)]/40 flex items-center justify-center text-2xl shadow-md">
             💖
           </div>
 
@@ -656,7 +656,7 @@ export function StepMissions({
                 onClick={onBackToStamps}
                 className="w-full h-12 rounded-2xl bg-[#2b292e] hover:bg-[#363439] border border-[#49454e] font-bold text-xs text-[#e6e1e7] flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-md"
               >
-                <ArrowLeft className="h-4 w-4 text-[#f2be71]" />
+                <ArrowLeft className="h-4 w-4 text-[var(--gold)]" />
                 <span>{t("← Volver a Mi Tarjeta de Sellos (Paso 7)", "← Back to My Stamps Card (Step 7)")}</span>
               </button>
             </div>
@@ -669,7 +669,7 @@ export function StepMissions({
                 onClick={onResetToStart}
                 className="btn-dark w-full h-12 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md"
               >
-                <RotateCcw className="h-4 w-4 text-[#f2be71]" />
+                <RotateCcw className="h-4 w-4 text-[var(--gold)]" />
                 <span>{t("Comenzar Nueva Experiencia (Modo Demo)", "Start New Experience (Demo Mode)")}</span>
               </button>
             </div>

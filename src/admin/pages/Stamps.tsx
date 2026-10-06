@@ -186,7 +186,7 @@ export function Stamps() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -251,7 +251,7 @@ export function Stamps() {
           type="button"
           onClick={handleSaveStamps}
           disabled={saving}
-          className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
+          className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           <span>Guardar Configuración de Sellos</span>
@@ -275,7 +275,7 @@ export function Stamps() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#363439] pb-3 gap-2">
           <div>
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <Award className="w-4 h-4 text-[#f2be71]" />
+              <Award className="w-4 h-4 text-[var(--gold)]" />
               <span>Estructura de la Tarjeta Digital & Personalización</span>
             </h3>
             <p className="text-xs text-[#ccc3d8]">
@@ -283,7 +283,7 @@ export function Stamps() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-[#f2be71] bg-[#201f23] px-3 py-1.5 rounded-xl border border-[#363439]">
+          <div className="flex items-center gap-2 text-xs font-mono text-[var(--gold)] bg-[#201f23] px-3 py-1.5 rounded-xl border border-[#363439]">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{totalStamps} Sellos Totales</span>
           </div>
@@ -308,7 +308,7 @@ export function Stamps() {
                     const val = Math.max(3, Math.min(30, Number(e.target.value) || 3));
                     setTotalStamps(val);
                   }}
-                  className="bg-[#201f23] border border-[#363439] text-[#f2be71] font-mono text-center text-lg font-bold rounded-xl px-4 py-2.5 w-24 focus:border-[#f2be71]/60 focus:outline-none"
+                  className="bg-[#201f23] border border-[#363439] text-[var(--gold)] font-mono text-center text-lg font-bold rounded-xl px-4 py-2.5 w-24 focus:border-[var(--gold)]/60 focus:outline-none"
                 />
                 <span className="text-xs text-[#ccc3d8]">sellos para completar la tarjeta completa</span>
               </div>
@@ -320,7 +320,7 @@ export function Stamps() {
                     onClick={() => setTotalStamps(num)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
                       totalStamps === num
-                        ? "bg-[#f2be71] text-[#121115] shadow-md scale-105"
+                        ? "bg-[var(--gold)] text-[#121115] shadow-md scale-105"
                         : "bg-[#201f23] text-[#ccc3d8] hover:bg-[#2b292e] border border-[#363439]"
                     }`}
                   >
@@ -334,14 +334,14 @@ export function Stamps() {
             <div className="space-y-2 pt-2 border-t border-[#363439]/60">
               <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block flex items-center justify-between">
                 <span>Icono de Sello (Visitas en Mesa)</span>
-                <span className="text-[11px] text-[#f2be71] font-mono">Activo: {visitIcon}</span>
+                <span className="text-[11px] text-[var(--gold)] font-mono">Activo: {visitIcon}</span>
               </label>
               <div className="flex items-center gap-2.5 flex-wrap">
                 <input
                   type="text"
                   value={visitIcon}
                   onChange={(e) => setVisitIcon(e.target.value)}
-                  className="w-11 h-11 text-2xl text-center bg-[#201f23] border border-[#f2be71]/40 rounded-xl focus:outline-none shrink-0"
+                  className="w-11 h-11 text-2xl text-center bg-[#201f23] border border-[var(--gold)]/40 rounded-xl focus:outline-none shrink-0"
                   title="Emoji o carácter personalizado"
                 />
                 <div className="flex gap-1.5 flex-wrap flex-1">
@@ -352,7 +352,7 @@ export function Stamps() {
                       onClick={() => setVisitIcon(emoji)}
                       className={`w-9 h-9 rounded-xl text-base flex items-center justify-center transition-all cursor-pointer ${
                         visitIcon === emoji
-                          ? "bg-[#f2be71] text-[#121115] font-bold shadow-md scale-105"
+                          ? "bg-[var(--gold)] text-[#121115] font-bold shadow-md scale-105"
                           : "bg-[#201f23] border border-[#363439] text-[#e6e1e7] hover:bg-[#2b292e]"
                       }`}
                       title={`Seleccionar ${emoji}`}
@@ -383,12 +383,12 @@ export function Stamps() {
           {/* Columna Derecha: VISUALIZADOR EN TIEMPO REAL (7 cols) */}
           <div className="lg:col-span-7 bg-[#141317] border-2 border-[#363439] rounded-3xl p-5 shadow-2xl space-y-4 relative overflow-hidden flex flex-col justify-between">
             {/* Halo de luz decorativo */}
-            <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#f2be71]/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -top-12 -right-12 w-40 h-40 bg-[var(--gold)]/10 rounded-full blur-3xl pointer-events-none" />
 
             {/* Header del visualizador */}
             <div className="flex items-center justify-between border-b border-[#363439]/60 pb-3">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-[#201f23] text-[#f2be71] flex items-center justify-center font-bold text-xs">
+                <div className="w-7 h-7 rounded-lg bg-[#201f23] text-[var(--gold)] flex items-center justify-center font-bold text-xs">
                   <Smartphone className="w-4 h-4" />
                 </div>
                 <div>
@@ -405,7 +405,7 @@ export function Stamps() {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold text-[#f2be71] bg-[#201f23] px-2.5 py-1 rounded-lg border border-[#363439]">
+                <span className="text-xs font-mono font-bold text-[var(--gold)] bg-[#201f23] px-2.5 py-1 rounded-lg border border-[#363439]">
                   {safeSimulatedStamps} / {totalStamps} Sellos
                 </span>
               </div>
@@ -426,11 +426,11 @@ export function Stamps() {
                       title={`Sello #${selloNum}${milestone ? ` • Premio: ${milestone.title}` : ""}`}
                       className={`aspect-square rounded-2xl flex flex-col items-center justify-center relative transition-all cursor-pointer select-none ${
                         isEarned
-                          ? "bg-gradient-to-tr from-[#684400] via-[#f2be71] to-[#ffddb1] text-[#121115] shadow-[0_0_12px_rgba(242,190,113,0.5)] scale-102 font-black"
+                          ? "bg-gradient-to-tr from-[#684400] via-[var(--gold)] to-[var(--gold-light)] text-[#121115] shadow-[0_0_12px_rgba(242,190,113,0.5)] scale-102 font-black"
                           : isLast
-                            ? "bg-gradient-to-tr from-[#684400]/40 to-[#2b292e] border-2 border-[#f2be71] text-[#f2be71] hover:border-[#ffddb1]"
+                            ? "bg-gradient-to-tr from-[#684400]/40 to-[#2b292e] border-2 border-[var(--gold)] text-[var(--gold)] hover:border-[var(--gold-light)]"
                             : milestone
-                              ? "bg-[#201f23] border border-[#f2be71]/60 text-[#f2be71] hover:border-[#f2be71]"
+                              ? "bg-[#201f23] border border-[var(--gold)]/60 text-[var(--gold)] hover:border-[var(--gold)]"
                               : "bg-[#201f23] border border-[#363439] text-[#958da1] hover:border-[#ccc3d8]/40"
                       }`}
                     >
@@ -469,13 +469,13 @@ export function Stamps() {
             <div className="space-y-1.5 pt-1">
               <div className="flex justify-between items-center text-[11px] text-[#ccc3d8]">
                 <span>Progreso de Fidelización del Cliente</span>
-                <span className="text-[#f2be71] font-mono font-bold">
+                <span className="text-[var(--gold)] font-mono font-bold">
                   {progressPercent}%
                 </span>
               </div>
               <div className="w-full bg-[#0f0e12] h-2 rounded-full overflow-hidden border border-[#363439] p-0.5">
                 <div
-                  className="bg-gradient-to-r from-[#f2be71] to-[#ffddb1] h-full rounded-full transition-all duration-300"
+                  className="bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] h-full rounded-full transition-all duration-300"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -485,10 +485,10 @@ export function Stamps() {
             <div className="p-3 rounded-2xl bg-[#1c1b1f] border border-[#363439] space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-[#ccc3d8] flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#f2be71]" />
+                  <Sparkles className="w-3.5 h-3.5 text-[var(--gold)]" />
                   <span>Probar Avance de Sellos:</span>
                 </span>
-                <span className="font-mono text-[#f2be71] font-bold">
+                <span className="font-mono text-[var(--gold)] font-bold">
                   {safeSimulatedStamps} sellos marcados
                 </span>
               </div>
@@ -499,7 +499,7 @@ export function Stamps() {
                 max={totalStamps}
                 value={safeSimulatedStamps}
                 onChange={(e) => setSimulatedStamps(Number(e.target.value))}
-                className="w-full accent-[#f2be71] cursor-pointer"
+                className="w-full accent-[var(--gold)] cursor-pointer"
               />
 
               <div className="flex items-center gap-1.5 justify-between flex-wrap pt-1">
@@ -521,7 +521,7 @@ export function Stamps() {
                   <button
                     type="button"
                     onClick={() => setSimulatedStamps(totalStamps)}
-                    className="px-2 py-1 rounded-lg bg-[#201f23] hover:bg-[#2b292e] text-[10px] text-[#f2be71] font-bold cursor-pointer"
+                    className="px-2 py-1 rounded-lg bg-[#201f23] hover:bg-[#2b292e] text-[10px] text-[var(--gold)] font-bold cursor-pointer"
                   >
                     Completada ({totalStamps})
                   </button>
@@ -530,7 +530,7 @@ export function Stamps() {
                 <button
                   type="button"
                   onClick={() => setSimulatedStamps((prev) => Math.min(totalStamps, prev + 1))}
-                  className="px-3 py-1 rounded-lg bg-[#f2be71] hover:brightness-105 text-[#121115] text-[10px] font-bold transition-all cursor-pointer"
+                  className="px-3 py-1 rounded-lg bg-[var(--gold)] hover:brightness-105 text-[#121115] text-[10px] font-bold transition-all cursor-pointer"
                 >
                   +1 Sello de Visita
                 </button>
@@ -539,7 +539,7 @@ export function Stamps() {
 
             {/* Aviso del estado del hito según sellos simulados */}
             <div className="p-3 rounded-xl bg-[#201f23] border border-[#363439] text-xs flex items-center gap-2.5">
-              <Gift className="w-4 h-4 text-[#f2be71] shrink-0" />
+              <Gift className="w-4 h-4 text-[var(--gold)] shrink-0" />
               <div className="text-[11px] leading-tight">
                 {safeSimulatedStamps >= totalStamps ? (
                   <span className="text-[#10b981] font-bold">
@@ -547,13 +547,13 @@ export function Stamps() {
                   </span>
                 ) : activeMilestone ? (
                   <span className="text-[#e6e1e7]">
-                    Último premio desbloqueado: <strong className="text-[#f2be71]">{activeMilestone.title}</strong> (Sello #{activeMilestone.stamp}).
+                    Último premio desbloqueado: <strong className="text-[var(--gold)]">{activeMilestone.title}</strong> (Sello #{activeMilestone.stamp}).
                   </span>
                 ) : (
                   <span className="text-[#ccc3d8]">
                     Próximo premio a desbloquear:{" "}
                     {nextPendingMilestone ? (
-                      <strong className="text-[#f2be71]">
+                      <strong className="text-[var(--gold)]">
                         {nextPendingMilestone.title} en el sello #{nextPendingMilestone.stamp}
                       </strong>
                     ) : (
@@ -572,7 +572,7 @@ export function Stamps() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#363439] pb-3 gap-2">
           <div>
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <Gift className="w-4 h-4 text-[#f2be71]" />
+              <Gift className="w-4 h-4 text-[var(--gold)]" />
               <span>Hitos de Premios por Visita (Recompensas Progresivas)</span>
             </h3>
             <p className="text-xs text-[#ccc3d8]">Define en qué sellos se entregan premios intermedios al comensal.</p>
@@ -581,7 +581,7 @@ export function Stamps() {
           <button
             type="button"
             onClick={handleAddMilestone}
-            className="bg-[#201f23] hover:bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/40 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="bg-[#201f23] hover:bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/40 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Agregar Hito de Premio</span>
@@ -593,7 +593,7 @@ export function Stamps() {
             <div key={idx} className="bg-[#201f23] border border-[#363439] rounded-2xl p-4 space-y-3 relative group">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-bold text-[#f2be71] bg-[#684400]/30 px-2.5 py-1 rounded-full border border-[#f2be71]/30">
+                  <span className="text-xs font-mono font-bold text-[var(--gold)] bg-[#684400]/30 px-2.5 py-1 rounded-full border border-[var(--gold)]/30">
                     Sello #{m.stamp}
                   </span>
                   <input
@@ -644,7 +644,7 @@ export function Stamps() {
                     updated[idx].title = e.target.value;
                     setMilestones(updated);
                   }}
-                  className="bg-[#141317] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-1.5 w-full text-xs font-semibold focus:outline-none focus:border-[#f2be71]/60"
+                  className="bg-[#141317] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-1.5 w-full text-xs font-semibold focus:outline-none focus:border-[var(--gold)]/60"
                   placeholder="Ej: Café de Especialidad Gratis"
                 />
               </div>
@@ -659,7 +659,7 @@ export function Stamps() {
                     updated[idx].description = e.target.value;
                     setMilestones(updated);
                   }}
-                  className="bg-[#141317] border border-[#363439] text-[#ccc3d8] rounded-xl px-3 py-1.5 w-full text-xs focus:outline-none focus:border-[#f2be71]/60 resize-none"
+                  className="bg-[#141317] border border-[#363439] text-[#ccc3d8] rounded-xl px-3 py-1.5 w-full text-xs focus:outline-none focus:border-[var(--gold)]/60 resize-none"
                   placeholder="Válido en cualquier visita..."
                 />
               </div>
@@ -672,7 +672,7 @@ export function Stamps() {
       <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4 shadow-lg">
         <div className="flex items-center justify-between border-b border-[#363439] pb-3">
           <div className="flex items-center gap-2.5">
-            <Wallet className="w-5 h-5 text-[#f2be71]" />
+            <Wallet className="w-5 h-5 text-[var(--gold)]" />
             <div>
               <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue']">
                 Pase Digital para Apple Wallet (iPhone) & Google Wallet (Android)
@@ -686,7 +686,7 @@ export function Stamps() {
               type="checkbox"
               checked={walletEnabled}
               onChange={(e) => setWalletEnabled(e.target.checked)}
-              className="w-4 h-4 accent-[#f2be71]"
+              className="w-4 h-4 accent-[var(--gold)]"
             />
             <span className="text-xs font-bold text-[#e6e1e7]">Habilitar Pases Móviles</span>
           </label>
@@ -735,14 +735,14 @@ export function Stamps() {
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-[#363439] pb-3">
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#f2be71]" />
+              <Clock className="w-4 h-4 text-[var(--gold)]" />
               <span>Multiplicador de Horas Muertas (Happy Hour)</span>
             </h3>
             <input
               type="checkbox"
               checked={hhEnabled}
               onChange={(e) => setHhEnabled(e.target.checked)}
-              className="w-4 h-4 accent-[#f2be71]"
+              className="w-4 h-4 accent-[var(--gold)]"
             />
           </div>
 
@@ -770,7 +770,7 @@ export function Stamps() {
               <select
                 value={hhMultiplier}
                 onChange={(e) => setHhMultiplier(Number(e.target.value))}
-                className="bg-[#201f23] border border-[#363439] text-[#f2be71] rounded-xl px-3 py-2 w-full text-xs font-mono font-bold"
+                className="bg-[#201f23] border border-[#363439] text-[var(--gold)] rounded-xl px-3 py-2 w-full text-xs font-mono font-bold"
               >
                 <option value={2}>x2 Sellos</option>
                 <option value={3}>x3 Sellos</option>
@@ -783,10 +783,10 @@ export function Stamps() {
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-[#363439] pb-3">
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-[#f2be71]" />
+              <Trophy className="w-4 h-4 text-[var(--gold)]" />
               <span>Sorteo de Fin de Mes (Boleto VIP)</span>
             </h3>
-            <span className="text-xs text-[#f2be71] font-mono font-bold">{contest?.totalEntries || 0} inscritos</span>
+            <span className="text-xs text-[var(--gold)] font-mono font-bold">{contest?.totalEntries || 0} inscritos</span>
           </div>
 
           <div className="flex items-center justify-between gap-3">
@@ -797,7 +797,7 @@ export function Stamps() {
               type="button"
               onClick={handleDrawContest}
               disabled={drawing}
-              className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-4 py-2.5 text-xs hover:brightness-105 shrink-0 flex items-center gap-1.5 cursor-pointer shadow-md"
+              className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-4 py-2.5 text-xs hover:brightness-105 shrink-0 flex items-center gap-1.5 cursor-pointer shadow-md"
             >
               {drawing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trophy className="w-3.5 h-3.5" />}
               <span>Sortear Ahora</span>

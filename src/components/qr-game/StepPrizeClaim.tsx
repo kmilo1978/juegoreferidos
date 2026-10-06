@@ -59,20 +59,20 @@ export function StepPrizeClaim({
 
       {/* Ticket Perforado de Lujo estilo Stitch */}
       <Reveal delay={50}>
-        <div className="relative w-full rounded-3xl bg-gradient-to-b from-[#2a2215] via-[#1e1b24] to-[#17151e] border border-[#f2be71]/35 shadow-[0_16px_40px_rgba(0,0,0,0.75)] overflow-hidden">
+        <div className="relative w-full rounded-3xl bg-gradient-to-b from-[#2a2215] via-[#1e1b24] to-[#17151e] border border-[var(--gold)]/35 shadow-[0_16px_40px_rgba(0,0,0,0.75)] overflow-hidden">
           {/* Ambient Glow */}
-          <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-[#f2be71]/15 blur-2xl pointer-events-none" />
+          <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-[var(--gold)]/15 blur-2xl pointer-events-none" />
 
           {/* Sección Superior del Ticket */}
           <div className="p-6 flex flex-col items-center text-center relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f2be71]/15 text-[#f2be71] mb-3 border border-[#f2be71]/30">
-              <Sparkles className="h-3.5 w-3.5 text-[#f2be71]" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] mb-3 border border-[var(--gold)]/30">
+              <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" />
               <span className="font-label-sm text-[10px] tracking-wider uppercase font-bold">
                 {t("Voucher Exclusivo de Mesa", "Exclusive Table Voucher")}
               </span>
             </div>
 
-            <h2 className="font-headline-lg text-2xl sm:text-3xl text-[#ffddb1] font-bold mb-1">
+            <h2 className="font-headline-lg text-2xl sm:text-3xl text-[var(--gold-light)] font-bold mb-1">
               {prizeDisplayName}
             </h2>
             <p className="font-body-sm text-xs text-[#ccc3d8] italic mb-4">
@@ -84,7 +84,7 @@ export function StepPrizeClaim({
               <span className="font-label-sm text-[10px] text-[#ccc3d8] tracking-wider uppercase">
                 {t("Código:", "Code:")}
               </span>
-              <span className="font-headline-sm text-base text-[#f2be71] tracking-widest font-mono font-bold">
+              <span className="font-headline-sm text-base text-[var(--gold)] tracking-widest font-mono font-bold">
                 {prize.uniqueCode}
               </span>
               <button
@@ -98,7 +98,7 @@ export function StepPrizeClaim({
             </div>
 
             {/* Marco de Código QR de Alta Calidad */}
-            <div className="relative p-3 rounded-2xl bg-[#0f0e12] border border-[#f2be71]/30 shadow-inner flex flex-col items-center justify-center">
+            <div className="relative p-3 rounded-2xl bg-[#0f0e12] border border-[var(--gold)]/30 shadow-inner flex flex-col items-center justify-center">
               <GoldenQRCode
                 value={`https://${clientConfig.brand.name.toLowerCase().replace(/\s+/g, "")}.com/validar?code=${prize.uniqueCode}`}
                 size={170}
@@ -108,15 +108,15 @@ export function StepPrizeClaim({
 
           {/* Línea de Perforación de Ticket con Semicírculos Laterales estilo Stitch */}
           <div className="relative w-full h-8 flex items-center justify-between px-0 overflow-hidden bg-transparent">
-            <div className="w-5 h-8 bg-[#141317] rounded-r-full -ml-2.5 border-r border-[#f2be71]/30" />
+            <div className="w-5 h-8 bg-[#141317] rounded-r-full -ml-2.5 border-r border-[var(--gold)]/30" />
             <div className="flex-1 border-t-2 border-dashed border-[#4a4455]/60 mx-2" />
-            <div className="w-5 h-8 bg-[#141317] rounded-l-full -mr-2.5 border-l border-[#f2be71]/30" />
+            <div className="w-5 h-8 bg-[#141317] rounded-l-full -mr-2.5 border-l border-[var(--gold)]/30" />
           </div>
 
           {/* Sección Inferior del Ticket */}
           <div className="p-5 pt-2 flex flex-col items-center gap-3 text-center relative z-10">
             {/* Pastilla de Temporizador */}
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#684400]/40 border border-[#f2be71]/30 text-[#f2be71]">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#684400]/40 border border-[var(--gold)]/30 text-[var(--gold)]">
               <Hourglass className="h-3.5 w-3.5 animate-pulse" />
               <span className="font-label-md text-xs font-semibold tracking-wide">
                 {isUsed ? t("Canjeado en Mesa", "Redeemed at Table") : t("Válido para la visita de hoy", "Valid for today's visit")}
@@ -171,9 +171,9 @@ export function StepPrizeClaim({
           <button
             type="button"
             onClick={() => setIsWalletOpen(true)}
-            className="w-full py-2.5 px-4 rounded-full bg-[#1c1b1f] border border-[#f2be71]/40 text-[#f2be71] hover:border-[#f2be71]/80 text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-98"
+            className="w-full py-2.5 px-4 rounded-full bg-[#1c1b1f] border border-[var(--gold)]/40 text-[var(--gold)] hover:border-[var(--gold)]/80 text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-98"
           >
-            <Smartphone className="h-4 w-4 text-[#f2be71]" />
+            <Smartphone className="h-4 w-4 text-[var(--gold)]" />
             <span>{t("📱 Guardar Voucher en Apple / Google Wallet", "📱 Save Voucher to Apple / Google Wallet")}</span>
           </button>
 
@@ -181,9 +181,9 @@ export function StepPrizeClaim({
           <button
             type="button"
             onClick={handleShareWhatsApp}
-            className="w-full py-2 text-center text-xs text-[#ccc3d8] hover:text-[#f2be71] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full py-2 text-center text-xs text-[#ccc3d8] hover:text-[var(--gold)] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
           >
-            <Share2 className="h-3.5 w-3.5 text-[#f2be71]" />
+            <Share2 className="h-3.5 w-3.5 text-[var(--gold)]" />
             <span>{t("Compartir mi premio por WhatsApp", "Share my prize on WhatsApp")}</span>
           </button>
         </div>

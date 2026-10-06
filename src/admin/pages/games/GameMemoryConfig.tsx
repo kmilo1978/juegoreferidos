@@ -106,7 +106,7 @@ export function GameMemoryConfig() {
         <div className="flex items-center gap-3">
           <Link
             to="/games"
-            className="w-8 h-8 rounded-xl bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] flex items-center justify-center text-[#ccc3d8] hover:text-[#f2be71] transition-all cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] flex items-center justify-center text-[#ccc3d8] hover:text-[var(--gold)] transition-all cursor-pointer"
             title="Volver al Catálogo de Juegos"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -129,7 +129,7 @@ export function GameMemoryConfig() {
               onClick={() => setActiveTab("settings")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === "settings"
-                  ? "bg-[#f2be71] text-[#121115]"
+                  ? "bg-[var(--gold)] text-[#121115]"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -143,7 +143,7 @@ export function GameMemoryConfig() {
               }}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "simulator"
-                  ? "bg-[#f2be71] text-[#121115]"
+                  ? "bg-[var(--gold)] text-[#121115]"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -156,7 +156,7 @@ export function GameMemoryConfig() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="bg-[#f2be71] text-[#121115] font-bold px-5 py-2.5 rounded-xl text-xs hover:brightness-105 transition-all shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            className="bg-[var(--gold)] text-[#121115] font-bold px-5 py-2.5 rounded-xl text-xs hover:brightness-105 transition-all shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             <span>{saving ? "Guardando..." : "Guardar Memory"}</span>
@@ -238,7 +238,7 @@ export function GameMemoryConfig() {
           {/* Tarjeta de Dificultad, Tiempos y Premios */}
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 shadow-lg space-y-5">
             <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2 border-b border-[#2b292e] pb-3">
-              <Sliders className="w-4 h-4 text-[#f2be71]" />
+              <Sliders className="w-4 h-4 text-[var(--gold)]" />
               <span>Reglas de Juego, Tiempo & Premio</span>
             </h3>
 
@@ -260,8 +260,8 @@ export function GameMemoryConfig() {
                       onClick={() => setPairsCount(lvl.count)}
                       className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
                         pairsCount === lvl.count
-                          ? "bg-[#f2be71] text-[#121115] border-[#f2be71] font-bold shadow-xs"
-                          : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:border-[#f2be71]/40"
+                          ? "bg-[var(--gold)] text-[#121115] border-[var(--gold)] font-bold shadow-xs"
+                          : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:border-[var(--gold)]/40"
                       }`}
                     >
                       <span className="text-xs block font-bold">{lvl.count} Parejas</span>
@@ -277,7 +277,7 @@ export function GameMemoryConfig() {
                   <label className="text-xs font-semibold text-[#ccc3d8]">
                     Tiempo Límite para Resolver la Partida
                   </label>
-                  <span className="font-mono text-xs font-bold text-[#f2be71]">{timeLimitSeconds} segundos</span>
+                  <span className="font-mono text-xs font-bold text-[var(--gold)]">{timeLimitSeconds} segundos</span>
                 </div>
                 <input
                   type="range"
@@ -286,7 +286,7 @@ export function GameMemoryConfig() {
                   step="5"
                   value={timeLimitSeconds}
                   onChange={(e) => setTimeLimitSeconds(parseInt(e.target.value, 10))}
-                  className="w-full accent-[#f2be71] cursor-pointer"
+                  className="w-full accent-[var(--gold)] cursor-pointer"
                 />
                 <div className="flex items-center justify-between text-[10px] text-[#ccc3d8] mt-1">
                   <span>Rápido (20s)</span>
@@ -321,7 +321,7 @@ export function GameMemoryConfig() {
 
               {/* Recompensa al Completar */}
               <div className="space-y-2 pt-2 border-t border-[#2b292e]">
-                <label className="text-xs font-semibold text-[#f2be71] flex items-center gap-1.5">
+                <label className="text-xs font-semibold text-[var(--gold)] flex items-center gap-1.5">
                   <Gift className="w-3.5 h-3.5" />
                   <span>Premio Instantáneo para el Ganador</span>
                 </label>
@@ -331,14 +331,14 @@ export function GameMemoryConfig() {
                     value={rewardPrizeName}
                     onChange={(e) => setRewardPrizeName(e.target.value)}
                     placeholder="Nombre del premio (ej: Tarta o Cóctel gratis)"
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl px-3 py-2 focus:border-[#f2be71]/60 focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl px-3 py-2 focus:border-[var(--gold)]/60 focus:outline-none"
                   />
                   <input
                     type="text"
                     value={rewardPrizeValue}
                     onChange={(e) => setRewardPrizeValue(e.target.value)}
                     placeholder="Valor referencial (ej: $18.000 COP)"
-                    className="bg-[#201f23] border border-[#363439] text-[#ccc3d8] text-xs rounded-xl px-3 py-2 focus:border-[#f2be71]/60 focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#ccc3d8] text-xs rounded-xl px-3 py-2 focus:border-[var(--gold)]/60 focus:outline-none"
                   />
                 </div>
               </div>
@@ -358,7 +358,7 @@ export function GameMemoryConfig() {
             <button
               type="button"
               onClick={() => setPreviewKey((k) => k + 1)}
-              className="text-xs text-[#f2be71] hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs text-[var(--gold)] hover:underline flex items-center gap-1 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reiniciar Simulación</span>

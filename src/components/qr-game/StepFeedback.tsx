@@ -111,7 +111,7 @@ export function StepFeedback({
   const renderRatingIcon = (isFilled: boolean) => {
     const commonClass = `h-8 w-8 transition-transform ${
       isFilled
-        ? "text-[#f2be71] fill-[#f2be71] drop-shadow-[0_0_8px_rgba(242,190,113,0.6)]"
+        ? "text-[var(--gold)] fill-[var(--gold)] drop-shadow-[0_0_8px_rgba(242,190,113,0.6)]"
         : "text-[#4a4455] fill-transparent"
     }`;
 
@@ -194,7 +194,7 @@ export function StepFeedback({
             />
           ) : null}
 
-          <span className="font-label-sm text-[10px] uppercase tracking-wider text-[#f2be71] font-bold">
+          <span className="font-label-sm text-[10px] uppercase tracking-wider text-[var(--gold)] font-bold">
             {t("¿Cómo calificarías tu experiencia hoy?", "How was your experience today?")}
           </span>
 
@@ -218,7 +218,7 @@ export function StepFeedback({
             })}
           </div>
 
-          <span className="font-label-md text-xs text-[#ffddb1] font-bold tracking-wide">
+          <span className="font-label-md text-xs text-[var(--gold-light)] font-bold tracking-wide">
             {ratingLabels[rating] || ratingLabels[5]}
           </span>
         </div>
@@ -227,12 +227,12 @@ export function StepFeedback({
       {/* RAMA A: CALIFICACIÓN POSITIVA (4 O 5 ESTRELLAS) -> GOOGLE MAPS */}
       {isPositive && (
         <Reveal delay={100}>
-          <div className="w-full rounded-2xl bg-gradient-to-b from-[#201f23] to-[#1c1b1f] border border-[#f2be71]/30 p-5 shadow-xl flex flex-col gap-4 relative overflow-hidden">
-            <div className="absolute -top-16 -right-16 w-36 h-36 bg-[#f2be71]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="w-full rounded-2xl bg-gradient-to-b from-[#201f23] to-[#1c1b1f] border border-[var(--gold)]/30 p-5 shadow-xl flex flex-col gap-4 relative overflow-hidden">
+            <div className="absolute -top-16 -right-16 w-36 h-36 bg-[var(--gold)]/10 rounded-full blur-3xl pointer-events-none" />
 
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col gap-0.5">
-                <div className="inline-flex items-center gap-1 text-[#f2be71] font-label-sm text-[10px] uppercase font-bold tracking-wider">
+                <div className="inline-flex items-center gap-1 text-[var(--gold)] font-label-sm text-[10px] uppercase font-bold tracking-wider">
                   <Sparkles className="h-3.5 w-3.5" />
                   <span>{t("Experiencia Superior", "Top Tier Experience")}</span>
                 </div>
@@ -240,7 +240,7 @@ export function StepFeedback({
                   {highRatingTitle}
                 </h2>
               </div>
-              <span className="w-9 h-9 rounded-full bg-[#684400]/50 border border-[#f2be71]/30 flex items-center justify-center text-[#f2be71] text-base shrink-0">
+              <span className="w-9 h-9 rounded-full bg-[#684400]/50 border border-[var(--gold)]/30 flex items-center justify-center text-[var(--gold)] text-base shrink-0">
                 🎉
               </span>
             </div>
@@ -264,7 +264,7 @@ export function StepFeedback({
                 <span className="font-label-md text-xs font-bold text-[#e6e1e7]">
                   {t("Reseña Verificada Google Maps", "Verified Google Maps Review")}
                 </span>
-                <span className="font-label-sm text-[11px] text-[#f2be71] font-semibold">
+                <span className="font-label-sm text-[11px] text-[var(--gold)] font-semibold">
                   ★★★★★ <span className="text-[#ccc3d8] font-normal">{t("Recomendado", "Recommended")}</span>
                 </span>
               </div>
@@ -281,8 +281,8 @@ export function StepFeedback({
             </button>
 
             {hasClickedGoogle && (
-              <div className="p-3 rounded-xl bg-[#2b292e] border border-[#f2be71]/30 flex items-center gap-2.5 text-xs text-[#ffddb1]">
-                <Sparkles className="h-4 w-4 text-[#f2be71] shrink-0" />
+              <div className="p-3 rounded-xl bg-[#2b292e] border border-[var(--gold)]/30 flex items-center gap-2.5 text-xs text-[var(--gold-light)]">
+                <Sparkles className="h-4 w-4 text-[var(--gold)] shrink-0" />
                 <span>{t("¡Gracias por tu reseña! Tu 2ª Oportunidad ha sido desbloqueada.", "Thanks for your review! Your 2nd Chance is unlocked.")}</span>
               </div>
             )}
@@ -318,7 +318,7 @@ export function StepFeedback({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder={t("Cuéntanos qué podemos mejorar en tu mesa...", "Tell us what we can improve...")}
-              className="w-full rounded-xl bg-[#0f0e12] border border-[#363439] text-[#e6e1e7] text-xs p-3.5 focus:border-[#f2be71] focus:outline-none transition-all placeholder:text-[#958da1]"
+              className="w-full rounded-xl bg-[#0f0e12] border border-[#363439] text-[#e6e1e7] text-xs p-3.5 focus:border-[var(--gold)] focus:outline-none transition-all placeholder:text-[#958da1]"
             />
 
             <button

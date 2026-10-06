@@ -191,7 +191,7 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
         <section className="text-center flex flex-col gap-1">
           <h1 className="font-headline-xl-mobile text-2xl sm:text-3xl text-[#e6e1e7] tracking-tight">
             {t("¡Gira la Ruleta,", "Spin the Wheel,")}{" "}
-            <span className="text-[#f2be71] italic font-serif">{participantName}</span>!
+            <span className="text-[var(--gold)] italic font-serif">{participantName}</span>!
           </h1>
           <p className="font-body-md text-sm text-[#ccc3d8] leading-relaxed max-w-md mx-auto">
             {t(
@@ -209,16 +209,16 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
             {/* Puntero Indicador Superior Dorado con flapper */}
             <div className="absolute -top-3 z-30 flex flex-col items-center drop-shadow-[0_4px_8px_rgba(0,0,0,0.7)]">
               <div
-                className="w-5 h-7 bg-gradient-to-b from-[#ffddb1] via-[#f2be71] to-[#684400] rounded-t-sm shadow-md clip-pointer"
+                className="w-5 h-7 bg-gradient-to-b from-[var(--gold-light)] via-[var(--gold)] to-[#684400] rounded-t-sm shadow-md clip-pointer"
                 style={{ clipPath: "polygon(50% 100%, 0% 0%, 100% 0%)" }}
               />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#ffddb1] -mt-6 shadow-[0_0_6px_rgba(255,221,177,0.9)]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[var(--gold-light)] -mt-6 shadow-[0_0_6px_rgba(255,221,177,0.9)]" />
             </div>
 
             {/* Anillo exterior biselado con gradiente Stitch */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#ffddb1] via-[#684400] to-[#f2be71] shadow-[0_12px_36px_rgba(0,0,0,0.8)] p-2">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[var(--gold-light)] via-[#684400] to-[var(--gold)] shadow-[0_12px_36px_rgba(0,0,0,0.8)] p-2">
               <div className="relative w-full h-full rounded-full bg-[#0f0e12] p-1 shadow-inner flex items-center justify-center">
-                <div className="w-full h-full rounded-full bg-gradient-to-tr from-[#684400]/60 via-[#ffddb1]/40 to-[#f2be71]/80 p-1 flex items-center justify-center shadow-lg">
+                <div className="w-full h-full rounded-full bg-gradient-to-tr from-[#684400]/60 via-[var(--gold-light)]/40 to-[var(--gold)]/80 p-1 flex items-center justify-center shadow-lg">
                   {/* Canvas giratorio */}
                   <div
                     style={{
@@ -238,12 +238,12 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
                     type="button"
                     onClick={handleSpin}
                     disabled={isSpinning || hasSpun}
-                    className="absolute z-20 w-24 h-24 rounded-full bg-gradient-to-tr from-[#684400] via-[#ffddb1] to-[#f2be71] p-1 shadow-[0_8px_20px_rgba(0,0,0,0.7),0_0_16px_rgba(242,190,113,0.5)] active:scale-95 transition-transform flex items-center justify-center cursor-pointer group disabled:cursor-not-allowed"
+                    className="absolute z-20 w-24 h-24 rounded-full bg-gradient-to-tr from-[#684400] via-[var(--gold-light)] to-[var(--gold)] p-1 shadow-[0_8px_20px_rgba(0,0,0,0.7),0_0_16px_rgba(242,190,113,0.5)] active:scale-95 transition-transform flex items-center justify-center cursor-pointer group disabled:cursor-not-allowed"
                   >
                     <div className="w-full h-full rounded-full bg-[#0f0e12] flex flex-col items-center justify-center p-1 relative overflow-hidden shadow-inner">
-                      <div className="absolute inset-0 bg-gradient-to-b from-[#f2be71]/20 to-transparent pointer-events-none" />
-                      <Sparkles className="h-4 w-4 text-[#f2be71] animate-pulse" />
-                      <span className="font-headline-sm text-[11px] leading-tight text-center font-bold tracking-wider text-[#f2be71] uppercase mt-0.5">
+                      <div className="absolute inset-0 bg-gradient-to-b from-[var(--gold)]/20 to-transparent pointer-events-none" />
+                      <Sparkles className="h-4 w-4 text-[var(--gold)] animate-pulse" />
+                      <span className="font-headline-sm text-[11px] leading-tight text-center font-bold tracking-wider text-[var(--gold)] uppercase mt-0.5">
                         {isSpinning ? t("GIRANDO...", "SPINNING...") : hasSpun ? t("LISTO", "DONE") : t("GIRAR\nAHORA", "SPIN\nNOW")}
                       </span>
                     </div>
@@ -255,26 +255,26 @@ export function StepRouletteWheel({ prizes, participantName, onPrizeWon }: StepR
 
           {/* Banner de Ganador Reciente en Vivo */}
           <div className="w-full max-w-sm mt-4 p-2.5 rounded-full bg-[#1c1b1f] border border-[#2b292e] flex items-center gap-2.5 shadow-sm">
-            <div className="w-7 h-7 rounded-full bg-[#684400]/60 flex items-center justify-center shrink-0 text-[#f2be71]">
+            <div className="w-7 h-7 rounded-full bg-[#684400]/60 flex items-center justify-center shrink-0 text-[var(--gold)]">
               <Trophy className="h-3.5 w-3.5" />
             </div>
             <div className="flex items-center gap-1.5 text-xs truncate">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#f2be71] animate-ping" />
-              <span className="font-bold text-[#f2be71] uppercase text-[10px]">Mesa 2:</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--gold)] animate-ping" />
+              <span className="font-bold text-[var(--gold)] uppercase text-[10px]">Mesa 2:</span>
               <span className="text-[#e6e1e7] truncate">Ganó Postre de Autor 🍰</span>
             </div>
           </div>
 
           {/* Tarjeta de Victoria al terminar el giro */}
           {wonPrize && (
-            <div className="w-full mt-5 rounded-2xl bg-gradient-to-b from-[#2a2215] to-[#1c1b1f] border border-[#f2be71]/40 p-5 shadow-2xl text-center flex flex-col items-center gap-3 animate-in zoom-in-95">
+            <div className="w-full mt-5 rounded-2xl bg-gradient-to-b from-[#2a2215] to-[#1c1b1f] border border-[var(--gold)]/40 p-5 shadow-2xl text-center flex flex-col items-center gap-3 animate-in zoom-in-95">
               <div className="w-12 h-12 rounded-full badge-gold flex items-center justify-center shadow-[0_0_16px_rgba(242,190,113,0.6)]">
                 <Trophy className="h-6 w-6" />
               </div>
-              <span className="font-label-sm text-[11px] uppercase tracking-wider text-[#f2be71] font-bold">
+              <span className="font-label-sm text-[11px] uppercase tracking-wider text-[var(--gold)] font-bold">
                 {t("¡PREMIO DESBLOQUEADO!", "PRIZE UNLOCKED!")}
               </span>
-              <h3 className="font-headline-lg text-xl sm:text-2xl text-[#ffddb1] font-bold">
+              <h3 className="font-headline-lg text-xl sm:text-2xl text-[var(--gold-light)] font-bold">
                 {lang === "en" ? wonPrize.nameEn : wonPrize.name}
               </h3>
               <p className="font-body-sm text-xs text-[#ccc3d8] max-w-xs">

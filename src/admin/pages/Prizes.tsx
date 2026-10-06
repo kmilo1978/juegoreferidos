@@ -229,7 +229,7 @@ export function Prizes() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -249,7 +249,7 @@ export function Prizes() {
         <button
           type="button"
           onClick={openCreateModal}
-          className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
+          className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>Crear Nuevo Premio</span>
@@ -297,16 +297,16 @@ export function Prizes() {
             <tbody className="divide-y divide-[#363439]/50">
               {pendingVouchers.map((v) => (
                 <tr key={v.id} className="hover:bg-[#201f23]/40 transition-colors">
-                  <td className="px-4 py-3 font-mono font-bold text-[#f2be71]">{v.id}</td>
+                  <td className="px-4 py-3 font-mono font-bold text-[var(--gold)]">{v.id}</td>
                   <td className="px-4 py-3 font-bold text-white">{v.mesa}</td>
                   <td className="px-4 py-3 font-medium text-[#ccc3d8]">{v.client}</td>
-                  <td className="px-4 py-3 font-semibold text-[#ffddb1]">{v.premio}</td>
+                  <td className="px-4 py-3 font-semibold text-[var(--gold-light)]">{v.premio}</td>
                   <td className="px-4 py-3 text-[#958da1] font-mono">{v.esperando}</td>
                   <td className="px-4 py-3 text-right">
                     <button
                       type="button"
                       onClick={() => handleOpenPinModal(v)}
-                      className="bg-[#f2be71] text-[#121115] hover:brightness-105 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 ml-auto cursor-pointer shadow-md transition-all active:scale-95"
+                      className="bg-[var(--gold)] text-[#121115] hover:brightness-105 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 ml-auto cursor-pointer shadow-md transition-all active:scale-95"
                     >
                       <KeyRound className="w-3.5 h-3.5" />
                       <span>Validar con PIN</span>
@@ -331,7 +331,7 @@ export function Prizes() {
       <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4 shadow-xl">
         <div className="flex items-center justify-between border-b border-[#363439] pb-3">
           <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-            <Ticket className="w-4 h-4 text-[#f2be71]" />
+            <Ticket className="w-4 h-4 text-[var(--gold)]" />
             <span>Catálogo de Premios y Vouchers Activos</span>
           </h3>
           <span className="text-xs text-[#958da1]">Usa el interruptor para habilitar o pausar premios</span>
@@ -342,7 +342,7 @@ export function Prizes() {
             <div
               key={p.id}
               className={`p-4 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
-                p.active ? "bg-[#201f23] border-[#f2be71]/40 shadow-md" : "bg-[#17161a] border-[#2b292e] opacity-60"
+                p.active ? "bg-[#201f23] border-[var(--gold)]/40 shadow-md" : "bg-[#17161a] border-[#2b292e] opacity-60"
               }`}
             >
               <div>
@@ -366,7 +366,7 @@ export function Prizes() {
                       onChange={() => handleToggleActive(p.id)}
                       className="sr-only peer"
                     />
-                    <div className="w-8 h-4 bg-[#2b292e] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#f2be71]"></div>
+                    <div className="w-8 h-4 bg-[#2b292e] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[var(--gold)]"></div>
                   </label>
                 </div>
 
@@ -376,7 +376,7 @@ export function Prizes() {
               </div>
 
               <div className="pt-2 border-t border-[#363439]/50 flex items-center justify-between text-xs">
-                <span className="font-mono text-[#f2be71] font-bold">
+                <span className="font-mono text-[var(--gold)] font-bold">
                   {p.probability || 15}% en Ruleta
                 </span>
 
@@ -384,7 +384,7 @@ export function Prizes() {
                   <button
                     type="button"
                     onClick={() => openEditModal(p)}
-                    className="p-1.5 rounded-lg bg-[#141317] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[#f2be71] transition-colors cursor-pointer"
+                    className="p-1.5 rounded-lg bg-[#141317] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[var(--gold)] transition-colors cursor-pointer"
                     title="Editar premio"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -407,10 +407,10 @@ export function Prizes() {
       {/* MODAL DE VALIDACIÓN CON PIN EN CAJA */}
       {showPinModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#1c1b1f] border border-[#f2be71]/40 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl relative">
+          <div className="bg-[#1c1b1f] border border-[var(--gold)]/40 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl relative">
             <div className="flex items-center justify-between border-b border-[#363439] pb-3">
               <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-                <KeyRound className="w-4 h-4 text-[#f2be71]" />
+                <KeyRound className="w-4 h-4 text-[var(--gold)]" />
                 <span>Confirmar Entrega en Caja</span>
               </h3>
               <button
@@ -433,7 +433,7 @@ export function Prizes() {
               </div>
               <div className="flex justify-between">
                 <span className="text-[#958da1]">Premio:</span>
-                <span className="font-bold text-[#f2be71]">{selectedVoucher?.premio}</span>
+                <span className="font-bold text-[var(--gold)]">{selectedVoucher?.premio}</span>
               </div>
             </div>
 
@@ -450,7 +450,7 @@ export function Prizes() {
                   value={pin}
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
                   placeholder="••••"
-                  className="bg-[#141317] border border-[#363439] text-[#f2be71] font-mono text-center tracking-[12px] text-2xl font-bold rounded-2xl px-4 py-3 w-full focus:border-[#f2be71]/60 focus:outline-none"
+                  className="bg-[#141317] border border-[#363439] text-[var(--gold)] font-mono text-center tracking-[12px] text-2xl font-bold rounded-2xl px-4 py-3 w-full focus:border-[var(--gold)]/60 focus:outline-none"
                 />
                 <span className="text-[10px] text-[#958da1] block text-center mt-1">PIN por defecto: <strong>4321</strong></span>
               </div>
@@ -466,7 +466,7 @@ export function Prizes() {
                 <button
                   type="submit"
                   disabled={validating || pin.length !== 4}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-[#f2be71] hover:brightness-105 text-[#121115] text-xs font-bold flex items-center justify-center gap-1.5 shadow-md disabled:opacity-50"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-[var(--gold)] hover:brightness-105 text-[#121115] text-xs font-bold flex items-center justify-center gap-1.5 shadow-md disabled:opacity-50"
                 >
                   {validating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                   <span>Confirmar</span>
@@ -480,7 +480,7 @@ export function Prizes() {
       {/* MODAL CREAR / EDITAR PREMIO */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#1c1b1f] border border-[#f2be71]/40 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl relative">
+          <div className="bg-[#1c1b1f] border border-[var(--gold)]/40 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl relative">
             <div className="flex items-center justify-between border-b border-[#363439] pb-3">
               <h3 className="text-lg font-bold text-[#e6e1e7] font-['Epilogue']">
                 {editingPrize ? "✏️ Personalizar Premio" : "➕ Crear Nuevo Premio"}
@@ -505,7 +505,7 @@ export function Prizes() {
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   placeholder="Ej: Croissant de Almendras Gratis"
-                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-semibold focus:border-[#f2be71]/60 focus:outline-none"
+                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-semibold focus:border-[var(--gold)]/60 focus:outline-none"
                 />
               </div>
 
@@ -533,7 +533,7 @@ export function Prizes() {
                     max="100"
                     value={formProbability}
                     onChange={(e) => setFormProbability(Number(e.target.value))}
-                    className="bg-[#201f23] border border-[#363439] text-[#f2be71] font-mono text-center rounded-xl px-3 py-2 w-full text-xs font-bold"
+                    className="bg-[#201f23] border border-[#363439] text-[var(--gold)] font-mono text-center rounded-xl px-3 py-2 w-full text-xs font-bold"
                   />
                 </div>
               </div>
@@ -549,7 +549,7 @@ export function Prizes() {
                     onChange={(e) => setFormColor(e.target.value)}
                     className="w-10 h-10 rounded-xl cursor-pointer bg-transparent border-0"
                   />
-                  <span className="font-mono text-[#f2be71] font-bold">{formColor}</span>
+                  <span className="font-mono text-[var(--gold)] font-bold">{formColor}</span>
                 </div>
               </div>
 
@@ -562,7 +562,7 @@ export function Prizes() {
                   value={formTerms}
                   onChange={(e) => setFormTerms(e.target.value)}
                   placeholder="Válido únicamente en mesa durante la visita actual..."
-                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs resize-none focus:border-[#f2be71]/60 focus:outline-none"
+                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs resize-none focus:border-[var(--gold)]/60 focus:outline-none"
                 />
               </div>
 
@@ -572,7 +572,7 @@ export function Prizes() {
                   id="formActiveCheck"
                   checked={formActive}
                   onChange={(e) => setFormActive(e.target.checked)}
-                  className="w-4 h-4 accent-[#f2be71]"
+                  className="w-4 h-4 accent-[var(--gold)]"
                 />
                 <label htmlFor="formActiveCheck" className="text-xs text-[#e6e1e7] font-semibold cursor-pointer">
                   Habilitar este premio de inmediato en la ruleta
@@ -589,7 +589,7 @@ export function Prizes() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#f2be71] text-[#121115] text-xs font-bold shadow-md"
+                  className="px-5 py-2 rounded-xl bg-[var(--gold)] text-[#121115] text-xs font-bold shadow-md"
                 >
                   Guardar Premio
                 </button>

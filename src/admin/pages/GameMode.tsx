@@ -1,20 +1,13 @@
 import { useEffect, useState } from "react";
 import {
   Loader2,
-  Gamepad2,
   Save,
   Sparkles,
   Timer,
-  CheckCircle,
-  Dices,
   Layers,
-  Coins,
-  Star,
-  Award,
-  Share2,
-  UserCheck,
 } from "lucide-react";
 import { apiUrl, getAuthToken } from "../../lib/apiClient";
+import { FUNNEL_STEPS, normalizeActiveStepIds } from "../../lib/funnelSteps";
 
 interface GameStepModule {
   id: string;
@@ -25,6 +18,21 @@ interface GameStepModule {
   active: boolean;
   required?: boolean;
 }
+
+/**
+ * Checklist derivado de la FUENTE ÚNICA DE VERDAD (FUNNEL_STEPS).
+ * Los ids coinciden exactamente con los que evalúa App.tsx (isStepActive),
+ * por lo que activar/desactivar aquí sí se refleja en la app del comensal.
+ */
+const BASE_GAME_MODULES: GameStepModule[] = FUNNEL_STEPS.map((s, idx) => ({
+  id: s.id,
+  name: `${idx + 1}. ${s.name}`,
+  category: s.category,
+  icon: s.emoji,
+  description: s.description,
+  active: true,
+  required: !s.canDisable,
+}));
 
 export function GameMode() {
   const [loading, setLoading] = useState(true);
@@ -45,82 +53,10 @@ export function GameMode() {
   const [scTerms, setScTerms] = useState("Válido hoy en caja.");
   const [scWhatsappStatus, setScWhatsappStatus] = useState("¡Disfrutando de una experiencia increíble en {restaurante}! ☕🍰 10/10 ✨");
 
-  // CHECKLIST MAESTRO DE PASOS Y MINIJUEGOS EN MESA
-  const [gameModules, setGameModules] = useState<GameStepModule[]>([
-    {
-      id: "step_register",
-      name: "1. Registro del Comensal",
-      category: "Captación",
-      icon: "👤",
-      description: "Pide Nombre y WhatsApp para crear el perfil y acreditar los primeros sellos.",
-      active: true,
-      required: true,
-    },
-    {
-      id: "step_social",
-      name: "2. Instagram Stories / Foto en Mesa",
-      category: "Viralidad",
-      icon: "📸",
-      description: "Invita al cliente a subir una foto etiquetando al negocio o enviándola por WhatsApp.",
-      active: true,
-    },
-    {
-      id: "step_roulette",
-      name: "3. Ruleta de la Suerte (Girar y Ganar)",
-      category: "Azar / Premios",
-      icon: "🎰",
-      description: "El cliente gira la ruleta y gana premios instantáneos de la casa según probabilidades.",
-      active: true,
-    },
-    {
-      id: "step_dice",
-      name: "4. Dados de la Suerte (Lanzar y Sumar)",
-      category: "Minijuego de Azar",
-      icon: "🎲",
-      description: "Lanza 2 dados en 3D: suma puntaje para desbloquear cupones escalonados.",
-      active: false,
-    },
-    {
-      id: "step_betting",
-      name: "5. Mesa de Apuestas (Carta Alta / Puntos)",
-      category: "Gamificación",
-      icon: "🃏",
-      description: "Permite apostar puntos acumulados para duplicarlos o ganar premios VIP.",
-      active: false,
-    },
-    {
-      id: "step_feedback",
-      name: "6. Calificación Google Maps (Embudo)",
-      category: "Reputación",
-      icon: "⭐",
-      description: "Calificación 1-5 estrellas: 4-5★ van a Google Maps y 1-3★ a WhatsApp privado.",
-      active: true,
-    },
-    {
-      id: "step_precision",
-      name: "7. Reto 10s de Precisión (2ª Oportunidad)",
-      category: "Destreza",
-      icon: "⏱️",
-      description: "Detener el cronómetro exactamente en 10.00s para ganar el premio de revancha.",
-      active: true,
-    },
-    {
-      id: "step_stamps",
-      name: "8. Tarjeta Digital de 15 Sellos VIP",
-      category: "Fidelización",
-      icon: "🎟️",
-      description: "Muestra la tarjeta de sellos acumulados y progreso hacia los hitos 5, 10 y 15.",
-      active: true,
-    },
-    {
-      id: "step_missions",
-      name: "9. Catálogo de Misiones de Embajador",
-      category: "Comunidad",
-      icon: "🎯",
-      description: "Misiones activas de redes sociales para sumar sellos adicionales.",
-      active: true,
-    },
-  ]);
+  // CHECKLIST MAESTRO DE PASOS Y MINIJUEGOS EN MESA (desde fuente única de verdad)
+  const [gameModules, setGameModules] = useState<GameStepModule[]>(
+    () => BASE_GAME_MODULES.map((m) => ({ ...m }))
+  );
 
   const fetchData = async () => {
     try {
@@ -140,10 +76,12 @@ export function GameMode() {
         setMaxAttempts(gameData.gameConfig.maxAttempts || 3);
 
         if (Array.isArray(gameData.gameConfig.activeSteps)) {
+          // Normalizar ids (soporta configs antiguas con ids viejos/fantasma)
+          const activeIds = normalizeActiveStepIds(gameData.gameConfig.activeSteps);
           setGameModules((prev) =>
             prev.map((mod) => ({
               ...mod,
-              active: mod.required ? true : gameData.gameConfig.activeSteps.includes(mod.id),
+              active: mod.required ? true : activeIds.includes(mod.id as never),
             }))
           );
         }
@@ -227,7 +165,7 @@ export function GameMode() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -242,7 +180,7 @@ export function GameMode() {
             <h2 className="text-[#e6e1e7] font-bold text-2xl font-['Epilogue']">
               Módulos de Juego & Checklist en Mesa
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full bg-[#684400]/30 border border-[#f2be71]/40 text-[#f2be71] text-xs font-mono font-bold">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#684400]/30 border border-[var(--gold)]/40 text-[var(--gold)] text-xs font-mono font-bold">
               {activeStepsCount} Pasos Activos
             </span>
           </div>
@@ -255,7 +193,7 @@ export function GameMode() {
           type="button"
           onClick={handleSaveAll}
           disabled={saving}
-          className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
+          className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           <span>Guardar Configuración en Mesa</span>
@@ -278,7 +216,7 @@ export function GameMode() {
       <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4 shadow-xl">
         <div className="flex items-center justify-between border-b border-[#363439] pb-3">
           <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[#f2be71]" />
+            <Layers className="w-4 h-4 text-[var(--gold)]" />
             <span>Checklist de Pasos Habilitados en el Teléfono del Cliente</span>
           </h3>
           <span className="text-xs text-[#958da1]">Los comensales solo verán los pasos marcados en [ON]</span>
@@ -291,7 +229,7 @@ export function GameMode() {
               onClick={() => handleToggleModule(mod.id)}
               className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                 mod.active
-                  ? "bg-[#201f23] border-[#f2be71]/60 shadow-md"
+                  ? "bg-[#201f23] border-[var(--gold)]/60 shadow-md"
                   : "bg-[#17161a] border-[#2b292e] opacity-50 hover:opacity-75"
               }`}
             >
@@ -318,7 +256,7 @@ export function GameMode() {
                       onChange={() => handleToggleModule(mod.id)}
                       className="sr-only peer"
                     />
-                    <div className="w-8 h-4 bg-[#2b292e] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#f2be71]"></div>
+                    <div className="w-8 h-4 bg-[#2b292e] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[var(--gold)]"></div>
                   </label>
                 </div>
 
@@ -328,7 +266,7 @@ export function GameMode() {
               </div>
 
               <div className="pt-2 border-t border-[#363439]/40 flex items-center justify-between text-[10px]">
-                <span className={mod.active ? "text-[#f2be71] font-bold" : "text-[#958da1]"}>
+                <span className={mod.active ? "text-[var(--gold)] font-bold" : "text-[#958da1]"}>
                   {mod.active ? "✓ ACTIVO EN MESA" : "— INACTIVO"}
                 </span>
                 {mod.required && <span className="text-[#958da1]">(Paso Base)</span>}
@@ -343,7 +281,7 @@ export function GameMode() {
         {/* Calibración Cronómetro */}
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4">
           <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2 border-b border-[#363439] pb-3">
-            <Timer className="w-4 h-4 text-[#f2be71]" />
+            <Timer className="w-4 h-4 text-[var(--gold)]" />
             <span>Calibración del Reto 10s de Precisión</span>
           </h3>
 
@@ -396,7 +334,7 @@ export function GameMode() {
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-[#363439] pb-3">
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#f2be71]" />
+              <Sparkles className="w-4 h-4 text-[var(--gold)]" />
               <span>Premio de Revancha (2ª Oportunidad)</span>
             </h3>
             <label className="flex items-center gap-1.5 cursor-pointer">
@@ -404,7 +342,7 @@ export function GameMode() {
                 type="checkbox"
                 checked={scEnabled}
                 onChange={(e) => setScEnabled(e.target.checked)}
-                className="w-3.5 h-3.5 accent-[#f2be71]"
+                className="w-3.5 h-3.5 accent-[var(--gold)]"
               />
               <span className="text-xs text-[#ccc3d8] font-bold">Activo</span>
             </label>

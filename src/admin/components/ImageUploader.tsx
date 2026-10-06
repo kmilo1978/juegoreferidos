@@ -67,7 +67,7 @@ export function ImageUploader({
       {/* Etiqueta y descripción */}
       <div className="flex items-center justify-between">
         <label className="text-xs font-bold text-[#e6e1e7] uppercase tracking-wider flex items-center gap-1.5">
-          <ImageIcon className="w-3.5 h-3.5 text-[#f2be71]" />
+          <ImageIcon className="w-3.5 h-3.5 text-[var(--gold)]" />
           <span>{label}</span>
         </label>
         {value && (
@@ -83,7 +83,7 @@ export function ImageUploader({
       <div className="bg-[#141317] border border-[#363439] rounded-xl p-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-left">
         <div>
           <span className="text-[10px] uppercase font-bold text-[#958da1] block">📏 Tamaño Sugerido</span>
-          <span className="text-xs font-bold text-[#f2be71]">{recommendedDimensions}</span>
+          <span className="text-xs font-bold text-[var(--gold)]">{recommendedDimensions}</span>
         </div>
         <div>
           <span className="text-[10px] uppercase font-bold text-[#958da1] block">📐 Proporción</span>
@@ -118,7 +118,7 @@ export function ImageUploader({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="bg-[#2b292e] hover:bg-[#363439] text-[#f2be71] text-xs font-bold py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
+                className="bg-[#2b292e] hover:bg-[#363439] text-[var(--gold)] text-xs font-bold py-1.5 px-3 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
               >
                 <Upload className="w-3.5 h-3.5" />
                 <span>Reemplazar</span>
@@ -140,13 +140,13 @@ export function ImageUploader({
         <div className="space-y-2.5">
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-[#363439] hover:border-[#f2be71]/60 bg-[#141317]/60 hover:bg-[#201f23] rounded-xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 group"
+            className="border-2 border-dashed border-[#363439] hover:border-[var(--gold)]/60 bg-[#141317]/60 hover:bg-[#201f23] rounded-xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 group"
           >
-            <div className="w-10 h-10 rounded-full bg-[#201f23] group-hover:bg-[#2b292e] flex items-center justify-center text-[#f2be71] transition-colors">
+            <div className="w-10 h-10 rounded-full bg-[#201f23] group-hover:bg-[#2b292e] flex items-center justify-center text-[var(--gold)] transition-colors">
               <Upload className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-xs font-bold text-[#e6e1e7] block group-hover:text-[#f2be71] transition-colors">
+              <span className="text-xs font-bold text-[#e6e1e7] block group-hover:text-[var(--gold)] transition-colors">
                 Haz clic aquí para seleccionar imagen desde tu equipo
               </span>
               <span className="text-[11px] text-[#958da1]">Soporta PNG, WebP o JPG ({maxWeight})</span>
@@ -160,7 +160,7 @@ export function ImageUploader({
               value={value}
               onChange={(e) => onChange(e.target.value)}
               placeholder={placeholder}
-              className="bg-[#141317] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs font-mono"
+              className="bg-[#141317] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs font-mono"
             />
           </div>
         </div>

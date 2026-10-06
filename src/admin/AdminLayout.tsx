@@ -215,14 +215,14 @@ export function AdminLayout() {
         <div className="p-5 border-b border-[#363439]">
           <div className="flex items-center gap-3">
             {brand.logoUrl ? (
-              <img src={brand.logoUrl} alt={brand.name} className="w-9 h-9 rounded-xl object-contain bg-[#1c1b1f] border border-[#f2be71]/40 p-1" />
+              <img src={brand.logoUrl} alt={brand.name} className="w-9 h-9 rounded-xl object-contain bg-[#1c1b1f] border border-[var(--gold)]/40 p-1" />
             ) : (
-              <div className="w-9 h-9 rounded-xl bg-[#684400]/40 border border-[#f2be71]/40 flex items-center justify-center text-[#f2be71] font-bold text-sm shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#684400]/40 border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)] font-bold text-sm shrink-0">
                 {brandInitials}
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <h1 className="text-[#f2be71] font-['Epilogue'] font-bold text-sm leading-tight truncate">
+              <h1 className="text-[var(--gold)] font-['Epilogue'] font-bold text-sm leading-tight truncate">
                 {brand.name}
               </h1>
               <p className="text-[10px] text-[#ccc3d8] truncate">{brand.tagline}</p>
@@ -246,21 +246,21 @@ export function AdminLayout() {
                       onClick={toggleGamesSubmenu}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                         isAnyGameActive
-                          ? "bg-[#252220] text-[#f2be71] border border-[#f2be71]/30"
-                          : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
+                          ? "bg-[#252220] text-[var(--gold)] border border-[var(--gold)]/30"
+                          : "text-[#ccc3d8] hover:text-[var(--gold)] hover:bg-[#1c1b1f]"
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <Gamepad2 className={`w-4 h-4 shrink-0 ${isAnyGameActive ? "text-[#f2be71]" : "text-[#ccc3d8]"}`} />
+                        <Gamepad2 className={`w-4 h-4 shrink-0 ${isAnyGameActive ? "text-[var(--gold)]" : "text-[#ccc3d8]"}`} />
                         <span className="truncate font-bold">Juegos & Dinámicas</span>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <span className="text-[9px] font-mono font-bold bg-[#f2be71]/15 text-[#f2be71] px-1.5 py-0.5 rounded-full border border-[#f2be71]/30">
+                        <span className="text-[9px] font-mono font-bold bg-[var(--gold)]/15 text-[var(--gold)] px-1.5 py-0.5 rounded-full border border-[var(--gold)]/30">
                           {gamesSubmenuItems.length}
                         </span>
                         <ChevronDown
                           className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                            gamesSubmenuOpen ? "rotate-0 text-[#f2be71]" : "-rotate-90 text-[#958da1]"
+                            gamesSubmenuOpen ? "rotate-0 text-[var(--gold)]" : "-rotate-90 text-[#958da1]"
                           }`}
                         />
                       </div>
@@ -277,8 +277,8 @@ export function AdminLayout() {
                             className={({ isActive }) =>
                               `flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
                                 isActive
-                                  ? "bg-[#2b292e] text-[#f2be71] font-bold border-l-2 border-[#f2be71] shadow-xs"
-                                  : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
+                                  ? "bg-[#2b292e] text-[var(--gold)] font-bold border-l-2 border-[var(--gold)] shadow-xs"
+                                  : "text-[#ccc3d8] hover:text-[var(--gold)] hover:bg-[#1c1b1f]"
                               }`
                             }
                           >
@@ -300,8 +300,8 @@ export function AdminLayout() {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                         isActive
-                          ? "bg-[#2b292e] text-[#f2be71] shadow-sm border border-[#f2be71]/30 font-bold"
-                          : "text-[#ccc3d8] hover:text-[#f2be71] hover:bg-[#1c1b1f]"
+                          ? "bg-[#2b292e] text-[var(--gold)] shadow-sm border border-[var(--gold)]/30 font-bold"
+                          : "text-[#ccc3d8] hover:text-[var(--gold)] hover:bg-[#1c1b1f]"
                       }`
                     }
                   >
@@ -319,13 +319,13 @@ export function AdminLayout() {
           {/* Selector Rápido de Tema en Sidebar */}
           <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-[#1c1b1f] border border-[#363439]">
             <span className="text-[11px] font-semibold text-[#ccc3d8] flex items-center gap-1.5">
-              {themeMode === "day" ? <Sun className="w-3.5 h-3.5 text-[#f2be71]" /> : <Moon className="w-3.5 h-3.5 text-[#f2be71]" />}
+              {themeMode === "day" ? <Sun className="w-3.5 h-3.5 text-[var(--gold)]" /> : <Moon className="w-3.5 h-3.5 text-[var(--gold)]" />}
               <span>{themeMode === "day" ? "Modo Día (Luz)" : "Modo Noche (Dark)"}</span>
             </span>
             <button
               type="button"
               onClick={() => toggleTheme(themeMode === "day" ? "night" : "day")}
-              className="text-[10px] uppercase font-bold text-[#f2be71] hover:underline cursor-pointer"
+              className="text-[10px] uppercase font-bold text-[var(--gold)] hover:underline cursor-pointer"
             >
               Cambiar
             </button>
@@ -335,7 +335,7 @@ export function AdminLayout() {
             href="/"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-xl bg-[#1c1b1f] hover:bg-[#201f23] border border-[#f2be71]/30 text-[#f2be71] text-xs font-bold transition-colors"
+            className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-xl bg-[#1c1b1f] hover:bg-[#201f23] border border-[var(--gold)]/30 text-[var(--gold)] text-xs font-bold transition-colors"
           >
             <span>📱 Abrir Juego QR en Mesa</span>
           </a>
@@ -359,8 +359,8 @@ export function AdminLayout() {
                 onClick={() => toggleTheme("day")}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   themeMode === "day"
-                    ? "bg-[#f2be71] text-[#121115] shadow-sm font-black"
-                    : "text-[#ccc3d8] hover:text-[#f2be71]"
+                    ? "bg-[var(--gold)] text-[#121115] shadow-sm font-black"
+                    : "text-[#ccc3d8] hover:text-[var(--gold)]"
                 }`}
                 title="Activar Modo Día (Luz)"
               >
@@ -373,8 +373,8 @@ export function AdminLayout() {
                 onClick={() => toggleTheme("night")}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   themeMode === "night"
-                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/40 shadow-sm font-black"
-                    : "text-[#ccc3d8] hover:text-[#f2be71]"
+                    ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/40 shadow-sm font-black"
+                    : "text-[#ccc3d8] hover:text-[var(--gold)]"
                 }`}
                 title="Activar Modo Noche (Oscuro)"
               >

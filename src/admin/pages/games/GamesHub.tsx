@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { GameSequenceManager } from "./GameSequenceManager";
 import { GameExclusiveCustomizer } from "./GameExclusiveCustomizer";
+import { apiGet, apiPost } from "../../../lib/apiClient";
 
 interface GameInfo {
   id: string;
@@ -129,11 +130,27 @@ export function GamesHub() {
     },
   ];
 
+  const [error, setError] = useState<string | null>(null);
+
+  const gameModeLabel = (mode: string): string =>
+    mode === "roulette"
+      ? "Ruleta de Premios"
+      : mode === "precision"
+      ? "Cronómetro 10s"
+      : mode === "scratch"
+      ? "Raspa y Gana"
+      : mode === "memory"
+      ? "Juego de Memoria"
+      : mode === "jackpot"
+      ? "Máquina de Jackpot"
+      : mode === "plinko"
+      ? "Suelta y Gana (Plinko)"
+      : "Descubre y Gana (Día de Muertos)";
+
   useEffect(() => {
-    fetch("/api/game-config")
-      .then((res) => res.json())
+    apiGet("/game-config")
       .then((data) => {
-        if (data.gameConfig?.gameMode) {
+        if (data?.gameConfig?.gameMode) {
           setActiveGameMode(data.gameConfig.gameMode);
         }
       })
@@ -142,20 +159,24 @@ export function GamesHub() {
   }, []);
 
   const handleSelectGameMode = async (mode: string) => {
-    setActiveGameMode(mode);
+    const previous = activeGameMode;
+    setActiveGameMode(mode); // feedback optimista
     setSaving(true);
+    setError(null);
     try {
-      const res = await fetch("/api/game-config", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gameMode: mode }),
-      });
-      if (res.ok) {
-        setSuccess(`✓ Juego activo en mesas actualizado a: ${mode === "roulette" ? "Ruleta de Premios" : mode === "precision" ? "Cronómetro 10s" : mode === "scratch" ? "Raspa y Gana" : mode === "memory" ? "Juego de Memoria" : mode === "jackpot" ? "Máquina de Jackpot" : mode === "plinko" ? "Suelta y Gana (Plinko)" : "Descubre y Gana (Día de Muertos)"}`);
-        setTimeout(() => setSuccess(null), 3500);
-      }
-    } catch {
-      // ignore
+      // apiPost adjunta el token admin y lanza si el backend rechaza (401, etc.)
+      await apiPost("/game-config", { gameMode: mode });
+      setSuccess(`✓ Juego activo en mesas actualizado a: ${gameModeLabel(mode)}`);
+      setTimeout(() => setSuccess(null), 3500);
+    } catch (err) {
+      // Revertir la selección si el guardado falló (p. ej. sesión caducada)
+      setActiveGameMode(previous);
+      setError(
+        err instanceof Error && /401/.test(err.message)
+          ? "Tu sesión caducó. Vuelve a ingresar el PIN para cambiar el juego activo."
+          : "No se pudo guardar el juego activo. Inténtalo de nuevo."
+      );
+      setTimeout(() => setError(null), 4000);
     } finally {
       setSaving(false);
     }
@@ -167,7 +188,7 @@ export function GamesHub() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#363439] pb-4">
         <div>
           <h2 className="text-xl font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-            <Gamepad2 className="w-6 h-6 text-[#f2be71]" />
+            <Gamepad2 className="w-6 h-6 text-[var(--gold)]" />
             <span>Catálogo Modular de Juegos & Dinámicas</span>
           </h2>
           <p className="text-xs text-[#ccc3d8]">
@@ -183,7 +204,7 @@ export function GamesHub() {
               onClick={() => setActiveTab("catalog")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "catalog"
-                  ? "bg-[#f2be71] text-[#121115]"
+                  ? "bg-[var(--gold)] text-[#121115]"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -195,7 +216,7 @@ export function GamesHub() {
               onClick={() => setActiveTab("exclusive")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "exclusive"
-                  ? "bg-[#f2be71] text-[#121115]"
+                  ? "bg-[var(--gold)] text-[#121115]"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -207,7 +228,7 @@ export function GamesHub() {
               onClick={() => setActiveTab("sequence")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "sequence"
-                  ? "bg-[#f2be71] text-[#121115]"
+                  ? "bg-[var(--gold)] text-[#121115]"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -218,7 +239,7 @@ export function GamesHub() {
 
           <Link
             to="/demo"
-            className="bg-[#201f23] hover:bg-[#2b292e] border border-[#f2be71]/40 text-[#f2be71] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+            className="bg-[#201f23] hover:bg-[#2b292e] border border-[var(--gold)]/40 text-[var(--gold)] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
           >
             <Smartphone className="w-4 h-4" />
             <span>Simulador Móvil</span>
@@ -230,6 +251,12 @@ export function GamesHub() {
         <div className="bg-[#0d2e1f] border border-[#10b981]/50 text-[#10b981] px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2 animate-fade-in">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{success}</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-950/40 border border-red-500/50 text-red-300 px-4 py-3 rounded-xl text-xs font-semibold animate-fade-in">
+          {error}
         </div>
       )}
 
@@ -245,19 +272,19 @@ export function GamesHub() {
             <div className="flex items-center justify-between border-b border-[#2b292e] pb-3">
               <div>
                 <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-[#f2be71]" />
+                  <Zap className="w-4 h-4 text-[var(--gold)]" />
                   <span>Juego Principal Activo en las Mesas</span>
                 </h3>
                 <p className="text-[11px] text-[#ccc3d8]">
                   Define qué juego se abre automáticamente cuando el cliente escanea el QR o acerca su teléfono al chip NFC en la mesa.
                 </p>
               </div>
-              <span className="text-[10px] font-mono font-bold text-[#121115] bg-[#f2be71] px-2.5 py-1 rounded-full uppercase">
-                {activeGameMode === "roulette" ? "Ruleta Activa" : activeGameMode === "scratch" ? "Raspa Activo" : activeGameMode === "memory" ? "Memoria Activa" : activeGameMode === "jackpot" ? "Jackpot Activo" : activeGameMode === "plinko" ? "Suelta y Gana Activo" : "Descubre y Gana Activo"}
+              <span className="text-[10px] font-mono font-bold text-[#121115] bg-[var(--gold)] px-2.5 py-1 rounded-full uppercase">
+                {gameModeLabel(activeGameMode)} Activo
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3">
               {[
                 { id: "roulette", name: "Ruleta", icon: RotateCw, desc: "Girar y ganar azar" },
                 { id: "scratch", name: "Raspa y Gana", icon: Flame, desc: "Rasca con el dedo" },
@@ -265,6 +292,7 @@ export function GamesHub() {
                 { id: "pick-win", name: "Descubre y Gana", icon: Sparkles, desc: "3 iguales Día Muertos" },
                 { id: "jackpot", name: "Jackpot", icon: Coins, desc: "3 rodillos en línea" },
                 { id: "plinko", name: "Suelta y Gana", icon: CircleDot, desc: "Caída de bola y clavijas" },
+                { id: "precision", name: "Cronómetro 10s", icon: Timer, desc: "Detén el reloj en 10.00s" },
               ].map((mode) => {
             const isSelected = activeGameMode === mode.id;
             return (
@@ -274,14 +302,14 @@ export function GamesHub() {
                 onClick={() => handleSelectGameMode(mode.id)}
                 className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                   isSelected
-                    ? "bg-[#252220] border-[#f2be71] ring-1 ring-[#f2be71]/40 shadow-md"
-                    : "bg-[#201f23] border-[#363439] hover:border-[#f2be71]/40"
+                    ? "bg-[#252220] border-[var(--gold)] ring-1 ring-[var(--gold)]/40 shadow-md"
+                    : "bg-[#201f23] border-[#363439] hover:border-[var(--gold)]/40"
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
-                  <mode.icon className={`w-5 h-5 ${isSelected ? "text-[#f2be71]" : "text-[#ccc3d8]"}`} />
+                  <mode.icon className={`w-5 h-5 ${isSelected ? "text-[var(--gold)]" : "text-[#ccc3d8]"}`} />
                   {isSelected && (
-                    <span className="text-[10px] font-bold text-[#f2be71] bg-[#f2be71]/15 px-2 py-0.5 rounded-full border border-[#f2be71]/30">
+                    <span className="text-[10px] font-bold text-[var(--gold)] bg-[var(--gold)]/15 px-2 py-0.5 rounded-full border border-[var(--gold)]/30">
                       ✓ En Mesas
                     </span>
                   )}
@@ -299,7 +327,7 @@ export function GamesHub() {
       {/* 3. CATÁLOGO DE TARJETAS MODULARES DE JUEGOS */}
       <div className="space-y-3">
         <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2">
-          <Sliders className="w-4 h-4 text-[#f2be71]" />
+          <Sliders className="w-4 h-4 text-[var(--gold)]" />
           <span>Módulos de Juego Disponibles ({games.length})</span>
         </h3>
 
@@ -309,7 +337,7 @@ export function GamesHub() {
             return (
               <div
                 key={game.id}
-                className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 hover:border-[#f2be71]/50 transition-all shadow-md flex flex-col justify-between gap-4"
+                className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 hover:border-[var(--gold)]/50 transition-all shadow-md flex flex-col justify-between gap-4"
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
@@ -357,7 +385,7 @@ export function GamesHub() {
 
                   <Link
                     to={game.route}
-                    className="text-xs font-bold text-[#f2be71] hover:text-[#ffddb1] flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="text-xs font-bold text-[var(--gold)] hover:text-[var(--gold-light)] flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <span>Configurar Módulo</span>
                     <ExternalLink className="w-3.5 h-3.5" />

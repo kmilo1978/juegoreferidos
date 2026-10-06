@@ -410,7 +410,7 @@ export function Contest() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -421,7 +421,7 @@ export function Contest() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#363439] pb-6">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold font-['Epilogue'] text-[#e6e1e7] flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-[#f2be71]" />
+            <Trophy className="w-6 h-6 text-[var(--gold)]" />
             <span>Sorteo VIP Fin de Mes & Tómbola Digital</span>
           </h2>
           <p className="text-sm text-[#ccc3d8] mt-1">
@@ -455,14 +455,14 @@ export function Contest() {
             className="bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] border border-[#363439] text-xs font-bold rounded-xl px-3.5 py-2.5 flex items-center gap-1.5 cursor-pointer transition-colors"
             title="Exportar a CSV / Excel"
           >
-            <Download className="w-4 h-4 text-[#f2be71]" />
+            <Download className="w-4 h-4 text-[var(--gold)]" />
             <span>Exportar CSV</span>
           </button>
 
           <button
             type="button"
             onClick={() => setIsAddOpen(true)}
-            className="bg-[#f2be71] text-[#121115] font-bold text-xs rounded-xl px-4 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 shadow-md"
+            className="bg-[var(--gold)] text-[#121115] font-bold text-xs rounded-xl px-4 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 shadow-md"
           >
             <Plus className="w-4 h-4" />
             <span>Inscribir Manual</span>
@@ -484,11 +484,11 @@ export function Contest() {
       )}
 
       {/* ARENA DE SORTEO EN VIVO (LIVE TOMBOLA ARENA) */}
-      <div className="bg-gradient-to-br from-[#1c1b1f] via-[#201f23] to-[#141317] border-2 border-[#f2be71]/40 rounded-3xl p-6 sm:p-8 shadow-[0_10px_40px_rgba(242,190,113,0.15)] relative overflow-hidden text-center space-y-6">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#f2be71]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-gradient-to-br from-[#1c1b1f] via-[#201f23] to-[#141317] border-2 border-[var(--gold)]/40 rounded-3xl p-6 sm:p-8 shadow-[0_10px_40px_rgba(242,190,113,0.15)] relative overflow-hidden text-center space-y-6">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--gold)]/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-col items-center gap-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#684400]/40 border border-[#f2be71]/40 text-[#f2be71] text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#684400]/40 border border-[var(--gold)]/40 text-[var(--gold)] text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5 animate-spin" />
             <span>Tómbola en Directo • Fin de Mes</span>
           </div>
@@ -496,18 +496,18 @@ export function Contest() {
             {prizeTitle}
           </h3>
           <p className="text-xs text-[#ccc3d8]">
-            Próximo sorteo oficial: <strong className="text-[#f2be71]">{drawDate}</strong> • {entries.filter((e) => !e.winner).length} participantes en tómbola
+            Próximo sorteo oficial: <strong className="text-[var(--gold)]">{drawDate}</strong> • {entries.filter((e) => !e.winner).length} participantes en tómbola
           </p>
         </div>
 
         {/* Visualizador de Tómbola Digital */}
         <div className="max-w-md mx-auto bg-[#0f0e12] border-2 border-[#363439] rounded-2xl p-6 shadow-inner relative flex flex-col items-center justify-center min-h-[140px]">
-          <span className="text-xs font-mono font-bold text-[#f2be71] tracking-[4px] uppercase block mb-1">
+          <span className="text-xs font-mono font-bold text-[var(--gold)] tracking-[4px] uppercase block mb-1">
             {liveDisplayTicket}
           </span>
           <span
             className={`text-xl sm:text-2xl font-black font-['Epilogue'] transition-all ${
-              isDrawing ? "text-[#f2be71] scale-110" : "text-white"
+              isDrawing ? "text-[var(--gold)] scale-110" : "text-white"
             }`}
           >
             {liveDisplayName}
@@ -520,7 +520,7 @@ export function Contest() {
             type="button"
             onClick={handleStartLiveDraw}
             disabled={isDrawing || entries.filter((e) => !e.winner).length === 0}
-            className="bg-gradient-to-r from-[#f2be71] to-[#ffddb1] hover:brightness-105 active:scale-95 text-[#121115] font-black text-sm uppercase tracking-wider py-4 px-8 rounded-full shadow-[0_4px_24px_rgba(242,190,113,0.4)] flex items-center gap-3 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r from-[var(--gold)] to-[var(--gold-light)] hover:brightness-105 active:scale-95 text-[#121115] font-black text-sm uppercase tracking-wider py-4 px-8 rounded-full shadow-[0_4px_24px_rgba(242,190,113,0.4)] flex items-center gap-3 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isDrawing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5 fill-current" />}
             <span>{isDrawing ? "Barajando Tómbola..." : "Iniciar Sorteo en Vivo"}</span>
@@ -530,9 +530,9 @@ export function Contest() {
 
       {/* BARRA DE ACCIONES POR LOTE (APARECE CUANDO HAY PARTICIPANTES SELECCIONADOS) */}
       {selectedIds.length > 0 && (
-        <div className="bg-[#2b292e] border-2 border-[#f2be71] rounded-2xl p-4 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-fade-in">
+        <div className="bg-[#2b292e] border-2 border-[var(--gold)] rounded-2xl p-4 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-fade-in">
           <div className="flex items-center gap-2">
-            <span className="w-7 h-7 rounded-full bg-[#f2be71] text-[#121115] font-black text-xs flex items-center justify-center">
+            <span className="w-7 h-7 rounded-full bg-[var(--gold)] text-[#121115] font-black text-xs flex items-center justify-center">
               {selectedIds.length}
             </span>
             <span className="text-xs font-bold text-[#e6e1e7]">
@@ -555,7 +555,7 @@ export function Contest() {
             <button
               type="button"
               onClick={() => handleBatchAction("set_vip")}
-              className="bg-[#201f23] hover:bg-[#363439] text-[#f2be71] border border-[#f2be71]/40 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="bg-[#201f23] hover:bg-[#363439] text-[var(--gold)] border border-[var(--gold)]/40 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               <Crown className="w-3.5 h-3.5" />
               <span>+3 Boletos VIP</span>
@@ -622,7 +622,7 @@ export function Contest() {
                 onClick={() => setFilterType(tab.id as any)}
                 className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer whitespace-nowrap ${
                   filterType === tab.id
-                    ? "bg-[#f2be71] text-[#121115]"
+                    ? "bg-[var(--gold)] text-[#121115]"
                     : "bg-[#201f23] text-[#ccc3d8] hover:text-white hover:bg-[#252429]"
                 }`}
               >
@@ -639,7 +639,7 @@ export function Contest() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Buscar comensal, teléfono o boleto..."
-              className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl pl-9 pr-3 py-2 w-full text-xs focus:border-[#f2be71] focus:outline-none"
+              className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl pl-9 pr-3 py-2 w-full text-xs focus:border-[var(--gold)] focus:outline-none"
             />
           </div>
         </div>
@@ -653,10 +653,10 @@ export function Contest() {
                   <button
                     type="button"
                     onClick={handleSelectAll}
-                    className="cursor-pointer text-[#ccc3d8] hover:text-[#f2be71]"
+                    className="cursor-pointer text-[#ccc3d8] hover:text-[var(--gold)]"
                   >
                     {selectedIds.length > 0 && selectedIds.length === filteredEntries.length ? (
-                      <CheckSquare className="w-4 h-4 text-[#f2be71]" />
+                      <CheckSquare className="w-4 h-4 text-[var(--gold)]" />
                     ) : (
                       <Square className="w-4 h-4" />
                     )}
@@ -692,7 +692,7 @@ export function Contest() {
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleToggleSelect(e.id)}
-                          className="w-4 h-4 accent-[#f2be71] cursor-pointer"
+                          className="w-4 h-4 accent-[var(--gold)] cursor-pointer"
                         />
                       </td>
                       <td className="px-4 py-3 font-semibold text-white">
@@ -701,7 +701,7 @@ export function Contest() {
                       <td className="px-4 py-3 text-[#ccc3d8] font-mono">
                         {e.customerWhatsapp || "—"}
                       </td>
-                      <td className="px-4 py-3 font-mono font-bold text-[#f2be71]">
+                      <td className="px-4 py-3 font-mono font-bold text-[var(--gold)]">
                         {e.ticketCode}
                       </td>
                       <td className="px-4 py-3">
@@ -719,7 +719,7 @@ export function Contest() {
                       </td>
                       <td className="px-4 py-3">
                         {e.winner ? (
-                          <span className="px-2.5 py-1 rounded-full bg-[#f2be71]/20 border border-[#f2be71]/50 text-[#f2be71] font-bold text-[10px]">
+                          <span className="px-2.5 py-1 rounded-full bg-[var(--gold)]/20 border border-[var(--gold)]/50 text-[var(--gold)] font-bold text-[10px]">
                             🏆 GANADOR
                           </span>
                         ) : e.status === "EN ESPERA" ? (
@@ -898,7 +898,7 @@ export function Contest() {
           >
             <div className="flex items-center justify-between border-b border-[#363439] pb-3">
               <h3 className="text-base font-bold text-[#e6e1e7] flex items-center gap-2 font-['Epilogue']">
-                <Crown className="w-5 h-5 text-[#f2be71]" />
+                <Crown className="w-5 h-5 text-[var(--gold)]" />
                 <span>Inscribir Participante al Sorteo VIP</span>
               </h3>
               <button
@@ -918,7 +918,7 @@ export function Contest() {
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="Ej: Juliana Castro"
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl p-3 w-full focus:border-[#f2be71] focus:outline-none"
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl p-3 w-full focus:border-[var(--gold)] focus:outline-none"
               />
             </div>
 
@@ -930,7 +930,7 @@ export function Contest() {
                 value={newWhatsapp}
                 onChange={(e) => setNewWhatsapp(e.target.value)}
                 placeholder="573001234567"
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl p-3 w-full focus:border-[#f2be71] focus:outline-none font-mono"
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] text-xs rounded-xl p-3 w-full focus:border-[var(--gold)] focus:outline-none font-mono"
               />
             </div>
 
@@ -943,7 +943,7 @@ export function Contest() {
                 value={newTicket}
                 onChange={(e) => setNewTicket(e.target.value)}
                 placeholder="#VIP-CENA-8921"
-                className="bg-[#201f23] border border-[#363439] text-[#f2be71] text-xs rounded-xl p-3 w-full focus:border-[#f2be71] focus:outline-none font-mono"
+                className="bg-[#201f23] border border-[#363439] text-[var(--gold)] text-xs rounded-xl p-3 w-full focus:border-[var(--gold)] focus:outline-none font-mono"
               />
             </div>
 
@@ -958,7 +958,7 @@ export function Contest() {
 
               <button
                 type="submit"
-                className="bg-[#f2be71] text-[#121115] text-xs font-bold px-5 py-2.5 rounded-xl hover:brightness-105 cursor-pointer"
+                className="bg-[var(--gold)] text-[#121115] text-xs font-bold px-5 py-2.5 rounded-xl hover:brightness-105 cursor-pointer"
               >
                 Guardar e Inscribir
               </button>
@@ -970,16 +970,16 @@ export function Contest() {
       {/* MODAL 4: GANADOR SELECCIONADO EN VIVO */}
       {showWinnerModal && currentWinner && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="bg-gradient-to-b from-[#201f23] to-[#141317] border-2 border-[#f2be71] rounded-3xl p-8 max-w-lg w-full text-center space-y-6 shadow-[0_0_50px_rgba(242,190,113,0.3)]">
+          <div className="bg-gradient-to-b from-[#201f23] to-[#141317] border-2 border-[var(--gold)] rounded-3xl p-8 max-w-lg w-full text-center space-y-6 shadow-[0_0_50px_rgba(242,190,113,0.3)]">
             <span className="text-5xl block animate-bounce">🏆</span>
             <div>
-              <span className="text-xs font-mono font-bold text-[#f2be71] uppercase tracking-[3px]">
+              <span className="text-xs font-mono font-bold text-[var(--gold)] uppercase tracking-[3px]">
                 ¡GANADOR OFICIAL DEL FIN DE MES!
               </span>
               <h3 className="text-2xl sm:text-3xl font-black text-white font-['Epilogue'] mt-1">
                 {currentWinner.customerName}
               </h3>
-              <p className="text-sm font-mono font-bold text-[#ffddb1] mt-2">
+              <p className="text-sm font-mono font-bold text-[var(--gold-light)] mt-2">
                 Boleto: {currentWinner.ticketCode}
               </p>
             </div>
@@ -987,7 +987,7 @@ export function Contest() {
             <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-4 text-xs text-[#ccc3d8]">
               Premio ganado: <strong className="text-white">{prizeTitle}</strong>
               <br />
-              Teléfono: <span className="font-mono text-[#f2be71]">+{currentWinner.customerWhatsapp}</span>
+              Teléfono: <span className="font-mono text-[var(--gold)]">+{currentWinner.customerWhatsapp}</span>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">

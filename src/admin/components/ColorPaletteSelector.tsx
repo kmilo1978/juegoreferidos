@@ -94,7 +94,7 @@ export function ColorPaletteSelector({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#363439] pb-4">
         <div>
           <h4 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2">
-            <Palette className="w-4 h-4 text-[#f2be71]" />
+            <Palette className="w-4 h-4 text-[var(--gold)]" />
             <span>Biblioteca de Combinaciones de Color Armoniosas</span>
           </h4>
           <p className="text-xs text-[#ccc3d8]">
@@ -108,7 +108,7 @@ export function ColorPaletteSelector({
             onClick={() => setActiveTab("catalog")}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === "catalog"
-                ? "bg-[#f2be71] text-[#121115] shadow-xs"
+                ? "bg-[var(--gold)] text-[#121115] shadow-xs"
                 : "text-[#ccc3d8] hover:text-white"
             }`}
           >
@@ -120,7 +120,7 @@ export function ColorPaletteSelector({
             onClick={() => setActiveTab("custom")}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === "custom"
-                ? "bg-[#f2be71] text-[#121115] shadow-xs"
+                ? "bg-[var(--gold)] text-[#121115] shadow-xs"
                 : "text-[#ccc3d8] hover:text-white"
             }`}
           >
@@ -134,10 +134,10 @@ export function ColorPaletteSelector({
       <div className="bg-[#141317] border border-[#363439] rounded-2xl p-4 sm:p-5 relative overflow-hidden">
         <div className="flex items-center justify-between mb-3 border-b border-[#2b292e] pb-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-[#ccc3d8] flex items-center gap-1.5">
-            <Eye className="w-3.5 h-3.5 text-[#f2be71]" />
+            <Eye className="w-3.5 h-3.5 text-[var(--gold)]" />
             <span>Previsualización en Vivo: {previewPalette.name}</span>
           </span>
-          <span className="text-[10px] text-[#f2be71] font-mono font-bold bg-[#f2be71]/10 px-2.5 py-0.5 rounded-full border border-[#f2be71]/30">
+          <span className="text-[10px] text-[var(--gold)] font-mono font-bold bg-[var(--gold)]/10 px-2.5 py-0.5 rounded-full border border-[var(--gold)]/30">
             {previewPalette.categoryLabel}
           </span>
         </div>
@@ -220,14 +220,14 @@ export function ColorPaletteSelector({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar colores, estados de ánimo, temas (ej: café, vino, oro, pastel, neón)..."
-                className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl pl-10 pr-4 py-2.5 w-full text-xs placeholder:text-[#ccc3d8]/60"
+                className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl pl-10 pr-4 py-2.5 w-full text-xs placeholder:text-[#ccc3d8]/60"
               />
             </div>
 
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 text-xs shrink-0 cursor-pointer font-semibold"
+              className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 text-xs shrink-0 cursor-pointer font-semibold"
             >
               <option value="all">Todas las categorías ({COLOR_PALETTES.length})</option>
               <option value="popular">Más Populares & Lujo</option>
@@ -250,9 +250,9 @@ export function ColorPaletteSelector({
                 <div
                   key={palette.id}
                   onClick={() => setPreviewPalette(palette)}
-                  className={`bg-[#201f23] border rounded-2xl p-4 transition-all duration-200 cursor-pointer hover:border-[#f2be71]/60 hover:shadow-lg space-y-3 ${
+                  className={`bg-[#201f23] border rounded-2xl p-4 transition-all duration-200 cursor-pointer hover:border-[var(--gold)]/60 hover:shadow-lg space-y-3 ${
                     isSelected
-                      ? "border-[#f2be71] ring-1 ring-[#f2be71]/40 bg-[#252220]"
+                      ? "border-[var(--gold)] ring-1 ring-[var(--gold)]/40 bg-[#252220]"
                       : "border-[#363439]"
                   }`}
                 >
@@ -264,7 +264,7 @@ export function ColorPaletteSelector({
 
                     <div className="flex items-center gap-1.5">
                       {isSelected ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#121115] bg-[#f2be71] px-2.5 py-0.5 rounded-full shadow-xs">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#121115] bg-[var(--gold)] px-2.5 py-0.5 rounded-full shadow-xs">
                           <Check className="w-3 h-3" />
                           <span>Activa</span>
                         </span>
@@ -275,7 +275,7 @@ export function ColorPaletteSelector({
                             e.stopPropagation();
                             handleApplyPalette(palette);
                           }}
-                          className="text-[11px] font-semibold text-[#f2be71] hover:text-[#ffddb1] hover:underline cursor-pointer px-2 py-0.5 rounded"
+                          className="text-[11px] font-semibold text-[var(--gold)] hover:text-[var(--gold-light)] hover:underline cursor-pointer px-2 py-0.5 rounded"
                         >
                           Aplicar
                         </button>
@@ -333,7 +333,7 @@ export function ColorPaletteSelector({
             <button
               type="button"
               onClick={handleApplyCustomPalette}
-              className="bg-[#f2be71] text-[#121115] font-bold px-4 py-2 rounded-xl text-xs hover:brightness-105 transition-all shadow-md cursor-pointer flex items-center gap-1.5"
+              className="bg-[var(--gold)] text-[#121115] font-bold px-4 py-2 rounded-xl text-xs hover:brightness-105 transition-all shadow-md cursor-pointer flex items-center gap-1.5"
             >
               <Check className="w-3.5 h-3.5" />
               <span>Aplicar Mi Combinación</span>

@@ -83,7 +83,7 @@ export function GamePrecisionConfig() {
         <div className="flex items-center gap-3">
           <Link
             to="/games"
-            className="w-8 h-8 rounded-xl bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] flex items-center justify-center text-[#ccc3d8] hover:text-[#f2be71] transition-all cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] flex items-center justify-center text-[#ccc3d8] hover:text-[var(--gold)] transition-all cursor-pointer"
             title="Volver al Catálogo de Juegos"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -159,7 +159,7 @@ export function GamePrecisionConfig() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 shadow-lg space-y-4">
             <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2 border-b border-[#2b292e] pb-3">
-              <Target className="w-4 h-4 text-[#f2be71]" />
+              <Target className="w-4 h-4 text-[var(--gold)]" />
               <span>Reglas de Destreza & Margen de Error</span>
             </h3>
 
@@ -174,7 +174,7 @@ export function GamePrecisionConfig() {
                     step="0.1"
                     value={targetSeconds}
                     onChange={(e) => setTargetSeconds(parseFloat(e.target.value) || 10.0)}
-                    className="bg-[#201f23] border border-[#363439] text-[#f2be71] font-mono text-sm font-bold rounded-xl px-4 py-2.5 w-32 focus:border-[#f2be71]/60 focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[var(--gold)] font-mono text-sm font-bold rounded-xl px-4 py-2.5 w-32 focus:border-[var(--gold)]/60 focus:outline-none"
                   />
                   <span className="text-xs text-[#ccc3d8]">segundos exactos (Recomendado: 10.000s)</span>
                 </div>
@@ -218,8 +218,8 @@ export function GamePrecisionConfig() {
                       onClick={() => setMaxAttempts(att)}
                       className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
                         maxAttempts === att
-                          ? "bg-[#f2be71] text-[#121115] border-[#f2be71] shadow-xs"
-                          : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:border-[#f2be71]/40"
+                          ? "bg-[var(--gold)] text-[#121115] border-[var(--gold)] shadow-xs"
+                          : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:border-[var(--gold)]/40"
                       }`}
                     >
                       {att} {att === 1 ? "Intento" : "Intentos"}
@@ -233,7 +233,7 @@ export function GamePrecisionConfig() {
           {/* 3. RECOMPENSAS POR PRECISIÓN */}
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 shadow-lg space-y-4">
             <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2 border-b border-[#2b292e] pb-3">
-              <Trophy className="w-4 h-4 text-[#f2be71]" />
+              <Trophy className="w-4 h-4 text-[var(--gold)]" />
               <span>Premios del Reto</span>
             </h3>
 

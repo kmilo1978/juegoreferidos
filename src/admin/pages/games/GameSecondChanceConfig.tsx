@@ -96,7 +96,7 @@ export function GameSecondChanceConfig() {
         <div className="flex items-center gap-3">
           <Link
             to="/games"
-            className="w-9 h-9 rounded-xl bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] flex items-center justify-center text-[#ccc3d8] hover:text-[#f2be71] transition-all cursor-pointer"
+            className="w-9 h-9 rounded-xl bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] flex items-center justify-center text-[#ccc3d8] hover:text-[var(--gold)] transition-all cursor-pointer"
             title="Volver al Catálogo de Juegos"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -147,7 +147,7 @@ export function GameSecondChanceConfig() {
             type="button"
             onClick={() => handleSave()}
             disabled={saving}
-            className="bg-[#f2be71] hover:brightness-105 active:scale-98 text-[#121115] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+            className="bg-[var(--gold)] hover:brightness-105 active:scale-98 text-[#121115] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
           >
             <Save className="w-3.5 h-3.5" />
             <span>{saving ? "Guardando..." : "Guardar Cambios"}</span>
@@ -184,7 +184,7 @@ export function GameSecondChanceConfig() {
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
               <div className="bg-[#140b20] p-3 rounded-xl border border-[#3f2560] text-xs space-y-1">
-                <span className="font-bold text-[#f2be71] block">1. Sin Frustración</span>
+                <span className="font-bold text-[var(--gold)] block">1. Sin Frustración</span>
                 <span className="text-[11px] text-[#ccc3d8]">El cliente no se va triste; siente que la casa le da una segunda opción.</span>
               </div>
               <div className="bg-[#140b20] p-3 rounded-xl border border-[#3f2560] text-xs space-y-1">
@@ -202,7 +202,7 @@ export function GameSecondChanceConfig() {
             {/* Activar / Desactivar y Recompensa */}
             <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 space-y-4 shadow-lg">
               <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2 border-b border-[#2b292e] pb-3">
-                <Gift className="w-4 h-4 text-[#f2be71]" />
+                <Gift className="w-4 h-4 text-[var(--gold)]" />
                 <span>Estado & Recompensa de Revancha</span>
               </h3>
 
@@ -312,7 +312,7 @@ export function GameSecondChanceConfig() {
             <button
               type="button"
               onClick={() => setPreviewKey((k) => k + 1)}
-              className="text-[#f2be71] hover:underline flex items-center gap-1 cursor-pointer font-semibold"
+              className="text-[var(--gold)] hover:underline flex items-center gap-1 cursor-pointer font-semibold"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reiniciar Simulación</span>

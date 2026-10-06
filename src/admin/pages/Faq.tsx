@@ -179,7 +179,7 @@ export function Faq() {
       number: 8,
       title: "Fidelización Cero-Fricción con One-Tap Stamp",
       stageBadge: "MOMENTO 8 · RECURRENCIA",
-      badgeColor: "bg-amber-400/20 text-[#f2be71] border-[#f2be71]/40",
+      badgeColor: "bg-amber-400/20 text-[var(--gold)] border-[var(--gold)]/40",
       restaurantProblem:
         "Los clientes pierden las tarjetas de papel con sellos de tinta o las lavan en el pantalón. Las apps de puntos requieren login y contraseñas que el cliente olvida.",
       pitchToOwner:
@@ -472,7 +472,7 @@ export function Faq() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#363439] pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="px-2.5 py-0.5 rounded-full bg-[#f2be71]/15 text-[#f2be71] border border-[#f2be71]/30 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
+            <span className="px-2.5 py-0.5 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] border border-[var(--gold)]/30 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
               <BookOpen className="w-3.5 h-3.5" />
               CENTRO DE CONOCIMIENTO & VENTAS
             </span>
@@ -497,7 +497,7 @@ export function Faq() {
             onClick={() => setActiveMode("pitch")}
             className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeMode === "pitch"
-                ? "bg-[#f2be71] text-[#121115] shadow-lg shadow-[#f2be71]/20 font-black"
+                ? "bg-[var(--gold)] text-[#121115] shadow-lg shadow-[var(--gold)]/20 font-black"
                 : "text-[#ccc3d8] hover:text-white"
             }`}
           >
@@ -509,7 +509,7 @@ export function Faq() {
             onClick={() => setActiveMode("faq")}
             className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
               activeMode === "faq"
-                ? "bg-[#f2be71] text-[#121115] shadow-lg shadow-[#f2be71]/20 font-black"
+                ? "bg-[var(--gold)] text-[#121115] shadow-lg shadow-[var(--gold)]/20 font-black"
                 : "text-[#ccc3d8] hover:text-white"
             }`}
           >
@@ -525,10 +525,10 @@ export function Faq() {
       {activeMode === "pitch" && (
         <div className="space-y-6">
           {/* Banner de Valor Comercial */}
-          <div className="p-6 rounded-3xl bg-gradient-to-r from-[#201f23] via-[#1c1b1f] to-[#2b292e] border border-[#f2be71]/40 shadow-xl relative overflow-hidden">
+          <div className="p-6 rounded-3xl bg-gradient-to-r from-[#201f23] via-[#1c1b1f] to-[#2b292e] border border-[var(--gold)]/40 shadow-xl relative overflow-hidden">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="space-y-2 max-w-2xl">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f2be71]/20 text-[#f2be71] text-xs font-bold font-mono">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--gold)]/20 text-[var(--gold)] text-xs font-bold font-mono">
                   <TrendingUp className="w-3.5 h-3.5" />
                   <span>EL ARGUMENTARIO COMERCIAL EN 1 MINUTO</span>
                 </div>
@@ -542,7 +542,7 @@ export function Faq() {
 
               <div className="grid grid-cols-2 gap-3 w-full md:w-auto shrink-0 text-xs">
                 <div className="p-3.5 rounded-2xl bg-[#141317] border border-[#363439] flex flex-col gap-1">
-                  <span className="text-[10px] uppercase font-bold text-[#f2be71]">Retención</span>
+                  <span className="text-[10px] uppercase font-bold text-[var(--gold)]">Retención</span>
                   <span className="text-xl font-bold font-['Epilogue'] text-[#e6e1e7]">+38%</span>
                   <span className="text-[10px] text-[#958da1]">Visitas recurrentes</span>
                 </div>
@@ -559,7 +559,7 @@ export function Faq() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base sm:text-lg font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-                <Target className="w-5 h-5 text-[#f2be71]" />
+                <Target className="w-5 h-5 text-[var(--gold)]" />
                 <span>Las 10 Etapas del Viaje del Comensal (De Visitante Casual a Cliente Fiel)</span>
               </h3>
               <span className="text-xs text-[#958da1]">Haz clic en cada paso para ver el guión de venta</span>
@@ -573,8 +573,8 @@ export function Faq() {
                     key={step.number}
                     className={`rounded-2xl border transition-all ${
                       isExpanded
-                        ? "bg-[#1c1b1f] border-[#f2be71]/60 shadow-xl"
-                        : "bg-[#1c1b1f] border-[#363439] hover:border-[#f2be71]/30"
+                        ? "bg-[#1c1b1f] border-[var(--gold)]/60 shadow-xl"
+                        : "bg-[#1c1b1f] border-[#363439] hover:border-[var(--gold)]/30"
                     }`}
                   >
                     {/* Fila Encabezado del Paso */}
@@ -587,7 +587,7 @@ export function Faq() {
                         <div
                           className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center font-black text-sm shrink-0 transition-transform ${
                             isExpanded
-                              ? "bg-[#f2be71] text-[#121115] scale-105 shadow-md"
+                              ? "bg-[var(--gold)] text-[#121115] scale-105 shadow-md"
                               : "bg-[#201f23] border border-[#363439] text-[#ccc3d8]"
                           }`}
                         >
@@ -608,11 +608,11 @@ export function Faq() {
                       </div>
 
                       <div className="flex items-center gap-3 shrink-0">
-                        <span className="hidden sm:inline-block text-xs font-semibold text-[#f2be71]">
+                        <span className="hidden sm:inline-block text-xs font-semibold text-[var(--gold)]">
                           {isExpanded ? "Ocultar Detalles" : "Ver Pitch & Ejemplo"}
                         </span>
                         {isExpanded ? (
-                          <ChevronUp className="w-5 h-5 text-[#f2be71]" />
+                          <ChevronUp className="w-5 h-5 text-[var(--gold)]" />
                         ) : (
                           <ChevronDown className="w-5 h-5 text-[#958da1]" />
                         )}
@@ -633,8 +633,8 @@ export function Faq() {
                         </div>
 
                         {/* 2. Cómo Explicárselo al Dueño (El Pitch) */}
-                        <div className="p-4 rounded-xl bg-[#141317] border border-[#f2be71]/40 space-y-2">
-                          <span className="text-[11px] font-mono font-bold uppercase text-[#f2be71] flex items-center gap-1.5">
+                        <div className="p-4 rounded-xl bg-[#141317] border border-[var(--gold)]/40 space-y-2">
+                          <span className="text-[11px] font-mono font-bold uppercase text-[var(--gold)] flex items-center gap-1.5">
                             <Sparkles className="w-3.5 h-3.5" />
                             <span>CÓMO EXPLICÁRSELO AL DUEÑO (EL GUION COMERCIAL):</span>
                           </span>
@@ -727,7 +727,7 @@ export function Faq() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por palabra clave (ej: PIN, colores, base de datos, ruleta, WhatsApp)..."
-              className="w-full bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl pl-10 pr-4 py-2.5 text-xs placeholder:text-[#958da1]"
+              className="w-full bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl pl-10 pr-4 py-2.5 text-xs placeholder:text-[#958da1]"
             />
             {searchQuery && (
               <button
@@ -745,7 +745,7 @@ export function Faq() {
               type="button"
               onClick={() => setRoleFilter("all")}
               className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                roleFilter === "all" ? "bg-[#f2be71] text-[#121115]" : "text-[#ccc3d8] hover:text-white"
+                roleFilter === "all" ? "bg-[var(--gold)] text-[#121115]" : "text-[#ccc3d8] hover:text-white"
               }`}
             >
               Todos los Roles
@@ -754,7 +754,7 @@ export function Faq() {
               type="button"
               onClick={() => setRoleFilter("admin")}
               className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                roleFilter === "admin" ? "bg-[#f2be71] text-[#121115]" : "text-[#ccc3d8] hover:text-white"
+                roleFilter === "admin" ? "bg-[var(--gold)] text-[#121115]" : "text-[#ccc3d8] hover:text-white"
               }`}
             >
               Administrador
@@ -763,7 +763,7 @@ export function Faq() {
               type="button"
               onClick={() => setRoleFilter("dev")}
               className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                roleFilter === "dev" ? "bg-[#f2be71] text-[#121115]" : "text-[#ccc3d8] hover:text-white"
+                roleFilter === "dev" ? "bg-[var(--gold)] text-[#121115]" : "text-[#ccc3d8] hover:text-white"
               }`}
             >
               Desarrollador
@@ -780,8 +780,8 @@ export function Faq() {
               onClick={() => setSelectedCategory(cat.id)}
               className={`px-3 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all cursor-pointer border ${
                 selectedCategory === cat.id
-                  ? "bg-[#2b292e] text-[#f2be71] border-[#f2be71] font-bold shadow-xs"
-                  : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:border-[#f2be71]/40 hover:text-white"
+                  ? "bg-[#2b292e] text-[var(--gold)] border-[var(--gold)] font-bold shadow-xs"
+                  : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:border-[var(--gold)]/40 hover:text-white"
               }`}
             >
               {cat.label}
@@ -806,7 +806,7 @@ export function Faq() {
                 setSelectedCategory("all");
                 setRoleFilter("all");
               }}
-              className="py-2 px-4 rounded-xl bg-[#201f23] hover:bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/40 text-xs font-bold transition-all cursor-pointer"
+              className="py-2 px-4 rounded-xl bg-[#201f23] hover:bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/40 text-xs font-bold transition-all cursor-pointer"
             >
               Limpiar Filtros
             </button>
@@ -817,7 +817,7 @@ export function Faq() {
             return (
               <div
                 key={faq.id}
-                className="bg-[#1c1b1f] border border-[#363439] hover:border-[#f2be71]/40 rounded-2xl overflow-hidden transition-all shadow-xs"
+                className="bg-[#1c1b1f] border border-[#363439] hover:border-[var(--gold)]/40 rounded-2xl overflow-hidden transition-all shadow-xs"
               >
                 <button
                   type="button"
@@ -854,7 +854,7 @@ export function Faq() {
                     <div className="space-y-2">
                       {faq.answer.map((paragraph, idx) => (
                         <p key={idx} className="flex items-start gap-2">
-                          <span className="text-[#f2be71] mt-1 shrink-0">•</span>
+                          <span className="text-[var(--gold)] mt-1 shrink-0">•</span>
                           <span>{paragraph}</span>
                         </p>
                       ))}
@@ -870,7 +870,7 @@ export function Faq() {
                       <div className="pt-2 flex items-center gap-2">
                         <Link
                           to={faq.relatedRoute}
-                          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#f2be71] hover:underline"
+                          className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--gold)] hover:underline"
                         >
                           <span>{faq.relatedRouteLabel || "Ver pantalla relacionada"}</span>
                           <ExternalLink className="w-3.5 h-3.5" />
@@ -890,7 +890,7 @@ export function Faq() {
       {/* 4. FOOTER INFORMATIVO PARA SOPORTE */}
       <div className="bg-gradient-to-r from-[#1c1b1f] via-[#201f23] to-[#1c1b1f] border border-[#363439] rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#f2be71]/15 text-[#f2be71] border border-[#f2be71]/30 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[var(--gold)]/15 text-[var(--gold)] border border-[var(--gold)]/30 flex items-center justify-center shrink-0">
             <HelpCircle className="w-5 h-5" />
           </div>
           <div>
@@ -903,7 +903,7 @@ export function Faq() {
 
         <Link
           to="/"
-          className="py-2.5 px-5 rounded-xl bg-[#f2be71] text-[#121115] font-bold text-xs hover:brightness-105 transition-all shadow-xs shrink-0 cursor-pointer"
+          className="py-2.5 px-5 rounded-xl bg-[var(--gold)] text-[#121115] font-bold text-xs hover:brightness-105 transition-all shadow-xs shrink-0 cursor-pointer"
         >
           Volver al Dashboard
         </Link>

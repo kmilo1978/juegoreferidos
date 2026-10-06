@@ -223,7 +223,7 @@ export function GeofencingPanel() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -235,7 +235,7 @@ export function GeofencingPanel() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#363439] pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-[#f2be71]/10 text-[#f2be71] border border-[#f2be71]/30">
+              <div className="p-2 rounded-xl bg-[var(--gold)]/10 text-[var(--gold)] border border-[var(--gold)]/30">
                 <Navigation className="w-5 h-5" />
               </div>
               <h3 className="text-lg font-bold font-['Epilogue'] text-[#e6e1e7]">
@@ -251,7 +251,7 @@ export function GeofencingPanel() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-xs shadow-lg shrink-0"
+            className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-xs shadow-lg shrink-0"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
             <span>Guardar Configuración Geográfica</span>
@@ -287,7 +287,7 @@ export function GeofencingPanel() {
             <tbody className="divide-y divide-[#363439]/50 text-[#ccc3d8]">
               <tr className={activeSubOption === "option1" ? "bg-[#252429]" : ""}>
                 <td className="py-2.5 px-3 font-bold text-[#e6e1e7] flex items-center gap-2">
-                  <Compass className="w-4 h-4 text-[#f2be71]" />
+                  <Compass className="w-4 h-4 text-[var(--gold)]" />
                   <span>Opción 1: Radio Geográfico Web</span>
                 </td>
                 <td className="py-2.5 px-3">100% Web (Safari/Chrome)</td>
@@ -327,7 +327,7 @@ export function GeofencingPanel() {
             id: "option1",
             title: "1. Radio Geográfico Web",
             badge: "100% Web • Sin Descargas",
-            badgeColor: "bg-[#f2be71]/10 text-[#f2be71] border-[#f2be71]/30",
+            badgeColor: "bg-[var(--gold)]/10 text-[var(--gold)] border-[var(--gold)]/30",
             icon: Compass,
             desc: "Segmenta y envía a comensales cuya última posición conocida está a cierta distancia.",
           },
@@ -357,7 +357,7 @@ export function GeofencingPanel() {
               onClick={() => setActiveSubOption(tab.id as any)}
               className={`p-4 rounded-2xl border text-left transition-all cursor-pointer space-y-2 relative overflow-hidden ${
                 isSelected
-                  ? "bg-[#201f23] border-[#f2be71] shadow-lg shadow-[#f2be71]/10"
+                  ? "bg-[#201f23] border-[var(--gold)] shadow-lg shadow-[var(--gold)]/10"
                   : "bg-[#1c1b1f] border-[#363439] hover:bg-[#252429] text-[#ccc3d8]"
               }`}
             >
@@ -365,7 +365,7 @@ export function GeofencingPanel() {
                 <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${tab.badgeColor}`}>
                   {tab.badge}
                 </span>
-                <Icon className={`w-4 h-4 ${isSelected ? "text-[#f2be71]" : "text-[#958da1]"}`} />
+                <Icon className={`w-4 h-4 ${isSelected ? "text-[var(--gold)]" : "text-[#958da1]"}`} />
               </div>
               <h4 className="text-sm font-bold text-[#e6e1e7] font-['Epilogue']">{tab.title}</h4>
               <p className="text-xs text-[#958da1] leading-relaxed">{tab.desc}</p>
@@ -383,7 +383,7 @@ export function GeofencingPanel() {
             <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-5 shadow-xl">
               <div className="flex items-center justify-between border-b border-[#363439] pb-3">
                 <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2 font-['Epilogue']">
-                  <Compass className="w-4 h-4 text-[#f2be71]" />
+                  <Compass className="w-4 h-4 text-[var(--gold)]" />
                   <span>Configuración de Radio Geográfico (Web Push)</span>
                 </h3>
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -398,7 +398,7 @@ export function GeofencingPanel() {
                     }
                     className="sr-only"
                   />
-                  <div className={`w-10 h-5 rounded-full transition-colors relative ${config.option1_web_radius.enabled ? "bg-[#f2be71]" : "bg-[#2b292e]"}`}>
+                  <div className={`w-10 h-5 rounded-full transition-colors relative ${config.option1_web_radius.enabled ? "bg-[var(--gold)]" : "bg-[#2b292e]"}`}>
                     <div className={`w-4 h-4 rounded-full bg-[#121115] absolute top-0.5 transition-transform ${config.option1_web_radius.enabled ? "left-5" : "left-0.5"}`} />
                   </div>
                   <span className="text-xs text-[#ccc3d8] font-bold">Activo</span>
@@ -451,7 +451,7 @@ export function GeofencingPanel() {
               <div className="space-y-2 pt-2 border-t border-[#363439]">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-[#ccc3d8]">Radio de Alcance Geográfico:</label>
-                  <span className="text-xs font-bold text-[#f2be71] font-mono">
+                  <span className="text-xs font-bold text-[var(--gold)] font-mono">
                     {config.option1_web_radius.radiusMeters >= 1000
                       ? `${(config.option1_web_radius.radiusMeters / 1000).toFixed(1)} km`
                       : `${config.option1_web_radius.radiusMeters} metros`}
@@ -469,7 +469,7 @@ export function GeofencingPanel() {
                       option1_web_radius: { ...config.option1_web_radius, radiusMeters: parseInt(e.target.value) },
                     })
                   }
-                  className="w-full accent-[#f2be71] cursor-pointer"
+                  className="w-full accent-[var(--gold)] cursor-pointer"
                 />
                 <div className="flex justify-between text-[10px] text-[#958da1] font-mono">
                   <span>500 m (A pie)</span>
@@ -483,7 +483,7 @@ export function GeofencingPanel() {
               <div className="p-4 rounded-xl bg-[#201f23] border border-[#363439] space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-[#e6e1e7] flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[#f2be71]" />
+                    <Sparkles className="w-3.5 h-3.5 text-[var(--gold)]" />
                     <span>Aviso Amigable de Permiso de Ubicación en Mesa</span>
                   </span>
                   <input
@@ -495,7 +495,7 @@ export function GeofencingPanel() {
                         option1_web_radius: { ...config.option1_web_radius, requestLocationOnPlay: e.target.checked },
                       })
                     }
-                    className="accent-[#f2be71]"
+                    className="accent-[var(--gold)]"
                   />
                 </div>
                 <p className="text-[11px] text-[#958da1]">
@@ -532,13 +532,13 @@ export function GeofencingPanel() {
               {/* Botón de prueba simulada */}
               <div className="flex items-center justify-between pt-2">
                 <div className="text-xs text-[#958da1]">
-                  Audiencia estimada: <strong className="text-[#f2be71]">{estimatedAudience} comensales</strong>
+                  Audiencia estimada: <strong className="text-[var(--gold)]">{estimatedAudience} comensales</strong>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleTestTrigger("option1")}
                   disabled={testingTrigger}
-                  className="bg-[#2b292e] text-[#f2be71] hover:bg-[#363439] border border-[#f2be71]/40 font-bold rounded-xl px-4 py-2 text-xs cursor-pointer transition-all flex items-center gap-1.5"
+                  className="bg-[#2b292e] text-[var(--gold)] hover:bg-[#363439] border border-[var(--gold)]/40 font-bold rounded-xl px-4 py-2 text-xs cursor-pointer transition-all flex items-center gap-1.5"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Probar Disparo en Radio</span>
@@ -549,7 +549,7 @@ export function GeofencingPanel() {
               <div className="p-4 rounded-xl bg-[#141317] border border-[#363439] space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-[#e6e1e7] flex items-center gap-1.5">
-                    <Target className="w-3.5 h-3.5 text-[#f2be71]" />
+                    <Target className="w-3.5 h-3.5 text-[var(--gold)]" />
                     <span>Comprobar mi ubicación real vs. el radio</span>
                   </span>
                   <button
@@ -912,7 +912,7 @@ export function GeofencingPanel() {
                     </a>
                     <a
                       href="#/nfc"
-                      className="px-3 py-1.5 rounded-lg bg-[#201f23] border border-[#363439] text-[#f2be71] hover:border-[#f2be71] text-xs flex items-center gap-1 font-bold"
+                      className="px-3 py-1.5 rounded-lg bg-[#201f23] border border-[#363439] text-[var(--gold)] hover:border-[var(--gold)] text-xs flex items-center gap-1 font-bold"
                     >
                       <QrCode className="w-3.5 h-3.5" />
                       <span>Mesas NFC</span>
@@ -938,14 +938,14 @@ export function GeofencingPanel() {
 
           {/* Toast / Alerta de Notificación Simulada */}
           {testResult && (
-            <div className="bg-[#201f23] border-2 border-[#f2be71] rounded-2xl p-4 shadow-2xl animate-in fade-in slide-in-from-top duration-300">
+            <div className="bg-[#201f23] border-2 border-[var(--gold)] rounded-2xl p-4 shadow-2xl animate-in fade-in slide-in-from-top duration-300">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#f2be71] text-[#121115] flex items-center justify-center font-bold shrink-0">
+                <div className="w-8 h-8 rounded-full bg-[var(--gold)] text-[#121115] flex items-center justify-center font-bold shrink-0">
                   <Bell className="w-4 h-4" />
                 </div>
                 <div className="space-y-1 flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#f2be71]">{testResult.title}</span>
+                    <span className="text-xs font-bold text-[var(--gold)]">{testResult.title}</span>
                     <span className="text-[10px] text-[#958da1] font-mono">{testResult.triggeredAt}</span>
                   </div>
                   <p className="text-xs text-[#e6e1e7]">{testResult.body}</p>
@@ -963,7 +963,7 @@ export function GeofencingPanel() {
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-[#363439] pb-3">
               <h4 className="text-xs font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-                <Target className="w-4 h-4 text-[#f2be71]" />
+                <Target className="w-4 h-4 text-[var(--gold)]" />
                 <span>Radar de Alcance & Geovalla en Vivo</span>
               </h4>
               <span className="text-[10px] font-mono text-[#958da1]">Simulación 2D</span>
@@ -980,7 +980,7 @@ export function GeofencingPanel() {
               <div
                 className={`absolute rounded-full transition-all duration-500 pointer-events-none ${
                   activeSubOption === "option1"
-                    ? "w-[75%] h-[75%] bg-[#f2be71]/10 border-2 border-[#f2be71] shadow-[0_0_25px_rgba(242,190,113,0.3)]"
+                    ? "w-[75%] h-[75%] bg-[var(--gold)]/10 border-2 border-[var(--gold)] shadow-[0_0_25px_rgba(242,190,113,0.3)]"
                     : activeSubOption === "option2"
                     ? "w-[40%] h-[40%] bg-[#60a5fa]/15 border-2 border-[#60a5fa] animate-pulse shadow-[0_0_25px_rgba(96,165,250,0.4)]"
                     : "w-[20%] h-[20%] bg-[#10b981]/25 border-2 border-[#10b981] shadow-[0_0_20px_rgba(16,185,129,0.5)]"
@@ -988,7 +988,7 @@ export function GeofencingPanel() {
               />
 
               {/* Centro: Restaurante */}
-              <div className="relative z-10 w-9 h-9 rounded-full bg-[#f2be71] text-[#121115] flex items-center justify-center font-bold shadow-lg border-2 border-white">
+              <div className="relative z-10 w-9 h-9 rounded-full bg-[var(--gold)] text-[#121115] flex items-center justify-center font-bold shadow-lg border-2 border-white">
                 <MapPin className="w-5 h-5" />
               </div>
 
@@ -1002,14 +1002,14 @@ export function GeofencingPanel() {
               <div className="absolute bottom-[15%] left-[45%] w-2 h-2 rounded-full bg-[#958da1]" />
 
               {/* Barrido de radar */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#f2be71]/5 to-transparent animate-spin origin-center pointer-events-none" style={{ animationDuration: "8s" }} />
+              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[var(--gold)]/5 to-transparent animate-spin origin-center pointer-events-none" style={{ animationDuration: "8s" }} />
             </div>
 
             {/* Leyenda del Radar */}
             <div className="grid grid-cols-3 gap-2 text-[11px] text-center pt-2 border-t border-[#363439]">
               <div className="p-2 rounded-xl bg-[#201f23]">
                 <span className="text-[10px] text-[#958da1] block">Centro</span>
-                <strong className="text-[#f2be71]">{config.venue.name}</strong>
+                <strong className="text-[var(--gold)]">{config.venue.name}</strong>
               </div>
               <div className="p-2 rounded-xl bg-[#201f23]">
                 <span className="text-[10px] text-[#958da1] block">Radio Activo</span>

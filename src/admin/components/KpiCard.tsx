@@ -7,7 +7,7 @@ export interface KpiCardProps {
 
 export function KpiCard({ title, value, subtitle, accent = 'gold' }: KpiCardProps) {
   const accentColors = {
-    gold: "text-[#f2be71]",
+    gold: "text-[var(--gold)]",
     emerald: "text-[#10b981]",
     amber: "text-[#f59e0b]",
     lila: "text-[#ccc3d8]",

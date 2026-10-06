@@ -78,8 +78,8 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
       {/* Título de bienvenida e incentivo gastronómico */}
       <Reveal delay={50}>
         <section className="flex flex-col gap-2">
-          <div className="inline-flex items-center gap-1.5 self-start px-3 py-1 rounded-full bg-[#1c1b1f] border border-[#f2be71]/40 text-[#ffddb1] shadow-xs">
-            <span className="text-[#f2be71]">⚡</span>
+          <div className="inline-flex items-center gap-1.5 self-start px-3 py-1 rounded-full bg-[#1c1b1f] border border-[var(--gold)]/40 text-[var(--gold-light)] shadow-xs">
+            <span className="text-[var(--gold)]">⚡</span>
             <span className="font-label-sm text-[11px] font-semibold tracking-wide">
               {t("Beneficio de cortesía asegurado para tu mesa", "Complimentary treat guaranteed for your table")}
             </span>
@@ -87,7 +87,7 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
 
           <h1 className="font-headline-xl-mobile text-2xl sm:text-3xl text-[#e6e1e7] tracking-tight mt-1">
             {t("Tus Datos para el", "Your Details for the")}{" "}
-            <span className="text-[#f2be71] italic font-serif">
+            <span className="text-[var(--gold)] italic font-serif">
               {t("Desafío Gourmet", "Gourmet Challenge")}
             </span>
           </h1>
@@ -102,12 +102,12 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
           {/* Banner de Ambiente Gastronómico de la Mesa en una sola línea */}
           <div className="relative w-full rounded-2xl overflow-hidden mt-2 bg-gradient-to-r from-[#1c1b1f] to-[#0f0e12] border border-[#2b292e] shadow-md flex items-center justify-between px-4 py-3">
             <div className="relative z-10 flex items-center gap-2 min-w-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#f2be71] shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--gold)] shrink-0" />
               <span className="font-headline-sm text-xs sm:text-sm font-bold text-[#e6e1e7] tracking-tight whitespace-nowrap">
                 {t("Experiencia en Sala & Fidelización", "Boutique Table Experience")}
               </span>
             </div>
-            <div className="relative z-10 w-9 h-9 rounded-full bg-[#2b292e]/90 border border-[#f2be71]/30 flex items-center justify-center text-[#f2be71] shadow-md shrink-0 ml-2">
+            <div className="relative z-10 w-9 h-9 rounded-full bg-[#2b292e]/90 border border-[var(--gold)]/30 flex items-center justify-center text-[var(--gold)] shadow-md shrink-0 ml-2">
               <Gift className="h-4.5 w-4.5" />
             </div>
           </div>
@@ -119,14 +119,14 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#2b292e] p-5 sm:p-6 flex flex-col gap-4 shadow-xl backdrop-blur-xl relative overflow-hidden">
             {/* Halo de luz ambiental decorativo */}
-            <div className="absolute -bottom-12 -right-12 w-44 h-44 rounded-full bg-[#f2be71]/5 blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-12 -right-12 w-44 h-44 rounded-full bg-[var(--gold)]/5 blur-2xl pointer-events-none" />
 
             {/* Campo 1: Nombre Completo */}
             <div className="flex flex-col gap-1.5">
               <label htmlFor="full-name" className="flex items-center gap-1.5 font-label-md text-xs text-[#e6e1e7] font-semibold">
-                <User className="h-3.5 w-3.5 text-[#f2be71]" />
+                <User className="h-3.5 w-3.5 text-[var(--gold)]" />
                 <span>{t("Nombre Completo", "Full Name")}</span>
-                <span className="text-[#f2be71]">*</span>
+                <span className="text-[var(--gold)]">*</span>
               </label>
               <input
                 id="full-name"
@@ -137,7 +137,7 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
                 className={`w-full h-12 px-4 rounded-xl bg-[#0f0e12] text-[#e6e1e7] font-body-md text-sm placeholder:text-[#958da1] border transition-all ${
                   errors.fullName
                     ? "border-red-500 focus:ring-1 focus:ring-red-500"
-                    : "border-[#2b292e] focus:border-[#f2be71] focus:ring-1 focus:ring-[#f2be71]/40"
+                    : "border-[#2b292e] focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)]/40"
                 }`}
               />
               {errors.fullName && <p className="text-xs text-red-400 pl-1">{errors.fullName}</p>}
@@ -147,9 +147,9 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
                 <label htmlFor="whatsapp" className="flex items-center gap-1.5 font-label-md text-xs text-[#e6e1e7] font-semibold">
-                  <Phone className="h-3.5 w-3.5 text-[#f2be71]" />
+                  <Phone className="h-3.5 w-3.5 text-[var(--gold)]" />
                   <span>{t("WhatsApp Oficial", "Official WhatsApp")}</span>
-                  <span className="text-[#f2be71]">*</span>
+                  <span className="text-[var(--gold)]">*</span>
                 </label>
                 <span className="font-label-sm text-[10px] text-[#ccc3d8]">
                   {t("Solo para enviar tu código", "To receive your voucher")}
@@ -171,14 +171,14 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
                   className={`w-full h-12 px-4 rounded-xl bg-[#0f0e12] text-[#e6e1e7] font-body-md text-sm placeholder:text-[#958da1] border tracking-wider transition-all ${
                     errors.whatsapp
                       ? "border-red-500 focus:ring-1 focus:ring-red-500"
-                      : "border-[#2b292e] focus:border-[#f2be71] focus:ring-1 focus:ring-[#f2be71]/40"
+                      : "border-[#2b292e] focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)]/40"
                   }`}
                 />
               </div>
               {errors.whatsapp && <p className="text-xs text-red-400 pl-1">{errors.whatsapp}</p>}
               <div className="flex items-center gap-1.5 mt-0.5">
-                <ShieldCheck className="h-3.5 w-3.5 text-[#f2be71]" />
-                <p className="font-label-sm text-[11px] text-[#f2be71]">
+                <ShieldCheck className="h-3.5 w-3.5 text-[var(--gold)]" />
+                <p className="font-label-sm text-[11px] text-[var(--gold)]">
                   {t("Tu número queda vinculado a tu mesa de forma segura", "Your number is securely linked to your table")}
                 </p>
               </div>
@@ -188,7 +188,7 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
                 <label htmlFor="birthday" className="flex items-center gap-1.5 font-label-md text-xs text-[#e6e1e7] font-semibold">
-                  <Calendar className="h-3.5 w-3.5 text-[#f2be71]" />
+                  <Calendar className="h-3.5 w-3.5 text-[var(--gold)]" />
                   <span>{t("Fecha de Cumpleaños", "Birthday Date")}</span>
                 </label>
                 <span className="px-2 py-0.5 rounded-full bg-[#2b292e] text-[#ccc3d8] font-label-sm text-[10px]">
@@ -201,10 +201,10 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
                 value={birthDate}
                 onChange={(e) => setBirthDate(e.target.value)}
                 placeholder={t("DD / MM (Ej. 24 / 08)", "DD / MM (e.g. 24 / 08)")}
-                className="w-full h-12 px-4 rounded-xl bg-[#0f0e12] text-[#e6e1e7] font-body-md text-sm placeholder:text-[#958da1] border border-[#2b292e] focus:border-[#f2be71] focus:ring-1 focus:ring-[#f2be71]/40 transition-all"
+                className="w-full h-12 px-4 rounded-xl bg-[#0f0e12] text-[#e6e1e7] font-body-md text-sm placeholder:text-[#958da1] border border-[#2b292e] focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)]/40 transition-all"
               />
               <div className="flex items-start gap-2 p-2.5 rounded-xl bg-[#201f23] border border-[#363439] mt-0.5">
-                <Gift className="h-4 w-4 text-[#f2be71] shrink-0 mt-0.5" />
+                <Gift className="h-4 w-4 text-[var(--gold)] shrink-0 mt-0.5" />
                 <p className="font-body-sm text-xs text-[#ccc3d8]">
                   {t(
                     "Recibe un postre de autor de cortesía durante tu mes especial.",
@@ -288,7 +288,7 @@ export function StepUserData({ initialData, onComplete }: StepUserDataProps) {
             </button>
 
             <div className="flex items-center justify-center gap-1.5 text-center">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#f2be71]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--gold)]" />
               <p className="font-label-sm text-[11px] text-[#ccc3d8]">
                 {t("Paso 2 desbloquea la ruleta de premios gourmet", "Step 2 unlocks the gourmet prize wheel")}
               </p>
