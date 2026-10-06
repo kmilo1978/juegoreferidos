@@ -57,6 +57,7 @@ const PROTECTED = [
   ["POST", "/api/missions/review"],
   ["POST", "/api/hermes/config"],
   ["POST", "/api/hermes/test"],
+  ["POST", "/api/hermes/send-demo"],
   ["POST", "/api/reputation/config"],
   ["POST", "/api/portal/config"],
   ["POST", /^\/api\/portal\/devices\/(disconnect|extend)$/],
