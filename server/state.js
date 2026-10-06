@@ -12,7 +12,8 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 3001;
-const DB_FILE = path.join(__dirname, "db.json");
+// Permite usar un archivo de BD alternativo (p. ej. en pruebas) vía DB_FILE.
+const DB_FILE = process.env.DB_FILE || path.join(__dirname, "db.json");
 
 // CONFIGURACIÓN POR DEFECTO PARA EL NEGOCIO (WHITE-LABEL TOTAL)
 
