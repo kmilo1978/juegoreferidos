@@ -131,7 +131,40 @@ if (!db.connectedDevices) {
   ];
 }
 
+/**
+ * Caduca de forma ACTIVA las sesiones WiFi vencidas: recorre los dispositivos
+ * autorizados cuyo expiresAt ya pasó y los marca como "expired", liberando el
+ * acceso. Antes solo se filtraban al listar (seguían "authorized" en la BD).
+ * Devuelve el número de sesiones caducadas en esta pasada.
+ */
+function sweepExpiredDevices() {
+  if (!Array.isArray(db.connectedDevices)) return 0;
+  const now = Date.now();
+  let expiredCount = 0;
+  for (const dev of db.connectedDevices) {
+    if (dev.status === "authorized" && new Date(dev.expiresAt).getTime() <= now) {
+      dev.status = "expired";
+      dev.expiredAt = new Date().toISOString();
+      expiredCount++;
+    }
+  }
+  if (expiredCount > 0) {
+    saveDb();
+    logRequest("SWEEP", "/portal/sessions", 200, `${expiredCount} sesión(es) WiFi caducada(s) y liberada(s)`);
+  }
+  return expiredCount;
+}
+
+// Barrido periódico de sesiones vencidas (cada 60s) mientras el server vive.
+// unref() evita que este intervalo impida que el proceso termine.
+const sweepInterval = setInterval(sweepExpiredDevices, 60 * 1000);
+if (typeof sweepInterval.unref === "function") sweepInterval.unref();
+
 export function handleCaptivePortal(req, res, pathname, url) {
+  // Caducar sesiones vencidas en cada interacción con el portal (además del
+  // barrido periódico), para que las respuestas reflejen el estado real.
+  sweepExpiredDevices();
+
   const brand = db.settings?.brand || DEFAULT_SETTINGS.brand;
   const portalSettings = db.settings?.captivePortal || {
     enabled: true,
