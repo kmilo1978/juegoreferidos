@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
+import { apiUrl, getAuthToken } from "../../lib/apiClient";
 
 interface Prize {
   id: string;
@@ -80,7 +81,7 @@ export function Prizes() {
 
   const fetchConfig = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/config");
+      const res = await fetch(apiUrl("/config"));
       if (!res.ok) throw new Error("Error al cargar premios");
       const data = await res.json();
       setPrizes(data.settings?.prizes || []);
@@ -100,9 +101,9 @@ export function Prizes() {
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch("http://localhost:3001/api/config", {
+      const res = await fetch(apiUrl("/config"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({ prizes: updatedPrizes }),
       });
       if (!res.ok) throw new Error("Error al guardar catálogo de premios");
@@ -204,7 +205,7 @@ export function Prizes() {
     setError(null);
 
     try {
-      const res = await fetch("http://localhost:3001/api/validate-pin", {
+      const res = await fetch(apiUrl("/validate-pin"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pin, prizeId: selectedVoucher?.id || "manual" }),

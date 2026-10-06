@@ -13,6 +13,7 @@ import {
   Layers,
   X,
 } from "lucide-react";
+import { apiUrl, getAuthToken } from "../../lib/apiClient";
 
 interface Mission {
   id: string;
@@ -64,7 +65,7 @@ export function Missions() {
 
   const fetchMissions = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/missions");
+      const res = await fetch(apiUrl("/missions"));
       if (!res.ok) throw new Error("Error al obtener catálogo de misiones");
       const data = await res.json();
       setMissions(data.missions || []);
@@ -85,9 +86,9 @@ export function Missions() {
     setSaving(true);
     setError(null);
     try {
-      const res = await fetch("http://localhost:3001/api/missions/config", {
+      const res = await fetch(apiUrl("/missions/config"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({ missions: updatedMissions }),
       });
       if (!res.ok) throw new Error("Error al guardar misiones en el servidor");
@@ -188,9 +189,9 @@ export function Missions() {
   // Revisión de envíos
   const handleReview = async (id: string, action: "approve" | "reject") => {
     try {
-      const res = await fetch("http://localhost:3001/api/missions/review", {
+      const res = await fetch(apiUrl("/missions/review"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({ submissionId: id, action }),
       });
       if (!res.ok) throw new Error("Error al revisar misión");

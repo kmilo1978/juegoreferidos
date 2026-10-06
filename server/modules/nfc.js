@@ -93,7 +93,7 @@ export function handleNfc(req, res, pathname, url) {
         db.nfc.stats.lastScans = [newScan, ...(db.nfc.stats.lastScans || []).slice(0, 19)];
         saveDb();
 
-        logRequest(`Lectura de mesa ${mesa} vía ${origen.toUpperCase()} (${device})`);
+        logRequest("POST", "/api/nfc/track", 200, `Lectura de mesa ${mesa} vía ${origen.toUpperCase()} (${device})`);
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: true, scan: newScan }));

@@ -23,7 +23,21 @@ import {
   Check,
   Target,
   Zap,
+  Bell,
 } from "lucide-react";
+import { getAuthToken } from "../../lib/apiClient";
+
+/** Distancia en metros entre dos coordenadas (fórmula de Haversine). */
+function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000; // radio terrestre en metros
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
 
 export interface GeofencingConfig {
   enabled: boolean;
@@ -107,6 +121,8 @@ export function GeofencingPanel() {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [geoChecking, setGeoChecking] = useState(false);
+  const [geoResult, setGeoResult] = useState<any | null>(null);
 
   // Cargar configuración desde el backend
   useEffect(() => {
@@ -128,7 +144,7 @@ export function GeofencingPanel() {
     try {
       const res = await fetch("/api/push/geofencing", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify(config),
       });
       if (!res.ok) throw new Error("Error al guardar la configuración de geofencing");
@@ -147,19 +163,56 @@ export function GeofencingPanel() {
     try {
       const res = await fetch("/api/push/geofencing/test-trigger", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({ optionId }),
       });
       const data = await res.json();
       if (data.success) {
         setTestResult(data);
-        setTimeout(() => setTestResult(null), 6000);
+        setTimeout(() => setTestResult(null), 8000);
       }
     } catch (err) {
       console.error(err);
     } finally {
       setTestingTrigger(false);
     }
+  };
+
+  // Geolocalización REAL del navegador: calcula la distancia (haversine) a la
+  // sede configurada y determina si el usuario está dentro del radio web.
+  const handleCheckMyLocation = () => {
+    setGeoChecking(true);
+    setGeoResult(null);
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeoResult({ error: "Este navegador no soporta geolocalización." });
+      setGeoChecking(false);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        const distance = haversineMeters(
+          latitude,
+          longitude,
+          config.venue.latitude,
+          config.venue.longitude
+        );
+        const radius = config.option1_web_radius.radiusMeters;
+        setGeoResult({
+          distance,
+          radius,
+          inside: distance <= radius,
+          lat: latitude,
+          lng: longitude,
+        });
+        setGeoChecking(false);
+      },
+      (err) => {
+        setGeoResult({ error: `No se pudo obtener la ubicación: ${err.message}` });
+        setGeoChecking(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
   // Estimador de audiencia simulado según radio seleccionado
@@ -491,6 +544,47 @@ export function GeofencingPanel() {
                   <span>Probar Disparo en Radio</span>
                 </button>
               </div>
+
+              {/* Comprobación REAL de geolocalización del navegador (haversine) */}
+              <div className="p-4 rounded-xl bg-[#141317] border border-[#363439] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#e6e1e7] flex items-center gap-1.5">
+                    <Target className="w-3.5 h-3.5 text-[#f2be71]" />
+                    <span>Comprobar mi ubicación real vs. el radio</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCheckMyLocation}
+                    disabled={geoChecking}
+                    className="bg-[#201f23] text-[#ccc3d8] hover:text-white border border-[#363439] rounded-lg px-3 py-1.5 text-[11px] cursor-pointer flex items-center gap-1.5"
+                  >
+                    {geoChecking ? <Loader2 className="w-3 h-3 animate-spin" /> : <Compass className="w-3 h-3" />}
+                    <span>{geoChecking ? "Localizando..." : "Usar mi ubicación"}</span>
+                  </button>
+                </div>
+                <p className="text-[11px] text-[#958da1]">
+                  Usa el GPS/ubicación real de este dispositivo y calcula la distancia exacta a la sede configurada.
+                </p>
+                {geoResult && (
+                  geoResult.error ? (
+                    <div className="text-[11px] text-red-300 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{geoResult.error}</span>
+                    </div>
+                  ) : (
+                    <div className={`text-xs rounded-lg px-3 py-2 border ${geoResult.inside ? "bg-[#0d2e1f] border-[#10b981]/50 text-[#10b981]" : "bg-[#2b1f1f] border-amber-500/40 text-amber-300"}`}>
+                      <div className="font-bold flex items-center gap-1.5">
+                        {geoResult.inside ? <CheckCircle className="w-3.5 h-3.5" /> : <Info className="w-3.5 h-3.5" />}
+                        {geoResult.inside ? "Dentro del radio de influencia" : "Fuera del radio de influencia"}
+                      </div>
+                      <div className="text-[11px] mt-1 text-[#ccc3d8]">
+                        Distancia a la sede: <strong>{geoResult.distance >= 1000 ? `${(geoResult.distance / 1000).toFixed(2)} km` : `${geoResult.distance} m`}</strong>
+                        {" · "}Radio configurado: <strong>{geoResult.radius >= 1000 ? `${(geoResult.radius / 1000).toFixed(1)} km` : `${geoResult.radius} m`}</strong>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
             </div>
           )}
 
@@ -522,6 +616,17 @@ export function GeofencingPanel() {
                   </div>
                   <span className="text-xs text-[#ccc3d8] font-bold">Activo</span>
                 </label>
+              </div>
+
+              {/* Aviso: esta estrategia requiere app nativa (Etapa 2) */}
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/40 text-amber-300 text-[11px]">
+                <Info className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Requiere app nativa (Etapa 2).</strong> El geofencing en segundo plano
+                  (pantalla apagada) necesita empaquetar la app con Capacitor + OneSignal Location y
+                  publicarla en las tiendas. Aquí puedes configurar el mensaje; la prueba muestra solo
+                  una vista previa, no envía nada todavía.
+                </span>
               </div>
 
               {/* Mensaje de Activación por Proximidad */}
@@ -720,6 +825,16 @@ export function GeofencingPanel() {
                   </div>
                   <span className="text-xs text-[#ccc3d8] font-bold">Activo</span>
                 </label>
+              </div>
+
+              {/* Aviso: la detección WiFi/NFC es real; el push depende de suscripción */}
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-[#10b981]/10 border border-[#10b981]/40 text-[#10b981] text-[11px]">
+                <Info className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>
+                  La detección de llegada por <strong>WiFi (portal cautivo)</strong> y <strong>NFC</strong> ya
+                  funciona en este sistema. El envío automático de la notificación de bienvenida requiere que
+                  el comensal esté suscrito a Web Push (o, para 100% en segundo plano, la app nativa de la Etapa 2).
+                </span>
               </div>
 
               <div className="space-y-3">

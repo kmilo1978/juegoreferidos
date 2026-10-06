@@ -3,6 +3,8 @@
  * Cada mesa está conectada a una variable de estado única y sincronizada con el backend.
  */
 
+import { apiUrl, getAuthToken } from "./apiClient";
+
 export interface RestaurantTable {
   id: string; // "mesa-1" ... "mesa-10"
   number: number; // 1 .. 10
@@ -72,10 +74,14 @@ export const TableManagerService = {
     if (typeof window === "undefined") return;
     try {
       localStorage.setItem(TABLES_STORAGE_KEY, JSON.stringify(tables));
-      // Notificar al servidor backend en segundo plano
-      fetch("http://localhost:3001/api/tables", {
+      // Notificar al servidor backend en segundo plano (protegido: requiere token)
+      const token = getAuthToken();
+      fetch(apiUrl("/tables"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ tables }),
       }).catch(() => {});
     } catch {
@@ -138,8 +144,10 @@ export const TableManagerService = {
     });
     this.saveTables(updated);
     try {
-      fetch(`http://localhost:3001/api/tables/mesa-${tableNumber}/reset`, {
+      const token = getAuthToken();
+      fetch(apiUrl(`/tables/mesa-${tableNumber}/reset`), {
         method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       }).catch(() => {});
     } catch {}
     return updated;
@@ -173,7 +181,7 @@ export const TableManagerService = {
    */
   async syncWithBackend(): Promise<RestaurantTable[]> {
     try {
-      const res = await fetch("http://localhost:3001/api/tables");
+      const res = await fetch(apiUrl("/tables"));
       if (res.ok) {
         const data = await res.json();
         if (data.tables && Array.isArray(data.tables) && data.tables.length === 10) {

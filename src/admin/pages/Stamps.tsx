@@ -18,6 +18,7 @@ import {
   Zap,
 } from "lucide-react";
 import { ImageUploader } from "../components/ImageUploader";
+import { apiUrl, getAuthToken } from "../../lib/apiClient";
 
 interface Milestone {
   stamp: number;
@@ -57,8 +58,8 @@ export function Stamps() {
   const fetchData = async () => {
     try {
       const [confRes, contestRes] = await Promise.all([
-        fetch("http://localhost:3001/api/config"),
-        fetch("http://localhost:3001/api/contest"),
+        fetch(apiUrl("/config")),
+        fetch(apiUrl("/contest")),
       ]);
 
       if (!confRes.ok) throw new Error("Error al cargar sellos");
@@ -123,9 +124,9 @@ export function Stamps() {
     setSuccess(null);
 
     try {
-      const res = await fetch("http://localhost:3001/api/config", {
+      const res = await fetch(apiUrl("/config"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({
           stamps: {
             totalStamps: Number(totalStamps),
@@ -165,9 +166,9 @@ export function Stamps() {
     setError(null);
 
     try {
-      const res = await fetch("http://localhost:3001/api/contest/draw", {
+      const res = await fetch(apiUrl("/contest/draw"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}) },
         body: JSON.stringify({ prizeName: "Cena Degustación de Autor para 2 Personas" }),
       });
       const data = await res.json();

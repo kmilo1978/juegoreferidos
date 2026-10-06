@@ -43,24 +43,75 @@ export function handleHermes(req, res, pathname, url) {
 
   if (pathname === "/api/hermes/test" && req.method === "POST") {
     const hermes = db.settings.hermes || DEFAULT_SETTINGS.hermes;
-    const latencyMs = Math.floor(25 + Math.random() * 25);
-    hermes.lastPing = new Date().toLocaleTimeString("es-CO");
-    hermes.status = "connected";
     if (!hermes.stats) hermes.stats = { totalPings: 0, eventsDispatched: 0, lastLatencyMs: 0 };
-    hermes.stats.totalPings = (hermes.stats.totalPings || 0) + 1;
-    hermes.stats.lastLatencyMs = latencyMs;
-    saveDb();
 
-    logRequest("HERMES", "/api/hermes/test", 200, `🤖 [HERMES PING] Conexión establecida con éxito (Endpoint: ${hermes.apiUrl}, Agente: ${hermes.agentId || 'Hermes'}, Latencia: ${latencyMs}ms)`);
+    // Validación previa: sin apiKey o sin apiUrl no se puede probar nada real.
+    if (!hermes.apiKey || !hermes.apiUrl) {
+      hermes.status = "disconnected";
+      saveDb();
+      logRequest("HERMES", "/api/hermes/test", 400, "🤖 [HERMES] Faltan credenciales (apiUrl/apiKey)");
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({
+        success: false,
+        status: "error",
+        error: "Configura la URL y la API Key de Hermes antes de probar la conexión.",
+      }));
+      return true;
+    }
 
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({
-      success: true,
-      message: `¡Conexión establecida con éxito con Hermes! Latencia: ${latencyMs}ms`,
-      hermes,
-      latencyMs,
-      timestamp: new Date().toISOString(),
-    }));
+    // Ping REAL con timeout de 6s. Medimos la latencia real; no la inventamos.
+    const started = Date.now();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+
+    fetch(hermes.apiUrl, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${hermes.apiKey}` },
+      signal: controller.signal,
+    })
+      .then((r) => {
+        clearTimeout(timeout);
+        const latencyMs = Date.now() - started;
+        const ok = r.status < 500; // 2xx/3xx/4xx = el endpoint respondió
+        hermes.lastPing = new Date().toLocaleTimeString("es-CO");
+        hermes.status = ok ? "connected" : "error";
+        hermes.stats.totalPings = (hermes.stats.totalPings || 0) + 1;
+        hermes.stats.lastLatencyMs = latencyMs;
+        saveDb();
+
+        logRequest("HERMES", "/api/hermes/test", r.status, `🤖 [HERMES PING] HTTP ${r.status} (${hermes.apiUrl}, ${latencyMs}ms)`);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({
+          success: ok,
+          status: hermes.status,
+          httpStatus: r.status,
+          message: ok
+            ? `Conexión con Hermes verificada (HTTP ${r.status}, ${latencyMs}ms)`
+            : `Hermes respondió con error HTTP ${r.status}`,
+          latencyMs,
+          hermes,
+          timestamp: new Date().toISOString(),
+        }));
+      })
+      .catch((err) => {
+        clearTimeout(timeout);
+        const latencyMs = Date.now() - started;
+        hermes.status = "error";
+        hermes.lastPing = new Date().toLocaleTimeString("es-CO");
+        saveDb();
+        const isAbort = err.name === "AbortError";
+        logRequest("HERMES", "/api/hermes/test", 504, `🤖 [HERMES] ${isAbort ? "timeout" : err.message}`);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({
+          success: false,
+          status: "error",
+          error: isAbort
+            ? `Hermes no respondió en 6s (timeout). Verifica la URL: ${hermes.apiUrl}`
+            : `No se pudo conectar con Hermes: ${err.message}`,
+          latencyMs,
+          timestamp: new Date().toISOString(),
+        }));
+      });
     return true;
   }
 

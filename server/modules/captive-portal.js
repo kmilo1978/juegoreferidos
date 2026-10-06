@@ -1,4 +1,84 @@
+import http from "node:http";
+import https from "node:https";
 import { db, DEFAULT_TABLES, DEFAULT_SETTINGS, saveDb, logRequest } from "../state.js";
+
+/**
+ * Ejecuta la autorización REAL del dispositivo contra el router/controladora.
+ * - MikroTik: hace un GET al endpoint de login del hotspot (gateway).
+ * - UniFi: hace un POST authorize-guest a la controladora.
+ *
+ * Devuelve { ok, status, detail }. Si no hay router accesible, ok=false con el
+ * detalle del error — NUNCA finge éxito.
+ *
+ * NOTA: requiere un router físico accesible en la red del local. No es
+ * verificable sin ese hardware; en desarrollo normalmente fallará con ECONNREFUSED
+ * y eso es correcto (se reporta como error, no como éxito).
+ */
+function callRouter(portalSettings, clientMac, sessionMins) {
+  return new Promise((resolve) => {
+    const hw = portalSettings.hardwareType;
+    const TIMEOUT_MS = 5000;
+
+    try {
+      if (hw === "mikrotik") {
+        const gw = portalSettings.mikrotik?.gatewayIp || "192.168.88.1";
+        const dst = encodeURIComponent(portalSettings.redirectUrl || "/");
+        const user = encodeURIComponent(clientMac);
+        const path = `/login?username=${user}&dst=${dst}`;
+        const reqRouter = http.request(
+          { host: gw, port: 80, path, method: "GET", timeout: TIMEOUT_MS },
+          (r) => {
+            r.resume();
+            resolve({ ok: r.statusCode < 400, status: r.statusCode, detail: `MikroTik login HTTP ${r.statusCode}` });
+          }
+        );
+        reqRouter.on("timeout", () => { reqRouter.destroy(); resolve({ ok: false, status: "timeout", detail: "MikroTik no respondió (timeout)" }); });
+        reqRouter.on("error", (e) => resolve({ ok: false, status: "error", detail: `MikroTik inaccesible: ${e.code || e.message}` }));
+        reqRouter.end();
+        return;
+      }
+
+      if (hw === "unifi") {
+        const controllerUrl = portalSettings.unifi?.controllerUrl || "https://192.168.1.10:8443";
+        const site = portalSettings.unifi?.site || "default";
+        const apiKey = portalSettings.unifi?.apiKey || "";
+        let u;
+        try { u = new URL(controllerUrl); } catch { resolve({ ok: false, status: "error", detail: "URL de controladora UniFi inválida" }); return; }
+        const payload = JSON.stringify({ cmd: "authorize-guest", mac: clientMac, minutes: sessionMins });
+        const client = u.protocol === "https:" ? https : http;
+        const reqRouter = client.request(
+          {
+            host: u.hostname,
+            port: u.port || (u.protocol === "https:" ? 8443 : 80),
+            path: `/api/s/${site}/cmd/stamgr`,
+            method: "POST",
+            timeout: TIMEOUT_MS,
+            rejectUnauthorized: false, // las controladoras UniFi usan cert autofirmado
+            headers: {
+              "Content-Type": "application/json",
+              "Content-Length": Buffer.byteLength(payload),
+              ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+            },
+          },
+          (r) => {
+            r.resume();
+            resolve({ ok: r.statusCode < 400, status: r.statusCode, detail: `UniFi authorize HTTP ${r.statusCode}` });
+          }
+        );
+        reqRouter.on("timeout", () => { reqRouter.destroy(); resolve({ ok: false, status: "timeout", detail: "UniFi no respondió (timeout)" }); });
+        reqRouter.on("error", (e) => resolve({ ok: false, status: "error", detail: `UniFi inaccesible: ${e.code || e.message}` }));
+        reqRouter.write(payload);
+        reqRouter.end();
+        return;
+      }
+
+      // kiosk_dns u otros: no hay router que autorizar (acceso vía DNS/kiosko)
+      resolve({ ok: true, status: "n/a", detail: "Sin router: modo kiosko/DNS" });
+    } catch (e) {
+      resolve({ ok: false, status: "error", detail: e.message });
+    }
+  });
+}
 
 // Inicializar lista de dispositivos conectados si no existe
 if (!db.connectedDevices) {
@@ -219,7 +299,7 @@ export function handleCaptivePortal(req, res, pathname, url) {
   if ((pathname === "/api/portal/connect" || pathname === "/api/portal/authorize") && req.method === "POST") {
     let body = "";
     req.on("data", (chunk) => (body += chunk));
-    req.on("end", () => {
+    req.on("end", async () => {
       try {
         const data = JSON.parse(body || "{}");
         const cleanWhatsapp = (data.whatsapp || "").replace(/\D/g, "");
@@ -283,36 +363,43 @@ export function handleCaptivePortal(req, res, pathname, url) {
         saveDb();
         logRequest("POST", "/api/portal/authorize", 200, `WiFi Desbloqueado: +${cleanWhatsapp} [MAC: ${clientMac}] (${sessionMins}m)`);
 
-        // Datos de handshake para Router
-        let routerHandshake = {};
-        if (portalSettings.hardwareType === "mikrotik") {
-          const gw = portalSettings.mikrotik?.gatewayIp || "192.168.88.1";
-          routerHandshake = {
-            routerType: "mikrotik",
-            loginUrl: `http://${gw}/login?username=${encodeURIComponent(clientMac)}&dst=${encodeURIComponent(portalSettings.redirectUrl || "/")}`,
-            username: clientMac,
-          };
-        } else if (portalSettings.hardwareType === "unifi") {
-          routerHandshake = {
-            routerType: "unifi",
-            action: "authorize-guest",
-            mac: clientMac,
-            minutes: sessionMins,
-          };
-        }
+        // AUTORIZACIÓN REAL contra el router/controladora (si hay hardware).
+        // El cliente ya quedó registrado en el CRM; aquí intentamos abrirle
+        // el acceso a internet de verdad. Si el router no está accesible, lo
+        // reportamos honestamente en routerHandshake.status = "error".
+        const routerResult = await callRouter(portalSettings, clientMac, sessionMins);
+        const routerHandshake = {
+          routerType: portalSettings.hardwareType || "none",
+          mac: clientMac,
+          minutes: sessionMins,
+          status: routerResult.ok ? "authorized" : "error",
+          detail: routerResult.detail,
+        };
+
+        logRequest(
+          "POST",
+          "/api/portal/authorize",
+          routerResult.ok ? 200 : 502,
+          `Router (${portalSettings.hardwareType}): ${routerResult.detail}`
+        );
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(
           JSON.stringify({
             success: true,
-            accessGranted: true,
+            // El registro del cliente siempre se persiste; accessGranted refleja
+            // si el router realmente abrió el acceso a internet.
+            accessGranted: routerResult.ok,
+            routerAuthorized: routerResult.ok,
             sessionMinutes: sessionMins,
             customer: db.customers[cleanWhatsapp],
             stamps: stampsEarned,
             expiresAt,
             routerHandshake,
             redirectUrl: portalSettings.redirectUrl || "/?demo=true&paso=1",
-            welcomeMessage: "¡Conexión WiFi autorizada con éxito! Disfruta de internet libre y acumula sellos.",
+            welcomeMessage: routerResult.ok
+              ? "¡Conexión WiFi autorizada con éxito! Disfruta de internet libre y acumula sellos."
+              : "Registro completado. El acceso a internet se activará cuando el router esté disponible.",
           })
         );
       } catch (err) {

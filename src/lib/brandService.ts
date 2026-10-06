@@ -1,5 +1,6 @@
 import { clientConfig } from "../config/clientConfig";
 import { applyBrandFonts } from "./fontLoader";
+import { apiUrl, getAuthToken } from "./apiClient";
 
 export interface BrandIdentityConfig {
   name: string;
@@ -145,9 +146,13 @@ export function saveBrandConfig(newConfig: BrandIdentityConfig): void {
 
     // Sincronizar en segundo plano con el servidor backend REST (si está disponible)
     try {
-      fetch("http://localhost:3001/api/config", {
+      const token = getAuthToken();
+      fetch(apiUrl("/config"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           brand: {
             name: newConfig.name,
