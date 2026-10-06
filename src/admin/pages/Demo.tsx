@@ -228,7 +228,7 @@ export function Demo() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-[#e6e1e7] font-bold text-2xl font-['Epilogue'] flex items-center gap-2">
-            <Smartphone className="w-6 h-6 text-[#f2be71]" />
+            <Smartphone className="w-6 h-6 text-[var(--gold)]" />
             <span>Módulo de Demostración & Simulador Multidispositivo</span>
           </h2>
           <p className="text-sm text-[#ccc3d8]">
@@ -244,7 +244,7 @@ export function Demo() {
             className="bg-[#201f23] border border-[#363439] hover:bg-[#2b292e] text-[#ccc3d8] text-xs font-bold rounded-xl px-3.5 py-2.5 flex items-center gap-2 cursor-pointer transition-colors"
             title="Reiniciar simulador"
           >
-            <RotateCcw className="w-4 h-4 text-[#f2be71]" />
+            <RotateCcw className="w-4 h-4 text-[var(--gold)]" />
             <span>Reiniciar Demo</span>
           </button>
 
@@ -254,7 +254,7 @@ export function Demo() {
             className="bg-[#201f23] border border-[#363439] hover:bg-[#2b292e] text-[#ccc3d8] text-xs font-bold rounded-xl px-3.5 py-2.5 flex items-center gap-2 cursor-pointer transition-colors"
             title="Copiar enlace directo"
           >
-            {copiedLink ? <Check className="w-4 h-4 text-[#10b981]" /> : <Copy className="w-4 h-4 text-[#f2be71]" />}
+            {copiedLink ? <Check className="w-4 h-4 text-[#10b981]" /> : <Copy className="w-4 h-4 text-[var(--gold)]" />}
             <span>{copiedLink ? "Copiado" : "Copiar Enlace"}</span>
           </button>
 
@@ -262,7 +262,7 @@ export function Demo() {
             href={currentUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-4 py-2.5 text-xs hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 shadow-md"
+            className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-4 py-2.5 text-xs hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 shadow-md"
           >
             <span>Abrir en Pestaña Nueva</span>
             <ExternalLink className="w-4 h-4" />
@@ -273,7 +273,7 @@ export function Demo() {
       {/* Barra de Control de Fases / Pasos Rápidos */}
       <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-4 space-y-3 shadow-lg">
         <div className="flex items-center justify-between">
-          <span className="text-xs uppercase font-bold text-[#f2be71] flex items-center gap-1.5">
+          <span className="text-xs uppercase font-bold text-[var(--gold)] flex items-center gap-1.5">
             <Layers className="w-4 h-4" />
             <span>Saltar Directamente a una Fase del Frontend:</span>
           </span>
@@ -291,7 +291,7 @@ export function Demo() {
                 onClick={() => setSelectedStep(step.num)}
                 className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-1.5 ${
                   isSelected
-                    ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71] shadow-[0_0_12px_rgba(242,190,113,0.25)]"
+                    ? "bg-[#2b292e] border-[var(--gold)] text-[var(--gold)] shadow-[0_0_12px_rgba(242,190,113,0.25)]"
                     : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:border-[#4a4455] hover:bg-[#252429]"
                 }`}
               >
@@ -314,11 +314,11 @@ export function Demo() {
           <div className="w-full bg-[#1c1b1f] border border-[#363439] rounded-2xl p-3 mb-4 space-y-3 shadow-lg">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-[#f2be71]" />
+                <Sliders className="w-4 h-4 text-[var(--gold)]" />
                 <span className="text-xs font-bold text-[#e6e1e7] font-['Epilogue']">
                   Dispositivo Móvil Seleccionado:
                 </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#141317] border border-[#363439] text-[#f2be71] font-bold">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#141317] border border-[#363439] text-[var(--gold)] font-bold">
                   {currentDevice.os} • {currentDevice.width === 0 ? "Fluido" : `${currentDevice.width} x ${currentDevice.height} px`}
                 </span>
               </div>
@@ -330,7 +330,7 @@ export function Demo() {
                   onClick={() => setIsLandscape(!isLandscape)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border ${
                     isLandscape
-                      ? "bg-[#f2be71] text-[#121115] border-[#f2be71] font-bold"
+                      ? "bg-[var(--gold)] text-[#121115] border-[var(--gold)] font-bold"
                       : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:text-white"
                   }`}
                   title="Rotar pantalla vertical / horizontal"
@@ -355,7 +355,7 @@ export function Demo() {
                     }}
                     className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                       isSelected
-                        ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50 shadow-sm font-bold"
+                        ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/50 shadow-sm font-bold"
                         : "bg-[#201f23] text-[#ccc3d8] border border-[#363439] hover:bg-[#252429] hover:text-white"
                     }`}
                   >
@@ -434,7 +434,7 @@ export function Demo() {
           {/* Tarjeta 1: Parámetros del Entorno */}
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 space-y-4 shadow-xl">
             <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2 border-b border-[#363439] pb-3 font-['Epilogue']">
-              <Play className="w-4 h-4 text-[#f2be71]" />
+              <Play className="w-4 h-4 text-[var(--gold)]" />
               <span>Configuración del Entorno de Prueba</span>
             </h3>
 
@@ -446,7 +446,7 @@ export function Demo() {
               <select
                 value={selectedTable}
                 onChange={(e) => setSelectedTable(e.target.value)}
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:border-[#f2be71] focus:outline-none cursor-pointer"
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:border-[var(--gold)] focus:outline-none cursor-pointer"
               >
                 <option value="1">Mesa 1 (QR Sala Principal)</option>
                 <option value="2">Mesa 2 (QR Sala Principal)</option>
@@ -469,7 +469,7 @@ export function Demo() {
                   onClick={() => setSelectedGame("ruleta")}
                   className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     selectedGame === "ruleta"
-                      ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
+                      ? "bg-[#2b292e] border-[var(--gold)] text-[var(--gold)]"
                       : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
                   }`}
                 >
@@ -482,7 +482,7 @@ export function Demo() {
                   onClick={() => setSelectedGame("precision")}
                   className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     selectedGame === "precision"
-                      ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
+                      ? "bg-[#2b292e] border-[var(--gold)] text-[var(--gold)]"
                       : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
                   }`}
                 >
@@ -495,7 +495,7 @@ export function Demo() {
                   onClick={() => setSelectedGame("scratch")}
                   className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     selectedGame === "scratch"
-                      ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
+                      ? "bg-[#2b292e] border-[var(--gold)] text-[var(--gold)]"
                       : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
                   }`}
                 >
@@ -508,7 +508,7 @@ export function Demo() {
                   onClick={() => setSelectedGame("memory")}
                   className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     selectedGame === "memory"
-                      ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
+                      ? "bg-[#2b292e] border-[var(--gold)] text-[var(--gold)]"
                       : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
                   }`}
                 >
@@ -521,7 +521,7 @@ export function Demo() {
                   onClick={() => setSelectedGame("pick-win")}
                   className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     selectedGame === "pick-win"
-                      ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
+                      ? "bg-[#2b292e] border-[var(--gold)] text-[var(--gold)]"
                       : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
                   }`}
                 >
@@ -534,7 +534,7 @@ export function Demo() {
                   onClick={() => setSelectedGame("jackpot")}
                   className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     selectedGame === "jackpot"
-                      ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
+                      ? "bg-[#2b292e] border-[var(--gold)] text-[var(--gold)]"
                       : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
                   }`}
                 >
@@ -547,7 +547,7 @@ export function Demo() {
                   onClick={() => setSelectedGame("plinko")}
                   className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     selectedGame === "plinko"
-                      ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71]"
+                      ? "bg-[#2b292e] border-[var(--gold)] text-[var(--gold)]"
                       : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
                   }`}
                 >
@@ -562,7 +562,7 @@ export function Demo() {
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 space-y-4 shadow-xl">
             <div className="flex items-center justify-between border-b border-[#363439] pb-3">
               <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2 font-['Epilogue']">
-                <QrCode className="w-4 h-4 text-[#f2be71]" />
+                <QrCode className="w-4 h-4 text-[var(--gold)]" />
                 <span>Escanear en Celular Físico</span>
               </h3>
               <span className="text-[10px] text-[#10b981] font-mono font-bold bg-[#10b981]/10 px-2 py-0.5 rounded-full border border-[#10b981]/30">
@@ -578,9 +578,9 @@ export function Demo() {
               <img
                 src={qrImageUrl}
                 alt="Código QR de Prueba en Mesa"
-                className="w-44 h-44 rounded-lg shadow-md border border-[#f2be71]/30 p-1 bg-[#1c1b1f]"
+                className="w-44 h-44 rounded-lg shadow-md border border-[var(--gold)]/30 p-1 bg-[#1c1b1f]"
               />
-              <span className="text-[11px] text-[#f2be71] font-mono mt-2 font-bold break-all text-center">
+              <span className="text-[11px] text-[var(--gold)] font-mono mt-2 font-bold break-all text-center">
                 Mesa: {selectedTable} • {selectedGame === "ruleta" ? "Ruleta" : "Cronómetro"}
               </span>
             </div>
@@ -596,7 +596,7 @@ export function Demo() {
                   value={customHost}
                   onChange={(e) => setCustomHost(e.target.value)}
                   placeholder="ej: 192.168.68.59 o tudominio.com"
-                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] font-mono text-xs rounded-xl px-3 py-2 w-full focus:border-[#f2be71] focus:outline-none"
+                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] font-mono text-xs rounded-xl px-3 py-2 w-full focus:border-[var(--gold)] focus:outline-none"
                 />
               </div>
               <span className="text-[10px] text-[#958da1]">
@@ -613,25 +613,25 @@ export function Demo() {
             </h4>
             <ul className="text-xs text-[#ccc3d8] space-y-2 leading-relaxed">
               <li className="flex items-start gap-2">
-                <span className="text-[#f2be71] font-bold">•</span>
+                <span className="text-[var(--gold)] font-bold">•</span>
                 <span>
                   <strong>Giro de Ruleta:</strong> En el Paso 3 puedes tocar directamente en *"Girar Ruleta"* dentro de la pantalla para simular la victoria.
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#f2be71] font-bold">•</span>
+                <span className="text-[var(--gold)] font-bold">•</span>
                 <span>
                   <strong>Quema de Cupón:</strong> En el Paso 4 puedes usar el PIN de cajero por defecto (<code>4321</code> o <code>9395</code>) para probar la validación en mesa.
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#f2be71] font-bold">•</span>
+                <span className="text-[var(--gold)] font-bold">•</span>
                 <span>
                   <strong>Desvío de Calificación:</strong> En el Paso 5, prueba poner 1 a 3 estrellas para ver cómo se desvía a WhatsApp confidencial de gerencia.
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#f2be71] font-bold">•</span>
+                <span className="text-[var(--gold)] font-bold">•</span>
                 <span>
                   <strong>Misiones & Embajador (Paso 8):</strong> Prueba las tareas sociales (TripAdvisor, TikTok) y el reto viral de invitar 3 amigos con enlace y código VIP de WhatsApp.
                 </span>

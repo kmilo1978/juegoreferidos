@@ -80,7 +80,7 @@ export function Channels() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -109,13 +109,13 @@ export function Channels() {
       <form onSubmit={handleSave} className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-6">
         <div className="flex items-center justify-between border-b border-[#363439] pb-4">
           <h3 className="text-lg font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-            <MessageCircle className="w-5 h-5 text-[#f2be71]" />
+            <MessageCircle className="w-5 h-5 text-[var(--gold)]" />
             <span>Configuración de Canales de Atención</span>
           </h3>
           <button
             type="submit"
             disabled={saving}
-            className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm"
+            className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             <span>Guardar Canales</span>
@@ -143,7 +143,7 @@ export function Channels() {
               Handle Oficial de Instagram
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-3.5 text-[#f2be71] font-bold text-sm">@</span>
+              <span className="absolute left-3.5 top-3.5 text-[var(--gold)] font-bold text-sm">@</span>
               <input
                 type="text"
                 value={instagramHandle.replace(/^@/, "")}
@@ -189,7 +189,7 @@ export function Channels() {
               id="enableWaPhoto"
               checked={enableWhatsAppPhoto}
               onChange={(e) => setEnableWhatsAppPhoto(e.target.checked)}
-              className="w-4 h-4 accent-[#f2be71]"
+              className="w-4 h-4 accent-[var(--gold)]"
             />
             <label htmlFor="enableWaPhoto" className="text-xs text-[#e6e1e7] cursor-pointer">
               Habilitar botón secundario "¿No usas Instagram? Enviar por WhatsApp" en el Paso 2

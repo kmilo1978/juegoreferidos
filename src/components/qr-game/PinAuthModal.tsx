@@ -66,7 +66,7 @@ export function PinAuthModal({
         {/* Cabecera con Candado y botón Cerrar */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#684400]/40 border border-[#f2be71]/40 flex items-center justify-center text-[#f2be71] shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#684400]/40 border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)] shrink-0">
               <Lock className="h-5 w-5" />
             </div>
             <div className="flex flex-col text-left">
@@ -88,15 +88,15 @@ export function PinAuthModal({
         </div>
 
         {/* Tarjeta de PIN Activo estilo Stitch */}
-        <div className="w-full rounded-2xl bg-gradient-to-r from-[#684400]/30 via-[#201f23] to-[#2b292e] border border-[#f2be71]/30 p-3.5 flex items-center justify-between shadow-[0_4px_24px_rgba(242,190,113,0.1)]">
+        <div className="w-full rounded-2xl bg-gradient-to-r from-[#684400]/30 via-[#201f23] to-[#2b292e] border border-[var(--gold)]/30 p-3.5 flex items-center justify-between shadow-[0_4px_24px_rgba(242,190,113,0.1)]">
           <div className="flex flex-col text-left">
             <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="w-2 h-2 rounded-full bg-[#f2be71] animate-ping" />
-              <span className="font-label-sm text-[10px] text-[#f2be71] uppercase font-bold tracking-widest">
+              <span className="w-2 h-2 rounded-full bg-[var(--gold)] animate-ping" />
+              <span className="font-label-sm text-[10px] text-[var(--gold)] uppercase font-bold tracking-widest">
                 PIN de Turno Activo
               </span>
             </div>
-            <span className="font-headline-md text-2xl text-[#ffddb1] tracking-widest font-mono font-bold leading-none">
+            <span className="font-headline-md text-2xl text-[var(--gold-light)] tracking-widest font-mono font-bold leading-none">
               {displayPin}
             </span>
             <span className="font-body-sm text-[10px] text-[#ccc3d8] mt-1">Caja Salón • Turno Activo</span>
@@ -122,7 +122,7 @@ export function PinAuthModal({
                   key={idx}
                   className={`w-3.5 h-3.5 rounded-full transition-all duration-200 ${
                     isFilled
-                      ? "bg-[#f2be71] shadow-[0_0_12px_rgba(242,190,113,0.9)] scale-110"
+                      ? "bg-[var(--gold)] shadow-[0_0_12px_rgba(242,190,113,0.9)] scale-110"
                       : "bg-[#2b292e] border border-[#363439]"
                   }`}
                 />
@@ -163,7 +163,7 @@ export function PinAuthModal({
           <button
             type="button"
             onClick={() => handleAutoFill(displayPin)}
-            className="h-12 rounded-xl bg-[#684400]/50 hover:bg-[#684400]/70 text-[#f2be71] flex items-center justify-center font-bold text-xs border border-[#f2be71]/40 shadow-sm active:scale-95 transition-all cursor-pointer"
+            className="h-12 rounded-xl bg-[#684400]/50 hover:bg-[#684400]/70 text-[var(--gold)] flex items-center justify-center font-bold text-xs border border-[var(--gold)]/40 shadow-sm active:scale-95 transition-all cursor-pointer"
           >
             <Check className="h-5 w-5" />
           </button>

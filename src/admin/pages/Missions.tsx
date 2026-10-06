@@ -206,7 +206,7 @@ export function Missions() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -220,7 +220,7 @@ export function Missions() {
         <div>
           <div className="flex items-center gap-2.5">
             <h2 className="text-[#e6e1e7] font-bold text-2xl font-['Epilogue']">Misiones & Embajadores</h2>
-            <span className="px-2.5 py-0.5 rounded-full bg-[#684400]/30 border border-[#f2be71]/40 text-[#f2be71] text-xs font-mono font-bold">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#684400]/30 border border-[var(--gold)]/40 text-[var(--gold)] text-xs font-mono font-bold">
               {activeCount} Activas en Mesa
             </span>
           </div>
@@ -232,7 +232,7 @@ export function Missions() {
         <button
           type="button"
           onClick={openCreateModal}
-          className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
+          className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>Crear Nueva Misión</span>
@@ -256,7 +256,7 @@ export function Missions() {
         <div className="xl:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#f2be71]" />
+              <Layers className="w-4 h-4 text-[var(--gold)]" />
               <span>Catálogo Modular de Misiones (Checklist On/Off)</span>
             </h3>
             <span className="text-xs text-[#958da1]">Toca el interruptor para mostrar u ocultar en mesa</span>
@@ -268,7 +268,7 @@ export function Missions() {
                 key={m.id}
                 className={`p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between gap-3 ${
                   m.active
-                    ? "bg-[#1c1b1f] border-[#f2be71]/40 shadow-sm"
+                    ? "bg-[#1c1b1f] border-[var(--gold)]/40 shadow-sm"
                     : "bg-[#17161a] border-[#2b292e] opacity-60"
                 }`}
               >
@@ -294,7 +294,7 @@ export function Missions() {
                         onChange={() => handleToggleActive(m.id)}
                         className="sr-only peer"
                       />
-                      <div className="w-9 h-5 bg-[#2b292e] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#f2be71]"></div>
+                      <div className="w-9 h-5 bg-[#2b292e] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--gold)]"></div>
                     </label>
                   </div>
 
@@ -305,7 +305,7 @@ export function Missions() {
 
                 {/* Pie de tarjeta con sellos y botones de acción */}
                 <div className="flex items-center justify-between pt-2 border-t border-[#363439]/60">
-                  <span className="text-xs font-mono font-bold text-[#f2be71] bg-[#684400]/30 px-2 py-0.5 rounded-full border border-[#f2be71]/30">
+                  <span className="text-xs font-mono font-bold text-[var(--gold)] bg-[#684400]/30 px-2 py-0.5 rounded-full border border-[var(--gold)]/30">
                     +{m.rewardStamps || 2} Sellos VIP
                   </span>
 
@@ -324,7 +324,7 @@ export function Missions() {
                     <button
                       type="button"
                       onClick={() => openEditModal(m)}
-                      className="p-1.5 rounded-lg bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[#f2be71] transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[var(--gold)] transition-colors cursor-pointer"
                       title="Personalizar misión"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -351,7 +351,7 @@ export function Missions() {
               <Target className="w-4 h-4 text-[#10b981]" />
               <span>Cola de Revisión de Evidencias</span>
             </h3>
-            <span className="text-xs text-[#f2be71] font-mono font-bold">
+            <span className="text-xs text-[var(--gold)] font-mono font-bold">
               {submissions.filter((s) => s.status?.toUpperCase() === "PENDING" || s.status?.toUpperCase() === "PENDIENTE").length} pendientes
             </span>
           </div>
@@ -370,7 +370,7 @@ export function Missions() {
                         {sub.dateFormatted || sub.submittedAt || "Reciente"}
                       </span>
                     </div>
-                    <span className="text-xs font-semibold text-[#f2be71] block mt-0.5">
+                    <span className="text-xs font-semibold text-[var(--gold)] block mt-0.5">
                       {sub.missionTitle || "Misión Digital"}
                     </span>
                   </div>
@@ -417,7 +417,7 @@ export function Missions() {
       {/* MODAL DE CREAR / EDITAR MISIÓN */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#1c1b1f] border border-[#f2be71]/40 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl relative">
+          <div className="bg-[#1c1b1f] border border-[var(--gold)]/40 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl relative">
             <div className="flex items-center justify-between border-b border-[#363439] pb-3">
               <h3 className="text-lg font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
                 <span>{editingMission ? "✏️ Personalizar Misión" : "➕ Crear Nueva Misión"}</span>
@@ -442,7 +442,7 @@ export function Missions() {
                   value={formTitle}
                   onChange={(e) => setFormTitle(e.target.value)}
                   placeholder="Ej: Foto en Instagram Stories con tu plato favorito"
-                  className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs"
+                  className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs"
                 />
               </div>
 
@@ -454,7 +454,7 @@ export function Missions() {
                   <select
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value)}
-                    className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs"
+                    className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs"
                   >
                     <option value="Instagram">Instagram</option>
                     <option value="TikTok">TikTok</option>
@@ -473,7 +473,7 @@ export function Missions() {
                   <select
                     value={formRewardStamps}
                     onChange={(e) => setFormRewardStamps(Number(e.target.value))}
-                    className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs font-mono"
+                    className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs font-mono"
                   >
                     <option value={1}>+1 Sello VIP</option>
                     <option value={2}>+2 Sellos VIP</option>
@@ -494,7 +494,7 @@ export function Missions() {
                     value={formIcon}
                     onChange={(e) => setFormIcon(e.target.value)}
                     placeholder="📸"
-                    className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-center text-lg text-[#e6e1e7] rounded-xl px-3 py-2 w-full"
+                    className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-center text-lg text-[#e6e1e7] rounded-xl px-3 py-2 w-full"
                   />
                 </div>
 
@@ -507,7 +507,7 @@ export function Missions() {
                     value={formActionUrl}
                     onChange={(e) => setFormActionUrl(e.target.value)}
                     placeholder="https://instagram.com/..."
-                    className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs"
+                    className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs"
                   />
                 </div>
               </div>
@@ -521,7 +521,7 @@ export function Missions() {
                   value={formRules}
                   onChange={(e) => setFormRules(e.target.value)}
                   placeholder="Menciona nuestro perfil y muestra tu plato favorito..."
-                  className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs resize-none"
+                  className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs resize-none"
                 />
               </div>
 
@@ -531,7 +531,7 @@ export function Missions() {
                   id="modalFormActive"
                   checked={formActive}
                   onChange={(e) => setFormActive(e.target.checked)}
-                  className="w-4 h-4 accent-[#f2be71]"
+                  className="w-4 h-4 accent-[var(--gold)]"
                 />
                 <label htmlFor="modalFormActive" className="text-xs text-[#e6e1e7] cursor-pointer font-semibold">
                   Activar misión de inmediato en mesa (Checklist ON)
@@ -548,7 +548,7 @@ export function Missions() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#f2be71] hover:brightness-105 text-[#121115] text-xs font-bold transition-all cursor-pointer shadow-md"
+                  className="px-5 py-2 rounded-xl bg-[var(--gold)] hover:brightness-105 text-[#121115] text-xs font-bold transition-all cursor-pointer shadow-md"
                 >
                   {editingMission ? "Guardar Cambios" : "Crear Misión"}
                 </button>

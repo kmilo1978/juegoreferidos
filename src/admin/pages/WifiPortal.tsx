@@ -188,7 +188,7 @@ export function WifiPortal() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-10 h-10 text-[#f2be71] animate-spin" />
+          <Loader2 className="w-10 h-10 text-[var(--gold)] animate-spin" />
           <span className="text-sm text-[#ccc3d8] font-medium font-['Epilogue']">Cargando Portal Cautivo WiFi...</span>
         </div>
       </div>
@@ -206,13 +206,13 @@ export function WifiPortal() {
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30">
               Estándar RFC 8908 & CNA
             </span>
-            <span className="text-xs text-[#f2be71] font-mono font-bold flex items-center gap-1">
+            <span className="text-xs text-[var(--gold)] font-mono font-bold flex items-center gap-1">
               <Activity className="w-3.5 h-3.5" />
               {activeDevices.length} Clientes Navegando
             </span>
           </div>
           <h2 className="text-[#e6e1e7] font-bold text-2xl font-['Epilogue'] flex items-center gap-2.5">
-            <Wifi className="w-6 h-6 text-[#f2be71]" />
+            <Wifi className="w-6 h-6 text-[var(--gold)]" />
             <span>Portal Cautivo WiFi & Kiosko de Bienvenida</span>
           </h2>
           <p className="text-sm text-[#ccc3d8]">
@@ -225,7 +225,7 @@ export function WifiPortal() {
             href="/hotspot-detect.html"
             target="_blank"
             rel="noreferrer"
-            className="bg-[#201f23] hover:bg-[#252429] text-[#ccc3d8] hover:text-[#f2be71] border border-[#363439] text-xs font-semibold rounded-xl px-4 py-2.5 flex items-center gap-1.5 transition-colors"
+            className="bg-[#201f23] hover:bg-[#252429] text-[#ccc3d8] hover:text-[var(--gold)] border border-[#363439] text-xs font-semibold rounded-xl px-4 py-2.5 flex items-center gap-1.5 transition-colors"
           >
             <Smartphone className="w-3.5 h-3.5" />
             <span>Simular Popup Móvil (CNA)</span>
@@ -236,7 +236,7 @@ export function WifiPortal() {
             type="button"
             onClick={() => handleSave()}
             disabled={saving}
-            className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-xs shadow-md"
+            className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-xs shadow-md"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             <span>Guardar Configuración</span>
@@ -266,7 +266,7 @@ export function WifiPortal() {
           onClick={() => setActiveTab("general")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
             activeTab === "general"
-              ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/40 shadow-sm"
+              ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/40 shadow-sm"
               : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
           }`}
         >
@@ -279,7 +279,7 @@ export function WifiPortal() {
           onClick={() => setActiveTab("hardware")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
             activeTab === "hardware"
-              ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/40 shadow-sm"
+              ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/40 shadow-sm"
               : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
           }`}
         >
@@ -292,7 +292,7 @@ export function WifiPortal() {
           onClick={() => setActiveTab("devices")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
             activeTab === "devices"
-              ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/40 shadow-sm"
+              ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/40 shadow-sm"
               : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
           }`}
         >
@@ -305,7 +305,7 @@ export function WifiPortal() {
           onClick={() => setActiveTab("preview")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
             activeTab === "preview"
-              ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/40 shadow-sm"
+              ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/40 shadow-sm"
               : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
           }`}
         >
@@ -320,7 +320,7 @@ export function WifiPortal() {
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-5 shadow-xl">
               <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2 border-b border-[#363439] pb-3">
-                <Sparkles className="w-5 h-5 text-[#f2be71]" />
+                <Sparkles className="w-5 h-5 text-[var(--gold)]" />
                 <span>Textos y Reglas de Captación en Mesa</span>
               </h3>
 
@@ -347,7 +347,7 @@ export function WifiPortal() {
                     value={ssid}
                     onChange={(e) => setSsid(e.target.value)}
                     placeholder="ej: Restaurante Gourmet - WiFi VIP"
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono font-bold focus:border-[#f2be71] focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono font-bold focus:border-[var(--gold)] focus:outline-none"
                   />
                   <span className="text-[11px] text-[#958da1]">El nombre visible de la red inalámbrica en los celulares.</span>
                 </div>
@@ -362,7 +362,7 @@ export function WifiPortal() {
                     max={480}
                     value={sessionMinutes}
                     onChange={(e) => setSessionMinutes(Number(e.target.value))}
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[#f2be71] focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[var(--gold)] focus:outline-none"
                   />
                   <span className="text-[11px] text-[#958da1]">Tiempo de internet libre antes de solicitar renovación (ej: 120m).</span>
                 </div>
@@ -375,7 +375,7 @@ export function WifiPortal() {
                     type="text"
                     value={welcomeTitle}
                     onChange={(e) => setWelcomeTitle(e.target.value)}
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-semibold focus:border-[#f2be71] focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-semibold focus:border-[var(--gold)] focus:outline-none"
                   />
                 </div>
 
@@ -387,7 +387,7 @@ export function WifiPortal() {
                     rows={2}
                     value={welcomeDescription}
                     onChange={(e) => setWelcomeDescription(e.target.value)}
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:border-[#f2be71] focus:outline-none leading-relaxed"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs focus:border-[var(--gold)] focus:outline-none leading-relaxed"
                   />
                 </div>
 
@@ -400,7 +400,7 @@ export function WifiPortal() {
                     value={redirectUrl}
                     onChange={(e) => setRedirectUrl(e.target.value)}
                     placeholder="/?demo=true&paso=1"
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[#f2be71] focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[var(--gold)] focus:outline-none"
                   />
                   <span className="text-[11px] text-[#958da1]">Página que se abre en el navegador al completar la conexión.</span>
                 </div>
@@ -413,11 +413,11 @@ export function WifiPortal() {
                     type="checkbox"
                     checked={grantStampOnConnect}
                     onChange={(e) => setGrantStampOnConnect(e.target.checked)}
-                    className="w-4 h-4 accent-[#f2be71]"
+                    className="w-4 h-4 accent-[var(--gold)]"
                   />
                   <div>
                     <span className="text-xs font-bold text-[#e6e1e7] flex items-center gap-1.5">
-                      <Award className="w-4 h-4 text-[#f2be71]" />
+                      <Award className="w-4 h-4 text-[var(--gold)]" />
                       <span>Otorgar +1 Sello de Visita Automático al Conectar</span>
                     </span>
                     <span className="text-[11px] text-[#958da1]">Incentiva a los comensales a identificarse con su WhatsApp real.</span>
@@ -429,7 +429,7 @@ export function WifiPortal() {
                     type="checkbox"
                     checked={requireWhatsapp}
                     onChange={(e) => setRequireWhatsapp(e.target.checked)}
-                    className="w-4 h-4 accent-[#f2be71]"
+                    className="w-4 h-4 accent-[var(--gold)]"
                   />
                   <div>
                     <span className="text-xs font-bold text-[#e6e1e7]">Solicitar WhatsApp Obligatorio</span>
@@ -442,7 +442,7 @@ export function WifiPortal() {
                     type="checkbox"
                     checked={requireEmail}
                     onChange={(e) => setRequireEmail(e.target.checked)}
-                    className="w-4 h-4 accent-[#f2be71]"
+                    className="w-4 h-4 accent-[var(--gold)]"
                   />
                   <div>
                     <span className="text-xs font-bold text-[#e6e1e7]">Solicitar Correo Electrónico Opcional / Obligatorio</span>
@@ -467,7 +467,7 @@ export function WifiPortal() {
               <div className="text-left bg-[#141317] p-4 rounded-xl border border-[#363439] space-y-2 text-xs">
                 <div className="flex justify-between">
                   <span className="text-[#958da1]">Red SSID:</span>
-                  <span className="text-[#f2be71] font-mono font-bold truncate max-w-[150px]">{ssid}</span>
+                  <span className="text-[var(--gold)] font-mono font-bold truncate max-w-[150px]">{ssid}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#958da1]">Sesión:</span>
@@ -488,7 +488,7 @@ export function WifiPortal() {
                   href="/hotspot-detect.html"
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full py-2.5 px-4 bg-[#f2be71] hover:brightness-105 text-[#121115] font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
+                  className="w-full py-2.5 px-4 bg-[var(--gold)] hover:brightness-105 text-[#121115] font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md"
                 >
                   <span>Probar Popup de Conexión</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -535,15 +535,15 @@ export function WifiPortal() {
                   onClick={() => setHardwareType(hw.id as any)}
                   className={`p-5 rounded-2xl border transition-all cursor-pointer space-y-2 select-none ${
                     isSelected
-                      ? "bg-[#252429] border-[#f2be71] shadow-[0_4px_20px_rgba(242,190,113,0.15)]"
+                      ? "bg-[#252429] border-[var(--gold)] shadow-[0_4px_20px_rgba(242,190,113,0.15)]"
                       : "bg-[#1c1b1f] border-[#363439] opacity-75 hover:opacity-100 hover:border-[#4a4455]"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-xl bg-[#f2be71]/15 border border-[#f2be71]/40 flex items-center justify-center text-[#f2be71]">
+                    <div className="w-10 h-10 rounded-xl bg-[var(--gold)]/15 border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)]">
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#141317] border border-[#363439] text-[#f2be71] font-bold">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#141317] border border-[#363439] text-[var(--gold)] font-bold">
                       {hw.badge}
                     </span>
                   </div>
@@ -571,7 +571,7 @@ export function WifiPortal() {
                 <a
                   href="/api/portal/scripts/mikrotik"
                   download="mikrotik-hotspot-config.rsc"
-                  className="px-4 py-2.5 bg-[#f2be71] text-[#121115] hover:brightness-105 font-bold rounded-xl text-xs flex items-center gap-2 cursor-pointer shadow-md transition-all shrink-0"
+                  className="px-4 py-2.5 bg-[var(--gold)] text-[#121115] hover:brightness-105 font-bold rounded-xl text-xs flex items-center gap-2 cursor-pointer shadow-md transition-all shrink-0"
                 >
                   <Download className="w-4 h-4" />
                   <span>Descargar Script RouterOS (.rsc)</span>
@@ -588,7 +588,7 @@ export function WifiPortal() {
                     value={mikrotikGateway}
                     onChange={(e) => setMikrotikGateway(e.target.value)}
                     placeholder="192.168.88.1"
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[#f2be71] focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[var(--gold)] focus:outline-none"
                   />
                 </div>
 
@@ -601,7 +601,7 @@ export function WifiPortal() {
                     value={mikrotikServer}
                     onChange={(e) => setMikrotikServer(e.target.value)}
                     placeholder="hotspot1"
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[#f2be71] focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[var(--gold)] focus:outline-none"
                   />
                 </div>
 
@@ -614,14 +614,14 @@ export function WifiPortal() {
                     value={mikrotikDns}
                     onChange={(e) => setMikrotikDns(e.target.value)}
                     placeholder="wifi.local"
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[#f2be71] focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[var(--gold)] focus:outline-none"
                   />
                 </div>
               </div>
 
               {/* Guía Técnica para el Técnico de Red */}
               <div className="bg-[#141317] border border-[#363439] rounded-xl p-4 space-y-3">
-                <span className="text-xs font-bold text-[#f2be71] flex items-center gap-1.5 uppercase tracking-wider">
+                <span className="text-xs font-bold text-[var(--gold)] flex items-center gap-1.5 uppercase tracking-wider">
                   <TerminalIcon className="w-4 h-4" />
                   <span>Comandos de Instalación Rápida en MikroTik Terminal:</span>
                 </span>
@@ -661,7 +661,7 @@ export function WifiPortal() {
                     value={unifiUrl}
                     onChange={(e) => setUnifiUrl(e.target.value)}
                     placeholder="https://192.168.1.10:8443"
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[#f2be71] focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[var(--gold)] focus:outline-none"
                   />
                 </div>
 
@@ -674,7 +674,7 @@ export function WifiPortal() {
                     value={unifiSite}
                     onChange={(e) => setUnifiSite(e.target.value)}
                     placeholder="default"
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[#f2be71] focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[var(--gold)] focus:outline-none"
                   />
                 </div>
 
@@ -687,13 +687,13 @@ export function WifiPortal() {
                     value={unifiApiKey}
                     onChange={(e) => setUnifiApiKey(e.target.value)}
                     placeholder="unifi_token_..."
-                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[#f2be71] focus:outline-none"
+                    className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[var(--gold)] focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="bg-[#141317] border border-[#363439] rounded-xl p-4 text-xs text-[#ccc3d8] space-y-2">
-                <span className="text-[#f2be71] font-bold block">Paso en UniFi Network Application:</span>
+                <span className="text-[var(--gold)] font-bold block">Paso en UniFi Network Application:</span>
                 <p>
                   1. Ve a <strong>Settings → Hotspot & Guest Portal</strong>.<br />
                   2. Activa <strong>External Portal Server</strong> e ingresa la IP local de este computador con el puerto <code>3001</code>.<br />
@@ -707,7 +707,7 @@ export function WifiPortal() {
           {hardwareType === "kiosk_dns" && (
             <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4 shadow-xl">
               <div className="flex items-center gap-3 border-b border-[#363439] pb-4">
-                <div className="w-10 h-10 rounded-xl bg-[#f2be71]/15 border border-[#f2be71]/40 flex items-center justify-center text-[#f2be71]">
+                <div className="w-10 h-10 rounded-xl bg-[var(--gold)]/15 border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)]">
                   <Server className="w-5 h-5" />
                 </div>
                 <div>
@@ -718,7 +718,7 @@ export function WifiPortal() {
               <p className="text-xs text-[#ccc3d8] leading-relaxed">
                 Este modo no requiere routers especializados ni cambios en la red física. Puedes colocar una tablet en la barra o mostrador con la URL:
                 <br />
-                <code className="text-[#f2be71] bg-[#141317] px-2 py-1 rounded mt-2 inline-block font-mono">
+                <code className="text-[var(--gold)] bg-[#141317] px-2 py-1 rounded mt-2 inline-block font-mono">
                   http://{window.location.host}/?kiosk=true
                 </code>
               </p>
@@ -740,7 +740,7 @@ export function WifiPortal() {
 
             <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 space-y-1">
               <span className="text-xs text-[#958da1] uppercase font-bold">Tráfico Acumulado</span>
-              <div className="text-2xl font-bold text-[#f2be71] font-mono">411.4 MB</div>
+              <div className="text-2xl font-bold text-[var(--gold)] font-mono">411.4 MB</div>
               <span className="text-[11px] text-[#ccc3d8]">Descarga y subida en sala</span>
             </div>
 
@@ -755,14 +755,14 @@ export function WifiPortal() {
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4 shadow-xl">
             <div className="flex items-center justify-between border-b border-[#363439] pb-4">
               <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-                <Users className="w-5 h-5 text-[#f2be71]" />
+                <Users className="w-5 h-5 text-[var(--gold)]" />
                 <span>Sesiones Wi-Fi en Sala (En Directo)</span>
               </h3>
 
               <button
                 type="button"
                 onClick={fetchData}
-                className="text-xs bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[#f2be71] px-3 py-1.5 rounded-xl border border-[#363439] flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="text-xs bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[var(--gold)] px-3 py-1.5 rounded-xl border border-[#363439] flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>Actualizar Lista</span>
@@ -790,7 +790,7 @@ export function WifiPortal() {
                       <tr key={dev.id} className="hover:bg-[#201f23]/40 transition-colors">
                         <td className="px-4 py-3.5">
                           <div className="font-bold text-[#e6e1e7] flex items-center gap-2">
-                            <Smartphone className="w-4 h-4 text-[#f2be71]" />
+                            <Smartphone className="w-4 h-4 text-[var(--gold)]" />
                             <span>{dev.hostname || "Dispositivo Móvil"}</span>
                           </div>
                           <span className="text-[10px] text-[#958da1] font-mono">{dev.ip}</span>
@@ -802,7 +802,7 @@ export function WifiPortal() {
 
                         <td className="px-4 py-3.5">
                           <span className="font-semibold text-white block">{dev.fullName}</span>
-                          <span className="text-[11px] text-[#f2be71] font-mono">+{dev.whatsapp}</span>
+                          <span className="text-[11px] text-[var(--gold)] font-mono">+{dev.whatsapp}</span>
                         </td>
 
                         <td className="px-4 py-3.5">
@@ -828,7 +828,7 @@ export function WifiPortal() {
                               <button
                                 type="button"
                                 onClick={() => handleExtendSession(dev.mac)}
-                                className="px-2.5 py-1 rounded-lg bg-[#201f23] hover:bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/40 text-[11px] font-semibold cursor-pointer transition-colors"
+                                className="px-2.5 py-1 rounded-lg bg-[#201f23] hover:bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/40 text-[11px] font-semibold cursor-pointer transition-colors"
                               >
                                 +60 Min
                               </button>
@@ -872,7 +872,7 @@ export function WifiPortal() {
       {activeTab === "preview" && (
         <div className="flex flex-col items-center justify-center p-6 bg-[#1c1b1f] border border-[#363439] rounded-2xl shadow-xl space-y-6">
           <div className="text-center space-y-1">
-            <span className="text-xs font-bold text-[#f2be71] uppercase tracking-wider">
+            <span className="text-xs font-bold text-[var(--gold)] uppercase tracking-wider">
               Simulador Captive Network Assistant (CNA)
             </span>
             <h3 className="text-lg font-bold text-white font-['Epilogue']">
@@ -894,7 +894,7 @@ export function WifiPortal() {
             <div className="bg-[#201f23] rounded-t-2xl px-4 py-2 flex items-center justify-between text-[11px] text-[#ccc3d8] border-b border-[#363439]">
               <span className="font-semibold text-white">Cancelar</span>
               <span className="font-mono text-[10px] text-[#958da1]">{ssid}</span>
-              <span className="font-semibold text-[#f2be71]">Listo</span>
+              <span className="font-semibold text-[var(--gold)]">Listo</span>
             </div>
 
             {/* Contenido del Portal Cautivo */}
@@ -902,7 +902,7 @@ export function WifiPortal() {
               {portalLogoUrl ? (
                 <img src={portalLogoUrl} alt="Logo" className="h-12 mx-auto object-contain" />
               ) : (
-                <div className="w-12 h-12 mx-auto rounded-xl bg-[#f2be71]/20 border border-[#f2be71]/40 flex items-center justify-center text-[#f2be71]">
+                <div className="w-12 h-12 mx-auto rounded-xl bg-[var(--gold)]/20 border border-[var(--gold)]/40 flex items-center justify-center text-[var(--gold)]">
                   <Wifi className="w-6 h-6" />
                 </div>
               )}
@@ -913,7 +913,7 @@ export function WifiPortal() {
               </div>
 
               {grantStampOnConnect && (
-                <div className="p-2.5 rounded-xl bg-[#201f23] border border-[#f2be71]/30 flex items-center justify-center gap-2 text-xs text-[#f2be71] font-bold">
+                <div className="p-2.5 rounded-xl bg-[#201f23] border border-[var(--gold)]/30 flex items-center justify-center gap-2 text-xs text-[var(--gold)] font-bold">
                   <Award className="w-4 h-4" />
                   <span>¡Ganarás +1 Sello VIP al conectar!</span>
                 </div>
@@ -935,14 +935,14 @@ export function WifiPortal() {
                     type="text"
                     readOnly
                     value="+57 300 123 4567"
-                    className="w-full bg-[#201f23] border border-[#363439] rounded-lg px-3 py-2 text-xs text-[#f2be71] font-mono font-bold"
+                    className="w-full bg-[#201f23] border border-[#363439] rounded-lg px-3 py-2 text-xs text-[var(--gold)] font-mono font-bold"
                   />
                 </div>
               </div>
 
               <button
                 type="button"
-                className="w-full py-2.5 rounded-xl bg-[#f2be71] text-[#121115] font-bold text-xs shadow-md mt-2"
+                className="w-full py-2.5 rounded-xl bg-[var(--gold)] text-[#121115] font-bold text-xs shadow-md mt-2"
               >
                 Conectar al Wi-Fi & Jugar
               </button>

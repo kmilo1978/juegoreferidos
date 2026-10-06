@@ -165,7 +165,7 @@ export function GameMode() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -180,7 +180,7 @@ export function GameMode() {
             <h2 className="text-[#e6e1e7] font-bold text-2xl font-['Epilogue']">
               Módulos de Juego & Checklist en Mesa
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full bg-[#684400]/30 border border-[#f2be71]/40 text-[#f2be71] text-xs font-mono font-bold">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#684400]/30 border border-[var(--gold)]/40 text-[var(--gold)] text-xs font-mono font-bold">
               {activeStepsCount} Pasos Activos
             </span>
           </div>
@@ -193,7 +193,7 @@ export function GameMode() {
           type="button"
           onClick={handleSaveAll}
           disabled={saving}
-          className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
+          className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           <span>Guardar Configuración en Mesa</span>
@@ -216,7 +216,7 @@ export function GameMode() {
       <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4 shadow-xl">
         <div className="flex items-center justify-between border-b border-[#363439] pb-3">
           <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[#f2be71]" />
+            <Layers className="w-4 h-4 text-[var(--gold)]" />
             <span>Checklist de Pasos Habilitados en el Teléfono del Cliente</span>
           </h3>
           <span className="text-xs text-[#958da1]">Los comensales solo verán los pasos marcados en [ON]</span>
@@ -229,7 +229,7 @@ export function GameMode() {
               onClick={() => handleToggleModule(mod.id)}
               className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                 mod.active
-                  ? "bg-[#201f23] border-[#f2be71]/60 shadow-md"
+                  ? "bg-[#201f23] border-[var(--gold)]/60 shadow-md"
                   : "bg-[#17161a] border-[#2b292e] opacity-50 hover:opacity-75"
               }`}
             >
@@ -256,7 +256,7 @@ export function GameMode() {
                       onChange={() => handleToggleModule(mod.id)}
                       className="sr-only peer"
                     />
-                    <div className="w-8 h-4 bg-[#2b292e] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#f2be71]"></div>
+                    <div className="w-8 h-4 bg-[#2b292e] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[var(--gold)]"></div>
                   </label>
                 </div>
 
@@ -266,7 +266,7 @@ export function GameMode() {
               </div>
 
               <div className="pt-2 border-t border-[#363439]/40 flex items-center justify-between text-[10px]">
-                <span className={mod.active ? "text-[#f2be71] font-bold" : "text-[#958da1]"}>
+                <span className={mod.active ? "text-[var(--gold)] font-bold" : "text-[#958da1]"}>
                   {mod.active ? "✓ ACTIVO EN MESA" : "— INACTIVO"}
                 </span>
                 {mod.required && <span className="text-[#958da1]">(Paso Base)</span>}
@@ -281,7 +281,7 @@ export function GameMode() {
         {/* Calibración Cronómetro */}
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4">
           <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2 border-b border-[#363439] pb-3">
-            <Timer className="w-4 h-4 text-[#f2be71]" />
+            <Timer className="w-4 h-4 text-[var(--gold)]" />
             <span>Calibración del Reto 10s de Precisión</span>
           </h3>
 
@@ -334,7 +334,7 @@ export function GameMode() {
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-[#363439] pb-3">
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#f2be71]" />
+              <Sparkles className="w-4 h-4 text-[var(--gold)]" />
               <span>Premio de Revancha (2ª Oportunidad)</span>
             </h3>
             <label className="flex items-center gap-1.5 cursor-pointer">
@@ -342,7 +342,7 @@ export function GameMode() {
                 type="checkbox"
                 checked={scEnabled}
                 onChange={(e) => setScEnabled(e.target.checked)}
-                className="w-3.5 h-3.5 accent-[#f2be71]"
+                className="w-3.5 h-3.5 accent-[var(--gold)]"
               />
               <span className="text-xs text-[#ccc3d8] font-bold">Activo</span>
             </label>

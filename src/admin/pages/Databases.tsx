@@ -265,7 +265,7 @@ export function Databases() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -276,7 +276,7 @@ export function Databases() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-[#e6e1e7] font-bold text-2xl font-['Epilogue'] flex items-center gap-2">
-            <Database className="w-6 h-6 text-[#f2be71]" />
+            <Database className="w-6 h-6 text-[var(--gold)]" />
             <span>Bases de Datos, Composio & Backups</span>
           </h2>
           <p className="text-sm text-[#ccc3d8]">
@@ -288,7 +288,7 @@ export function Databases() {
           type="button"
           onClick={() => handleSave()}
           disabled={saving}
-          className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm"
+          className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           <span>Guardar Configuración</span>
@@ -335,12 +335,12 @@ export function Databases() {
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs uppercase font-semibold text-[#ccc3d8]">Composio Database</span>
-              <span className="text-[10px] bg-[#684400]/40 text-[#f2be71] font-bold px-2 py-0.5 rounded-full border border-[#f2be71]/30">
+              <span className="text-[10px] bg-[#684400]/40 text-[var(--gold)] font-bold px-2 py-0.5 rounded-full border border-[var(--gold)]/30">
                 {composioProvider.toUpperCase()}
               </span>
             </div>
-            <div className="text-lg font-bold text-[#f2be71] mt-1.5 flex items-center gap-1.5">
-              <Zap className="w-4 h-4 text-[#f2be71]" />
+            <div className="text-lg font-bold text-[var(--gold)] mt-1.5 flex items-center gap-1.5">
+              <Zap className="w-4 h-4 text-[var(--gold)]" />
               {composioStatus === "connected" ? "Sincronizada" : "Sin Conectar"}
             </div>
             <p className="text-[11px] text-[#958da1] mt-1">
@@ -351,7 +351,7 @@ export function Databases() {
             type="button"
             onClick={handleTestComposioDb}
             disabled={testingComposio}
-            className="mt-3 bg-[#201f23] border border-[#f2be71]/40 text-[#f2be71] hover:bg-[#2b292e] text-xs font-bold rounded-xl py-2 px-3 flex items-center justify-center gap-2 cursor-pointer transition-colors"
+            className="mt-3 bg-[#201f23] border border-[var(--gold)]/40 text-[var(--gold)] hover:bg-[#2b292e] text-xs font-bold rounded-xl py-2 px-3 flex items-center justify-center gap-2 cursor-pointer transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${testingComposio ? "animate-spin" : ""}`} />
             <span>{testingComposio ? "Probando..." : "Test de Conexión"}</span>
@@ -407,7 +407,7 @@ export function Databases() {
           onClick={() => setActiveTab("composio_db")}
           className={`pb-3 px-4 font-bold text-sm flex items-center gap-2 cursor-pointer transition-colors border-b-2 ${
             activeTab === "composio_db"
-              ? "border-[#f2be71] text-[#f2be71]"
+              ? "border-[var(--gold)] text-[var(--gold)]"
               : "border-transparent text-[#958da1] hover:text-[#ccc3d8]"
           }`}
         >
@@ -618,7 +618,7 @@ export function Databases() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#363439] gap-3">
             <div>
               <h3 className="text-lg font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-                <Zap className="w-5 h-5 text-[#f2be71]" />
+                <Zap className="w-5 h-5 text-[var(--gold)]" />
                 <span>Conexión de Base de Datos vía Composio</span>
               </h3>
               <p className="text-xs text-[#ccc3d8]">
@@ -631,7 +631,7 @@ export function Databases() {
                 type="checkbox"
                 checked={composioDbEnabled}
                 onChange={(e) => setComposioDbEnabled(e.target.checked)}
-                className="w-4 h-4 accent-[#f2be71]"
+                className="w-4 h-4 accent-[var(--gold)]"
               />
               <span className="text-xs font-bold text-[#e6e1e7]">Conector Composio Activo</span>
             </label>
@@ -656,7 +656,7 @@ export function Databases() {
                     onClick={() => setComposioProvider(item.id as any)}
                     className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
                       composioProvider === item.id
-                        ? "bg-[#252429] border-[#f2be71] text-[#f2be71]"
+                        ? "bg-[#252429] border-[var(--gold)] text-[var(--gold)]"
                         : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:border-[#4a4455]"
                     }`}
                   >
@@ -678,7 +678,7 @@ export function Databases() {
                   value={composioDatabaseId}
                   onChange={(e) => setComposioDatabaseId(e.target.value)}
                   placeholder="ej: 1A2b3C4d5E_sheet_restaurante o appXXXXXXXXXXXXXX"
-                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-3 w-full text-sm focus:border-[#f2be71] focus:outline-none"
+                  className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-3 w-full text-sm focus:border-[var(--gold)] focus:outline-none"
                 />
                 <span className="text-[11px] text-[#958da1]">
                   Pega el identificador de la hoja de cálculo o el Base ID de Airtable conectado en tu cuenta de Composio.
@@ -696,7 +696,7 @@ export function Databases() {
                   type="button"
                   onClick={handleTestComposioDb}
                   disabled={testingComposio}
-                  className="bg-[#2b292e] hover:bg-[#363439] text-[#f2be71] text-xs font-bold py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="bg-[#2b292e] hover:bg-[#363439] text-[var(--gold)] text-xs font-bold py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${testingComposio ? "animate-spin" : ""}`} />
                   <span>Probar Conexión</span>

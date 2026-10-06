@@ -144,14 +144,14 @@ export function DigitalWalletPassModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
-      <div className="relative w-full max-w-sm rounded-3xl bg-[#1c1b1f] border border-[#f2be71]/40 p-6 shadow-2xl flex flex-col gap-5 text-left">
+      <div className="relative w-full max-w-sm rounded-3xl bg-[#1c1b1f] border border-[var(--gold)]/40 p-6 shadow-2xl flex flex-col gap-5 text-left">
         {/* Ambient Glow */}
-        <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#f2be71]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-12 -right-12 w-40 h-40 bg-[var(--gold)]/15 rounded-full blur-3xl pointer-events-none" />
 
         {/* Encabezado del modal */}
         <div className="flex items-center justify-between border-b border-[#2b292e] pb-3">
           <div className="flex items-center gap-2">
-            <Smartphone className="h-5 w-5 text-[#f2be71]" />
+            <Smartphone className="h-5 w-5 text-[var(--gold)]" />
             <h3 className="font-['Epilogue'] font-bold text-sm text-[#e6e1e7]">
               {type === "prize" ? t("Voucher en tu Teléfono", "Voucher on Phone") : t("Pase Digital Móvil", "Mobile Digital Pass")}
             </h3>
@@ -166,16 +166,16 @@ export function DigitalWalletPassModal({
         </div>
 
         {/* Tarjeta Visual Estilo Apple / Google Wallet */}
-        <div className="relative w-full rounded-2xl bg-gradient-to-br from-[#2a2417] via-[#1a171d] to-[#121115] border border-[#f2be71]/40 p-5 shadow-inner overflow-hidden flex flex-col gap-4">
-          <div className="flex items-center justify-between border-b border-[#f2be71]/20 pb-3">
+        <div className="relative w-full rounded-2xl bg-gradient-to-br from-[#2a2417] via-[#1a171d] to-[#121115] border border-[var(--gold)]/40 p-5 shadow-inner overflow-hidden flex flex-col gap-4">
+          <div className="flex items-center justify-between border-b border-[var(--gold)]/20 pb-3">
             <div className="flex items-center gap-2.5">
               {brandLogo ? (
-                <img src={brandLogo} alt={brandName} className="w-8 h-8 object-contain rounded-full bg-white/5 p-1 border border-[#f2be71]/30" />
+                <img src={brandLogo} alt={brandName} className="w-8 h-8 object-contain rounded-full bg-white/5 p-1 border border-[var(--gold)]/30" />
               ) : (
-                <Sparkles className="w-6 h-6 text-[#f2be71]" />
+                <Sparkles className="w-6 h-6 text-[var(--gold)]" />
               )}
               <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-[#f2be71]">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--gold)]">
                   {brandName}
                 </span>
                 <p className="text-xs font-semibold text-[#e6e1e7]">
@@ -184,7 +184,7 @@ export function DigitalWalletPassModal({
               </div>
             </div>
 
-            <div className="px-2 py-0.5 rounded-full bg-[#f2be71]/15 border border-[#f2be71]/30 text-[10px] font-bold text-[#ffddb1]">
+            <div className="px-2 py-0.5 rounded-full bg-[var(--gold)]/15 border border-[var(--gold)]/30 text-[10px] font-bold text-[var(--gold-light)]">
               OFICIAL
             </div>
           </div>
@@ -194,13 +194,13 @@ export function DigitalWalletPassModal({
             <span className="text-[10px] text-[#ccc3d8] uppercase tracking-wider">
               {type === "prize" ? "Premio Válido" : "Progreso de Visitas"}
             </span>
-            <div className="text-lg font-['Epilogue'] font-black text-[#ffddb1]">
+            <div className="text-lg font-['Epilogue'] font-black text-[var(--gold-light)]">
               {type === "prize" ? prizeName : `${currentStamps} de ${totalStamps} Sellos`}
             </div>
 
             {type === "stamps" && (
               <div className="text-xs text-[#ccc3d8]/80 mt-1 flex items-center gap-1.5">
-                <Gift className="w-3.5 h-3.5 text-[#f2be71]" />
+                <Gift className="w-3.5 h-3.5 text-[var(--gold)]" />
                 <span>Próximo: {nextRewardTitle}</span>
               </div>
             )}
@@ -212,7 +212,7 @@ export function DigitalWalletPassModal({
               value={`https://${brandName.toLowerCase().replace(/\s+/g, "")}.com/pass?code=${prizeCode}`}
               size={120}
             />
-            <span className="font-mono text-xs font-bold text-[#f2be71] tracking-widest mt-2">
+            <span className="font-mono text-xs font-bold text-[var(--gold)] tracking-widest mt-2">
               {prizeCode}
             </span>
             <span className="text-[9px] text-[#ccc3d8]/70">
@@ -221,7 +221,7 @@ export function DigitalWalletPassModal({
           </div>
 
           {/* Footer de la tarjeta con nombre del comensal */}
-          <div className="flex items-center justify-between text-[11px] text-[#ccc3d8] border-t border-[#f2be71]/20 pt-2">
+          <div className="flex items-center justify-between text-[11px] text-[#ccc3d8] border-t border-[var(--gold)]/20 pt-2">
             <span>Titular: <strong className="text-white">{customerName}</strong></span>
             <span>Vigencia: <strong className="text-[#10b981]">Activo</strong></span>
           </div>
@@ -249,9 +249,9 @@ export function DigitalWalletPassModal({
           <button
             type="button"
             onClick={handleGoogleWalletSave}
-            className="w-full py-3 px-4 rounded-xl bg-[#201f23] border border-[#f2be71]/40 text-[#f2be71] font-semibold text-xs flex items-center justify-center gap-2 hover:bg-[#2b292e] active:scale-98 transition-all cursor-pointer shadow-md"
+            className="w-full py-3 px-4 rounded-xl bg-[#201f23] border border-[var(--gold)]/40 text-[var(--gold)] font-semibold text-xs flex items-center justify-center gap-2 hover:bg-[#2b292e] active:scale-98 transition-all cursor-pointer shadow-md"
           >
-            <ExternalLink className="h-4 w-4 text-[#f2be71]" />
+            <ExternalLink className="h-4 w-4 text-[var(--gold)]" />
             <span>Guardar en Google Wallet</span>
           </button>
         </div>

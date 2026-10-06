@@ -505,7 +505,7 @@ export function Push() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full py-16">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -516,7 +516,7 @@ export function Push() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#363439] pb-6">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold font-['Epilogue'] text-[#e6e1e7] flex items-center gap-2">
-            <Bell className="w-6 h-6 text-[#f2be71]" />
+            <Bell className="w-6 h-6 text-[var(--gold)]" />
             <span>Módulo de Notificaciones Push & Gestión de Bajas</span>
           </h2>
           <p className="text-sm text-[#ccc3d8] mt-1">
@@ -528,7 +528,7 @@ export function Push() {
           <button
             type="button"
             onClick={loadData}
-            className="p-2.5 rounded-xl bg-[#201f23] border border-[#363439] text-[#ccc3d8] hover:text-[#f2be71] transition-colors cursor-pointer"
+            className="p-2.5 rounded-xl bg-[#201f23] border border-[#363439] text-[#ccc3d8] hover:text-[var(--gold)] transition-colors cursor-pointer"
             title="Actualizar datos"
           >
             <RefreshCw className="w-4 h-4" />
@@ -537,7 +537,7 @@ export function Push() {
           <button
             type="button"
             onClick={() => setActiveTab("broadcast")}
-            className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-4 py-2.5 text-xs hover:brightness-105 active:scale-98 transition-all flex items-center gap-2 cursor-pointer shadow-md"
+            className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-4 py-2.5 text-xs hover:brightness-105 active:scale-98 transition-all flex items-center gap-2 cursor-pointer shadow-md"
           >
             <Send className="w-4 h-4" />
             <span>Nueva Campaña</span>
@@ -565,7 +565,7 @@ export function Push() {
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 shadow-lg relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-[#ccc3d8] uppercase">Campañas Enviadas</span>
-            <div className="w-8 h-8 rounded-xl bg-[#f2be71]/10 border border-[#f2be71]/30 flex items-center justify-center text-[#f2be71]">
+            <div className="w-8 h-8 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 flex items-center justify-center text-[var(--gold)]">
               <Send className="w-4 h-4" />
             </div>
           </div>
@@ -610,12 +610,12 @@ export function Push() {
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 shadow-lg relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-[#ccc3d8] uppercase">Audiencia & Bajas</span>
-            <div className="w-8 h-8 rounded-xl bg-[#f2be71]/10 border border-[#f2be71]/30 flex items-center justify-center text-[#f2be71]">
+            <div className="w-8 h-8 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/30 flex items-center justify-center text-[var(--gold)]">
               <Users className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-['Epilogue'] text-[#f2be71]">{activeSubscribersCount}</span>
+            <span className="text-2xl font-bold font-['Epilogue'] text-[var(--gold)]">{activeSubscribersCount}</span>
             <span className="text-xs text-[#10b981] font-bold">Activos</span>
             <span className="text-xs text-red-400 font-semibold">({unsubscribedCount} bajas)</span>
           </div>
@@ -660,7 +660,7 @@ export function Push() {
                 }}
                 className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
                   isCategoryActive
-                    ? "bg-[#f2be71] text-[#121115] shadow-lg shadow-[#f2be71]/20 font-black"
+                    ? "bg-[var(--gold)] text-[#121115] shadow-lg shadow-[var(--gold)]/20 font-black"
                     : "bg-[#201f23] text-[#ccc3d8] hover:text-[#e6e1e7] hover:bg-[#2b292e] border border-[#363439]"
                 }`}
               >
@@ -669,7 +669,7 @@ export function Push() {
                   className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
                     isCategoryActive
                       ? "bg-[#121115]/20 text-[#121115] font-black"
-                      : "bg-[#141317] text-[#f2be71]"
+                      : "bg-[#141317] text-[var(--gold)]"
                   }`}
                 >
                   {cat.badge}
@@ -689,7 +689,7 @@ export function Push() {
                 onClick={() => setActiveTab("history")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   activeTab === "history"
-                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/50"
                     : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
                 }`}
               >
@@ -702,7 +702,7 @@ export function Push() {
                 onClick={() => setActiveTab("broadcast")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   activeTab === "broadcast"
-                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/50"
                     : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
                 }`}
               >
@@ -715,7 +715,7 @@ export function Push() {
                 onClick={() => setActiveTab("calendar")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   activeTab === "calendar"
-                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/50"
                     : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
                 }`}
               >
@@ -728,7 +728,7 @@ export function Push() {
                 onClick={() => setActiveTab("drafts")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   activeTab === "drafts"
-                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/50"
                     : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
                 }`}
               >
@@ -745,11 +745,11 @@ export function Push() {
                 onClick={() => setActiveTab("geofencing")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   activeTab === "geofencing"
-                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/50"
                     : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
                 }`}
               >
-                <Navigation className="w-3.5 h-3.5 text-[#f2be71]" />
+                <Navigation className="w-3.5 h-3.5 text-[var(--gold)]" />
                 <span>📍 Geofencing & Geolocalización (3 Opciones)</span>
               </button>
 
@@ -758,7 +758,7 @@ export function Push() {
                 onClick={() => setActiveTab("flows")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   activeTab === "flows"
-                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/50"
                     : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
                 }`}
               >
@@ -775,7 +775,7 @@ export function Push() {
                 onClick={() => setActiveTab("subscribers")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   activeTab === "subscribers"
-                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/50"
                     : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
                 }`}
               >
@@ -788,7 +788,7 @@ export function Push() {
                 onClick={() => setActiveTab("credentials")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   activeTab === "credentials"
-                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/50"
                     : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
                 }`}
               >
@@ -806,7 +806,7 @@ export function Push() {
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
             <div>
               <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-[#f2be71]" />
+                <BarChart3 className="w-5 h-5 text-[var(--gold)]" />
                 <span>Historial de Envíos Push, Horarios y Tasa de Apertura</span>
               </h3>
               <p className="text-xs text-[#ccc3d8] mt-1">
@@ -863,7 +863,7 @@ export function Push() {
                                   }}
                                 />
                               ) : (
-                                <div className="w-10 h-10 rounded-xl bg-[#252429] border border-[#363439] flex items-center justify-center text-[#f2be71] shrink-0">
+                                <div className="w-10 h-10 rounded-xl bg-[#252429] border border-[#363439] flex items-center justify-center text-[var(--gold)] shrink-0">
                                   🔔
                                 </div>
                               )}
@@ -881,8 +881,8 @@ export function Push() {
 
                           {/* Horario & Fecha */}
                           <td className="p-4 whitespace-nowrap">
-                            <div className="flex items-center gap-1.5 text-[#ffddb1] font-mono font-semibold">
-                              <Clock className="w-3.5 h-3.5 text-[#f2be71]" />
+                            <div className="flex items-center gap-1.5 text-[var(--gold-light)] font-mono font-semibold">
+                              <Clock className="w-3.5 h-3.5 text-[var(--gold)]" />
                               <span>{c.scheduledTime || "Horario Auto"}</span>
                             </div>
                             <span className="text-[10px] text-[#958da1] block mt-0.5">
@@ -997,7 +997,7 @@ export function Push() {
           <div className="lg:col-span-6 bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-6 shadow-xl">
             <div className="border-b border-[#363439] pb-4">
               <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-                <Sliders className="w-5 h-5 text-[#f2be71]" />
+                <Sliders className="w-5 h-5 text-[var(--gold)]" />
                 <span>Personalizar Horarios Recomendados & Ventana Segura</span>
               </h3>
               <p className="text-xs text-[#ccc3d8] mt-1">
@@ -1008,7 +1008,7 @@ export function Push() {
             <form onSubmit={handleSaveScheduleConfig} className="space-y-5">
               {/* Presets de Turnos */}
               <div className="space-y-4">
-                <h4 className="text-xs uppercase font-bold text-[#f2be71] tracking-wider">
+                <h4 className="text-xs uppercase font-bold text-[var(--gold)] tracking-wider">
                   Horarios Predeterminados por Turno:
                 </h4>
 
@@ -1021,7 +1021,7 @@ export function Push() {
                       type="time"
                       value={scheduleConfig.defaultLunchTime}
                       onChange={(e) => setScheduleConfig({ ...scheduleConfig, defaultLunchTime: e.target.value })}
-                      className="bg-[#141317] border border-[#363439] text-[#f2be71] rounded-lg px-3 py-1.5 w-full text-xs font-mono font-bold focus:border-[#f2be71] focus:outline-none"
+                      className="bg-[#141317] border border-[#363439] text-[var(--gold)] rounded-lg px-3 py-1.5 w-full text-xs font-mono font-bold focus:border-[var(--gold)] focus:outline-none"
                     />
                     <span className="text-[10px] text-[#958da1]">Ideal para promociones ejecutivas</span>
                   </div>
@@ -1034,7 +1034,7 @@ export function Push() {
                       type="time"
                       value={scheduleConfig.defaultAfternoonTime}
                       onChange={(e) => setScheduleConfig({ ...scheduleConfig, defaultAfternoonTime: e.target.value })}
-                      className="bg-[#141317] border border-[#363439] text-[#f2be71] rounded-lg px-3 py-1.5 w-full text-xs font-mono font-bold focus:border-[#f2be71] focus:outline-none"
+                      className="bg-[#141317] border border-[#363439] text-[var(--gold)] rounded-lg px-3 py-1.5 w-full text-xs font-mono font-bold focus:border-[var(--gold)] focus:outline-none"
                     />
                     <span className="text-[10px] text-[#958da1]">Hora pico de tartas y bebidas de autor</span>
                   </div>
@@ -1047,7 +1047,7 @@ export function Push() {
                       type="time"
                       value={scheduleConfig.defaultDinnerTime}
                       onChange={(e) => setScheduleConfig({ ...scheduleConfig, defaultDinnerTime: e.target.value })}
-                      className="bg-[#141317] border border-[#363439] text-[#f2be71] rounded-lg px-3 py-1.5 w-full text-xs font-mono font-bold focus:border-[#f2be71] focus:outline-none"
+                      className="bg-[#141317] border border-[#363439] text-[var(--gold)] rounded-lg px-3 py-1.5 w-full text-xs font-mono font-bold focus:border-[var(--gold)] focus:outline-none"
                     />
                     <span className="text-[10px] text-[#958da1]">Reserva de mesas y ambiente nocturno</span>
                   </div>
@@ -1060,7 +1060,7 @@ export function Push() {
                       type="time"
                       value={scheduleConfig.allowedStart}
                       onChange={(e) => setScheduleConfig({ ...scheduleConfig, allowedStart: e.target.value })}
-                      className="bg-[#141317] border border-[#363439] text-[#f2be71] rounded-lg px-3 py-1.5 w-full text-xs font-mono font-bold focus:border-[#f2be71] focus:outline-none"
+                      className="bg-[#141317] border border-[#363439] text-[var(--gold)] rounded-lg px-3 py-1.5 w-full text-xs font-mono font-bold focus:border-[var(--gold)] focus:outline-none"
                     />
                     <span className="text-[10px] text-[#958da1]">Café matutino y combos de panadería</span>
                   </div>
@@ -1102,7 +1102,7 @@ export function Push() {
               <div className="pt-2 flex justify-end">
                 <button
                   type="submit"
-                  className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-5 py-2.5 text-xs hover:brightness-105 active:scale-98 cursor-pointer transition-all shadow-md"
+                  className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-5 py-2.5 text-xs hover:brightness-105 active:scale-98 cursor-pointer transition-all shadow-md"
                 >
                   Guardar Configuración de Horarios
                 </button>
@@ -1115,7 +1115,7 @@ export function Push() {
             <div className="border-b border-[#363439] pb-4 flex items-center justify-between">
               <div>
                 <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-[#f2be71]" />
+                  <Calendar className="w-5 h-5 text-[var(--gold)]" />
                   <span>Calendario de Campañas Programadas</span>
                 </h3>
                 <p className="text-xs text-[#ccc3d8] mt-1">
@@ -1128,7 +1128,7 @@ export function Push() {
             <div className="space-y-3">
               {campaigns.filter((c) => c.status === "PROGRAMADO").length === 0 ? (
                 <div className="p-8 text-center bg-[#141317] rounded-xl border border-[#363439] text-[#ccc3d8] space-y-2">
-                  <Calendar className="w-8 h-8 text-[#f2be71] mx-auto opacity-50" />
+                  <Calendar className="w-8 h-8 text-[var(--gold)] mx-auto opacity-50" />
                   <p className="font-semibold text-xs">No hay envíos programados en el calendario</p>
                   <p className="text-[11px] text-[#958da1]">
                     Puedes programar una campaña seleccionando "Programar Fecha y Hora" en la pestaña Nueva Campaña.
@@ -1140,11 +1140,11 @@ export function Push() {
                   .map((camp) => (
                     <div
                       key={camp.id}
-                      className="bg-[#201f23] border border-[#f2be71]/40 rounded-xl p-4 flex items-start justify-between gap-3 shadow-md"
+                      className="bg-[#201f23] border border-[var(--gold)]/40 rounded-xl p-4 flex items-start justify-between gap-3 shadow-md"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-full bg-amber-950/50 text-[#f2be71] border border-[#f2be71]/40 text-[10px] font-bold font-mono">
+                          <span className="px-2 py-0.5 rounded-full bg-amber-950/50 text-[var(--gold)] border border-[var(--gold)]/40 text-[10px] font-bold font-mono">
                             📅 {camp.scheduledDate || "Próximamente"} • {camp.scheduledTime || "12:00"}
                           </span>
                           <span className="text-[10px] text-[#958da1]">({camp.segment || "Todos"})</span>
@@ -1169,7 +1169,7 @@ export function Push() {
 
             {/* Accesos rápidos de programación */}
             <div className="bg-[#141317] rounded-xl p-4 border border-[#363439] space-y-2">
-              <span className="text-xs font-bold text-[#ffddb1] block">
+              <span className="text-xs font-bold text-[var(--gold-light)] block">
                 ⚡ Sugerencia de Contenido para Hoy:
               </span>
               <p className="text-xs text-[#ccc3d8] leading-relaxed">
@@ -1186,7 +1186,7 @@ export function Push() {
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
             <div>
               <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-                <Users className="w-5 h-5 text-[#f2be71]" />
+                <Users className="w-5 h-5 text-[var(--gold)]" />
                 <span>Base de Datos de Suscriptores & Solicitudes de Baja</span>
               </h3>
               <p className="text-xs text-[#ccc3d8] mt-1">
@@ -1318,7 +1318,7 @@ export function Push() {
                 <button
                   type="button"
                   onClick={handleSaveDraft}
-                  className="px-3 py-1.5 rounded-lg bg-[#201f23] border border-[#363439] text-[#ccc3d8] hover:text-[#f2be71] text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-[#201f23] border border-[#363439] text-[#ccc3d8] hover:text-[var(--gold)] text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
                 >
                   <Copy className="w-3.5 h-3.5" />
                   <span>Guardar Borrador</span>
@@ -1332,8 +1332,8 @@ export function Push() {
                 <label className="text-xs text-[#ccc3d8] font-semibold">Título de la Notificación *</label>
                 <div className="flex items-center gap-1 text-[10px] text-[#ccc3d8]">
                   <span>Insertar:</span>
-                  <button type="button" onClick={() => insertTag("title", "{nombre}")} className="px-1.5 py-0.5 rounded bg-[#201f23] text-[#f2be71] hover:bg-[#2b292e]">{`{nombre}`}</button>
-                  <button type="button" onClick={() => insertTag("title", "{restaurante}")} className="px-1.5 py-0.5 rounded bg-[#201f23] text-[#f2be71] hover:bg-[#2b292e]">{`{restaurante}`}</button>
+                  <button type="button" onClick={() => insertTag("title", "{nombre}")} className="px-1.5 py-0.5 rounded bg-[#201f23] text-[var(--gold)] hover:bg-[#2b292e]">{`{nombre}`}</button>
+                  <button type="button" onClick={() => insertTag("title", "{restaurante}")} className="px-1.5 py-0.5 rounded bg-[#201f23] text-[var(--gold)] hover:bg-[#2b292e]">{`{restaurante}`}</button>
                 </div>
               </div>
               <input
@@ -1342,7 +1342,7 @@ export function Push() {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="Ej: ⚡ ¡Hora Feliz hoy 2x1 en tu mesa!"
-                className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-3 w-full text-sm"
+                className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-3 w-full text-sm"
               />
             </div>
 
@@ -1352,9 +1352,9 @@ export function Push() {
                 <label className="text-xs text-[#ccc3d8] font-semibold">Mensaje Principal (Cuerpo) *</label>
                 <div className="flex items-center gap-1 text-[10px] text-[#ccc3d8]">
                   <span>Insertar:</span>
-                  <button type="button" onClick={() => insertTag("body", "{nombre}")} className="px-1.5 py-0.5 rounded bg-[#201f23] text-[#f2be71] hover:bg-[#2b292e]">{`{nombre}`}</button>
-                  <button type="button" onClick={() => insertTag("body", "{mesa}")} className="px-1.5 py-0.5 rounded bg-[#201f23] text-[#f2be71] hover:bg-[#2b292e]">{`{mesa}`}</button>
-                  <button type="button" onClick={() => insertTag("body", "{premio}")} className="px-1.5 py-0.5 rounded bg-[#201f23] text-[#f2be71] hover:bg-[#2b292e]">{`{premio}`}</button>
+                  <button type="button" onClick={() => insertTag("body", "{nombre}")} className="px-1.5 py-0.5 rounded bg-[#201f23] text-[var(--gold)] hover:bg-[#2b292e]">{`{nombre}`}</button>
+                  <button type="button" onClick={() => insertTag("body", "{mesa}")} className="px-1.5 py-0.5 rounded bg-[#201f23] text-[var(--gold)] hover:bg-[#2b292e]">{`{mesa}`}</button>
+                  <button type="button" onClick={() => insertTag("body", "{premio}")} className="px-1.5 py-0.5 rounded bg-[#201f23] text-[var(--gold)] hover:bg-[#2b292e]">{`{premio}`}</button>
                 </div>
               </div>
               <textarea
@@ -1363,7 +1363,7 @@ export function Push() {
                 value={formData.body}
                 onChange={(e) => setFormData({ ...formData, body: e.target.value })}
                 placeholder="Escribe el mensaje persuasivo para tus comensales..."
-                className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-3 w-full text-sm resize-none"
+                className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-3 w-full text-sm resize-none"
               />
             </div>
 
@@ -1384,7 +1384,7 @@ export function Push() {
             {/* URL Destino */}
             <div className="space-y-2">
               <label className="text-xs text-[#ccc3d8] font-semibold flex items-center gap-1.5">
-                <ExternalLink className="w-3.5 h-3.5 text-[#f2be71]" />
+                <ExternalLink className="w-3.5 h-3.5 text-[var(--gold)]" />
                 <span>URL de Destino al Tocar la Notificación</span>
               </label>
               <input
@@ -1392,7 +1392,7 @@ export function Push() {
                 value={formData.url}
                 onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                 placeholder="http://localhost:5173/..."
-                className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-3 w-full text-sm"
+                className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-3 w-full text-sm"
               />
             </div>
 
@@ -1414,7 +1414,7 @@ export function Push() {
                         ]);
                       }
                     }}
-                    className="text-xs text-[#f2be71] hover:underline flex items-center gap-1 cursor-pointer font-semibold"
+                    className="text-xs text-[var(--gold)] hover:underline flex items-center gap-1 cursor-pointer font-semibold"
                   >
                     <Plus className="w-3 h-3" /> Agregar Botón
                   </button>
@@ -1424,7 +1424,7 @@ export function Push() {
               <div className="space-y-2">
                 {actionButtons.map((btn, idx) => (
                   <div key={btn.id} className="flex items-center gap-2 bg-[#201f23] p-2.5 rounded-xl border border-[#363439]">
-                    <span className="text-xs font-bold text-[#f2be71] w-5">#{idx + 1}</span>
+                    <span className="text-xs font-bold text-[var(--gold)] w-5">#{idx + 1}</span>
                     <input
                       type="text"
                       value={btn.text}
@@ -1493,10 +1493,10 @@ export function Push() {
 
             {/* Selección de Fecha y Horario Personalizado */}
             {formData.scheduleType === "scheduled" && (
-              <div className="space-y-3 p-4 rounded-xl bg-[#201f23] border border-[#f2be71]/40 animate-in fade-in">
+              <div className="space-y-3 p-4 rounded-xl bg-[#201f23] border border-[var(--gold)]/40 animate-in fade-in">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs text-[#ffddb1] font-semibold flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-[#f2be71]" />
+                  <label className="text-xs text-[var(--gold-light)] font-semibold flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-[var(--gold)]" />
                     <span>Personalizar Fecha y Horario de Lanzamiento:</span>
                   </label>
                   <span className="text-[10px] text-[#10b981] font-mono">Ventana: {scheduleConfig.allowedStart} a {scheduleConfig.allowedEnd}</span>
@@ -1510,7 +1510,7 @@ export function Push() {
                       required
                       value={formData.scheduledDate}
                       onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
-                      className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none"
+                      className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none"
                     />
                   </div>
 
@@ -1521,7 +1521,7 @@ export function Push() {
                       required
                       value={formData.scheduledTime}
                       onChange={(e) => setFormData({ ...formData, scheduledTime: e.target.value })}
-                      className="bg-[#1c1b1f] border border-[#363439] text-[#f2be71] font-bold rounded-xl px-3 py-2 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none"
+                      className="bg-[#1c1b1f] border border-[#363439] text-[var(--gold)] font-bold rounded-xl px-3 py-2 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1535,21 +1535,21 @@ export function Push() {
                     <button
                       type="button"
                       onClick={() => setFormData({ ...formData, scheduledTime: scheduleConfig.defaultLunchTime })}
-                      className="px-2.5 py-1 rounded-lg bg-[#141317] hover:bg-[#2b292e] text-[#ffddb1] border border-[#363439] text-[11px] cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-[#141317] hover:bg-[#2b292e] text-[var(--gold-light)] border border-[#363439] text-[11px] cursor-pointer"
                     >
                       🍽️ Almuerzo ({scheduleConfig.defaultLunchTime})
                     </button>
                     <button
                       type="button"
                       onClick={() => setFormData({ ...formData, scheduledTime: scheduleConfig.defaultAfternoonTime })}
-                      className="px-2.5 py-1 rounded-lg bg-[#141317] hover:bg-[#2b292e] text-[#ffddb1] border border-[#363439] text-[11px] cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-[#141317] hover:bg-[#2b292e] text-[var(--gold-light)] border border-[#363439] text-[11px] cursor-pointer"
                     >
                       ☕ Tarde Café ({scheduleConfig.defaultAfternoonTime})
                     </button>
                     <button
                       type="button"
                       onClick={() => setFormData({ ...formData, scheduledTime: scheduleConfig.defaultDinnerTime })}
-                      className="px-2.5 py-1 rounded-lg bg-[#141317] hover:bg-[#2b292e] text-[#ffddb1] border border-[#363439] text-[11px] cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-[#141317] hover:bg-[#2b292e] text-[var(--gold-light)] border border-[#363439] text-[11px] cursor-pointer"
                     >
                       🍷 Cena ({scheduleConfig.defaultDinnerTime})
                     </button>
@@ -1566,7 +1566,7 @@ export function Push() {
               <button
                 type="submit"
                 disabled={sending}
-                className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shadow-lg disabled:opacity-50"
+                className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shadow-lg disabled:opacity-50"
               >
                 {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 {formData.scheduleType === "scheduled" ? "Programar en Calendario" : "Enviar Broadcast Ahora"}
@@ -1588,7 +1588,7 @@ export function Push() {
               <div className="rounded-2xl bg-[#1c1b1f]/95 border border-white/10 p-3.5 shadow-2xl backdrop-blur-md flex flex-col gap-2.5">
                 <div className="flex items-center justify-between text-[11px] text-[#ccc3d8]">
                   <div className="flex items-center gap-1.5 font-bold text-white">
-                    <div className="w-5 h-5 rounded-full bg-[#f2be71] flex items-center justify-center text-[#121115] text-[10px] font-black">
+                    <div className="w-5 h-5 rounded-full bg-[var(--gold)] flex items-center justify-center text-[#121115] text-[10px] font-black">
                       🔔
                     </div>
                     <span>Tu Negocio</span>
@@ -1597,7 +1597,7 @@ export function Push() {
                 </div>
 
                 <div>
-                  <h4 className="font-bold text-xs text-[#ffddb1]">
+                  <h4 className="font-bold text-xs text-[var(--gold-light)]">
                     {formData.title || "Título de la notificación"}
                   </h4>
                   <p className="text-[11px] text-[#e6e1e7]/90 leading-tight mt-0.5">
@@ -1655,7 +1655,7 @@ export function Push() {
             <button
               type="button"
               onClick={handleSaveFlows}
-              className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-5 py-2.5 text-xs hover:brightness-105 active:scale-98 transition-all cursor-pointer shadow-md"
+              className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-5 py-2.5 text-xs hover:brightness-105 active:scale-98 transition-all cursor-pointer shadow-md"
             >
               Guardar Todos los Flujos
             </button>
@@ -1667,14 +1667,14 @@ export function Push() {
                 key={flow.id}
                 className={`rounded-2xl border p-5 transition-all flex flex-col justify-between gap-4 ${
                   flow.active
-                    ? "bg-[#1c1b1f] border-[#f2be71]/40 shadow-lg"
+                    ? "bg-[#1c1b1f] border-[var(--gold)]/40 shadow-lg"
                     : "bg-[#18171a] border-[#2b292e] opacity-75"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3 border-b border-[#363439] pb-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-[#ffddb1] font-['Epilogue']">
+                      <span className="text-sm font-bold text-[var(--gold-light)] font-['Epilogue']">
                         {flow.name}
                       </span>
                       <span
@@ -1687,7 +1687,7 @@ export function Push() {
                         {flow.active ? "ACTIVO" : "PAUSADO"}
                       </span>
                     </div>
-                    <div className="text-[11px] text-[#f2be71] mt-0.5 flex items-center gap-1">
+                    <div className="text-[11px] text-[var(--gold)] mt-0.5 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       <span>{flow.trigger}</span>
                     </div>
@@ -1704,7 +1704,7 @@ export function Push() {
                       }}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-[#2b292e] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#f2be71]" />
+                    <div className="w-9 h-5 bg-[#2b292e] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--gold)]" />
                   </label>
                 </div>
 
@@ -1719,7 +1719,7 @@ export function Push() {
                         updated[idx].title = e.target.value;
                         setFlows(updated);
                       }}
-                      className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none"
+                      className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none"
                     />
                   </div>
 
@@ -1733,7 +1733,7 @@ export function Push() {
                         updated[idx].body = e.target.value;
                         setFlows(updated);
                       }}
-                      className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none resize-none"
+                      className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none resize-none"
                     />
                   </div>
                 </div>
@@ -1759,7 +1759,7 @@ export function Push() {
 
           {drafts.length === 0 ? (
             <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-12 text-center text-[#ccc3d8]">
-              <Layers className="w-10 h-10 text-[#f2be71] mx-auto mb-3 opacity-60" />
+              <Layers className="w-10 h-10 text-[var(--gold)] mx-auto mb-3 opacity-60" />
               <p className="font-semibold text-sm">No tienes plantillas guardadas aún</p>
             </div>
           ) : (
@@ -1767,7 +1767,7 @@ export function Push() {
               {drafts.map((d) => (
                 <div
                   key={d.id}
-                  className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 flex flex-col justify-between gap-4 hover:border-[#f2be71]/40 transition-all shadow-md"
+                  className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 flex flex-col justify-between gap-4 hover:border-[var(--gold)]/40 transition-all shadow-md"
                 >
                   <div>
                     <h4 className="font-bold text-sm text-[#e6e1e7] mb-1">{d.name || d.title}</h4>
@@ -1778,7 +1778,7 @@ export function Push() {
                     <button
                       type="button"
                       onClick={() => handleLoadDraft(d)}
-                      className="px-3 py-1.5 rounded-lg bg-[#f2be71] text-[#121115] font-bold text-xs hover:brightness-105 cursor-pointer"
+                      className="px-3 py-1.5 rounded-lg bg-[var(--gold)] text-[#121115] font-bold text-xs hover:brightness-105 cursor-pointer"
                     >
                       Usar Campaña
                     </button>
@@ -1795,7 +1795,7 @@ export function Push() {
         <form onSubmit={handleSaveOneSignal} className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-6 max-w-2xl shadow-xl">
           <div className="border-b border-[#363439] pb-4">
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-              <Key className="w-5 h-5 text-[#f2be71]" />
+              <Key className="w-5 h-5 text-[var(--gold)]" />
               <span>Credenciales OneSignal</span>
             </h3>
             <p className="text-xs text-[#ccc3d8] mt-1">
@@ -1812,7 +1812,7 @@ export function Push() {
                 value={oneSignalConfig.appId}
                 onChange={(e) => setOneSignalConfig({ ...oneSignalConfig, appId: e.target.value })}
                 placeholder="Ej: 8b945112-92a1-4320-9cb4-8d9487b320da"
-                className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-3 w-full text-xs font-mono"
+                className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-3 w-full text-xs font-mono"
               />
             </div>
 
@@ -1824,14 +1824,14 @@ export function Push() {
                 value={oneSignalConfig.apiKey}
                 onChange={(e) => setOneSignalConfig({ ...oneSignalConfig, apiKey: e.target.value })}
                 placeholder="os_live_key_..."
-                className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-3 w-full text-xs font-mono"
+                className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-3 w-full text-xs font-mono"
               />
             </div>
 
             <div className="pt-2 flex justify-end">
               <button
                 type="submit"
-                className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 transition-all cursor-pointer text-sm shadow-md"
+                className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 transition-all cursor-pointer text-sm shadow-md"
               >
                 Guardar Credenciales OneSignal
               </button>

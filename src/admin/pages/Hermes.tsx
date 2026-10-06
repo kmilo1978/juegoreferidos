@@ -104,7 +104,7 @@ export function Hermes() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -153,9 +153,9 @@ export function Hermes() {
           type="button"
           onClick={handleTestPing}
           disabled={testing}
-          className="bg-[#201f23] border border-[#f2be71]/40 hover:bg-[#252429] text-[#f2be71] px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors"
+          className="bg-[#201f23] border border-[var(--gold)]/40 hover:bg-[#252429] text-[var(--gold)] px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors"
         >
-          {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4 text-[#f2be71]" />}
+          {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4 text-[var(--gold)]" />}
           <span>{testing ? "Probando..." : "Probar Conexión (Ping)"}</span>
         </button>
       </div>
@@ -174,7 +174,7 @@ export function Hermes() {
           <button
             type="submit"
             disabled={saving}
-            className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm"
+            className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             <span>Guardar Configuración IA</span>

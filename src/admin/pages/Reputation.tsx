@@ -132,7 +132,7 @@ export function Reputation() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -149,14 +149,14 @@ export function Reputation() {
       case "heart":
         return <Heart className={`w-6 h-6 ${isSelected ? "text-red-500 fill-red-500" : "text-zinc-600"}`} />;
       case "coffee":
-        return <Coffee className={`w-6 h-6 ${isSelected ? "text-[#f2be71] fill-[#f2be71]" : "text-zinc-600"}`} />;
+        return <Coffee className={`w-6 h-6 ${isSelected ? "text-[var(--gold)] fill-[var(--gold)]" : "text-zinc-600"}`} />;
       case "dish":
-        return <Utensils className={`w-6 h-6 ${isSelected ? "text-[#f2be71] fill-[#f2be71]" : "text-zinc-600"}`} />;
+        return <Utensils className={`w-6 h-6 ${isSelected ? "text-[var(--gold)] fill-[var(--gold)]" : "text-zinc-600"}`} />;
       case "emoji":
         const emojis = ["😡", "🙁", "😐", "😊", "😍"];
         return <span className="text-2xl">{emojis[idx] || "⭐"}</span>;
       default:
-        return <Star className={`w-6 h-6 ${isSelected ? "text-[#f2be71] fill-[#f2be71]" : "text-zinc-600"}`} />;
+        return <Star className={`w-6 h-6 ${isSelected ? "text-[var(--gold)] fill-[var(--gold)]" : "text-zinc-600"}`} />;
     }
   };
 
@@ -168,7 +168,7 @@ export function Reputation() {
       <div className="flex justify-between items-center border-b border-[#363439] pb-6">
         <div>
           <h2 className="text-[#e6e1e7] font-bold text-2xl font-['Epilogue'] flex items-center gap-2">
-            <Star className="w-6 h-6 text-[#f2be71] fill-[#f2be71]" />
+            <Star className="w-6 h-6 text-[var(--gold)] fill-[var(--gold)]" />
             Embudo Inteligente de Reputación & Calificación
           </h2>
           <p className="text-sm text-[#ccc3d8] mt-1">
@@ -196,9 +196,9 @@ export function Reputation() {
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <span className="text-xs uppercase font-semibold text-[#ccc3d8]">Calificación Promedio</span>
-            <Star className="w-4 h-4 text-[#f2be71] fill-[#f2be71]" />
+            <Star className="w-4 h-4 text-[var(--gold)] fill-[var(--gold)]" />
           </div>
-          <div className="text-2xl font-black text-[#f2be71] mt-2 font-mono">{avgRating} ★</div>
+          <div className="text-2xl font-black text-[var(--gold)] mt-2 font-mono">{avgRating} ★</div>
           <span className="text-[11px] text-[#ccc3d8]">{totalReviews} opiniones de comensales</span>
         </div>
 
@@ -257,7 +257,7 @@ export function Reputation() {
                   onClick={() => setRatingIcon(item.id as any)}
                   className={`p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center gap-1 text-xs ${
                     ratingIcon === item.id
-                      ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71] font-bold shadow-md"
+                      ? "bg-[#2b292e] border-[var(--gold)] text-[var(--gold)] font-bold shadow-md"
                       : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:text-white"
                   }`}
                 >
@@ -341,7 +341,7 @@ export function Reputation() {
                 required
                 value={lowRatingTitle}
                 onChange={(e) => setLowRatingTitle(e.target.value)}
-                className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none"
+                className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none"
               />
             </div>
 
@@ -352,7 +352,7 @@ export function Reputation() {
                 required
                 value={lowRatingMessage}
                 onChange={(e) => setLowRatingMessage(e.target.value)}
-                className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none resize-none"
+                className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none resize-none"
               />
             </div>
 
@@ -362,7 +362,7 @@ export function Reputation() {
                 type="text"
                 value={lowRatingWhatsappText}
                 onChange={(e) => setLowRatingWhatsappText(e.target.value)}
-                className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none"
+                className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none"
               />
             </div>
           </div>
@@ -381,7 +381,7 @@ export function Reputation() {
                 required
                 value={highRatingTitle}
                 onChange={(e) => setHighRatingTitle(e.target.value)}
-                className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none"
+                className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none"
               />
             </div>
 
@@ -392,7 +392,7 @@ export function Reputation() {
                 required
                 value={highRatingMessage}
                 onChange={(e) => setHighRatingMessage(e.target.value)}
-                className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none resize-none"
+                className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none resize-none"
               />
             </div>
 
@@ -403,7 +403,7 @@ export function Reputation() {
                 required
                 value={highRatingCtaText}
                 onChange={(e) => setHighRatingCtaText(e.target.value)}
-                className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[#f2be71]/60 focus:outline-none"
+                className="bg-[#1c1b1f] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs focus:border-[var(--gold)]/60 focus:outline-none"
               />
             </div>
           </div>
@@ -412,7 +412,7 @@ export function Reputation() {
             <button
               type="submit"
               disabled={saving}
-              className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 transition-all cursor-pointer flex items-center gap-2 text-sm shadow-md disabled:opacity-50"
+              className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 transition-all cursor-pointer flex items-center gap-2 text-sm shadow-md disabled:opacity-50"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               <span>Guardar Reglas del Embudo</span>
@@ -432,12 +432,12 @@ export function Reputation() {
             </div>
 
             {/* Pantalla del Comensal */}
-            <div className="rounded-3xl bg-[#1c1b1f] border border-[#f2be71]/40 p-4 text-center space-y-4">
+            <div className="rounded-3xl bg-[#1c1b1f] border border-[var(--gold)]/40 p-4 text-center space-y-4">
               {/* Logo */}
               {customLogoUrl ? (
-                <img src={customLogoUrl} alt="Logo" className="w-12 h-12 object-contain mx-auto rounded-full bg-white/5 p-1 border border-[#f2be71]/30" />
+                <img src={customLogoUrl} alt="Logo" className="w-12 h-12 object-contain mx-auto rounded-full bg-white/5 p-1 border border-[var(--gold)]/30" />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-[#f2be71]/20 border border-[#f2be71]/50 text-[#f2be71] flex items-center justify-center mx-auto text-lg font-black">
+                <div className="w-10 h-10 rounded-full bg-[var(--gold)]/20 border border-[var(--gold)]/50 text-[var(--gold)] flex items-center justify-center mx-auto text-lg font-black">
                   ⭐
                 </div>
               )}
@@ -457,7 +457,7 @@ export function Reputation() {
                     </button>
                   ))}
                 </div>
-                <span className="text-[11px] font-mono font-bold text-[#f2be71] mt-1 block">
+                <span className="text-[11px] font-mono font-bold text-[var(--gold)] mt-1 block">
                   {previewRating} de 5 {ratingIcon === "heart" ? "Corazones" : "Estrellas"}
                 </span>
               </div>
@@ -476,7 +476,7 @@ export function Reputation() {
                 </p>
 
                 {isPositivePreview ? (
-                  <div className="w-full py-2 px-3 rounded-xl bg-[#f2be71] text-[#121115] font-black text-[11px] text-center shadow-md">
+                  <div className="w-full py-2 px-3 rounded-xl bg-[var(--gold)] text-[#121115] font-black text-[11px] text-center shadow-md">
                     {highRatingCtaText}
                   </div>
                 ) : (

@@ -115,7 +115,7 @@ export function Analytics() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -136,7 +136,7 @@ export function Analytics() {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
+          className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           <span>Guardar Analítica & Píxeles</span>
@@ -175,7 +175,7 @@ export function Analytics() {
                 type="checkbox"
                 checked={gtmEnabled}
                 onChange={(e) => setGtmEnabled(e.target.checked)}
-                className="w-4 h-4 accent-[#f2be71]"
+                className="w-4 h-4 accent-[var(--gold)]"
               />
             </div>
 
@@ -188,7 +188,7 @@ export function Analytics() {
                 value={gtmId}
                 onChange={(e) => setGtmId(e.target.value)}
                 placeholder="GTM-XXXXXXX"
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[#f2be71]/60 focus:outline-none"
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[var(--gold)]/60 focus:outline-none"
               />
               <span className="text-[10px] text-[#958da1] mt-1 block">Inyecta automáticamente el script oficial en el &lt;head&gt; y &lt;noscript&gt;.</span>
             </div>
@@ -211,7 +211,7 @@ export function Analytics() {
                 type="checkbox"
                 checked={ga4Enabled}
                 onChange={(e) => setGa4Enabled(e.target.checked)}
-                className="w-4 h-4 accent-[#f2be71]"
+                className="w-4 h-4 accent-[var(--gold)]"
               />
             </div>
 
@@ -224,7 +224,7 @@ export function Analytics() {
                 value={ga4Id}
                 onChange={(e) => setGa4Id(e.target.value)}
                 placeholder="G-XXXXXXXXXX"
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[#f2be71]/60 focus:outline-none"
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[var(--gold)]/60 focus:outline-none"
               />
               <span className="text-[10px] text-[#958da1] mt-1 block">Registra eventos de giros de ruleta, sellos y canjes en mesa.</span>
             </div>
@@ -250,7 +250,7 @@ export function Analytics() {
                 type="checkbox"
                 checked={metaPixelEnabled}
                 onChange={(e) => setMetaPixelEnabled(e.target.checked)}
-                className="w-4 h-4 accent-[#f2be71]"
+                className="w-4 h-4 accent-[var(--gold)]"
               />
             </div>
 
@@ -263,7 +263,7 @@ export function Analytics() {
                 value={metaPixelId}
                 onChange={(e) => setMetaPixelId(e.target.value)}
                 placeholder="1234567890123456"
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[#f2be71]/60 focus:outline-none"
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[var(--gold)]/60 focus:outline-none"
               />
               <span className="text-[10px] text-[#958da1] mt-1 block">Dispara eventos estándar: PageView y Lead al registrarse.</span>
             </div>
@@ -286,7 +286,7 @@ export function Analytics() {
                 type="checkbox"
                 checked={tiktokPixelEnabled}
                 onChange={(e) => setTiktokPixelEnabled(e.target.checked)}
-                className="w-4 h-4 accent-[#f2be71]"
+                className="w-4 h-4 accent-[var(--gold)]"
               />
             </div>
 
@@ -299,7 +299,7 @@ export function Analytics() {
                 value={tiktokPixelId}
                 onChange={(e) => setTiktokPixelId(e.target.value)}
                 placeholder="CXXXXXXXXXXXXXXX"
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[#f2be71]/60 focus:outline-none"
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[var(--gold)]/60 focus:outline-none"
               />
               <span className="text-[10px] text-[#958da1] mt-1 block">Seguimiento de conversiones y público comensal en TikTok.</span>
             </div>
@@ -309,7 +309,7 @@ export function Analytics() {
         {/* GOOGLE SEARCH CONSOLE */}
         <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-4 shadow-lg">
           <div className="flex items-center gap-2.5 border-b border-[#363439] pb-3">
-            <Search className="w-5 h-5 text-[#f2be71]" />
+            <Search className="w-5 h-5 text-[var(--gold)]" />
             <div>
               <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue']">Google Search Console</h3>
               <p className="text-xs text-[#ccc3d8]">Verificación de propiedad para posicionar tu web y juego en búsquedas de Google.</p>
@@ -325,7 +325,7 @@ export function Analytics() {
               value={searchConsoleCode}
               onChange={(e) => setSearchConsoleCode(e.target.value)}
               placeholder='google-site-verification=abcde12345... o <meta name="google-site-verification" content="..." />'
-              className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[#f2be71]/60 focus:outline-none"
+              className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono focus:border-[var(--gold)]/60 focus:outline-none"
             />
           </div>
         </div>
@@ -350,7 +350,7 @@ export function Analytics() {
                 value={customHeadScript}
                 onChange={(e) => setCustomHeadScript(e.target.value)}
                 placeholder="<!-- Scripts adicionales en head -->"
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs font-mono focus:border-[#f2be71]/60 focus:outline-none resize-none"
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs font-mono focus:border-[var(--gold)]/60 focus:outline-none resize-none"
               />
             </div>
 
@@ -363,7 +363,7 @@ export function Analytics() {
                 value={customBodyScript}
                 onChange={(e) => setCustomBodyScript(e.target.value)}
                 placeholder="<!-- Scripts adicionales en body -->"
-                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs font-mono focus:border-[#f2be71]/60 focus:outline-none resize-none"
+                className="bg-[#201f23] border border-[#363439] text-[#e6e1e7] rounded-xl px-3 py-2 w-full text-xs font-mono focus:border-[var(--gold)]/60 focus:outline-none resize-none"
               />
             </div>
           </div>

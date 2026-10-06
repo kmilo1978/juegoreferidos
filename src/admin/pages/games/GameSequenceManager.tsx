@@ -79,7 +79,7 @@ export function GameSequenceManager() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[#2b292e] pb-4">
         <div>
           <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-            <ListOrdered className="w-5 h-5 text-[#f2be71]" />
+            <ListOrdered className="w-5 h-5 text-[var(--gold)]" />
             <span>Gestor de Secuencia del Embudo & Dinámicas de Juego</span>
           </h3>
           <p className="text-xs text-[#ccc3d8]">
@@ -94,13 +94,13 @@ export function GameSequenceManager() {
             className="bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-white border border-[#363439] text-xs font-semibold px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
             title="Restablecer orden inicial recomendado"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-[#f2be71]" />
+            <RotateCcw className="w-3.5 h-3.5 text-[var(--gold)]" />
             <span>Orden Inicial</span>
           </button>
 
           <Link
             to="/demo"
-            className="bg-[#f2be71] hover:brightness-105 active:scale-98 text-[#121115] text-xs font-bold px-3.5 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-md"
+            className="bg-[var(--gold)] hover:brightness-105 active:scale-98 text-[#121115] text-xs font-bold px-3.5 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-md"
           >
             <Smartphone className="w-3.5 h-3.5" />
             <span>Probar en Simulador ({activeStepsCount} Pasos)</span>
@@ -127,21 +127,21 @@ export function GameSequenceManager() {
               key={step.id}
               className={`p-3.5 sm:p-4 rounded-xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
                 step.enabled
-                  ? "bg-[#201f23] border-[#363439] hover:border-[#f2be71]/40"
+                  ? "bg-[#201f23] border-[#363439] hover:border-[var(--gold)]/40"
                   : "bg-[#161519] border-[#2b292e] opacity-60"
               }`}
             >
               {/* Lado Izquierdo: Número, Icono, Nombre y Descripción */}
               <div className="flex items-center gap-3.5 min-w-0">
                 {/* Posición en la Secuencia */}
-                <div className="w-7 h-7 rounded-lg bg-[#2b292e] border border-[#3f3d45] flex items-center justify-center text-xs font-mono font-bold text-[#f2be71] shrink-0">
+                <div className="w-7 h-7 rounded-lg bg-[#2b292e] border border-[#3f3d45] flex items-center justify-center text-xs font-mono font-bold text-[var(--gold)] shrink-0">
                   {index + 1}
                 </div>
 
                 <div
                   className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${
                     step.enabled
-                      ? "bg-[#f2be71]/10 border-[#f2be71]/30 text-[#f2be71]"
+                      ? "bg-[var(--gold)]/10 border-[var(--gold)]/30 text-[var(--gold)]"
                       : "bg-[#2b292e] border-[#363439] text-[#958da1]"
                   }`}
                 >
@@ -175,7 +175,7 @@ export function GameSequenceManager() {
                   type="button"
                   onClick={() => handleMoveUp(index)}
                   disabled={isFirst}
-                  className="w-8 h-8 rounded-lg bg-[#2b292e] hover:bg-[#363439] disabled:opacity-30 disabled:hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[#f2be71] border border-[#3f3d45] flex items-center justify-center transition-colors cursor-pointer disabled:cursor-not-allowed"
+                  className="w-8 h-8 rounded-lg bg-[#2b292e] hover:bg-[#363439] disabled:opacity-30 disabled:hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[var(--gold)] border border-[#3f3d45] flex items-center justify-center transition-colors cursor-pointer disabled:cursor-not-allowed"
                   title="Mover hacia arriba en la secuencia"
                 >
                   <ArrowUp className="w-3.5 h-3.5" />
@@ -186,7 +186,7 @@ export function GameSequenceManager() {
                   type="button"
                   onClick={() => handleMoveDown(index)}
                   disabled={isLast}
-                  className="w-8 h-8 rounded-lg bg-[#2b292e] hover:bg-[#363439] disabled:opacity-30 disabled:hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[#f2be71] border border-[#3f3d45] flex items-center justify-center transition-colors cursor-pointer disabled:cursor-not-allowed"
+                  className="w-8 h-8 rounded-lg bg-[#2b292e] hover:bg-[#363439] disabled:opacity-30 disabled:hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[var(--gold)] border border-[#3f3d45] flex items-center justify-center transition-colors cursor-pointer disabled:cursor-not-allowed"
                   title="Mover hacia abajo en la secuencia"
                 >
                   <ArrowDown className="w-3.5 h-3.5" />
@@ -207,7 +207,7 @@ export function GameSequenceManager() {
                     <span>{step.enabled ? "Activo" : "Inactivo"}</span>
                   </button>
                 ) : (
-                  <span className="text-[10px] text-[#f2be71] bg-[#f2be71]/10 px-2.5 py-1 rounded-lg border border-[#f2be71]/30 font-semibold ml-2">
+                  <span className="text-[10px] text-[var(--gold)] bg-[var(--gold)]/10 px-2.5 py-1 rounded-lg border border-[var(--gold)]/30 font-semibold ml-2">
                     Obligatorio
                   </span>
                 )}

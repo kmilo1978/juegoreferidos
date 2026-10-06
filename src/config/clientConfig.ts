@@ -114,8 +114,10 @@ export const clientConfig: ClientConfig = {
     fontBodyCustom: storedBrand?.fontBodyCustom || "",
   },
   theme: {
-    primaryColor: storedBrand?.primaryColor || "#a27e2c",    // Color corporativo principal
-    primaryHover: storedBrand?.primaryHover || "#8c6b22",
+    // Dorado de marca por defecto = el dorado real del diseño (--gold en index.css).
+    // Al cambiarlo en el panel, se propaga a todo el sistema vía la variable CSS --gold.
+    primaryColor: storedBrand?.primaryColor || "#f2be71",    // Color corporativo principal
+    primaryHover: storedBrand?.primaryHover || "#ffddb1",
     backgroundColor: storedBrand?.backgroundColor || "#fcfaf7", // Fondo claro y elegante
     cardColor: storedBrand?.cardColor || "#ffffff",
     textColor: storedBrand?.textColor || "#1e1b18",       // Carbón de lectura

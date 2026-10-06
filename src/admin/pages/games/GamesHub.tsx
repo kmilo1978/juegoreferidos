@@ -188,7 +188,7 @@ export function GamesHub() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#363439] pb-4">
         <div>
           <h2 className="text-xl font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-            <Gamepad2 className="w-6 h-6 text-[#f2be71]" />
+            <Gamepad2 className="w-6 h-6 text-[var(--gold)]" />
             <span>Catálogo Modular de Juegos & Dinámicas</span>
           </h2>
           <p className="text-xs text-[#ccc3d8]">
@@ -204,7 +204,7 @@ export function GamesHub() {
               onClick={() => setActiveTab("catalog")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "catalog"
-                  ? "bg-[#f2be71] text-[#121115]"
+                  ? "bg-[var(--gold)] text-[#121115]"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -216,7 +216,7 @@ export function GamesHub() {
               onClick={() => setActiveTab("exclusive")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "exclusive"
-                  ? "bg-[#f2be71] text-[#121115]"
+                  ? "bg-[var(--gold)] text-[#121115]"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -228,7 +228,7 @@ export function GamesHub() {
               onClick={() => setActiveTab("sequence")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "sequence"
-                  ? "bg-[#f2be71] text-[#121115]"
+                  ? "bg-[var(--gold)] text-[#121115]"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -239,7 +239,7 @@ export function GamesHub() {
 
           <Link
             to="/demo"
-            className="bg-[#201f23] hover:bg-[#2b292e] border border-[#f2be71]/40 text-[#f2be71] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+            className="bg-[#201f23] hover:bg-[#2b292e] border border-[var(--gold)]/40 text-[var(--gold)] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
           >
             <Smartphone className="w-4 h-4" />
             <span>Simulador Móvil</span>
@@ -272,14 +272,14 @@ export function GamesHub() {
             <div className="flex items-center justify-between border-b border-[#2b292e] pb-3">
               <div>
                 <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-[#f2be71]" />
+                  <Zap className="w-4 h-4 text-[var(--gold)]" />
                   <span>Juego Principal Activo en las Mesas</span>
                 </h3>
                 <p className="text-[11px] text-[#ccc3d8]">
                   Define qué juego se abre automáticamente cuando el cliente escanea el QR o acerca su teléfono al chip NFC en la mesa.
                 </p>
               </div>
-              <span className="text-[10px] font-mono font-bold text-[#121115] bg-[#f2be71] px-2.5 py-1 rounded-full uppercase">
+              <span className="text-[10px] font-mono font-bold text-[#121115] bg-[var(--gold)] px-2.5 py-1 rounded-full uppercase">
                 {gameModeLabel(activeGameMode)} Activo
               </span>
             </div>
@@ -302,14 +302,14 @@ export function GamesHub() {
                 onClick={() => handleSelectGameMode(mode.id)}
                 className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                   isSelected
-                    ? "bg-[#252220] border-[#f2be71] ring-1 ring-[#f2be71]/40 shadow-md"
-                    : "bg-[#201f23] border-[#363439] hover:border-[#f2be71]/40"
+                    ? "bg-[#252220] border-[var(--gold)] ring-1 ring-[var(--gold)]/40 shadow-md"
+                    : "bg-[#201f23] border-[#363439] hover:border-[var(--gold)]/40"
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
-                  <mode.icon className={`w-5 h-5 ${isSelected ? "text-[#f2be71]" : "text-[#ccc3d8]"}`} />
+                  <mode.icon className={`w-5 h-5 ${isSelected ? "text-[var(--gold)]" : "text-[#ccc3d8]"}`} />
                   {isSelected && (
-                    <span className="text-[10px] font-bold text-[#f2be71] bg-[#f2be71]/15 px-2 py-0.5 rounded-full border border-[#f2be71]/30">
+                    <span className="text-[10px] font-bold text-[var(--gold)] bg-[var(--gold)]/15 px-2 py-0.5 rounded-full border border-[var(--gold)]/30">
                       ✓ En Mesas
                     </span>
                   )}
@@ -327,7 +327,7 @@ export function GamesHub() {
       {/* 3. CATÁLOGO DE TARJETAS MODULARES DE JUEGOS */}
       <div className="space-y-3">
         <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2">
-          <Sliders className="w-4 h-4 text-[#f2be71]" />
+          <Sliders className="w-4 h-4 text-[var(--gold)]" />
           <span>Módulos de Juego Disponibles ({games.length})</span>
         </h3>
 
@@ -337,7 +337,7 @@ export function GamesHub() {
             return (
               <div
                 key={game.id}
-                className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 hover:border-[#f2be71]/50 transition-all shadow-md flex flex-col justify-between gap-4"
+                className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 hover:border-[var(--gold)]/50 transition-all shadow-md flex flex-col justify-between gap-4"
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
@@ -385,7 +385,7 @@ export function GamesHub() {
 
                   <Link
                     to={game.route}
-                    className="text-xs font-bold text-[#f2be71] hover:text-[#ffddb1] flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="text-xs font-bold text-[var(--gold)] hover:text-[var(--gold-light)] flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <span>Configurar Módulo</span>
                     <ExternalLink className="w-3.5 h-3.5" />

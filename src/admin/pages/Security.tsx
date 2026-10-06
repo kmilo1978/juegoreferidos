@@ -172,7 +172,7 @@ export function Security() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -183,7 +183,7 @@ export function Security() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-[#e6e1e7] font-bold text-2xl font-['Epilogue'] flex items-center gap-2">
-            <Lock className="w-6 h-6 text-[#f2be71]" />
+            <Lock className="w-6 h-6 text-[var(--gold)]" />
             <span>Seguridad, Roles & PINs de Caja</span>
           </h2>
           <p className="text-sm text-[#ccc3d8]">
@@ -196,9 +196,9 @@ export function Security() {
           <button
             type="button"
             onClick={handleRandomizeBoth}
-            className="bg-[#201f23] border border-[#f2be71]/40 hover:bg-[#2b292e] text-[#f2be71] text-xs font-bold rounded-xl px-4 py-2.5 flex items-center gap-2 transition-all cursor-pointer"
+            className="bg-[#201f23] border border-[var(--gold)]/40 hover:bg-[#2b292e] text-[var(--gold)] text-xs font-bold rounded-xl px-4 py-2.5 flex items-center gap-2 transition-all cursor-pointer"
           >
-            <Dices className="w-4 h-4 text-[#f2be71]" />
+            <Dices className="w-4 h-4 text-[var(--gold)]" />
             <span>Resetear Ambos Aleatoriamente</span>
           </button>
         </div>
@@ -221,7 +221,7 @@ export function Security() {
       {/* Banner de Estado de Seguridad */}
       <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#684400]/40 border border-[#f2be71]/30 flex items-center justify-center text-[#f2be71]">
+          <div className="w-10 h-10 rounded-xl bg-[#684400]/40 border border-[var(--gold)]/30 flex items-center justify-center text-[var(--gold)]">
             <Shield className="w-5 h-5" />
           </div>
           <div>
@@ -242,7 +242,7 @@ export function Security() {
             onClick={() => setPinLength(4)}
             className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               pinLength === 4
-                ? "bg-[#f2be71] text-[#121115]"
+                ? "bg-[var(--gold)] text-[#121115]"
                 : "text-[#958da1] hover:text-[#e6e1e7]"
             }`}
           >
@@ -253,7 +253,7 @@ export function Security() {
             onClick={() => setPinLength(6)}
             className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               pinLength === 6
-                ? "bg-[#f2be71] text-[#121115]"
+                ? "bg-[var(--gold)] text-[#121115]"
                 : "text-[#958da1] hover:text-[#e6e1e7]"
             }`}
           >
@@ -265,13 +265,13 @@ export function Security() {
       <form onSubmit={handleSave} className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-6">
         <div className="flex items-center justify-between border-b border-[#363439] pb-4">
           <h3 className="text-lg font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-            <KeyRound className="w-5 h-5 text-[#f2be71]" />
+            <KeyRound className="w-5 h-5 text-[var(--gold)]" />
             <span>PINs de Control de Acceso</span>
           </h3>
           <button
             type="submit"
             disabled={saving}
-            className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm"
+            className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-5 py-2.5 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             <span>Guardar PINs</span>
@@ -280,10 +280,10 @@ export function Security() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* TARJETA 1: PIN CAJERO / MESERO */}
-          <div className="bg-[#201f23] border border-[#f2be71]/40 rounded-xl p-5 space-y-4 relative overflow-hidden">
+          <div className="bg-[#201f23] border border-[var(--gold)]/40 rounded-xl p-5 space-y-4 relative overflow-hidden">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#684400]/40 flex items-center justify-center text-[#f2be71]">
+                <div className="w-9 h-9 rounded-lg bg-[#684400]/40 flex items-center justify-center text-[var(--gold)]">
                   <KeyRound className="w-5 h-5" />
                 </div>
                 <div>
@@ -291,7 +291,7 @@ export function Security() {
                   <p className="text-xs text-[#ccc3d8]">Utilizado por los meseros para quemar cupones ganados.</p>
                 </div>
               </div>
-              <span className="text-[10px] bg-[#684400]/50 text-[#f2be71] font-bold px-2 py-0.5 rounded-full border border-[#f2be71]/30">
+              <span className="text-[10px] bg-[#684400]/50 text-[var(--gold)] font-bold px-2 py-0.5 rounded-full border border-[var(--gold)]/30">
                 Operaciones
               </span>
             </div>
@@ -299,7 +299,7 @@ export function Security() {
             <div className="space-y-2 pt-1">
               <label className="text-xs text-[#ccc3d8] uppercase font-bold flex items-center justify-between">
                 <span>Código PIN ({cashierPin.length} dígitos):</span>
-                <span className="text-[11px] text-[#f2be71] font-normal">Acceso en Sala</span>
+                <span className="text-[11px] text-[var(--gold)] font-normal">Acceso en Sala</span>
               </label>
 
               <div className="relative flex items-center">
@@ -309,7 +309,7 @@ export function Security() {
                   value={cashierPin}
                   onChange={(e) => setCashierPin(e.target.value.replace(/\D/g, ""))}
                   placeholder="4321"
-                  className="bg-[#141317] border border-[#363439] text-[#f2be71] font-mono text-center tracking-[10px] text-2xl font-bold rounded-xl px-4 py-3 w-full focus:border-[#f2be71]/60 focus:outline-none"
+                  className="bg-[#141317] border border-[#363439] text-[var(--gold)] font-mono text-center tracking-[10px] text-2xl font-bold rounded-xl px-4 py-3 w-full focus:border-[var(--gold)]/60 focus:outline-none"
                   required
                 />
                 <button
@@ -328,7 +328,7 @@ export function Security() {
               <button
                 type="button"
                 onClick={handleRandomizeCashierPin}
-                className="flex-1 bg-[#2b292e] hover:bg-[#363439] text-[#f2be71] text-xs font-bold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                className="flex-1 bg-[#2b292e] hover:bg-[#363439] text-[var(--gold)] text-xs font-bold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 <Dices className="w-3.5 h-3.5" />
                 <span>Generar Aleatorio</span>
@@ -444,7 +444,7 @@ export function Security() {
           </div>
 
           <div className="bg-[#141317] border border-[#363439] rounded-xl p-3.5 flex items-center gap-3">
-            <Clock className="w-5 h-5 text-[#f2be71] shrink-0" />
+            <Clock className="w-5 h-5 text-[var(--gold)] shrink-0" />
             <div className="text-xs text-[#ccc3d8] leading-relaxed">
               <strong>Buenas prácticas:</strong> Se recomienda resetear el PIN de cajero al inicio de cada semana o turno. El personal solo podrá validar premios en mesa si coincide exactamente con el PIN activo.
             </div>

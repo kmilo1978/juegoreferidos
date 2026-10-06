@@ -135,7 +135,7 @@ export function StepSecondChancePrecision({
 
       {/* 1. HERO CARD DEL PREMIO CON MÁXIMO PROTAGONISMO */}
       <Reveal delay={30}>
-        <div className="relative w-full rounded-3xl overflow-hidden bg-[#1c1b1f] border border-[#f2be71]/35 shadow-2xl">
+        <div className="relative w-full rounded-3xl overflow-hidden bg-[#1c1b1f] border border-[var(--gold)]/35 shadow-2xl">
           {/* Fotografía Gastronómica Principal - Altura e Impacto */}
           <div className="relative w-full h-52 sm:h-64 overflow-hidden bg-[#0a090c]">
             <img
@@ -147,15 +147,15 @@ export function StepSecondChancePrecision({
             <div className="absolute inset-0 bg-gradient-to-t from-[#1c1b1f] via-[#1c1b1f]/30 to-black/25" />
 
             {/* Badge Flotante Superior: Cortesía de la Casa */}
-            <div className="absolute top-4 left-4 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#141317]/90 backdrop-blur-md border border-[#f2be71]/50 text-[#f2be71] shadow-xl">
-              <Sparkles className="h-4 w-4 text-[#f2be71]" />
+            <div className="absolute top-4 left-4 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#141317]/90 backdrop-blur-md border border-[var(--gold)]/50 text-[var(--gold)] shadow-xl">
+              <Sparkles className="h-4 w-4 text-[var(--gold)]" />
               <span className="font-label-sm text-[11px] sm:text-xs font-black uppercase tracking-wider">
                 {t("Premio en Juego · Cortesía", "Prize in Play · Compliments")}
               </span>
             </div>
 
             {/* Badge de Hito / Reto */}
-            <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-[#684400]/90 backdrop-blur-md border border-[#f2be71]/50 text-[#ffdcb1] font-mono text-xs font-bold shadow-lg">
+            <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-[#684400]/90 backdrop-blur-md border border-[var(--gold)]/50 text-[#ffdcb1] font-mono text-xs font-bold shadow-lg">
               🎯 10.00s
             </div>
           </div>
@@ -181,11 +181,11 @@ export function StepSecondChancePrecision({
           {/* Badge de Objetivo Exacto e Intentos */}
           <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#363439] p-4 flex items-center justify-between shadow-md">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#684400]/50 border border-[#f2be71]/30 flex items-center justify-center text-lg text-[#f2be71] shadow-xs">
+              <div className="w-9 h-9 rounded-xl bg-[#684400]/50 border border-[var(--gold)]/30 flex items-center justify-center text-lg text-[var(--gold)] shadow-xs">
                 🎯
               </div>
               <div className="flex flex-col">
-                <span className="font-label-sm text-xs text-[#f2be71] font-bold uppercase tracking-wider">
+                <span className="font-label-sm text-xs text-[var(--gold)] font-bold uppercase tracking-wider">
                   {t("Objetivo Exacto: 10.00s", "Exact Target: 10.00s")}
                 </span>
                 <span className="font-body-sm text-[11px] text-[#ccc3d8]">
@@ -205,7 +205,7 @@ export function StepSecondChancePrecision({
                     key={idx}
                     className={`w-3 h-3 rounded-full transition-all ${
                       idx <= maxAttempts - attemptsUsed
-                        ? "bg-[#f2be71] shadow-[0_0_10px_rgba(242,190,113,0.85)] scale-110"
+                        ? "bg-[var(--gold)] shadow-[0_0_10px_rgba(242,190,113,0.85)] scale-110"
                         : "bg-[#2b292e] border border-[#363439]"
                     }`}
                   />
@@ -215,9 +215,9 @@ export function StepSecondChancePrecision({
           </div>
 
           {/* Consola Digital OLED estilo Alta Relojería */}
-          <div className="w-full rounded-3xl bg-[#0a090c] border border-[#f2be71]/30 p-6 sm:p-7 flex flex-col items-center justify-center shadow-[inset_0_2px_12px_rgba(0,0,0,0.8)] relative overflow-hidden">
+          <div className="w-full rounded-3xl bg-[#0a090c] border border-[var(--gold)]/30 p-6 sm:p-7 flex flex-col items-center justify-center shadow-[inset_0_2px_12px_rgba(0,0,0,0.8)] relative overflow-hidden">
             <div className="flex items-center gap-2 mb-2 z-10">
-              <span className={`w-2.5 h-2.5 rounded-full ${isRunning ? "bg-[#f2be71] animate-ping" : "bg-[#f2be71]"}`} />
+              <span className={`w-2.5 h-2.5 rounded-full ${isRunning ? "bg-[var(--gold)] animate-ping" : "bg-[var(--gold)]"}`} />
               <span className="font-label-sm text-xs text-[#ffdcb1] tracking-widest uppercase font-bold">
                 {isRunning ? t("CRONÓMETRO CORRIENDO...", "RUNNING...") : t("LISTO PARA EL TOQUE", "READY TO TAP")}
               </span>
@@ -228,7 +228,7 @@ export function StepSecondChancePrecision({
               <span className="text-6xl sm:text-7xl font-black text-white font-mono drop-shadow-[0_0_20px_rgba(255,255,255,0.35)]">
                 {formatSecondsMain(elapsedTime)}
               </span>
-              <span className="text-4xl sm:text-5xl font-black text-[#f2be71] font-mono ml-0.5 drop-shadow-[0_0_20px_rgba(242,190,113,0.6)]">
+              <span className="text-4xl sm:text-5xl font-black text-[var(--gold)] font-mono ml-0.5 drop-shadow-[0_0_20px_rgba(242,190,113,0.6)]">
                 {formatMs(elapsedTime)}
               </span>
             </div>
@@ -241,7 +241,7 @@ export function StepSecondChancePrecision({
           {/* Botón Táctil de Empuje en Oro Radiante de la Casa */}
           <div className="relative my-4 flex items-center justify-center">
             {isRunning && (
-              <div className="absolute w-48 h-48 rounded-full bg-[#f2be71]/25 animate-ping pointer-events-none opacity-50" />
+              <div className="absolute w-48 h-48 rounded-full bg-[var(--gold)]/25 animate-ping pointer-events-none opacity-50" />
             )}
 
             <button
@@ -251,7 +251,7 @@ export function StepSecondChancePrecision({
               className={`relative z-20 w-40 h-40 rounded-full flex flex-col items-center justify-center p-3 active:scale-95 transition-all cursor-pointer shadow-2xl ${
                 isRunning
                   ? "bg-gradient-to-b from-[#ff8c42] via-[#e65100] to-[#991b1b] text-white shadow-[0_12px_40px_rgba(230,81,0,0.55)] border-2 border-[#ffedd5]/50 animate-pulse"
-                  : "bg-gradient-to-b from-[#ffe5b4] via-[#f2be71] to-[#b87e24] text-[#121115] shadow-[0_12px_40px_rgba(242,190,113,0.5)] border-2 border-[#fff2df]/60 hover:brightness-105"
+                  : "bg-gradient-to-b from-[#ffe5b4] via-[var(--gold)] to-[#b87e24] text-[#121115] shadow-[0_12px_40px_rgba(242,190,113,0.5)] border-2 border-[#fff2df]/60 hover:brightness-105"
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {isRunning ? (
@@ -288,8 +288,8 @@ export function StepSecondChancePrecision({
 
           {/* Mensajes de Resultado si Gana */}
           {gameState === "won" && (
-            <div className="w-full rounded-2xl bg-[#684400]/40 border-2 border-[#f2be71] p-4 flex items-start gap-3 shadow-xl animate-in zoom-in-95">
-              <Trophy className="h-7 w-7 text-[#f2be71] shrink-0 mt-0.5" />
+            <div className="w-full rounded-2xl bg-[#684400]/40 border-2 border-[var(--gold)] p-4 flex items-start gap-3 shadow-xl animate-in zoom-in-95">
+              <Trophy className="h-7 w-7 text-[var(--gold)] shrink-0 mt-0.5" />
               <div className="flex flex-col text-left">
                 <span className="font-headline-sm text-base font-bold text-[#ffdcb1]">
                   {t("¡PREMIO CONSEGUIDO!", "PRIZE WON!")}
@@ -306,8 +306,8 @@ export function StepSecondChancePrecision({
 
           {/* Mensaje de Resultado si Agota Intentos */}
           {gameState === "finished" && (
-            <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#f2be71]/40 p-4 flex items-start gap-3 shadow-md animate-in zoom-in-95">
-              <Sparkles className="h-6 w-6 text-[#f2be71] shrink-0 mt-0.5" />
+            <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[var(--gold)]/40 p-4 flex items-start gap-3 shadow-md animate-in zoom-in-95">
+              <Sparkles className="h-6 w-6 text-[var(--gold)] shrink-0 mt-0.5" />
               <div className="flex flex-col text-left">
                 <span className="font-headline-sm text-sm font-bold text-[#ffdcb1]">
                   {t("¡Completaste tus 3 intentos!", "You completed your 3 attempts!")}
@@ -326,13 +326,13 @@ export function StepSecondChancePrecision({
           {attemptsHistory.length > 0 && (
             <div className="w-full rounded-2xl bg-[#1c1b1f] border border-[#363439] px-4 py-3 flex items-center justify-between text-xs text-[#ccc3d8] shadow-sm">
               <div className="flex items-center gap-2">
-                <History className="h-4 w-4 text-[#f2be71]" />
+                <History className="h-4 w-4 text-[var(--gold)]" />
                 <span>
                   {t("Última marca:", "Last mark:")}{" "}
                   <strong className="text-[#fcfaf7] font-mono text-sm">{attemptsHistory[0]?.toFixed(2)}s</strong>
                 </span>
               </div>
-              <span className="text-[#f2be71] font-bold text-xs">
+              <span className="text-[var(--gold)] font-bold text-xs">
                 {t(`Quedan ${Math.max(0, maxAttempts - attemptsUsed)} intentos`, `${Math.max(0, maxAttempts - attemptsUsed)} attempts left`)}
               </span>
             </div>

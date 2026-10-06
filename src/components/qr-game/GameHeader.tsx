@@ -46,10 +46,10 @@ export function GameHeader({
           {/* Mesa activa */}
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f2be71] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f2be71]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--gold)] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--gold)]"></span>
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-wider text-[#f2be71] font-bold">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[var(--gold)] font-bold">
               {session.tableNumber}
             </span>
           </div>
@@ -82,7 +82,7 @@ export function GameHeader({
               <button
                 type="button"
                 onClick={onOpenPushModal}
-                className="h-7 w-7 rounded-full bg-[#f2be71]/15 text-[#f2be71] border border-[#f2be71]/30 flex items-center justify-center cursor-pointer hover:bg-[#f2be71]/25 transition-colors"
+                className="h-7 w-7 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] border border-[var(--gold)]/30 flex items-center justify-center cursor-pointer hover:bg-[var(--gold)]/25 transition-colors"
                 title="Notificaciones VIP & Gestión de Bajas"
               >
                 <Bell className="h-3.5 w-3.5" />
@@ -101,7 +101,7 @@ export function GameHeader({
             <button
               type="button"
               onClick={onResetSession}
-              className="h-7 w-7 rounded-full bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[#f2be71] border border-[#363439] flex items-center justify-center transition-all cursor-pointer"
+              className="h-7 w-7 rounded-full bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[var(--gold)] border border-[#363439] flex items-center justify-center transition-all cursor-pointer"
               title="Reiniciar Demo al Paso 1"
             >
               <RotateCcw className="h-3 w-3" />
@@ -111,7 +111,7 @@ export function GameHeader({
 
         {/* 2. LOGO + NOMBRE DE MARCA */}
         <div className="flex flex-col items-center gap-1.5">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#684400] via-[#f2be71] to-[#ffddb1] p-0.5 shadow-[0_0_16px_rgba(242,190,113,0.45)]">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#684400] via-[var(--gold)] to-[var(--gold-light)] p-0.5 shadow-[0_0_16px_rgba(242,190,113,0.45)]">
             {clientConfig.brand.logoUrl && !clientConfig.brand.logoUrl.includes("emblema-dorado") ? (
               <img
                 src={clientConfig.brand.logoUrl}
@@ -119,7 +119,7 @@ export function GameHeader({
                 className="w-full h-full rounded-full object-contain bg-[#141317] p-1"
               />
             ) : (
-              <div className="w-full h-full rounded-full bg-[#141317] flex items-center justify-center text-[#f2be71] text-xl font-black">
+              <div className="w-full h-full rounded-full bg-[#141317] flex items-center justify-center text-[var(--gold)] text-xl font-black">
                 👑
               </div>
             )}
@@ -134,7 +134,7 @@ export function GameHeader({
           {/* Etiqueta del paso actual */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="px-2 py-0.5 rounded-md bg-[#684400]/40 border border-[#f2be71]/30 text-[#f2be71] font-mono font-bold text-[10px] shrink-0">
+              <span className="px-2 py-0.5 rounded-md bg-[#684400]/40 border border-[var(--gold)]/30 text-[var(--gold)] font-mono font-bold text-[10px] shrink-0">
                 {currentStep}/8
               </span>
               <span className="text-[11px] sm:text-xs font-semibold text-[#e6e1e7] truncate">
@@ -159,9 +159,9 @@ export function GameHeader({
                   title={`${s.label}`}
                   className={`h-2.5 rounded-full transition-all cursor-pointer active:scale-95 ${
                     isCurrent
-                      ? "bg-gradient-to-r from-[#d1bcff] via-[#f2be71] to-[#ffddb1] shadow-[0_0_10px_rgba(242,190,113,0.85)] scale-y-110"
+                      ? "bg-gradient-to-r from-[#d1bcff] via-[var(--gold)] to-[var(--gold-light)] shadow-[0_0_10px_rgba(242,190,113,0.85)] scale-y-110"
                       : isCompleted
-                        ? "bg-[#f2be71] hover:brightness-110"
+                        ? "bg-[var(--gold)] hover:brightness-110"
                         : "bg-[#252429] hover:bg-[#363439]"
                   }`}
                 />

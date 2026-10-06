@@ -149,8 +149,8 @@ export function StepDigitalStamps({
       <Reveal delay={0}>
         <div className="flex flex-col gap-2">
           {/* Badge superior */}
-          <div className="inline-flex items-center gap-1.5 self-start px-3 py-1 rounded-full bg-[#1c1b1f] border border-[#f2be71]/40 text-[#ffddb1] shadow-xs">
-            <Sparkles className="h-3.5 w-3.5 text-[#f2be71]" />
+          <div className="inline-flex items-center gap-1.5 self-start px-3 py-1 rounded-full bg-[#1c1b1f] border border-[var(--gold)]/40 text-[var(--gold-light)] shadow-xs">
+            <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" />
             <span className="font-label-sm text-[11px] font-bold tracking-wide">
               {t("Paso 7 de 8 · Pasaporte de Fidelización VIP", "Step 7 of 8 · VIP Loyalty Passport")}
             </span>
@@ -158,9 +158,9 @@ export function StepDigitalStamps({
 
           {/* Banner de Reconocimiento y Sellado One-Tap */}
           {isReturning && (
-            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#2b292e] via-[#1c1b1f] to-[#201f23] border border-[#f2be71]/50 text-xs flex flex-col gap-1.5 shadow-md">
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#2b292e] via-[#1c1b1f] to-[#201f23] border border-[var(--gold)]/50 text-xs flex flex-col gap-1.5 shadow-md">
               <div className="flex items-center justify-between">
-                <span className="text-[#f2be71] font-bold text-xs flex items-center gap-1.5">
+                <span className="text-[var(--gold)] font-bold text-xs flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5" />
                   {t(`¡Qué alegría verte de nuevo, ${customerName}!`, `Great to see you again, ${customerName}!`)}
                 </span>
@@ -184,7 +184,7 @@ export function StepDigitalStamps({
 
           <h2 className="font-headline-xl-mobile text-2xl sm:text-3xl text-[#e6e1e7] tracking-tight mt-1">
             {t("Tu Tarjeta de", "Your Digital")}{" "}
-            <span className="text-[#f2be71] italic font-serif">
+            <span className="text-[var(--gold)] italic font-serif">
               {totalRequired} {t("Sellos de la Casa", "Dining Stamps")}
             </span>
           </h2>
@@ -198,15 +198,15 @@ export function StepDigitalStamps({
 
           {/* Banner de Hora Feliz / Doble Sello (3 PM - 6 PM) */}
           {isHappyHourActive ? (
-            <div className="mt-1 p-3 rounded-2xl bg-gradient-to-r from-amber-500/20 via-gold/30 to-amber-500/20 border border-[#f2be71] text-[#ffddb1] text-xs font-semibold flex items-center gap-2 shadow-sm animate-pulse">
-              <Zap className="h-4 w-4 text-[#f2be71] fill-[#f2be71] shrink-0" />
+            <div className="mt-1 p-3 rounded-2xl bg-gradient-to-r from-amber-500/20 via-gold/30 to-amber-500/20 border border-[var(--gold)] text-[var(--gold-light)] text-xs font-semibold flex items-center gap-2 shadow-sm animate-pulse">
+              <Zap className="h-4 w-4 text-[var(--gold)] fill-[var(--gold)] shrink-0" />
               <span>
                 ⚡ {t("¡HORA FELIZ ACTIVA! Hoy cada visita en mesa suma DOBLE SELLO (x2).", "⚡ HAPPY HOUR ACTIVE! Table visits award DOUBLE STAMPS (x2) today.")}
               </span>
             </div>
           ) : (
             <div className="mt-1 py-2 px-3 rounded-xl bg-[#1c1b1f] border border-[#2b292e] text-[#ccc3d8] text-[11px] flex items-center gap-2">
-              <Zap className="h-3.5 w-3.5 text-[#f2be71] shrink-0" />
+              <Zap className="h-3.5 w-3.5 text-[var(--gold)] shrink-0" />
               <span>
                 {t("Horas Felices (3 PM a 6 PM): Cada visita en la tarde te otorga Doble Sello (x2)", "Happy Hours (3 PM to 6 PM): Afternoon visits earn Double Stamps (x2)")}
               </span>
@@ -215,7 +215,7 @@ export function StepDigitalStamps({
 
           {/* CTA Opción de jugar minijuego hoy */}
           {onPlayMiniGame && (
-            <div className="mt-1 p-3 rounded-2xl bg-[#0f0e12] border border-[#f2be71]/30 flex items-center justify-between gap-3 shadow-sm">
+            <div className="mt-1 p-3 rounded-2xl bg-[#0f0e12] border border-[var(--gold)]/30 flex items-center justify-between gap-3 shadow-sm">
               <div className="flex items-center gap-2.5">
                 <span className="text-xl">🎰</span>
                 <div className="flex flex-col">
@@ -241,9 +241,9 @@ export function StepDigitalStamps({
 
       {/* 2. TARJETA DIGITAL MODULAR DE SELLOS */}
       <Reveal delay={100}>
-        <div className="w-full rounded-3xl bg-[#1c1b1f] border border-[#f2be71]/40 p-4 sm:p-6 shadow-2xl relative overflow-hidden flex flex-col gap-4">
+        <div className="w-full rounded-3xl bg-[#1c1b1f] border border-[var(--gold)]/40 p-4 sm:p-6 shadow-2xl relative overflow-hidden flex flex-col gap-4">
           {/* Halo ambiental decorativo */}
-          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#f2be71]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[var(--gold)]/10 rounded-full blur-3xl pointer-events-none" />
 
           {/* Barra superior de estado */}
           <div className="flex items-center justify-between border-b border-[#2b292e] pb-3">
@@ -281,9 +281,9 @@ export function StepDigitalStamps({
                     isEarned
                       ? "badge-gold shadow-[0_0_12px_rgba(242,190,113,0.5)] scale-105 font-bold"
                       : isLast
-                        ? "bg-gradient-to-tr from-[#684400] to-[#3a383d] border border-[#f2be71]/60 text-[#f2be71]"
+                        ? "bg-gradient-to-tr from-[#684400] to-[#3a383d] border border-[var(--gold)]/60 text-[var(--gold)]"
                         : isPrize
-                          ? "bg-[#2b292e] border border-[#f2be71]/60 text-[#f2be71]"
+                          ? "bg-[#2b292e] border border-[var(--gold)]/60 text-[var(--gold)]"
                           : "bg-[#201f23] border border-[#2b292e] text-[#ccc3d8]/40"
                   }`}
                 >
@@ -311,7 +311,7 @@ export function StepDigitalStamps({
 
           {/* Modal / Card desplegable al tocar un sello */}
           {selectedReward && (
-            <div className="p-3.5 rounded-2xl bg-[#0f0e12] border border-[#f2be71]/50 text-xs flex items-center justify-between gap-3 animate-in fade-in">
+            <div className="p-3.5 rounded-2xl bg-[#0f0e12] border border-[var(--gold)]/50 text-xs flex items-center justify-between gap-3 animate-in fade-in">
               <div className="flex items-center gap-2.5">
                 <span className="text-2xl">{selectedReward.icon || "🎁"}</span>
                 <div>
@@ -336,7 +336,7 @@ export function StepDigitalStamps({
           <div className="flex flex-col gap-1.5 pt-1">
             <div className="flex justify-between text-xs text-[#ccc3d8]">
               <span>{t("Progreso de fidelidad", "Loyalty progress")}</span>
-              <span className="text-[#f2be71] font-mono font-bold">
+              <span className="text-[var(--gold)] font-mono font-bold">
                 {progressPercent}%
               </span>
             </div>
@@ -349,11 +349,11 @@ export function StepDigitalStamps({
           </div>
 
           {/* Tarjeta de Próximo Gran Hito */}
-          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#684400]/25 via-[#201f23] to-[#2b292e] border border-[#f2be71]/30 flex items-start gap-3">
-            <Gift className="h-5 w-5 text-[#f2be71] mt-0.5 shrink-0" />
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#684400]/25 via-[#201f23] to-[#2b292e] border border-[var(--gold)]/30 flex items-start gap-3">
+            <Gift className="h-5 w-5 text-[var(--gold)] mt-0.5 shrink-0" />
             <div className="flex flex-col gap-0.5 flex-1">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase font-bold text-[#f2be71]">
+                <span className="text-[10px] uppercase font-bold text-[var(--gold)]">
                   {isCompleted
                     ? "🎉 ¡15 Sellos VIP Completados!"
                     : `Próximo Gran Hito (Sello #${nextMilestone.targetStamp}):`}
@@ -377,9 +377,9 @@ export function StepDigitalStamps({
           <button
             type="button"
             onClick={() => setIsWalletOpen(true)}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#0f0e12] border border-[#f2be71]/40 text-[#f2be71] hover:border-[#f2be71]/80 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 shadow-sm"
+            className="w-full py-2.5 px-4 rounded-xl bg-[#0f0e12] border border-[var(--gold)]/40 text-[var(--gold)] hover:border-[var(--gold)]/80 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-98 shadow-sm"
           >
-            <Smartphone className="h-4 w-4 text-[#f2be71]" />
+            <Smartphone className="h-4 w-4 text-[var(--gold)]" />
             <span>{t("📱 Guardar Tarjeta en Apple / Google Wallet", "📱 Save Card to Apple / Google Wallet")}</span>
           </button>
 
@@ -390,7 +390,7 @@ export function StepDigitalStamps({
           <button
             type="button"
             onClick={() => setShowAllCatalog(!showAllCatalog)}
-            className="w-full py-2 flex items-center justify-center gap-1.5 text-xs text-[#ccc3d8] hover:text-[#f2be71] transition-colors cursor-pointer border-t border-[#2b292e] pt-3"
+            className="w-full py-2 flex items-center justify-center gap-1.5 text-xs text-[#ccc3d8] hover:text-[var(--gold)] transition-colors cursor-pointer border-t border-[#2b292e] pt-3"
           >
             <span>
               {showAllCatalog
@@ -409,7 +409,7 @@ export function StepDigitalStamps({
                     key={r.stamp}
                     className={`p-3 rounded-2xl border flex items-center justify-between text-xs ${
                       isEarned
-                        ? "bg-[#684400]/30 border-[#f2be71]/60 text-[#ffddb1]"
+                        ? "bg-[#684400]/30 border-[var(--gold)]/60 text-[var(--gold-light)]"
                         : "bg-[#0f0e12] border-[#2b292e] text-[#ccc3d8]"
                     }`}
                   >
@@ -417,7 +417,7 @@ export function StepDigitalStamps({
                       <span className="text-2xl">{r.icon}</span>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="font-mono font-bold text-[10px] text-[#f2be71] px-1.5 py-0.2 rounded bg-[#684400]/40">
+                          <span className="font-mono font-bold text-[10px] text-[var(--gold)] px-1.5 py-0.2 rounded bg-[#684400]/40">
                             Hito #{idx + 1} · {r.stamp} Visitas
                           </span>
                           <strong className="text-[#e6e1e7] text-xs">{r.title}</strong>
@@ -459,7 +459,7 @@ export function StepDigitalStamps({
             <button
               type="button"
               onClick={onBackToSecondChance}
-              className="w-full py-2.5 text-center text-xs text-[#ccc3d8] hover:text-[#f2be71] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              className="w-full py-2.5 text-center text-xs text-[#ccc3d8] hover:text-[var(--gold)] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>{t("Volver al Reto de Precisión 10s (Paso 6)", "Back to 10s Challenge (Step 6)")}</span>
@@ -468,7 +468,7 @@ export function StepDigitalStamps({
 
           {/* Garantía de Seguridad */}
           <div className="flex items-center justify-center gap-1.5 text-center text-[#ccc3d8]/70 pt-1">
-            <ShieldCheck className="h-3.5 w-3.5 text-[#f2be71]" />
+            <ShieldCheck className="h-3.5 w-3.5 text-[var(--gold)]" />
             <span className="font-label-sm text-[11px]">
               {t("Tus sellos quedan vinculados a tu número de WhatsApp", "Your stamps remain linked to your WhatsApp number")}
             </span>

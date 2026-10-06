@@ -300,7 +300,7 @@ export function AdminConfig() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[#f2be71] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--gold)] animate-spin" />
       </div>
     );
   }
@@ -317,7 +317,7 @@ export function AdminConfig() {
           type="button"
           onClick={handleSaveBrand}
           disabled={saving}
-          className="bg-[#f2be71] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
+          className="bg-[var(--gold)] text-[#121115] font-bold rounded-xl px-6 py-3 hover:brightness-105 active:scale-98 cursor-pointer transition-all flex items-center gap-2 text-sm shrink-0 shadow-lg"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           <span>Guardar Cambios de Marca</span>
@@ -373,7 +373,7 @@ export function AdminConfig() {
                 }}
                 className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
                   isCatActive
-                    ? "bg-[#f2be71] text-[#121115] shadow-lg shadow-[#f2be71]/20 font-black"
+                    ? "bg-[var(--gold)] text-[#121115] shadow-lg shadow-[var(--gold)]/20 font-black"
                     : "bg-[#201f23] text-[#ccc3d8] hover:text-[#e6e1e7] hover:bg-[#2b292e] border border-[#363439]"
                 }`}
               >
@@ -382,7 +382,7 @@ export function AdminConfig() {
                   className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
                     isCatActive
                       ? "bg-[#121115]/20 text-[#121115] font-black"
-                      : "bg-[#141317] text-[#f2be71]"
+                      : "bg-[#141317] text-[var(--gold)]"
                   }`}
                 >
                   {cat.badge}
@@ -401,7 +401,7 @@ export function AdminConfig() {
                 onClick={() => setActiveTopTab("brand")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   activeTopTab === "brand"
-                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/50"
                     : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
                 }`}
               >
@@ -414,7 +414,7 @@ export function AdminConfig() {
                 onClick={() => setActiveTopTab("colors")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   activeTopTab === "colors"
-                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/50"
                     : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
                 }`}
               >
@@ -427,7 +427,7 @@ export function AdminConfig() {
                 onClick={() => setActiveTopTab("typography")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   activeTopTab === "typography"
-                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/50"
                     : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
                 }`}
               >
@@ -440,7 +440,7 @@ export function AdminConfig() {
                 onClick={() => setActiveTopTab("geometry")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   activeTopTab === "geometry"
-                    ? "bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/50"
+                    ? "bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/50"
                     : "text-[#ccc3d8] hover:text-white hover:bg-[#201f23]"
                 }`}
               >
@@ -452,7 +452,7 @@ export function AdminConfig() {
 
           {activeTopTab === "modules" && (
             <div className="text-xs text-[#ccc3d8] flex items-center gap-2 px-1">
-              <LayoutGrid className="w-3.5 h-3.5 text-[#f2be71]" />
+              <LayoutGrid className="w-3.5 h-3.5 text-[var(--gold)]" />
               <span>Activa o desactiva de forma modular cualquiera de los 16 módulos del sistema sin alterar la base de datos.</span>
             </div>
           )}
@@ -500,7 +500,7 @@ export function AdminConfig() {
               {/* Tarjeta de Identidad */}
               <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-6 space-y-5 shadow-lg">
             <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2 border-b border-[#363439] pb-3">
-              <Sparkles className="w-4 h-4 text-[#f2be71]" />
+              <Sparkles className="w-4 h-4 text-[var(--gold)]" />
               <span>Datos del Negocio (Marca Blanca)</span>
             </h3>
 
@@ -514,7 +514,7 @@ export function AdminConfig() {
                   value={brandName}
                   onChange={(e) => setBrandName(e.target.value)}
                   placeholder="Ej: La Trattoria Gourmet"
-                  className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-sm font-semibold"
+                  className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-sm font-semibold"
                   required
                 />
               </div>
@@ -528,7 +528,7 @@ export function AdminConfig() {
                   value={tagline}
                   onChange={(e) => setTagline(e.target.value)}
                   placeholder="Ej: Experiencias que alegran el día"
-                  className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs"
+                  className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs"
                 />
               </div>
 
@@ -541,7 +541,7 @@ export function AdminConfig() {
                   value={taglineEn}
                   onChange={(e) => setTaglineEn(e.target.value)}
                   placeholder="Ej: Unforgettable flavors"
-                  className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs"
+                  className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs"
                 />
               </div>
 
@@ -567,7 +567,7 @@ export function AdminConfig() {
                 <select
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
-                  className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono"
+                  className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-4 py-2.5 w-full text-xs font-mono"
                 >
                   <option value="COP">COP ($ Pesos Colombianos)</option>
                   <option value="USD">USD ($ Dólares)</option>
@@ -583,7 +583,7 @@ export function AdminConfig() {
             <div className="pt-3 border-t border-[#363439]/60 space-y-3">
               <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block flex items-center justify-between">
                 <span>Color Principal de Marca (Botones y Acentos)</span>
-                <span className="font-mono text-[#f2be71]">{primaryColor}</span>
+                <span className="font-mono text-[var(--gold)]">{primaryColor}</span>
               </label>
 
               <div className="flex items-center gap-3 flex-wrap">
@@ -629,7 +629,7 @@ export function AdminConfig() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#363439] pb-3 gap-2">
               <div>
                 <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-                  <Type className="w-4 h-4 text-[#f2be71]" />
+                  <Type className="w-4 h-4 text-[var(--gold)]" />
                   <span>Tipografía & Google Fonts (Personalización de Textos)</span>
                 </h3>
                 <p className="text-xs text-[#ccc3d8]">
@@ -640,7 +640,7 @@ export function AdminConfig() {
               <button
                 type="button"
                 onClick={handleResetFonts}
-                className="text-xs text-[#ccc3d8] hover:text-[#f2be71] flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                className="text-xs text-[#ccc3d8] hover:text-[var(--gold)] flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
                 title="Volver a Epilogue y Manrope"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -655,7 +655,7 @@ export function AdminConfig() {
                 onClick={() => setActiveFontTab("curated")}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeFontTab === "curated"
-                    ? "bg-[#f2be71] text-[#121115]"
+                    ? "bg-[var(--gold)] text-[#121115]"
                     : "bg-[#201f23] text-[#ccc3d8] hover:text-white"
                 }`}
               >
@@ -668,7 +668,7 @@ export function AdminConfig() {
                 onClick={() => setActiveFontTab("custom")}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeFontTab === "custom"
-                    ? "bg-[#f2be71] text-[#121115]"
+                    ? "bg-[var(--gold)] text-[#121115]"
                     : "bg-[#201f23] text-[#ccc3d8] hover:text-white"
                 }`}
               >
@@ -679,7 +679,7 @@ export function AdminConfig() {
 
             {/* Mensaje de feedback de prueba de fuente */}
             {fontTestMessage && (
-              <div className="bg-[#201f23] border border-[#f2be71]/40 text-[#f2be71] px-3 py-2 rounded-xl text-xs flex items-center gap-2">
+              <div className="bg-[#201f23] border border-[var(--gold)]/40 text-[var(--gold)] px-3 py-2 rounded-xl text-xs flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 shrink-0" />
                 <span>{fontTestMessage}</span>
               </div>
@@ -703,7 +703,7 @@ export function AdminConfig() {
                       onClick={() => setFontCategoryFilter(filter.id)}
                       className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                         fontCategoryFilter === filter.id
-                          ? "bg-[#2b292e] text-[#f2be71] font-bold border border-[#f2be71]/40"
+                          ? "bg-[#2b292e] text-[var(--gold)] font-bold border border-[var(--gold)]/40"
                           : "text-[#ccc3d8] hover:bg-[#201f23]"
                       }`}
                     >
@@ -716,7 +716,7 @@ export function AdminConfig() {
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block flex items-center justify-between">
                     <span>1. Tipografía para Títulos & Encabezados</span>
-                    <span className="font-mono text-[#f2be71]">{fontHeading}</span>
+                    <span className="font-mono text-[var(--gold)]">{fontHeading}</span>
                   </label>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
@@ -733,15 +733,15 @@ export function AdminConfig() {
                             }}
                             className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-1.5 ${
                               isSelected
-                                ? "bg-[#2b292e] border-[#f2be71] shadow-[0_0_12px_rgba(242,190,113,0.25)]"
-                                : "bg-[#201f23] border-[#363439] hover:border-[#f2be71]/40 hover:bg-[#252429]"
+                                ? "bg-[#2b292e] border-[var(--gold)] shadow-[0_0_12px_rgba(242,190,113,0.25)]"
+                                : "bg-[#201f23] border-[#363439] hover:border-[var(--gold)]/40 hover:bg-[#252429]"
                             }`}
                           >
                             <div className="flex items-center justify-between">
                               <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-[#141317] text-[#958da1]">
                                 {font.styleType}
                               </span>
-                              {isSelected && <Check className="w-3.5 h-3.5 text-[#f2be71]" />}
+                              {isSelected && <Check className="w-3.5 h-3.5 text-[var(--gold)]" />}
                             </div>
 
                             <div
@@ -764,7 +764,7 @@ export function AdminConfig() {
                 <div className="space-y-2 pt-2 border-t border-[#363439]/60">
                   <label className="text-xs font-semibold text-[#ccc3d8] uppercase tracking-wider block flex items-center justify-between">
                     <span>2. Tipografía para Textos de Lectura & Botones</span>
-                    <span className="font-mono text-[#f2be71]">{fontBody}</span>
+                    <span className="font-mono text-[var(--gold)]">{fontBody}</span>
                   </label>
 
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -780,8 +780,8 @@ export function AdminConfig() {
                           }}
                           className={`p-2.5 rounded-xl border text-center cursor-pointer transition-all ${
                             isSelected
-                              ? "bg-[#2b292e] border-[#f2be71] text-[#f2be71] font-bold"
-                              : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:border-[#f2be71]/40"
+                              ? "bg-[#2b292e] border-[var(--gold)] text-[var(--gold)] font-bold"
+                              : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:border-[var(--gold)]/40"
                           }`}
                         >
                           <span
@@ -806,7 +806,7 @@ export function AdminConfig() {
               <div className="space-y-4">
                 <div className="bg-[#201f23] border border-[#363439] p-4 rounded-xl space-y-2 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#f2be71] flex items-center gap-1.5">
+                    <span className="font-bold text-[var(--gold)] flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5" />
                       <span>Usa más de 1,500 fuentes gratuitas de Google Fonts</span>
                     </span>
@@ -814,14 +814,14 @@ export function AdminConfig() {
                       href="https://fonts.google.com"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#f2be71] hover:underline flex items-center gap-1 text-[11px] font-semibold"
+                      className="text-[var(--gold)] hover:underline flex items-center gap-1 text-[11px] font-semibold"
                     >
                       <span>Explorar fonts.google.com</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
                   <p className="text-[#ccc3d8]">
-                    Escribe el nombre exacto de la fuente de Google (ej: <code className="bg-[#141317] px-1 py-0.5 rounded text-[#f2be71]">Bebas Neue</code>, <code className="bg-[#141317] px-1 py-0.5 rounded text-[#f2be71]">Pacifico</code>, <code className="bg-[#141317] px-1 py-0.5 rounded text-[#f2be71]">Space Grotesk</code>, <code className="bg-[#141317] px-1 py-0.5 rounded text-[#f2be71]">Syne</code>) o pega directamente el enlace de Google Fonts.
+                    Escribe el nombre exacto de la fuente de Google (ej: <code className="bg-[#141317] px-1 py-0.5 rounded text-[var(--gold)]">Bebas Neue</code>, <code className="bg-[#141317] px-1 py-0.5 rounded text-[var(--gold)]">Pacifico</code>, <code className="bg-[#141317] px-1 py-0.5 rounded text-[var(--gold)]">Space Grotesk</code>, <code className="bg-[#141317] px-1 py-0.5 rounded text-[var(--gold)]">Syne</code>) o pega directamente el enlace de Google Fonts.
                   </p>
                 </div>
 
@@ -837,12 +837,12 @@ export function AdminConfig() {
                         value={customHeadingInput}
                         onChange={(e) => setCustomHeadingInput(e.target.value)}
                         placeholder="Ej: Bebas Neue o Cormorant Infant"
-                        className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3.5 py-2 text-xs w-full"
+                        className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3.5 py-2 text-xs w-full"
                       />
                       <button
                         type="button"
                         onClick={handleTestCustomHeading}
-                        className="bg-[#2b292e] hover:bg-[#363439] text-[#f2be71] border border-[#f2be71]/40 px-3 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors cursor-pointer"
+                        className="bg-[#2b292e] hover:bg-[#363439] text-[var(--gold)] border border-[var(--gold)]/40 px-3 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors cursor-pointer"
                       >
                         Probar
                       </button>
@@ -863,12 +863,12 @@ export function AdminConfig() {
                         value={customBodyInput}
                         onChange={(e) => setCustomBodyInput(e.target.value)}
                         placeholder="Ej: Plus Jakarta Sans o Cabin"
-                        className="bg-[#201f23] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3.5 py-2 text-xs w-full"
+                        className="bg-[#201f23] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-xl px-3.5 py-2 text-xs w-full"
                       />
                       <button
                         type="button"
                         onClick={handleTestCustomBody}
-                        className="bg-[#2b292e] hover:bg-[#363439] text-[#f2be71] border border-[#f2be71]/40 px-3 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors cursor-pointer"
+                        className="bg-[#2b292e] hover:bg-[#363439] text-[var(--gold)] border border-[var(--gold)]/40 px-3 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors cursor-pointer"
                       >
                         Probar
                       </button>
@@ -885,10 +885,10 @@ export function AdminConfig() {
             <div className="bg-[#141317] border border-[#363439] rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between border-b border-[#363439]/60 pb-2">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#958da1] flex items-center gap-1.5">
-                  <Eye className="w-3.5 h-3.5 text-[#f2be71]" />
+                  <Eye className="w-3.5 h-3.5 text-[var(--gold)]" />
                   <span>Previsualización Tipográfica en Vivo</span>
                 </span>
-                <span className="text-[10px] font-mono text-[#f2be71]">
+                <span className="text-[10px] font-mono text-[var(--gold)]">
                   Títulos: <strong>{fontHeading}</strong> • Texto: <strong>{fontBody}</strong>
                 </span>
               </div>
@@ -924,7 +924,7 @@ export function AdminConfig() {
                 </button>
 
                 <div
-                  className="text-xs font-semibold text-[#f2be71] font-mono"
+                  className="text-xs font-semibold text-[var(--gold)] font-mono"
                   style={{ fontFamily: `'${fontHeading}', sans-serif` }}
                 >
                   Mesa 04 • Ticket #8492 • $24.500 COP
@@ -957,7 +957,7 @@ export function AdminConfig() {
                 <button
                   type="button"
                   onClick={handleAddPrize}
-                  className="bg-[#201f23] hover:bg-[#2b292e] text-[#f2be71] border border-[#f2be71]/40 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="bg-[#201f23] hover:bg-[#2b292e] text-[var(--gold)] border border-[var(--gold)]/40 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Agregar Premio</span>
@@ -987,7 +987,7 @@ export function AdminConfig() {
                         updated[idx].name = e.target.value;
                         setPrizes(updated);
                       }}
-                      className="bg-[#141317] border border-[#363439] focus:border-[#f2be71]/60 focus:outline-none text-[#e6e1e7] rounded-lg px-3 py-1.5 text-xs font-semibold w-full"
+                      className="bg-[#141317] border border-[#363439] focus:border-[var(--gold)]/60 focus:outline-none text-[#e6e1e7] rounded-lg px-3 py-1.5 text-xs font-semibold w-full"
                       placeholder="Nombre del premio"
                     />
                   </div>
@@ -1004,7 +1004,7 @@ export function AdminConfig() {
                           updated[idx].probability = Number(e.target.value);
                           setPrizes(updated);
                         }}
-                        className="bg-[#141317] border border-[#363439] text-[#f2be71] font-mono text-center rounded-lg px-2 py-1.5 w-16 text-xs font-bold"
+                        className="bg-[#141317] border border-[#363439] text-[var(--gold)] font-mono text-center rounded-lg px-2 py-1.5 w-16 text-xs font-bold"
                       />
                       <span className="text-xs text-[#958da1] font-mono">%</span>
                     </div>
@@ -1029,7 +1029,7 @@ export function AdminConfig() {
         {/* COLUMNA DERECHA (1 COL): MOCKUP DE VISTA PREVIA EN MESA */}
         <div className="space-y-4">
           <h3 className="text-base font-bold text-[#e6e1e7] font-['Epilogue'] flex items-center gap-2">
-            <Eye className="w-4 h-4 text-[#f2be71]" />
+            <Eye className="w-4 h-4 text-[var(--gold)]" />
             <span>Vista Previa en Mesa de Comensal</span>
           </h3>
 
@@ -1040,7 +1040,7 @@ export function AdminConfig() {
                 {logoUrl ? (
                   <img src={logoUrl} alt="Logo" className="w-7 h-7 rounded-lg object-contain bg-[#201f23] p-0.5" />
                 ) : (
-                  <span className="w-7 h-7 rounded-lg bg-[#201f23] text-xs font-bold flex items-center justify-center text-[#f2be71]">
+                  <span className="w-7 h-7 rounded-lg bg-[#201f23] text-xs font-bold flex items-center justify-center text-[var(--gold)]">
                     {brandName.slice(0, 2).toUpperCase()}
                   </span>
                 )}
@@ -1059,7 +1059,7 @@ export function AdminConfig() {
                   </p>
                 </div>
               </div>
-              <span className="text-[10px] font-mono bg-[#201f23] text-[#f2be71] px-2 py-0.5 rounded-full border border-[#363439]">
+              <span className="text-[10px] font-mono bg-[#201f23] text-[var(--gold)] px-2 py-0.5 rounded-full border border-[#363439]">
                 Mesa 04
               </span>
             </div>
@@ -1101,7 +1101,7 @@ export function AdminConfig() {
             {/* Nota de marca blanca y fuentes activas */}
             <div className="p-3 rounded-xl bg-[#201f23] border border-[#363439] text-[11px] text-[#ccc3d8] space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-[#f2be71]">✓ Marca Blanca Activa</span>
+                <span className="font-bold text-[var(--gold)]">✓ Marca Blanca Activa</span>
                 <span className="text-[9px] font-mono text-[#958da1]">Google Fonts</span>
               </div>
               <p className="text-[#958da1] text-[10px]">

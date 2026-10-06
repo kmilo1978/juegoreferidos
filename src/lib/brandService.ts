@@ -41,8 +41,8 @@ export function getBrandConfig(): BrandIdentityConfig {
     logoUrl: clientConfig.brand.logoUrl,
     emblemUrl: clientConfig.brand.emblemUrl,
     currency: clientConfig.brand.currency,
-    primaryColor: clientConfig.theme.primaryColor || "#a27e2c",
-    primaryHover: clientConfig.theme.primaryHover || "#8c6b22",
+    primaryColor: clientConfig.theme.primaryColor || "#f2be71",
+    primaryHover: clientConfig.theme.primaryHover || "#ffddb1",
     backgroundColor: clientConfig.theme.backgroundColor || "#fcfaf7",
     cardColor: clientConfig.theme.cardColor || "#ffffff",
     textColor: clientConfig.theme.textColor || "#1e1b18",
@@ -91,15 +91,24 @@ export function applyBrandColors(primaryColor: string, bgColor?: string) {
   if (typeof window === "undefined" || !document?.documentElement) return;
 
   try {
-    // Aplicar color primario
-    document.documentElement.style.setProperty("--gold", primaryColor);
+    const root = document.documentElement.style;
 
-    // Calcular tono más claro para gradientes y hovers
+    // --gold es el token de marca tokenizado en toda la UI (clases [var(--gold)]).
+    // Al publicarlo aquí, cambiar el color en el panel propaga el dorado a todo
+    // el sistema (app del comensal, modales, panel admin) sin tocar componentes.
+    root.setProperty("--gold", primaryColor);
+
+    // Variante clara para gradientes/hovers/brillos. +25% de brillo mantiene la
+    // relación visual que tenía el par #f2be71 / #ffddb1 por defecto.
     const lighterColor = adjustColorBrightness(primaryColor, 25);
-    document.documentElement.style.setProperty("--gold-light", lighterColor);
+    root.setProperty("--gold-light", lighterColor);
+
+    // --primary-color: alias usado por componentes que lo leen directamente.
+    // Se mantiene sincronizado con --gold para una sola fuente de verdad.
+    root.setProperty("--primary-color", primaryColor);
 
     if (bgColor) {
-      document.documentElement.style.setProperty("--bg-cream", bgColor);
+      root.setProperty("--bg-cream", bgColor);
     }
   } catch (err) {
     console.warn("No se pudieron aplicar las variables CSS de marca:", err);

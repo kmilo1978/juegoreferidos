@@ -58,7 +58,7 @@ export function GamePickAndWinConfig() {
         <div className="flex items-center gap-3">
           <Link
             to="/games"
-            className="w-9 h-9 rounded-xl bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] flex items-center justify-center text-[#ccc3d8] hover:text-[#f2be71] transition-colors cursor-pointer"
+            className="w-9 h-9 rounded-xl bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] flex items-center justify-center text-[#ccc3d8] hover:text-[var(--gold)] transition-colors cursor-pointer"
             title="Volver al Catálogo de Juegos"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -82,7 +82,7 @@ export function GamePickAndWinConfig() {
               onClick={() => setActiveTab("settings")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === "settings"
-                  ? "bg-[#f2be71] text-[#121115]"
+                  ? "bg-[var(--gold)] text-[#121115]"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -96,7 +96,7 @@ export function GamePickAndWinConfig() {
               }}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "simulator"
-                  ? "bg-[#f2be71] text-[#121115]"
+                  ? "bg-[var(--gold)] text-[#121115]"
                   : "text-[#ccc3d8] hover:text-white"
               }`}
             >
@@ -109,7 +109,7 @@ export function GamePickAndWinConfig() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="bg-[#f2be71] hover:brightness-105 active:scale-98 text-[#121115] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+            className="bg-[var(--gold)] hover:brightness-105 active:scale-98 text-[#121115] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
           >
             <Save className="w-3.5 h-3.5" />
             <span>{saving ? "Guardando..." : "Guardar Dinámica"}</span>
@@ -144,7 +144,7 @@ export function GamePickAndWinConfig() {
                     className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col gap-2 ${
                       isSelected
                         ? "bg-[#271520] border-[#e6007e] ring-1 ring-[#e6007e]/40 shadow-md"
-                        : "bg-[#201f23] border-[#363439] hover:border-[#f2be71]/40"
+                        : "bg-[#201f23] border-[#363439] hover:border-[var(--gold)]/40"
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -181,7 +181,7 @@ export function GamePickAndWinConfig() {
           {/* Reglas de Juego & Premio */}
           <div className="bg-[#1c1b1f] border border-[#363439] rounded-2xl p-5 space-y-5 shadow-lg">
             <h3 className="text-sm font-bold text-[#e6e1e7] flex items-center gap-2 border-b border-[#2b292e] pb-3">
-              <Sliders className="w-4 h-4 text-[#f2be71]" />
+              <Sliders className="w-4 h-4 text-[var(--gold)]" />
               <span>Reglas de Juego, Intentos & Recompensa</span>
             </h3>
 
@@ -199,7 +199,7 @@ export function GamePickAndWinConfig() {
                     className={`py-3 rounded-xl border text-center font-bold text-xs transition-all cursor-pointer ${
                       settings.maxAttempts === num
                         ? "bg-[#fbbf24] text-[#121115] border-[#fbbf24] shadow-md"
-                        : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:border-[#f2be71]/40"
+                        : "bg-[#201f23] text-[#ccc3d8] border-[#363439] hover:border-[var(--gold)]/40"
                     }`}
                   >
                     <span>{num} Intentos</span>
@@ -278,7 +278,7 @@ export function GamePickAndWinConfig() {
             <button
               type="button"
               onClick={() => setPreviewKey((k) => k + 1)}
-              className="text-[#f2be71] hover:underline flex items-center gap-1 cursor-pointer font-semibold"
+              className="text-[var(--gold)] hover:underline flex items-center gap-1 cursor-pointer font-semibold"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reiniciar Simulación</span>

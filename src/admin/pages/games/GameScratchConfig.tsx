@@ -97,7 +97,7 @@ export function GameScratchConfig() {
         <div className="flex items-center gap-3">
           <Link
             to="/games"
-            className="w-8 h-8 rounded-xl bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] flex items-center justify-center text-[#ccc3d8] hover:text-[#f2be71] transition-all cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[#201f23] hover:bg-[#2b292e] border border-[#363439] flex items-center justify-center text-[#ccc3d8] hover:text-[var(--gold)] transition-all cursor-pointer"
             title="Volver al Catálogo de Juegos"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -428,7 +428,7 @@ export function GameScratchConfig() {
                           value={prize.value}
                           onChange={(e) => handlePrizeChange(idx, "value", e.target.value)}
                           placeholder="Valor (ej: $45.000 COP)"
-                          className="bg-[#1c1b1f] border border-[#363439] text-[#f2be71] text-[11px] rounded-lg px-2.5 py-1 w-32 focus:outline-none"
+                          className="bg-[#1c1b1f] border border-[#363439] text-[var(--gold)] text-[11px] rounded-lg px-2.5 py-1 w-32 focus:outline-none"
                         />
                         <input
                           type="text"
