@@ -42,6 +42,7 @@ import { SupabaseService } from "./lib/supabaseService";
 import { TableManagerService } from "./lib/tableManagerService";
 import { GameConfigService } from "./lib/gameConfigService";
 import { SecondChanceService } from "./lib/secondChanceService";
+import { normalizeActiveStepIds, LEGACY_STEP_ID_MAP } from "./lib/funnelSteps";
 import { MessageCircle, Sparkles, Timer, RotateCcw } from "lucide-react";
 import { site } from "./data/site";
 import { clientConfig } from "./config/clientConfig";
@@ -278,7 +279,10 @@ function JuegoQrPage() {
 
   const isStepActive = (stepId: string) => {
     if (!gameConfig.activeSteps || !Array.isArray(gameConfig.activeSteps)) return true;
-    return gameConfig.activeSteps.includes(stepId);
+    // Normalizar a ids canónicos para tolerar configuraciones antiguas
+    const activeIds = normalizeActiveStepIds(gameConfig.activeSteps);
+    const canonical = LEGACY_STEP_ID_MAP[stepId] ?? stepId;
+    return activeIds.includes(canonical as never);
   };
 
   // Registrar visita, cargar historial persistente y sincronizar configuración de juego
@@ -504,7 +508,7 @@ function JuegoQrPage() {
       // ignore
     }
     // Verificar si el paso 2 (Redes / Foto) está activo en el checklist
-    if (isStepActive("step_social")) {
+    if (isStepActive("step_instagram")) {
       setCurrentStep(2);
     } else {
       setCurrentStep(3);
@@ -827,7 +831,7 @@ function JuegoQrPage() {
                     onProceedToFeedback={() => {
                       if (isStepActive("step_feedback")) {
                         setCurrentStep(5);
-                      } else if (isStepActive("step_precision")) {
+                      } else if (isStepActive("step_second_chance")) {
                         setCurrentStep(6);
                       } else if (isStepActive("step_stamps")) {
                         setCurrentStep(7);
@@ -887,7 +891,7 @@ function JuegoQrPage() {
                   isStandAlone={false}
                   secondChanceConfig={secondChanceConfig}
                   onUnlockSecondChance={() => {
-                    if (isStepActive("step_precision")) {
+                    if (isStepActive("step_second_chance")) {
                       setCurrentStep(6);
                     } else if (isStepActive("step_stamps")) {
                       setCurrentStep(7);

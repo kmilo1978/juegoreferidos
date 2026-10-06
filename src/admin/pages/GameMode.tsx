@@ -1,20 +1,13 @@
 import { useEffect, useState } from "react";
 import {
   Loader2,
-  Gamepad2,
   Save,
   Sparkles,
   Timer,
-  CheckCircle,
-  Dices,
   Layers,
-  Coins,
-  Star,
-  Award,
-  Share2,
-  UserCheck,
 } from "lucide-react";
 import { apiUrl, getAuthToken } from "../../lib/apiClient";
+import { FUNNEL_STEPS, normalizeActiveStepIds } from "../../lib/funnelSteps";
 
 interface GameStepModule {
   id: string;
@@ -25,6 +18,21 @@ interface GameStepModule {
   active: boolean;
   required?: boolean;
 }
+
+/**
+ * Checklist derivado de la FUENTE ÚNICA DE VERDAD (FUNNEL_STEPS).
+ * Los ids coinciden exactamente con los que evalúa App.tsx (isStepActive),
+ * por lo que activar/desactivar aquí sí se refleja en la app del comensal.
+ */
+const BASE_GAME_MODULES: GameStepModule[] = FUNNEL_STEPS.map((s, idx) => ({
+  id: s.id,
+  name: `${idx + 1}. ${s.name}`,
+  category: s.category,
+  icon: s.emoji,
+  description: s.description,
+  active: true,
+  required: !s.canDisable,
+}));
 
 export function GameMode() {
   const [loading, setLoading] = useState(true);
@@ -45,82 +53,10 @@ export function GameMode() {
   const [scTerms, setScTerms] = useState("Válido hoy en caja.");
   const [scWhatsappStatus, setScWhatsappStatus] = useState("¡Disfrutando de una experiencia increíble en {restaurante}! ☕🍰 10/10 ✨");
 
-  // CHECKLIST MAESTRO DE PASOS Y MINIJUEGOS EN MESA
-  const [gameModules, setGameModules] = useState<GameStepModule[]>([
-    {
-      id: "step_register",
-      name: "1. Registro del Comensal",
-      category: "Captación",
-      icon: "👤",
-      description: "Pide Nombre y WhatsApp para crear el perfil y acreditar los primeros sellos.",
-      active: true,
-      required: true,
-    },
-    {
-      id: "step_social",
-      name: "2. Instagram Stories / Foto en Mesa",
-      category: "Viralidad",
-      icon: "📸",
-      description: "Invita al cliente a subir una foto etiquetando al negocio o enviándola por WhatsApp.",
-      active: true,
-    },
-    {
-      id: "step_roulette",
-      name: "3. Ruleta de la Suerte (Girar y Ganar)",
-      category: "Azar / Premios",
-      icon: "🎰",
-      description: "El cliente gira la ruleta y gana premios instantáneos de la casa según probabilidades.",
-      active: true,
-    },
-    {
-      id: "step_dice",
-      name: "4. Dados de la Suerte (Lanzar y Sumar)",
-      category: "Minijuego de Azar",
-      icon: "🎲",
-      description: "Lanza 2 dados en 3D: suma puntaje para desbloquear cupones escalonados.",
-      active: false,
-    },
-    {
-      id: "step_betting",
-      name: "5. Mesa de Apuestas (Carta Alta / Puntos)",
-      category: "Gamificación",
-      icon: "🃏",
-      description: "Permite apostar puntos acumulados para duplicarlos o ganar premios VIP.",
-      active: false,
-    },
-    {
-      id: "step_feedback",
-      name: "6. Calificación Google Maps (Embudo)",
-      category: "Reputación",
-      icon: "⭐",
-      description: "Calificación 1-5 estrellas: 4-5★ van a Google Maps y 1-3★ a WhatsApp privado.",
-      active: true,
-    },
-    {
-      id: "step_precision",
-      name: "7. Reto 10s de Precisión (2ª Oportunidad)",
-      category: "Destreza",
-      icon: "⏱️",
-      description: "Detener el cronómetro exactamente en 10.00s para ganar el premio de revancha.",
-      active: true,
-    },
-    {
-      id: "step_stamps",
-      name: "8. Tarjeta Digital de 15 Sellos VIP",
-      category: "Fidelización",
-      icon: "🎟️",
-      description: "Muestra la tarjeta de sellos acumulados y progreso hacia los hitos 5, 10 y 15.",
-      active: true,
-    },
-    {
-      id: "step_missions",
-      name: "9. Catálogo de Misiones de Embajador",
-      category: "Comunidad",
-      icon: "🎯",
-      description: "Misiones activas de redes sociales para sumar sellos adicionales.",
-      active: true,
-    },
-  ]);
+  // CHECKLIST MAESTRO DE PASOS Y MINIJUEGOS EN MESA (desde fuente única de verdad)
+  const [gameModules, setGameModules] = useState<GameStepModule[]>(
+    () => BASE_GAME_MODULES.map((m) => ({ ...m }))
+  );
 
   const fetchData = async () => {
     try {
@@ -140,10 +76,12 @@ export function GameMode() {
         setMaxAttempts(gameData.gameConfig.maxAttempts || 3);
 
         if (Array.isArray(gameData.gameConfig.activeSteps)) {
+          // Normalizar ids (soporta configs antiguas con ids viejos/fantasma)
+          const activeIds = normalizeActiveStepIds(gameData.gameConfig.activeSteps);
           setGameModules((prev) =>
             prev.map((mod) => ({
               ...mod,
-              active: mod.required ? true : gameData.gameConfig.activeSteps.includes(mod.id),
+              active: mod.required ? true : activeIds.includes(mod.id as never),
             }))
           );
         }

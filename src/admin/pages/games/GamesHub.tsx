@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { GameSequenceManager } from "./GameSequenceManager";
 import { GameExclusiveCustomizer } from "./GameExclusiveCustomizer";
+import { apiGet, apiPost } from "../../../lib/apiClient";
 
 interface GameInfo {
   id: string;
@@ -129,11 +130,27 @@ export function GamesHub() {
     },
   ];
 
+  const [error, setError] = useState<string | null>(null);
+
+  const gameModeLabel = (mode: string): string =>
+    mode === "roulette"
+      ? "Ruleta de Premios"
+      : mode === "precision"
+      ? "Cronómetro 10s"
+      : mode === "scratch"
+      ? "Raspa y Gana"
+      : mode === "memory"
+      ? "Juego de Memoria"
+      : mode === "jackpot"
+      ? "Máquina de Jackpot"
+      : mode === "plinko"
+      ? "Suelta y Gana (Plinko)"
+      : "Descubre y Gana (Día de Muertos)";
+
   useEffect(() => {
-    fetch("/api/game-config")
-      .then((res) => res.json())
+    apiGet("/game-config")
       .then((data) => {
-        if (data.gameConfig?.gameMode) {
+        if (data?.gameConfig?.gameMode) {
           setActiveGameMode(data.gameConfig.gameMode);
         }
       })
@@ -142,20 +159,24 @@ export function GamesHub() {
   }, []);
 
   const handleSelectGameMode = async (mode: string) => {
-    setActiveGameMode(mode);
+    const previous = activeGameMode;
+    setActiveGameMode(mode); // feedback optimista
     setSaving(true);
+    setError(null);
     try {
-      const res = await fetch("/api/game-config", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gameMode: mode }),
-      });
-      if (res.ok) {
-        setSuccess(`✓ Juego activo en mesas actualizado a: ${mode === "roulette" ? "Ruleta de Premios" : mode === "precision" ? "Cronómetro 10s" : mode === "scratch" ? "Raspa y Gana" : mode === "memory" ? "Juego de Memoria" : mode === "jackpot" ? "Máquina de Jackpot" : mode === "plinko" ? "Suelta y Gana (Plinko)" : "Descubre y Gana (Día de Muertos)"}`);
-        setTimeout(() => setSuccess(null), 3500);
-      }
-    } catch {
-      // ignore
+      // apiPost adjunta el token admin y lanza si el backend rechaza (401, etc.)
+      await apiPost("/game-config", { gameMode: mode });
+      setSuccess(`✓ Juego activo en mesas actualizado a: ${gameModeLabel(mode)}`);
+      setTimeout(() => setSuccess(null), 3500);
+    } catch (err) {
+      // Revertir la selección si el guardado falló (p. ej. sesión caducada)
+      setActiveGameMode(previous);
+      setError(
+        err instanceof Error && /401/.test(err.message)
+          ? "Tu sesión caducó. Vuelve a ingresar el PIN para cambiar el juego activo."
+          : "No se pudo guardar el juego activo. Inténtalo de nuevo."
+      );
+      setTimeout(() => setError(null), 4000);
     } finally {
       setSaving(false);
     }
@@ -233,6 +254,12 @@ export function GamesHub() {
         </div>
       )}
 
+      {error && (
+        <div className="bg-red-950/40 border border-red-500/50 text-red-300 px-4 py-3 rounded-xl text-xs font-semibold animate-fade-in">
+          {error}
+        </div>
+      )}
+
       {/* RENDERIZADO SEGÚN PESTAÑA */}
       {activeTab === "exclusive" ? (
         <GameExclusiveCustomizer />
@@ -253,11 +280,11 @@ export function GamesHub() {
                 </p>
               </div>
               <span className="text-[10px] font-mono font-bold text-[#121115] bg-[#f2be71] px-2.5 py-1 rounded-full uppercase">
-                {activeGameMode === "roulette" ? "Ruleta Activa" : activeGameMode === "scratch" ? "Raspa Activo" : activeGameMode === "memory" ? "Memoria Activa" : activeGameMode === "jackpot" ? "Jackpot Activo" : activeGameMode === "plinko" ? "Suelta y Gana Activo" : "Descubre y Gana Activo"}
+                {gameModeLabel(activeGameMode)} Activo
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3">
               {[
                 { id: "roulette", name: "Ruleta", icon: RotateCw, desc: "Girar y ganar azar" },
                 { id: "scratch", name: "Raspa y Gana", icon: Flame, desc: "Rasca con el dedo" },
@@ -265,6 +292,7 @@ export function GamesHub() {
                 { id: "pick-win", name: "Descubre y Gana", icon: Sparkles, desc: "3 iguales Día Muertos" },
                 { id: "jackpot", name: "Jackpot", icon: Coins, desc: "3 rodillos en línea" },
                 { id: "plinko", name: "Suelta y Gana", icon: CircleDot, desc: "Caída de bola y clavijas" },
+                { id: "precision", name: "Cronómetro 10s", icon: Timer, desc: "Detén el reloj en 10.00s" },
               ].map((mode) => {
             const isSelected = activeGameMode === mode.id;
             return (
