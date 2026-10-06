@@ -20,6 +20,7 @@ import { Composio } from "./pages/Composio";
 import { Analytics } from "./pages/Analytics";
 import { Contest } from "./pages/Contest";
 import { Demo } from "./pages/Demo";
+import { DemoGenerator } from "./pages/DemoGenerator";
 import { NfcAssistant } from "./pages/NfcAssistant";
 import { GamesHub } from "./pages/games/GamesHub";
 import { GameRouletteConfig } from "./pages/games/GameRouletteConfig";
@@ -117,6 +118,7 @@ export function AdminApp() {
             <Route path="games/second-chance" element={<GameSecondChanceConfig />} />
             <Route path="game-mode" element={<GamesHub />} />
             <Route path="demo" element={<Demo />} />
+            <Route path="demo-generator" element={<DemoGenerator />} />
             <Route path="nfc" element={<NfcAssistant />} />
             <Route path="wifi" element={<WifiPortal />} />
             <Route path="channels" element={<Channels />} />

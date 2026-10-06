@@ -32,6 +32,7 @@ import {
   CircleDot,
   Sliders,
   HelpCircle,
+  Wand2,
 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
@@ -88,7 +89,7 @@ export function AdminLayout() {
   const [gamesSubmenuOpen, setGamesSubmenuOpen] = useState(() => {
     if (typeof window !== "undefined") {
       const hash = window.location.hash || "";
-      if (hash.includes("/games") || hash.includes("/game-mode") || hash.includes("/demo")) return true;
+      if (hash.includes("/games") || hash.includes("/game-mode") || hash.includes("/demo") || hash.includes("/demo-generator")) return true;
       const saved = localStorage.getItem("admin_games_submenu");
       if (saved !== null) return saved === "true";
     }
@@ -106,7 +107,7 @@ export function AdminLayout() {
   };
 
   useEffect(() => {
-    if (location.pathname.startsWith("/games") || location.pathname === "/game-mode" || location.pathname === "/demo") {
+    if (location.pathname.startsWith("/games") || location.pathname === "/game-mode" || location.pathname.startsWith("/demo")) {
       setGamesSubmenuOpen(true);
     }
   }, [location.pathname]);
@@ -132,6 +133,7 @@ export function AdminLayout() {
       case "/games/second-chance": return "Segunda Oportunidad Viral (WhatsApp)";
       case "/game-mode": return "Catálogo Modular de Juegos";
       case "/demo": return "Simulador Frontend (Demo en Vivo)";
+      case "/demo-generator": return "Generador de Demo Personalizado (Ventas)";
       case "/nfc": return "Asistente NFC & Mesas Contactless";
       case "/wifi": return "Portal Cautivo WiFi & Kiosko";
       case "/channels": return "Canales & WhatsApp";
@@ -177,6 +179,7 @@ export function AdminLayout() {
       hasGamesSubmenu: true,
       items: [
         { path: "/demo", label: "Simulador Frontend (Demo)", icon: Smartphone },
+        { path: "/demo-generator", label: "Generador de Demo (Ventas)", icon: Wand2 },
         { path: "/nfc", label: "Asistente NFC Mesas", icon: Radio },
         { path: "/wifi", label: "Portal WiFi / Kiosko", icon: Wifi },
         { path: "/channels", label: "Canales & WhatsApp", icon: MessageCircle },

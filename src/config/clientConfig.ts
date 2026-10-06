@@ -98,7 +98,71 @@ const getStoredBrand = () => {
   return null;
 };
 
-const storedBrand = getStoredBrand();
+/**
+ * Branding por querystring — habilita el "demo en vivo personalizado desde la calle".
+ *
+ * Un comercial comparte un enlace como:
+ *   https://app.tudominio.com/?demo=true&brand=Café%20Luna&color=%23c0392b&tel=573001234567&logo=https://.../logo.png
+ * y la app se autoconfigura al abrir (sin login ni backend). Los valores leídos
+ * de la URL se mezclan sobre lo guardado en localStorage y se persisten, de modo
+ * que sobreviven a recargas y a la navegación interna del demo.
+ *
+ * Parámetros aceptados: brand (nombre), color (hex primario), tel (WhatsApp),
+ * logo (URL de imagen ya hospedada), tagline, ig (handle de Instagram).
+ */
+const getUrlBrandOverride = (): Record<string, unknown> | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const p = new URLSearchParams(window.location.search);
+    const override: Record<string, unknown> = {};
+
+    const brand = p.get("brand");
+    if (brand) override.name = brand.trim();
+
+    const tagline = p.get("tagline");
+    if (tagline) override.tagline = tagline.trim();
+
+    const color = p.get("color");
+    if (color) {
+      // Acepta "#c0392b" o "c0392b" (sin #, común al pasar por URL)
+      const hex = color.startsWith("#") ? color : `#${color}`;
+      if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+        override.primaryColor = hex;
+      }
+    }
+
+    const logo = p.get("logo");
+    if (logo && /^https?:\/\//i.test(logo)) override.logoUrl = logo.trim();
+
+    const tel = p.get("tel");
+    if (tel) override.whatsappNumber = tel.replace(/[^0-9]/g, "");
+
+    const ig = p.get("ig");
+    if (ig) override.instagramHandle = ig.startsWith("@") ? ig : `@${ig}`;
+
+    return Object.keys(override).length > 0 ? override : null;
+  } catch {
+    return null;
+  }
+};
+
+const urlBrandOverride = getUrlBrandOverride();
+
+// La marca de la URL tiene prioridad sobre lo guardado. Se persiste para que el
+// demo personalizado sobreviva a recargas y a la navegación interna.
+const storedBrand = (() => {
+  const base = getStoredBrand() || {};
+  if (!urlBrandOverride) return getStoredBrand();
+  const merged = { ...base, ...urlBrandOverride };
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem("juegoreferidos_brand_identity", JSON.stringify(merged));
+    } catch {
+      // ignore
+    }
+  }
+  return merged;
+})();
 
 export const clientConfig: ClientConfig = {
   brand: {
