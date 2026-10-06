@@ -48,6 +48,8 @@ import {
   Tag,
   CheckSquare,
   Square,
+  QrCode,
+  Target,
 } from "lucide-react";
 import { calculateAnalytics } from "../../lib/analyticsService";
 import { clientConfig } from "../../config/clientConfig";
@@ -164,6 +166,8 @@ interface AdminPanelModalProps {
   onUpdatePrizes: (newPrizes: GamePrize[]) => void;
   history: WonPrize[];
   onGenerateNewTable: () => void;
+  onOpenTableStand?: () => void;
+  onOpenMissions?: () => void;
 }
 
 export function AdminPanelModal({
@@ -173,6 +177,8 @@ export function AdminPanelModal({
   onUpdatePrizes,
   history,
   onGenerateNewTable,
+  onOpenTableStand,
+  onOpenMissions,
 }: AdminPanelModalProps) {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<
@@ -806,6 +812,32 @@ export function AdminPanelModal({
           </div>
 
           <div className="flex items-center gap-2.5">
+            {/* Acceso a la ficha imprimible de mesa/caja */}
+            {onOpenTableStand && (
+              <button
+                type="button"
+                onClick={onOpenTableStand}
+                className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-white/90 flex items-center justify-center transition-colors border border-white/10"
+                title={t("Ficha / QR para Mesa y Caja", "Table / Cashier QR card")}
+                aria-label={t("Abrir ficha de mesa", "Open table stand")}
+              >
+                <QrCode className="h-4 w-4" />
+              </button>
+            )}
+
+            {/* Acceso al centro de misiones de embajador */}
+            {onOpenMissions && (
+              <button
+                type="button"
+                onClick={onOpenMissions}
+                className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-white/90 flex items-center justify-center transition-colors border border-white/10"
+                title={t("Centro de Misiones de Embajador", "Ambassador Missions Hub")}
+                aria-label={t("Abrir centro de misiones", "Open missions hub")}
+              >
+                <Target className="h-4 w-4" />
+              </button>
+            )}
+
             {/* Botón de bloqueo / cerrar sesión de rol */}
             <button
               type="button"

@@ -656,6 +656,7 @@ function JuegoQrPage() {
         onResetSession={handleResetSession}
         onOpenKioskPortal={() => setIsKioskModalOpen(true)}
         onOpenPushModal={() => setIsPushModalOpen(true)}
+        onOpenStaffPanel={() => setIsAdminOpen(true)}
         onStepClick={(step) => {
           setCurrentStep(step);
           window.scrollTo({ top: 0, behavior: "smooth" });
@@ -993,6 +994,8 @@ function JuegoQrPage() {
         onUpdatePrizes={handleUpdatePrizes}
         history={history}
         onGenerateNewTable={handleResetSession}
+        onOpenTableStand={() => setIsTableStandOpen(true)}
+        onOpenMissions={() => setIsMissionsOpen(true)}
       />
 
       {/* Modal de Arte y Ficha para Mesa / Caja */}
