@@ -166,8 +166,14 @@ En resumen: Hermes es el **canal de salida/monitoreo** hacia un sistema externo 
 - Validaciones del endpoint: `demoUrl` debe ser `https?://`; `tel` se normaliza a dígitos y es obligatorio (si falta → 400).
 - Tests: `server/__tests__/api.test.js` cubre auth requerida, fallback sin credenciales (enlace `wa.me` con tel normalizado) y rechazos 400.
 
-**Pendiente / opcional (a confirmar con el negocio):**
-- **Subida de archivo de logo** (hoy el logo se pasa como URL ya hospedada; subir un archivo requeriría almacenamiento + endpoint).
+**Subida de archivo de logo (implementado):**
+- Módulo `server/modules/uploads.js`. Endpoint protegido `POST /api/demo/upload-logo` recibe `{ dataUrl }` (data URL base64), valida tipo (PNG/JPG/WebP/SVG/GIF) y tamaño (máx. 2 MB), guarda en `public/uploads/` con nombre único y devuelve `{ url: "/uploads/<archivo>" }`.
+- `GET /uploads/<archivo>` sirve el archivo estáticamente (público; con protección anti-traversal). En producción el host sirve `public/` junto al frontend.
+- El frontend (`DemoGenerator.tsx`) sube el archivo y guarda la URL **absoluta** (`origin + /uploads/...`) para que viaje corta en el querystring (no se usa base64 directo: reventaría el QR y el límite de URL). También acepta pegar una URL pública.
+- `public/uploads/*` está en `.gitignore` (datos de runtime); la carpeta se mantiene con `.gitkeep`.
+- Tests: auth requerida, subida de PNG válido + verificación de que se sirve, y rechazos 400 (dataUrl inválida, tipo no permitido) + 404 de archivo inexistente.
+
+> Etapa 6 completa: generador + branding por querystring + envío por Hermes + subida de logo. No quedan pendientes abiertos en este sistema.
 
 ---
 

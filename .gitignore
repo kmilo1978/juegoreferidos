@@ -31,3 +31,7 @@ server/.env
 
 # Pruebas
 coverage
+
+# Logos de demo subidos en runtime (no versionar; mantener la carpeta vía .gitkeep)
+public/uploads/*
+!public/uploads/.gitkeep

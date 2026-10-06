@@ -12,6 +12,7 @@
  *  - Push (Web Push notifications y difusión + Geofencing)
  *  - Captive Portal (Servicio tipo Kiosko y Portal Cautivo WiFi)
  *  - NFC (Asistente NFC/QR por mesa)
+ *  - Uploads (Subida de logos para el Generador de Demo)
  *  - Views/Dashboard (Panel visual de administración)
  */
 
@@ -28,6 +29,7 @@ import { handleConfig } from "./modules/config.js";
 import { handlePush } from "./modules/push.js";
 import { handleCaptivePortal } from "./modules/captive-portal.js";
 import { handleNfc } from "./modules/nfc.js";
+import { handleUploads } from "./modules/uploads.js";
 
 const modules = [
   handleTables,
@@ -39,6 +41,7 @@ const modules = [
   handlePush,
   handleCaptivePortal,
   handleNfc,
+  handleUploads,
 ];
 
 // =========================================================================
@@ -58,6 +61,7 @@ const PROTECTED = [
   ["POST", "/api/hermes/config"],
   ["POST", "/api/hermes/test"],
   ["POST", "/api/hermes/send-demo"],
+  ["POST", "/api/demo/upload-logo"],
   ["POST", "/api/reputation/config"],
   ["POST", "/api/portal/config"],
   ["POST", /^\/api\/portal\/devices\/(disconnect|extend)$/],
@@ -202,6 +206,7 @@ server.listen(PORT, () => {
   console.log(`   - [Push]           /api/push/* (+ Web Push + Geofencing)`);
   console.log(`   - [Captive Portal] /api/portal/* (Kiosko & WiFi Captive Portal)`);
   console.log(`   - [NFC]            /api/nfc/* (Asistente NFC/QR por mesa)`);
+  console.log(`   - [Uploads]        /api/demo/upload-logo, /uploads/* (logos de demo)`);
   console.log(`   - [Dashboard]      http://localhost:${PORT}/`);
   console.log(`   - CORS: ${ALLOWED_ORIGINS.length ? ALLOWED_ORIGINS.join(", ") : "* (desarrollo)"}`);
   console.log(`======================================================\n`);
