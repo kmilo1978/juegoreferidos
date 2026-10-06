@@ -132,28 +132,40 @@ export class ComposioService {
   }
 
   /**
-   * Valida el cupón en caja mediante PIN y actualiza el estado a 'SÍ'
+   * Sincroniza a Google Sheets el canje de un cupón (lo marca como validado en caja).
+   *
+   * IMPORTANTE: este método NO valida el PIN del cajero. La validación del PIN
+   * ocurre antes, de forma local, en `verifyCashierPin` (tableSecurityService);
+   * aquí el `pin` se envía solo como dato informativo para la hoja de cálculo.
+   *
+   * Devuelve `true` únicamente cuando hay webhook configurado y el POST se envió
+   * sin excepción; devuelve `false` si no hay webhook o si la petición falla, para
+   * no reportar un éxito de sincronización inexistente (evita "fail-open").
+   * Nota: con `mode: "no-cors"` el navegador no expone el status HTTP, por lo que
+   * `true` significa "enviado sin error de red", no "aceptado por el servidor".
    */
   static async validateCashierPin(uniqueCode: string, pin: string): Promise<boolean> {
     const config = getComposioConfig();
     const webhookUrl = config.endpoints.googleSheetWebhookUrl || clientConfig.composio.endpoints?.googleSheetWebhookUrl;
-    if (webhookUrl) {
-      try {
-        await fetch(webhookUrl, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "VALIDATE_PIN",
-            uniqueCode,
-            pin,
-          }),
-        });
-        return true;
-      } catch (err) {
-        console.error("[Google Sheets Webhook] Error al validar PIN:", err);
-      }
+    if (!webhookUrl) {
+      // Sin webhook no hay nada que sincronizar: no es un éxito.
+      return false;
     }
-    return true;
+    try {
+      await fetch(webhookUrl, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "VALIDATE_PIN",
+          uniqueCode,
+          pin,
+        }),
+      });
+      return true;
+    } catch (err) {
+      console.error("[Google Sheets Webhook] Error al sincronizar canje de cupón:", err);
+      return false;
+    }
   }
 }

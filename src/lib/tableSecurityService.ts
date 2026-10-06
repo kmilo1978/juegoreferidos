@@ -187,18 +187,23 @@ export function authenticatePin(inputPin: string): "owner" | "admin" | "cashier"
   const managerPin = getManagerAdminPin();
   const cashierPin = getActiveCashierPin();
 
+  // Se compara SOLO contra el PIN configurado de cada rol (que incluye su valor
+  // por defecto hasta que el dueño lo cambie). No hay literales de respaldo:
+  // antes existían backdoors ("0000" dueño, "1234" cajero) que concedían acceso
+  // aunque el dueño hubiera cambiado los PINs. Fail-closed: PIN no configurado = sin acceso.
+
   // 1. Dueño / Master Owner (Acceso Total y creador de permisos)
-  if (inputPin === masterPin || inputPin === "8888" || inputPin === "0000") {
+  if (inputPin === masterPin) {
     return "owner";
   }
 
   // 2. Administrador / Gerente
-  if (inputPin === managerPin || inputPin === "5555") {
+  if (inputPin === managerPin) {
     return "admin";
   }
 
   // 3. Cajero / Personal de turno
-  if (inputPin === cashierPin || inputPin === "1978" || inputPin === "1234") {
+  if (inputPin === cashierPin) {
     return "cashier";
   }
 
