@@ -1,6 +1,6 @@
 import { TableSession } from "./gameTypes";
 import { useLanguage } from "@/context/LanguageContext";
-import { RotateCcw, Wifi, Bell } from "lucide-react";
+import { RotateCcw, Wifi, Bell, KeyRound } from "lucide-react";
 import emblemaDorado from "@/assets/emblema-dorado.png";
 import { clientConfig } from "@/config/clientConfig";
 
@@ -10,6 +10,7 @@ interface GameHeaderProps {
   onResetSession: () => void;
   onOpenKioskPortal?: () => void;
   onOpenPushModal?: () => void;
+  onOpenStaffPanel?: () => void;
   onStepClick?: (step: number) => void;
 }
 
@@ -19,6 +20,7 @@ export function GameHeader({
   onResetSession,
   onOpenKioskPortal,
   onOpenPushModal,
+  onOpenStaffPanel,
   onStepClick,
 }: GameHeaderProps) {
   const { t, lang, setLang } = useLanguage();
@@ -84,6 +86,7 @@ export function GameHeader({
                 onClick={onOpenPushModal}
                 className="h-7 w-7 rounded-full bg-[var(--gold)]/15 text-[var(--gold)] border border-[var(--gold)]/30 flex items-center justify-center cursor-pointer hover:bg-[var(--gold)]/25 transition-colors"
                 title="Notificaciones VIP & Gestión de Bajas"
+                aria-label="Notificaciones VIP y gestión de bajas"
               >
                 <Bell className="h-3.5 w-3.5" />
               </button>
@@ -94,8 +97,20 @@ export function GameHeader({
                 onClick={onOpenKioskPortal}
                 className="h-7 w-7 rounded-full bg-[#047857]/20 text-[#10b981] border border-[#10b981]/40 flex items-center justify-center cursor-pointer hover:bg-[#047857]/30 transition-colors"
                 title="WiFi Kiosko"
+                aria-label="Abrir portal WiFi Kiosko"
               >
                 <Wifi className="h-3.5 w-3.5 animate-pulse" />
+              </button>
+            )}
+            {onOpenStaffPanel && (
+              <button
+                type="button"
+                onClick={onOpenStaffPanel}
+                className="h-7 w-7 rounded-full bg-[#201f23] text-[#958da1] border border-[#363439] flex items-center justify-center cursor-pointer hover:text-[var(--gold)] hover:border-[var(--gold)]/40 transition-colors"
+                title={t("Panel de Personal (requiere PIN)", "Staff Panel (PIN required)")}
+                aria-label={t("Abrir panel de personal", "Open staff panel")}
+              >
+                <KeyRound className="h-3.5 w-3.5" />
               </button>
             )}
             <button
@@ -103,6 +118,7 @@ export function GameHeader({
               onClick={onResetSession}
               className="h-7 w-7 rounded-full bg-[#201f23] hover:bg-[#2b292e] text-[#ccc3d8] hover:text-[var(--gold)] border border-[#363439] flex items-center justify-center transition-all cursor-pointer"
               title="Reiniciar Demo al Paso 1"
+              aria-label="Reiniciar al paso 1"
             >
               <RotateCcw className="h-3 w-3" />
             </button>
