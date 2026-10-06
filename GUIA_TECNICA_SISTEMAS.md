@@ -139,21 +139,27 @@ Hermes se presenta como "agente IA & WhatsApp omnicanal", pero **el backend NO e
 
 En resumen: Hermes es el **canal de salida/monitoreo** hacia un sistema externo (CRM/POS/WhatsApp API). No genera contenido ni demos por sí mismo.
 
-### 6.2 La idea del "demo en vivo personalizado desde la calle"
+### 6.2 Generador de demo en vivo personalizado "desde la calle" — IMPLEMENTADO
+
 **Objetivo:** un comercial, frente a un cliente potencial, introduce unos datos (nombre del restaurante, logo, color, teléfono) y genera al instante un demo personalizado de la app para mostrarlo.
 
-**Diagnóstico:** esta idea **no le corresponde a Hermes** (que es un conector). Es ~70% construible reutilizando piezas que ya existen:
-1. **Modo demo por URL** — `?demo=true` ya abre la app lista para mostrar (`App.tsx`).
-2. **Branding dinámico** — `brandService` ya aplica color/fuentes/nombre en vivo y persiste en `localStorage`.
-3. **Simulador** — `src/admin/pages/Demo.tsx` ya muestra la app en un iframe con selector de dispositivo y **QR** para abrir en un celular físico.
+**Estado: implementado** (no corresponde a Hermes, que es un conector; se construyó como herramienta de ventas independiente reutilizando piezas existentes).
 
-**Lo que faltaría (trabajo real pendiente, NO implementado aún):**
-- **Branding por querystring:** leer `?brand=`, `?logo=`, `?color=`, `?tel=` en `clientConfig.ts`/`App.tsx` y aplicarlos vía `applyBrandColors`/`saveBrandConfig`, para que **un solo enlace sea autoconfigurable** sin backend ni login (clave para "en la calle").
-- **Generador de enlace/QR:** un formulario (en `Demo.tsx` o una página nueva) que tome nombre/logo/color/teléfono y produzca una URL compartible + QR, reutilizando `buildFrontendUrl` del simulador.
-- **Logo:** pasarlo como URL en el enlace (requiere que el logo esté hospedado en algún lado) o usar solo nombre + color para el demo rápido.
-- **Rol de Hermes (opcional):** una vez generado el enlace, Hermes podría ser el canal que lo **envía por WhatsApp** al cliente — eso sí encaja con su naturaleza de conector.
+**Cómo funciona (paso a paso):**
+1. **Página del generador** — `src/admin/pages/DemoGenerator.tsx`, ruta `/demo-generator` (menú lateral: "Generador de Demo (Ventas)"). Formulario con nombre, color, WhatsApp, URL de logo (opcional) y eslogan (opcional).
+2. **Enlace autoconfigurable** — produce `…/?demo=true&brand=&color=&tel=&logo=&tagline=`. Un solo enlace, sin backend ni login.
+3. **Branding por querystring** — `getUrlBrandOverride()` en `src/config/clientConfig.ts` lee esos parámetros y los mezcla sobre la marca de `localStorage`, persistiéndolos. Corre antes de la auto-init de `brandService` (garantizado por el orden de import), así la app abre ya personalizada.
+4. **Compartir** — la página entrega QR (`api.qrserver.com`, sin dependencias nuevas), botón Copiar, Abrir y **enviar por WhatsApp** (`wa.me` con mensaje pre-redactado).
 
-> Este apartado documenta la brecha; la implementación del generador de demo se deja como siguiente etapa a confirmar con el negocio.
+**Validaciones de los parámetros** (en `getUrlBrandOverride`):
+- `color` → acepta con/sin `#`, valida `/^#[0-9a-fA-F]{6}$/`.
+- `logo` → solo acepta URLs `https?://`.
+- `tel` → limpia todo lo que no sea dígito.
+- `ig` → antepone `@` si falta.
+
+**Pendiente / opcional (a confirmar con el negocio):**
+- **Subida de archivo de logo** (hoy el logo se pasa como URL ya hospedada; subir un archivo requeriría almacenamiento + endpoint).
+- **Rol de Hermes (opcional):** una vez generado el enlace, Hermes podría ser el canal que lo **envía por WhatsApp** automáticamente al cliente — eso sí encaja con su naturaleza de conector.
 
 ---
 
