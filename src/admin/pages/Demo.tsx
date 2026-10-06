@@ -113,7 +113,9 @@ export function Demo() {
   const [isLandscape, setIsLandscape] = useState<boolean>(false);
   const [selectedStep, setSelectedStep] = useState<number>(1);
   const [selectedTable, setSelectedTable] = useState<string>("1");
-  const [selectedGame, setSelectedGame] = useState<"ruleta" | "precision" | "scratch" | "memory" | "pick-win" | "jackpot" | "plinko">("ruleta");
+  // "auto" = usa el juego configurado en el panel (gameConfig.gameMode del backend).
+  // Cualquier otro valor fuerza ese juego vía query param para evaluarlo aislado.
+  const [selectedGame, setSelectedGame] = useState<"auto" | "ruleta" | "precision" | "scratch" | "memory" | "pick-win" | "jackpot" | "plinko">("auto");
   const [funnelSteps, setFunnelSteps] = useState(() => FunnelSequenceService.getSequence());
   const [customHost, setCustomHost] = useState<string>(
     typeof window !== "undefined" ? window.location.hostname : "localhost"
@@ -148,18 +150,10 @@ export function Demo() {
       params.set("paso", step.toString());
     }
 
-    if (game === "precision") {
-      params.set("juego", "precision");
-    } else if (game === "scratch") {
-      params.set("juego", "scratch");
-    } else if (game === "memory") {
-      params.set("juego", "memory");
-    } else if (game === "pick-win") {
-      params.set("juego", "pick-win");
-    } else if (game === "jackpot") {
-      params.set("juego", "jackpot");
-    } else if (game === "plinko") {
-      params.set("juego", "plinko");
+    // En "auto" NO se fuerza juego por URL: la app usa el gameMode configurado
+    // en el panel, de modo que el simulador refleja fielmente la mesa real.
+    if (game !== "auto") {
+      params.set("juego", game);
     }
 
     return `/?${params.toString()}`;
@@ -171,7 +165,9 @@ export function Demo() {
   const qrTargetUrl = (() => {
     const port = typeof window !== "undefined" && window.location.port ? `:${window.location.port}` : ":5173";
     const protocol = typeof window !== "undefined" ? window.location.protocol : "http:";
-    return `${protocol}//${customHost}${port}/?mesa=${selectedTable}&demo=true&juego=${selectedGame}`;
+    // En "auto" no se fuerza el juego: se usa el configurado en el panel.
+    const juegoParam = selectedGame !== "auto" ? `&juego=${selectedGame}` : "";
+    return `${protocol}//${customHost}${port}/?mesa=${selectedTable}&demo=true${juegoParam}`;
   })();
 
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(
@@ -466,6 +462,20 @@ export function Demo() {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
+                  onClick={() => setSelectedGame("auto")}
+                  className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer col-span-2 ${
+                    selectedGame === "auto"
+                      ? "bg-[#2b292e] border-[var(--gold)] text-[var(--gold)]"
+                      : "bg-[#201f23] border-[#363439] text-[#ccc3d8] hover:bg-[#252429]"
+                  }`}
+                  title="Usa el juego configurado como activo en el panel (igual que verá el comensal real)"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Automático (según configuración)</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => setSelectedGame("ruleta")}
                   className={`p-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     selectedGame === "ruleta"
@@ -581,7 +591,7 @@ export function Demo() {
                 className="w-44 h-44 rounded-lg shadow-md border border-[var(--gold)]/30 p-1 bg-[#1c1b1f]"
               />
               <span className="text-[11px] text-[var(--gold)] font-mono mt-2 font-bold break-all text-center">
-                Mesa: {selectedTable} • {selectedGame === "ruleta" ? "Ruleta" : "Cronómetro"}
+                Mesa: {selectedTable} • {selectedGame === "auto" ? "Juego configurado" : selectedGame === "ruleta" ? "Ruleta" : selectedGame === "precision" ? "Cronómetro 10s" : selectedGame === "scratch" ? "Raspa y Gana" : selectedGame === "memory" ? "Memoria" : selectedGame === "pick-win" ? "Descubre y Gana" : selectedGame === "jackpot" ? "Jackpot" : "Suelta y Gana"}
               </span>
             </div>
 
