@@ -3,6 +3,11 @@ import { Wifi, Sparkles, CheckCircle2, Maximize, Minimize, X, ShieldCheck, Clock
 import emblemaDorado from "@/assets/emblema-dorado.png";
 import { playVictoryFanfareSound } from "../../lib/soundEffects";
 import { clientConfig } from "@/config/clientConfig";
+import { apiUrl } from "@/lib/apiClient";
+
+// Modo demo: solo si se activa explícitamente por configuración. En producción
+// debe ser false para que un fallo del backend NO conceda acceso (no "fail-open").
+const DEMO_MODE = (import.meta as any).env?.VITE_DEMO_MODE === "true";
 
 interface KioskCaptivePortalModalProps {
   isOpen: boolean;
@@ -46,7 +51,7 @@ export function KioskCaptivePortalModal({
     }
 
     if (cleanPhone.length < 7) {
-      setError("Por favor ingresa un n�mero de WhatsApp v�lido");
+      setError("Por favor ingresa un número de WhatsApp válido");
       return;
     }
 
@@ -54,8 +59,9 @@ export function KioskCaptivePortalModal({
     setLoading(true);
 
     try {
-      // 1. Notificar al backend modular (portal cautivo)
-      const res = await fetch("http://localhost:3001/api/portal/connect", {
+      // 1. Notificar al backend modular (portal cautivo). Este endpoint es
+      //    público (el comensal aún no tiene sesión), así que no lleva token.
+      const res = await fetch(apiUrl("/portal/connect"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -65,28 +71,44 @@ export function KioskCaptivePortalModal({
         }),
       });
 
+      if (!res.ok) {
+        throw new Error("El servidor del portal rechazó la conexión");
+      }
+
       const data = await res.json();
+      if (data.success === false) {
+        throw new Error(data.error || "No se pudo autorizar el acceso");
+      }
       if (data.sessionMinutes) {
         setSessionMinutes(data.sessionMinutes);
       }
       playVictoryFanfareSound();
       setConnected(true);
 
-      // 2. Registrar en la sesi�n de la aplicaci�n
+      // 2. Registrar en la sesión de la aplicación
       onCustomerRegistered({
         name: name.trim(),
         whatsapp: cleanPhone,
         email: email.trim(),
       });
-    } catch {
-      // Si el backend local no responde, permitir acceso simulado inmediato
-      playVictoryFanfareSound();
-      setConnected(true);
-      onCustomerRegistered({
-        name: name.trim(),
-        whatsapp: cleanPhone,
-        email: email.trim(),
-      });
+    } catch (err) {
+      // IMPORTANTE: no conceder acceso si el backend falla (nada de "fail-open").
+      // Solo en modo demo explícito se permite continuar sin backend.
+      if (DEMO_MODE) {
+        playVictoryFanfareSound();
+        setConnected(true);
+        onCustomerRegistered({
+          name: name.trim(),
+          whatsapp: cleanPhone,
+          email: email.trim(),
+        });
+      } else {
+        setError(
+          err instanceof Error
+            ? `No se pudo conectar al portal: ${err.message}. Inténtalo de nuevo.`
+            : "No se pudo conectar al servidor del portal. Inténtalo de nuevo."
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -135,7 +157,7 @@ export function KioskCaptivePortalModal({
               </p>
             </div>
 
-            {/* Tarjeta de estado de sesi�n */}
+            {/* Tarjeta de estado de sesión */}
             <div className="grid grid-cols-2 gap-3 bg-[#fbf8f3] p-4 rounded-2xl border border-[#ecdcc3] text-left">
               <div className="space-y-0.5">
                 <div className="flex items-center gap-1.5 text-xs text-neutral-500">
@@ -178,7 +200,7 @@ export function KioskCaptivePortalModal({
                 Portal de Acceso WiFi & Kiosko
               </h3>
               <p className="text-xs text-neutral-600 max-w-sm mx-auto">
-                Con�ctate gratis al internet de la cafeter�a y acumula sellos digitales en cada visita.
+                Conéctate gratis al internet de la cafetería y acumula sellos digitales en cada visita.
               </p>
             </div>
 
@@ -191,7 +213,7 @@ export function KioskCaptivePortalModal({
                 <input
                   type="text"
                   required
-                  placeholder="Ej: Carlos G�mez"
+                  placeholder="Ej: Carlos Gómez"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-[#8e6e22] text-sm bg-white"
@@ -219,7 +241,7 @@ export function KioskCaptivePortalModal({
 
               <div>
                 <label className="block text-xs font-medium text-neutral-700 mb-1">
-                  Correo Electr�nico (Opcional):
+                  Correo Electrónico (Opcional):
                 </label>
                 <input
                   type="email"
@@ -257,10 +279,10 @@ export function KioskCaptivePortalModal({
               </div>
             </form>
 
-            {/* Garant�a de privacidad */}
+            {/* Garantía de privacidad */}
             <div className="flex items-center justify-center gap-1.5 text-[11px] text-neutral-500 pt-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Navegaci�n segura y privada encriptada. T�rminos aceptados al conectar.</span>
+              <span>Navegación segura y privada encriptada. Términos aceptados al conectar.</span>
             </div>
           </div>
         )}
