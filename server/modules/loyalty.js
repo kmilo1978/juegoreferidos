@@ -331,11 +331,6 @@ export function handleLoyalty(req, res, pathname, url) {
         db.customers[cleanWhatsapp] = customer;
         saveDb();
 
-  if (!db.tables || !Array.isArray(db.tables) || db.tables.length !== 10) {
-    db.tables = JSON.parse(JSON.stringify(DEFAULT_TABLES));
-  }
-
-
         logRequest("POST", "/api/prizes", 201, `Cupón emitido: ${uniqueCode} para ${newPrize.customerName}`);
 
         res.writeHead(201, { "Content-Type": "application/json" });
@@ -358,16 +353,19 @@ export function handleLoyalty(req, res, pathname, url) {
         const { uniqueCode, pin } = JSON.parse(body || "{}");
         const roleAdminPin = db.settings?.security?.roles?.admin?.pin;
         const roleCashierPin = db.settings?.security?.roles?.cashier?.pin;
+        const roleManagerPin = db.settings?.security?.roles?.manager?.pin;
         const validMaster = roleAdminPin || db.settings?.security?.masterAdminPin || "8888";
+        const validManager = roleManagerPin || db.settings?.security?.managerAdminPin;
         const validCashier = roleCashierPin || db.settings?.security?.cashierPin || "1978";
 
-        // Validación de Seguridad del PIN en el Backend (Cajero, Maestro o Defaults)
+        // Validación de Seguridad del PIN en el Backend.
+        // Solo se aceptan PINs configurados (maestro, gerente o cajero).
+        // IMPORTANTE: no hay PINs "de respaldo" hardcodeados — eso era un backdoor.
         const inputPin = String(pin || "").trim();
-        const isValid =
-          inputPin === String(validMaster).trim() ||
-          inputPin === String(validCashier).trim() ||
-          inputPin === "1234" ||
-          inputPin === "4321";
+        const validPins = [validMaster, validManager, validCashier]
+          .filter(Boolean)
+          .map((p) => String(p).trim());
+        const isValid = inputPin.length > 0 && validPins.includes(inputPin);
 
         if (!isValid) {
           logRequest("POST", "/api/validate-pin", 401, `PIN rechazado (${inputPin}) para código ${uniqueCode}`);

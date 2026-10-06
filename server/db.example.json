@@ -1,0 +1,13 @@
+{
+  "_comment": "Archivo de EJEMPLO de la estructura de la base de datos local. El servidor genera su propio server/db.json desde los valores por defecto (state.js) la primera vez que arranca si el archivo no existe. NO pongas secretos reales aquí. Los PINs y API keys se configuran vía server/.env (ver server/.env.example).",
+  "prizes": [],
+  "customers": {},
+  "missionSubmissions": [],
+  "reputationFeedbacks": [],
+  "monthlyContest": [],
+  "logs": [],
+  "tables": [],
+  "settings": {
+    "_comment": "settings se rellena automáticamente desde DEFAULT_SETTINGS en state.js. Los secretos (security.*Pin, hermes.apiKey, unifi.apiKey) provienen de variables de entorno, no de este archivo."
+  }
+}

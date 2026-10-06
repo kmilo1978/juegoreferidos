@@ -207,24 +207,6 @@ const DEFAULT_SETTINGS = {
       active: true,
     },
     {
-      id: "m_whatsapp_community",
-      category: "Comunidad Exclusiva",
-      title: "Unirse a la Comunidad VIP de WhatsApp",
-      rewardStamps: 2,
-      rewardText: "+2 Sellos de Visita",
-      badge: "CLUB PRIVADO",
-      icon: "💬",
-      description: "Únete a nuestro grupo oficial y exclusivo de WhatsApp para recibir ofertas secretas de repostería, lanzamientos de temporada y catas privadas.",
-      rules: [
-        "Toca el botón 'Abrir WhatsApp' y únete al grupo oficial de nuestra Comunidad VIP.",
-        "Recibe antes que nadie promociones relámpago, recetas de autor y regalos.",
-        "Pega tu número de WhatsApp para confirmar tu ingreso y sumar tus sellos.",
-      ],
-      actionUrl: "https://chat.whatsapp.com/ComunidadVIPRestaurante",
-      evidencePlaceholder: "Tu número de WhatsApp o confirmación de ingreso al grupo",
-      active: true,
-    },
-    {
       id: "m_bing",
       category: "Motores de Búsqueda",
       title: "Reseña en Bing Places & Maps",
@@ -273,8 +255,8 @@ const DEFAULT_SETTINGS = {
   hermes: {
     enabled: true,
     mode: "agent", // "agent" | "crm" | "pos" | "webhook"
-    apiUrl: "https://api.hermes.ai/v1",
-    apiKey: "hermes_live_key_9824",
+    apiUrl: process.env.HERMES_API_URL || "https://api.hermes.ai/v1",
+    apiKey: process.env.HERMES_API_KEY || "",
     agentId: "hermes-agent-pos",
     webhookUrl: "http://localhost:3001/api/integrations/hermes/webhook",
     events: {
@@ -293,9 +275,9 @@ const DEFAULT_SETTINGS = {
     },
   },
   security: {
-    masterAdminPin: "8888",
-    managerAdminPin: "5555",
-    cashierPin: "1978",
+    masterAdminPin: process.env.MASTER_ADMIN_PIN || "8888",
+    managerAdminPin: process.env.MANAGER_ADMIN_PIN || "5555",
+    cashierPin: process.env.CASHIER_PIN || "1978",
     roles: {
       admin: {
         manageBrand: true,
@@ -369,6 +351,9 @@ const DEFAULT_SETTINGS = {
 
 // BASE DE DATOS EN MEMORIA CON PERSISTENCIA EN ARCHIVO
 let db = {
+  // Las mesas se inicializan de forma determinista aquí (no de forma perezosa
+  // dentro de un handler) para evitar acoplamiento por orden de ejecución.
+  tables: JSON.parse(JSON.stringify(DEFAULT_TABLES)),
   prizes: [
     {
       uniqueCode: "REST-8492",
@@ -435,6 +420,7 @@ if (fs.existsSync(DB_FILE)) {
     db = {
       ...db,
       ...loaded,
+      tables: (Array.isArray(loaded.tables) && loaded.tables.length > 0) ? loaded.tables : db.tables,
       monthlyContest: (loaded.monthlyContest && loaded.monthlyContest.length > 0) ? loaded.monthlyContest : db.monthlyContest,
       settings: {
         ...DEFAULT_SETTINGS,
@@ -522,10 +508,43 @@ if (fs.existsSync(DB_FILE)) {
 
 function saveDb() {
   try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf-8");
+    // Escritura atómica: escribir a un archivo temporal y renombrar.
+    // Evita dejar db.json corrupto si el proceso muere a mitad de escritura.
+    const tmpFile = `${DB_FILE}.tmp`;
+    fs.writeFileSync(tmpFile, JSON.stringify(db, null, 2), "utf-8");
+    fs.renameSync(tmpFile, DB_FILE);
   } catch (err) {
     console.error("Error guardando db.json:", err.message);
   }
+}
+
+/**
+ * Lee el cuerpo de una petición con límite de tamaño para prevenir
+ * agotamiento de memoria. Devuelve una Promise que resuelve con el objeto
+ * JSON parseado (o {} si está vacío) o rechaza si excede el límite / es inválido.
+ */
+function readBody(req, maxBytes = 1_000_000) {
+  return new Promise((resolve, reject) => {
+    let body = "";
+    let size = 0;
+    req.on("data", (chunk) => {
+      size += chunk.length;
+      if (size > maxBytes) {
+        reject(new Error("Cuerpo de la petición demasiado grande"));
+        req.destroy();
+        return;
+      }
+      body += chunk;
+    });
+    req.on("end", () => {
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch (err) {
+        reject(new Error("JSON inválido en el cuerpo de la petición"));
+      }
+    });
+    req.on("error", (err) => reject(err));
+  });
 }
 
 function logRequest(method, url, status, detail) {
@@ -549,5 +568,6 @@ export {
   DEFAULT_TABLES,
   DEFAULT_SETTINGS,
   saveDb,
-  logRequest
+  logRequest,
+  readBody
 };

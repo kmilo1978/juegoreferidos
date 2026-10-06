@@ -1,5 +1,35 @@
 import { db, DEFAULT_TABLES, DEFAULT_SETTINGS, saveDb, logRequest } from "../state.js";
 
+const SECRET_MASK = "***";
+
+/**
+ * Devuelve una copia de settings con los secretos enmascarados, para no
+ * exponer PINs ni API keys en respuestas GET. El guardado (POST) sigue
+ * recibiendo y persistiendo los valores reales.
+ */
+function sanitizeSettings(settings) {
+  const safe = JSON.parse(JSON.stringify(settings || {}));
+
+  if (safe.security) {
+    for (const key of ["masterAdminPin", "managerAdminPin", "cashierPin"]) {
+      if (safe.security[key]) safe.security[key] = SECRET_MASK;
+    }
+    if (safe.security.roles) {
+      for (const role of Object.values(safe.security.roles)) {
+        if (role && role.pin) role.pin = SECRET_MASK;
+      }
+    }
+  }
+  if (safe.hermes && safe.hermes.apiKey) safe.hermes.apiKey = SECRET_MASK;
+  if (safe.composio && safe.composio.apiKey) safe.composio.apiKey = SECRET_MASK;
+  if (safe.databases && safe.databases.supabaseAnonKey) safe.databases.supabaseAnonKey = SECRET_MASK;
+  if (safe.captivePortal && safe.captivePortal.unifi && safe.captivePortal.unifi.apiKey) {
+    safe.captivePortal.unifi.apiKey = SECRET_MASK;
+  }
+
+  return safe;
+}
+
 export function handleConfig(req, res, pathname, url) {
   // 5. API: MÉTRICAS Y DATOS GLOBALES (GET /api/metrics)
   if (req.method === "GET" && pathname === "/api/metrics") {
@@ -25,7 +55,7 @@ export function handleConfig(req, res, pathname, url) {
   // 6. API: OBTENER Y ACTUALIZAR CONFIGURACIÓN COMPLETA (GET & POST /api/config)
   if (req.method === "GET" && pathname === "/api/config") {
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ success: true, settings: db.settings }));
+    res.end(JSON.stringify({ success: true, settings: sanitizeSettings(db.settings) }));
       return true;
   }
 
@@ -55,8 +85,11 @@ export function handleConfig(req, res, pathname, url) {
           };
         }
         if (data.security) {
-          const roleAdminPin = data.security.roles?.admin?.pin || data.security.masterAdminPin || db.settings.security?.roles?.admin?.pin;
-          const roleCashierPin = data.security.roles?.cashier?.pin || data.security.cashierPin || db.settings.security?.roles?.cashier?.pin;
+          // Ignorar valores enmascarados que el frontend pudiera reenviar,
+          // para no sobrescribir un PIN real con "***".
+          const unmask = (v) => (v && v !== SECRET_MASK ? v : undefined);
+          const roleAdminPin = unmask(data.security.roles?.admin?.pin) || unmask(data.security.masterAdminPin) || db.settings.security?.roles?.admin?.pin;
+          const roleCashierPin = unmask(data.security.roles?.cashier?.pin) || unmask(data.security.cashierPin) || db.settings.security?.roles?.cashier?.pin;
           db.settings.security = {
             ...db.settings.security,
             ...data.security,
@@ -96,7 +129,7 @@ export function handleConfig(req, res, pathname, url) {
         logRequest("POST", "/api/config", 200, `Configuración centralizada guardada en backend`);
 
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ success: true, settings: db.settings }));
+        res.end(JSON.stringify({ success: true, settings: sanitizeSettings(db.settings) }));
       } catch (err) {
         logRequest("POST", "/api/config", 400, err.message);
         res.writeHead(400, { "Content-Type": "application/json" });
