@@ -21,6 +21,8 @@ El frontend (Vite) habla con el backend a través de `/api/*`. En desarrollo, Vi
 
 > Nota: integraciones como Google Sheets, Supabase, WhatsApp/Meta y el geofencing en segundo plano (app nativa) quedan listas para conectar pero requieren credenciales/hardware propios (ver `PENDIENTES.md`).
 
+> 📘 **Guía técnica paso a paso de cada sistema** (configuración de juego, marca, PIN, Composio, Hermes, portal WiFi, push, etc.): ver [`GUIA_TECNICA_SISTEMAS.md`](./GUIA_TECNICA_SISTEMAS.md).
+
 ---
 
 ## 🚀 Características Principales

@@ -228,6 +228,15 @@ function JuegoQrPage() {
   const [isTableStandOpen, setIsTableStandOpen] = useState<boolean>(false);
   const [isMissionsOpen, setIsMissionsOpen] = useState<boolean>(false);
 
+  // Modo demostración (?demo=true / ?test=... / ?paso=...): habilita ayudas de
+  // demo como mostrar y autollenar el PIN. En producción (QR real de mesa) es
+  // false, de modo que el PIN de caja nunca se revela al comensal.
+  const [isDemoMode] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const p = new URLSearchParams(window.location.search);
+    return p.get("demo") === "true" || p.has("test") || p.has("paso");
+  });
+
   // Sincronizar estados críticos con sessionStorage
   useEffect(() => {
     try {
@@ -983,6 +992,7 @@ function JuegoQrPage() {
         isOpen={isPinModalOpen}
         onClose={() => setIsPinModalOpen(false)}
         onSuccess={handlePinSuccess}
+        demoMode={isDemoMode}
         correctPin="1978"
       />
 
