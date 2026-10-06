@@ -7,6 +7,13 @@ interface PinAuthModalProps {
   onClose: () => void;
   onSuccess: () => void;
   correctPin?: string;
+  /**
+   * Modo demostración. Cuando es true muestra el PIN en pantalla y permite
+   * autollenarlo (cómodo para demos a clientes). En producción (false, por
+   * defecto) el PIN NO se revela y el cajero debe teclearlo: así el comensal
+   * no puede validar su propio cupón.
+   */
+  demoMode?: boolean;
 }
 
 export function PinAuthModal({
@@ -14,6 +21,7 @@ export function PinAuthModal({
   onClose,
   onSuccess,
   correctPin,
+  demoMode = false,
 }: PinAuthModalProps) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
@@ -97,30 +105,40 @@ export function PinAuthModal({
           </button>
         </div>
 
-        {/* Tarjeta de PIN Activo estilo Stitch */}
-        <div className="w-full rounded-2xl bg-gradient-to-r from-[#684400]/30 via-[#201f23] to-[#2b292e] border border-[var(--gold)]/30 p-3.5 flex items-center justify-between shadow-[0_4px_24px_rgba(242,190,113,0.1)]">
-          <div className="flex flex-col text-left">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="w-2 h-2 rounded-full bg-[var(--gold)] animate-ping" />
-              <span className="font-label-sm text-[10px] text-[var(--gold)] uppercase font-bold tracking-widest">
-                PIN de Turno Activo
+        {/* Tarjeta de PIN Activo — SOLO en modo demostración. En producción el
+            PIN no se revela para que el comensal no pueda validar su cupón. */}
+        {demoMode ? (
+          <div className="w-full rounded-2xl bg-gradient-to-r from-[#684400]/30 via-[#201f23] to-[#2b292e] border border-[var(--gold)]/30 p-3.5 flex items-center justify-between shadow-[0_4px_24px_rgba(242,190,113,0.1)]">
+            <div className="flex flex-col text-left">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="w-2 h-2 rounded-full bg-[var(--gold)] animate-ping" />
+                <span className="font-label-sm text-[10px] text-[var(--gold)] uppercase font-bold tracking-widest">
+                  PIN Demo (Turno Activo)
+                </span>
+              </div>
+              <span className="font-headline-md text-2xl text-[var(--gold-light)] tracking-widest font-mono font-bold leading-none">
+                {displayPin}
               </span>
+              <span className="font-body-sm text-[10px] text-[#ccc3d8] mt-1">Visible solo en demostración</span>
             </div>
-            <span className="font-headline-md text-2xl text-[var(--gold-light)] tracking-widest font-mono font-bold leading-none">
-              {displayPin}
-            </span>
-            <span className="font-body-sm text-[10px] text-[#ccc3d8] mt-1">Caja Salón • Turno Activo</span>
-          </div>
 
-          <button
-            type="button"
-            onClick={() => handleAutoFill(displayPin)}
-            className="h-9 px-3.5 rounded-full badge-gold font-label-md text-xs font-bold flex items-center gap-1 shadow-md hover:brightness-105 active:scale-95 transition-transform cursor-pointer"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Usar PIN</span>
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => handleAutoFill(displayPin)}
+              className="h-9 px-3.5 rounded-full badge-gold font-label-md text-xs font-bold flex items-center gap-1 shadow-md hover:brightness-105 active:scale-95 transition-transform cursor-pointer"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Usar PIN</span>
+            </button>
+          </div>
+        ) : (
+          <div className="w-full rounded-2xl bg-[#201f23] border border-[#2b292e] p-3.5 flex items-center gap-2.5">
+            <KeyRound className="h-4 w-4 text-[var(--gold)] shrink-0" />
+            <span className="font-body-sm text-[11px] text-[#ccc3d8] text-left leading-snug">
+              Solicita al personal autorizado que ingrese el PIN de caja para validar el canje.
+            </span>
+          </div>
+        )}
 
         {/* 4 Indicadores Circulares Luminosos */}
         <div className="flex flex-col items-center gap-1 py-1">
@@ -170,13 +188,19 @@ export function PinAuthModal({
           >
             0
           </button>
-          <button
-            type="button"
-            onClick={() => handleAutoFill(displayPin)}
-            className="h-12 rounded-xl bg-[#684400]/50 hover:bg-[#684400]/70 text-[var(--gold)] flex items-center justify-center font-bold text-xs border border-[var(--gold)]/40 shadow-sm active:scale-95 transition-all cursor-pointer"
-          >
-            <Check className="h-5 w-5" />
-          </button>
+          {demoMode ? (
+            <button
+              type="button"
+              onClick={() => handleAutoFill(displayPin)}
+              className="h-12 rounded-xl bg-[#684400]/50 hover:bg-[#684400]/70 text-[var(--gold)] flex items-center justify-center font-bold text-xs border border-[var(--gold)]/40 shadow-sm active:scale-95 transition-all cursor-pointer"
+              title="Autollenar PIN (demo)"
+              aria-label="Autollenar PIN (demo)"
+            >
+              <Check className="h-5 w-5" />
+            </button>
+          ) : (
+            <div className="h-12" aria-hidden="true" />
+          )}
         </div>
       </div>
     </div>
